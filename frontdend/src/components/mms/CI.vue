@@ -1,9 +1,7 @@
 <template>
   <div class="ci-page">
     <!-- 상단 1차 메뉴 텍스트가 들어간 배경 박스 -->
-    <div class="menu-logo">
-        <h1>MMS</h1>
-    </div>
+    <LogoHeader />
   
     <!-- 인사말, 연혁, CI, 스폰서 메뉴 -->
     <div class="menu">
@@ -51,8 +49,13 @@
   </template>
 
 <script>
+import LogoHeader from '../common/LogoHeader.vue';
+
 export default {
-    name: 'AppCI',
+  name: 'AppCI',
+  components: {
+    LogoHeader
+  },
     data() {
     return {
       activeMenu: this.$route.path // 현재 활성화된 경로
@@ -78,22 +81,6 @@ export default {
     padding-top: var(--header-height);
     padding-bottom: var(--footer-height);
     text-align: center;
-}
-
-/* 메뉴 로고 */
-.menu-logo {
-  width: 100%;
-  height: 200px;
-  background-color: #4f8578;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  margin-bottom: 20px;
-}
-
-.menu-logo h1 {
-  font-size: 48px;
-  color: #ffffff;
 }
 
 /* 메뉴 */

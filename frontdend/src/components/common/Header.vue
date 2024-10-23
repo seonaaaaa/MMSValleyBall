@@ -1,85 +1,113 @@
 <template>
-<header>
-  <!-- 로그인, 회원가입 링크 상단 -->
-  <div class="auth-links">
-    <a href="#" class="login">로그인</a> | <a href="#" class="signup">회원가입</a>
-  </div>
-
-  <!-- 네비게이션 바 -->
-  <nav class="navbar">
-    <div class="nav-menu">
-      <!-- 좌측 메뉴 -->
-      <ul class="nav-left">
-        <li class="nav-item" v-for="(item, index) in leftMenu" :key="index">
-          <a href="#">{{ item.title }}</a>
-          <ul class="dropdown">
-            <li v-for="subItem in item.submenu" :key="subItem">
-              <router-link :to="subItem.path">{{ subItem.title }}</router-link>
-            </li>
-          </ul>
-        </li>
-      </ul>
-
-      <!-- 중앙 로고 -->
-      <div class="logo">
-        <router-link to="/">
-          <img src="@/assets/logo-mms.png" alt="Team Logo">
-        </router-link>
-      </div>
-
-      <!-- 우측 메뉴 -->
-      <ul class="nav-right">
-        <li class="nav-item" v-for="(item, index) in rightMenu" :key="index">
-          <a href="#">{{ item.title }}</a>
-          <ul class="dropdown">
-            <li v-for="subItem in item.submenu" :key="subItem">
-              <a href="#">{{ subItem }}</a>
-            </li>
-          </ul>
-        </li>
-      </ul>
+  <header>
+    <!-- 로그인, 회원가입 링크 상단 -->
+    <div class="auth-links">
+      <a href="#" class="login">로그인</a> | <a href="#" class="signup">회원가입</a>
     </div>
-  </nav>
-</header>
-</template>
-
-<script>
-
-export default {
-  name: 'AppHeader',
-
-  data() {
-    return {
-      leftMenu: [
+  
+    <!-- 네비게이션 바 -->
+    <nav class="navbar">
+      <div class="nav-menu">
+        <!-- 좌측 메뉴 -->
+        <ul class="nav-left">
+          <li class="nav-item" v-for="(item, index) in leftMenu" :key="index">
+            <router-link :to="item.path">{{ item.title }}</router-link>
+            <ul class="dropdown">
+              <li v-for="subItem in item.submenu" :key="subItem">
+                <router-link :to="subItem.path">{{ subItem.title }}</router-link>
+              </li>
+            </ul>
+          </li>
+        </ul>
+  
+        <!-- 중앙 로고 -->
+        <div class="logo">
+          <router-link to="/">
+            <img src="@/assets/logo-mms.png" alt="Team Logo">
+          </router-link>
+        </div>
+  
+        <!-- 우측 메뉴 -->
+        <ul class="nav-right">
+          <li class="nav-item" v-for="(item, index) in rightMenu" :key="index">
+            <router-link :to="item.path">{{ item.title }}</router-link>
+            <ul class="dropdown">
+              <li v-for="subItem in item.submenu" :key="subItem.path">
+                <router-link :to="subItem.path">{{ subItem.title }}</router-link>
+              </li>
+            </ul>
+          </li>
+        </ul>
+      </div>
+    </nav>
+  </header>
+  </template>
+  
+  <script>
+  
+  export default {
+    name: 'AppHeader',
+  
+    data() {
+      return {
+        leftMenu: [
         { 
-        title: 'MMS', 
-        submenu: [
-          { title: '인사말', path: '/mms/greeting' }, 
-          { title: '연혁', path: '/mms/history' }, 
-          { title: 'CI', path: '/mms/ci' }, 
-          { title: '스폰서', path: '/mms/sponsor' }
-        ] 
+          title: 'MMS', 
+          path: '/mms/greeting',  // 첫 번째 서브메뉴의 경로
+          submenu: [
+            { title: '인사말', path: '/mms/greeting' }, 
+            { title: '연혁', path: '/mms/history' }, 
+            { title: 'CI', path: '/mms/ci' }, 
+            { title: '스폰서', path: '/mms/sponsor' }
+          ] 
         },
         { 
-          title: 'TEAM', 
+          title: 'TEAM',
+          path: '/team/players', 
           submenu: [
             { title: '선수', path: '/team/players' }, 
             { title: '스태프', path: '/team/staff' }, 
             { title: '구장', path: '/team/stadium' }
           ] 
         },
-        { // 메뉴 임의로 추가 ***
+        {
           title: 'GAME', 
-          path: '/game',  // 서브메뉴 대신 경로만 설정
-          submenu: []  // 서브메뉴가 없으므로 빈 배열로 처리
+          path: '/game/schedule',
+          submenu: [
+            { title: '경기 일정', path: '/game/schedule' },
+            { title: '경기 결과', path: '/game/results' },
+          ]
         }
       ],
       rightMenu: [
-        { title: 'TICKET', submenu: ['티켓 안내', '티켓 구매', '멤버십'] },
-        { title: 'CONTENTS', submenu: ['공지사항', '자유게시판'] }, // 메뉴 임의로 추가 ***
-        { title: 'MY PAGE', submenu: ['예매 내역', '멤버십 내역', '개인정보 수정', '회원 탈퇴'] }
+        { 
+          title: 'TICKET', 
+          path: '/ticket/info',
+          submenu: [
+            { title: '티켓 안내', path: '/ticket/info' }, 
+            { title: '티켓 구매', path: '/ticket/purchase' }
+          ] 
+        },
+        { 
+          title: 'MEMBERSHIP', 
+          path: '/membership/info',
+          submenu: [
+            { title: '멤버십 안내', path: '/membership/info' }, 
+            { title: '멤버십 구매', path: '/membership/purchase' }
+          ] 
+        },
+        { 
+          title: 'MY PAGE', 
+          path: '/mypage/reservations',
+          submenu: [
+            { title: '예매 내역', path: '/mypage/reservations' }, 
+            { title: '멤버십 내역', path: '/mypage/membership' }, 
+            { title: '개인정보 수정', path: '/mypage/edit-profile' }, 
+            { title: '회원 탈퇴', path: '/mypage/delete-account' }
+          ] 
+        }
       ]
-    }
+    };
   }
 }
 </script>
@@ -103,7 +131,7 @@ header {
 }
 
 .auth-links a {
-  color: #393939;
+  color: #565656;
   margin: 0 10px;
 }
 
@@ -168,7 +196,7 @@ header {
 }
 
 .nav-item a {
-  color: #393939;
+  color: #565656;
   font-weight: 600;
   padding: 0 50px;
 }
@@ -194,7 +222,7 @@ header {
 .dropdown li a {
   padding: 10px 20px;
   display: block;
-  color: #393939;
+  color: #565656;
 }
 
 .dropdown li a:hover {
