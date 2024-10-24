@@ -37,19 +37,28 @@
                             <tbody>
                                 <tr>
                                     <td>
-                                        <input type="button" class="select-zone-btn" @click="selectZone">
+                                        <input type="button" class="select-zone-btn" @click="showDetails">
                                         골드 [GOLD ZONE]
                                     </td>
                                     <td>
-                                        <div class="quantity-selector">
+                                        <!-- <div class="quantity-selector">
                                             <button @click="decreaseQuantity('zone')"
                                                 :disabled="quantities.zone <= 1">-</button>
                                             <input type="text" v-model="quantities.zone" readonly />
                                             <button @click="increaseQuantity('zone')"
                                                 :disabled="quantities.zone >= maxSeats.zone">+</button>
-                                        </div>
+                                        </div> -->
                                     </td>
                                     <td>90석</td>
+                                </tr>
+                                <tr>
+                                    {{ this.zones[0].name }}
+                                </tr>
+                                <tr>
+                                    {{ this.zones[1].name }}
+                                </tr>
+                                <tr>
+                                    {{ this.zones[2].name }}
                                 </tr>
                             </tbody>
                         </table>
@@ -74,10 +83,6 @@ export default {
             default: false,
         },
     },
-
-    components: {
-    },
-
     data() {
         return {
             quantities: {
@@ -86,16 +91,27 @@ export default {
             maxSeats: {
                 zone: 4, // 구역의 최대 구매 가능 잔여석 수
             },
+            zones: [
+                { name: 'GA', quantity: '1~4', fullSeats: '30석' },
+                { name: 'GB', quantity: '1~4', fullSeats: '30석' },
+                { name: 'GC', quantity: '1~4', fullSeats: '30석' }
+            ],
         };
     },
 
     methods: {
+        showDetails() {
+            this.zones = true;
+        },
+
+        // 모달 열기 닫기
         closeModal() {
             this.$emit('close');
         },
         openModal() {
-            this.isModalOpen = true; // 모달 열기
+            this.isModalOpen = true;
         },
+
         // 숫자 버튼
         increaseQuantity(zone) {
             if (this.quantities[zone] < this.maxSeats[zone]) {
