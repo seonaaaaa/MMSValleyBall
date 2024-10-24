@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Membership purchase</title>
+</head>
+<body>
+    <div>
+        <h1>멤버십 구매 페이지</h1>
+        <div>
+            <span>멤버십 선택</span>
+            <select class="form-select">
+                <option value="">선택</option>
+                <option th:field="${membership.membershipSalesMembership}" th:value="2">SILVER</option>
+                <option th:field="${membership.membershipSalesMembership}" th:value="3">GOLD</option>
+            </select>
+        </div>
+        <br>
+        <table>
+            <tr>
+                <th>충전 금액</th>
+                <th>멤버십 금액</th>
+                <th>잔액</th>
+            </tr>
+            <tr>
+                <td>0원</td>
+                <td>-0원</td>
+                <td>0원</td>
+                <td><button>충전하기</button></td>
+            </tr>
+        </table>
+        <br>
+        <button type="submit">구매하기</button>
+        <button>취소</button>
+    </div>
+</body>
+</html>
