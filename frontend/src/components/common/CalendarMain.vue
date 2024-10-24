@@ -4,7 +4,9 @@
       <h2 class="header-title">
           <!-- 경기 일정  -->
           <span class="current-month">({{ selectedYear }}년 {{ selectedMonth }}월)</span>
-          <button class="view-all-btn">전체 일정 보러가기</button>
+          <router-link to="/game/schedule">
+            <button class="view-all-btn">전체 일정 보러가기</button>
+          </router-link>
       </h2>
 
     <!-- 달력 테이블 -->

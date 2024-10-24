@@ -39,21 +39,21 @@
           {
             id: 1,
             team: 'blueFangs',
-            location: '인천',
-            time: '18:30',
+            location: '서울',
+            time: '14:00',
             result: '승',
-            score: '6:3',
-            date: '2024-10-23',
+            score: '3:1',
+            date: '2024-10-19',
             isHomeGame: true // 홈 경기
           },
           {
             id: 2,
             team: 'jumbos',
-            location: '서울',
+            location: '수원',
             time: '17:00',
             result: '승',
             score: '2:5',
-            date: '2024-10-24',
+            date: '2024-10-23',
             isHomeGame: false // 원정 경기
           },
           {
@@ -62,38 +62,38 @@
             location: '부산',
             time: '14:00',
             result: '패',
-            score: '3:0',
-            date: '2024-10-25',
-            isHomeGame: true
+            score: '0:0',
+            date: '2024-10-27',
+            isHomeGame: false
           },
           {
             id: 4,
             team: 'vixtorm',
-            location: '광주',
+            location: '서울',
             time: '19:00',
-            result: '패',
-            score: '1:3',
-            date: '2024-10-26',
-            isHomeGame: false
+            result: '',
+            score: '0:0',
+            date: '2024-10-31',
+            isHomeGame: true
           },
           {
             id: 5,
             team: 'walkers',
             location: '서울',
             time: '16:00',
-            result: '승',
-            score: '4:2',
-            date: '2024-10-27',
+            result: '',
+            score: '0:0',
+            date: '2024-11-05',
             isHomeGame: true
           },
           {
             id: 6,
             team: 'won',
-            location: '대구',
-            time: '18:30',
-            result: '패',
-            score: '0:3',
-            date: '2024-10-28',
+            location: '서울',
+            time: '19:00',
+            result: '',
+            score: '0:0',
+            date: '2024-11-08',
             isHomeGame: false
           }
         ]
