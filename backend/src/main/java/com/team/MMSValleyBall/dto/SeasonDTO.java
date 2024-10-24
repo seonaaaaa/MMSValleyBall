@@ -22,6 +22,18 @@ public class SeasonDTO {
     private List<MatchDTO> matches;
     private List<MembershipDTO> memberships;
 
+    @Override
+    public String toString() {
+        return "SeasonDTO{" +
+                "seasonId=" + seasonId +
+                ", seasonName='" + seasonName + '\'' +
+                ", seasonStartDate=" + seasonStartDate +
+                ", seasonEndDate=" + seasonEndDate +
+                ", matches=" + matches + // MatchDTO에 대한 toString() 구현 필요
+                ", memberships=" + memberships + // MembershipDTO에 대한 toString() 구현 필요
+                '}';
+    }
+
     public static SeasonDTO fromEntity(Season season){
         List<MatchDTO> matchDTOList = null;
         List<Match> matchList = season.getMatches();

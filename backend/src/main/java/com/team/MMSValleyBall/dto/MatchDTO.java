@@ -24,6 +24,21 @@ public class MatchDTO {
     private SeasonDTO matchSeason;
     private List<TicketDTO> tickets;
 
+    @Override
+    public String toString() {
+        return "MatchDTO{" +
+                "Id=" + matchId +
+                ", Date=" + matchDate +
+                ", Stadium=" + (matchStadium != null ? matchStadium : "null") +
+                ", SetScore=" + matchSetScore +
+                ", OpponentTeam=" + (matchOpponentTeam != null ? matchOpponentTeam.getTeamName() : "null") +
+                ", OpponentTeamSetScore=" + matchOpponentTeamSetScore +
+                ", Season=" + (matchSeason != null ? matchSeason.getSeasonName() : "null") +
+                ", tickets=" + (tickets != null ? tickets : "null") +
+                '}' + '\n';
+    }
+
+
     public static MatchDTO fromEntity(Match match){
         List<TicketDTO> ticketDTOList = null;
         List<Ticket> ticketList = match.getTickets();

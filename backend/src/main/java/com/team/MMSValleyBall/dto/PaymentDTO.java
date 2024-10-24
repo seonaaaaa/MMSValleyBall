@@ -14,16 +14,29 @@ import java.time.LocalDateTime;
 public class PaymentDTO {
     private Long paymentId;
     private int paymentAmount;
-    private UserDTO paymentUser;
+    private Long paymentUserId;
     private PaymentStatus paymentStatus = PaymentStatus.COMPLETED;
     private LocalDateTime paymentCreateAt;
     private LocalDateTime paymentUpdateAt;
+
+    @Override
+    public String toString() {
+        return "PaymentDTO{" +
+                "Id=" + paymentId +
+                ", Amount=" + paymentAmount +
+                ", User=" + paymentUserId +
+                ", Status=" + paymentStatus +
+                ", CreateAt=" + paymentCreateAt +
+                ", UpdateAt=" + paymentUpdateAt +
+                '}' + '\n';
+    }
+
 
     public static PaymentDTO fromEntity(Payment payment){
         return new PaymentDTO(
                 payment.getPaymentId(),
                 payment.getPaymentAmount(),
-                UserDTO.fromEntity(payment.getPaymentUser()),
+                payment.getPaymentUser().getUserId(),
                 payment.getPaymentStatus(),
                 payment.getPaymentCreateAt(),
                 payment.getPaymentUpdateAt()

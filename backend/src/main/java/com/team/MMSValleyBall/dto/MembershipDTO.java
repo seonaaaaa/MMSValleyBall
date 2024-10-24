@@ -21,6 +21,19 @@ public class MembershipDTO {
     private List<UserDTO> users;
     private List<MembershipSalesDTO> membershipSales;
 
+    @Override
+    public String toString() {
+        return "MembershipDTO{" +
+                "Id=" + membershipId +
+                ", Name='" + membershipName + '\'' +
+                ", Price=" + membershipPrice +
+                ", EndDate=" + (membershipSeason != null ? membershipSeason.getSeasonEndDate() : "null") +
+                ", UsersCount=" + (users != null ? users.size() : 0) +
+                ", MembershipSalesCount=" + (membershipSales != null ? membershipSales.size() : 0) +
+                '}' + '\n';
+    }
+
+
     public static MembershipDTO fromEntity(Membership membership){
         List<UserDTO> userDTOList = null;
         List<Users> userList = membership.getUsers();
