@@ -3,19 +3,30 @@
       <!-- 상단 1차 메뉴 텍스트가 들어간 배경 박스 -->
       <LogoHeader />
   
-      <!-- 예매 내역, 멤버십 내역, 개인정보 수정, 회원 탈퇴 메뉴 -->
+      <!-- 예매 내역, 나의 멤버십, 개인정보 수정 -->
       <div class="menu">
         <div class="menu-item" :class="{ 'active-menu-item': activeMenu === '/mypage/reservations' }" @click="navigateTo('/mypage/reservations')">예매 내역</div>
-        <div class="menu-item" :class="{ 'active-menu-item': activeMenu === '/mypage/membership' }" @click="navigateTo('/mypage/membership')">멤버십 내역</div>
+        <div class="menu-item" :class="{ 'active-menu-item': activeMenu === '/mypage/membership' }" @click="navigateTo('/mypage/membership')">나의 멤버십</div>
         <div class="menu-item" :class="{ 'active-menu-item': activeMenu === '/mypage/edit-profile' }" @click="navigateTo('/mypage/edit-profile')">개인정보 수정</div>
-        <div class="menu-item" :class="{ 'active-menu-item': activeMenu === '/mypage/delete-account' }" @click="navigateTo('/mypage/delete-account')">회원 탈퇴</div>
       </div>
     
       <!-- 멤버십 내역 페이지 내용 -->
       <div class="membership-view-content">
-  
-  
-  
+        <h2>이용 중인 멤버십 결제 내역</h2>
+        <div class="membership-info">
+          <div class="membership-detail">
+            <p><strong>이용 중인 멤버십:</strong> 연간 멤버십</p>
+            <p><strong>결제 금액:</strong> 129,000원</p>
+            <p><strong>결제 수단:</strong> [**** **** **** 1234] / 일시불</p>
+            <p><strong>결제 날짜:</strong> 2022년 11월 7일</p>
+          </div>
+          <div class="cancel-button-container">
+            <button class="cancel-membership-button">결제 취소</button>
+          </div>
+        </div>
+        <p class="membership-note">
+          결제 후 콘텐츠 이용 내역이 없을 경우, 결제일로부터 7일 이내에 직접 결제 취소가 가능합니다.
+        </p>
       </div>
     </div>
   </template>
@@ -97,5 +108,53 @@
   }
   
   /* 멤버십 내역 */
-  
+  .membership-info {
+    background-color: #f9f9f9;
+    padding: 20px;
+    margin: 20px auto;
+    width: 80%;
+    max-width: 600px;
+    border-radius: 10px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    text-align: left;
+  }
+
+  .membership-detail p {
+    margin: 10px 0;
+    font-size: 16px;
+  }
+
+  .cancel-membership-button {
+    background-color: #d9534f;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+
+  .cancel-button-container {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 20px;
+  }
+
+  .cancel-membership-button {
+    background-color: #d9534f;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+
+  .cancel-membership-button:hover {
+    background-color: #c9302c;
+  }
+
+  .membership-note {
+    font-size: 14px;
+    color: #666;
+    margin-top: 10px;
+  }
   </style>
