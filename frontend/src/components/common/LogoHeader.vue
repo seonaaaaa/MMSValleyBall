@@ -21,10 +21,10 @@ export default {
         return 'GAME';
         } else if (path.includes('/ticket')) {
         return 'TICKET';
-        } else if (path.includes('/mypage')) {
-        return 'MY PAGE';
         } else if (path.includes('/membership')) {
         return 'MEMBERSHIP';
+        } else if (path.includes('/my-page')) {
+        return 'MY PAGE';
         }
         return 'DEFAULT'; // 기본 텍스트
     }
