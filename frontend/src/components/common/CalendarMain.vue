@@ -89,9 +89,7 @@ export default {
       return 'win';
     } else if (result === '패') {
       return 'lose';
-    } else if (result === '취') {
-      return 'cancel';
-    }
+    } 
     return '';
     }
   },
@@ -144,7 +142,7 @@ export default {
   height: 50px;
   margin: 0 auto 20px auto;
   font-weight: bold;
-  position: relative; /* 버튼을 절대 위치로 배치할 기준이 되는 부모 요소 */
+  position: relative;
 }
 
 .current-month {
@@ -167,9 +165,9 @@ export default {
   transition: border-color 0.3s ease;
   cursor: pointer;
   position: absolute;
-  right: 0; /* 부모 요소 기준 오른쪽 끝에 배치 */
-  top: 50%; /* 부모 요소의 중간에 위치 */
-  transform: translateY(-50%); /* 정확히 중앙 정렬을 위해 Y축 이동 */
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
 }
 
 .calendar-table {
@@ -201,7 +199,6 @@ export default {
   width: 170.760px;
   height: 180px;
   border: 1px solid #ddd;
-  /* padding: 10px; */
   text-align: center;
   vertical-align: top;
 }
@@ -227,13 +224,12 @@ export default {
 .event {
   display: flex;
   flex-direction: column; 
-  /* justify-content: center;  */
-  justify-content: flex-end; /* 세로로 아래 정렬 */
+  justify-content: flex-end;
   align-items: center;  
   text-align: center; 
   width: 100%; 
   height: 100%; 
-  margin-top: 13px; /* 이 부분으로 내용이 아래로 이동 */
+  margin-top: 13px;
 }
 
 .team-logo {
@@ -252,7 +248,7 @@ export default {
   margin-top: 20px;
 }
 
-/* 승,패,취 동그라미 */
+/* 승,패 동그라미 */
 .result-circle {
   display: flex;
   justify-content: center;
@@ -263,25 +259,20 @@ export default {
   background-color: #333; /* 기본 색상 */
   color: white;
   font-weight: bold;
-  margin-left: auto;  /* 원 자체를 가로 중앙 정렬 */
+  margin-left: auto;
 }
 
-/* 승일 경우 핑크색 */
+/* 승일 경우 동그라미 컬러 */
 .win {
   background-color: #52a792;
 }
 
-/* 패일 경우 회색 */
+/* 패일 경우 동그라미 컬러 */
 .lose {
   background-color: rgb(67, 67, 67);
 }
 
-/* 취소일 경우 검정색 */
-.cancel {
-  background-color: #333;
-}
-
-/* 승,패,취 텍스트 */
+/* 승,패 텍스트 */
 .result {
   font-size: 14px;
   text-align: center;
@@ -292,33 +283,5 @@ export default {
   font-size: 16px;
   font-weight: bold;
   margin-left: 10px;
-}
-
-/* 반응형 스타일 */
-@media (max-width: 768px) {
-  .calendar-table th, .calendar-table td {
-    /* 7개의 열을 균등하게 분할 */
-    width: 14.28%;
-    height: auto;
-  }
-
-  .calendar-table {
-    max-width: 100%;
-  }
-
-  .header-title {
-    max-width: 100%;
-  }
-}
-
-@media (max-width: 480px) {
-  .calendar-table th, .calendar-table td {
-    width: 14.28%;
-    height: auto;
-  }
-
-  .calendar-table {
-    max-width: 100%;
-  }
 }
 </style>
