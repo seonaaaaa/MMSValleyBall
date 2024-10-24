@@ -80,7 +80,7 @@
 </template>
 
 <script>
-import Calendar from '../game/Calendar.vue';
+import Calendar from '../common/CalendarMain.vue';
 
 export default {
   name: 'AppContent',
@@ -114,13 +114,24 @@ export default {
       events: [
         {
           id: 1,
-          logo: require('@/assets/img/game/blueFangs.png'),
+          team: 'blueFangs',
           location: '인천',
           time: '18:30',
           result: '승',
           score: '6:3',
-          date: '2024-10-23'
+          date: '2024-10-23',
+          isHomeGame: true // 홈 경기 여부 추가
         },
+        {
+          id: 2,
+          team: 'jumbos',
+          location: '서울',
+          time: '17:00',
+          result: '패',
+          score: '2:5',
+          date: '2024-10-24',
+          isHomeGame: false // 원정 경기 여부 추가
+        }
         // 다른 이벤트 데이터 추가 가능
       ]
 
