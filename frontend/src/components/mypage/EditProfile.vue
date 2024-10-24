@@ -3,12 +3,11 @@
       <!-- 상단 1차 메뉴 텍스트가 들어간 배경 박스 -->
       <LogoHeader />
   
-      <!-- 예매 내역, 멤버십 내역, 개인정보 수정, 회원 탈퇴 메뉴 -->
+      <!-- 예매 내역, 나의 멤버십, 개인정보 수정 -->
       <div class="menu">
         <div class="menu-item" :class="{ 'active-menu-item': activeMenu === '/mypage/reservations' }" @click="navigateTo('/mypage/reservations')">예매 내역</div>
-        <div class="menu-item" :class="{ 'active-menu-item': activeMenu === '/mypage/membership' }" @click="navigateTo('/mypage/membership')">멤버십 내역</div>
+        <div class="menu-item" :class="{ 'active-menu-item': activeMenu === '/mypage/membership' }" @click="navigateTo('/mypage/membership')">나의 멤버십</div>
         <div class="menu-item" :class="{ 'active-menu-item': activeMenu === '/mypage/edit-profile' }" @click="navigateTo('/mypage/edit-profile')">개인정보 수정</div>
-        <div class="menu-item" :class="{ 'active-menu-item': activeMenu === '/mypage/delete-account' }" @click="navigateTo('/mypage/delete-account')">회원 탈퇴</div>
       </div>
     
       <!-- 개인정보 수정 페이지 내용 -->

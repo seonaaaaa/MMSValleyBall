@@ -101,9 +101,8 @@
           path: '/mypage/reservations',
           submenu: [
             { title: '예매 내역', path: '/mypage/reservations' }, 
-            { title: '멤버십 내역', path: '/mypage/membership' }, 
+            { title: '나의 멤버십', path: '/mypage/membership' }, 
             { title: '개인정보 수정', path: '/mypage/edit-profile' }, 
-            { title: '회원 탈퇴', path: '/mypage/delete-account' }
           ] 
         }
       ]
@@ -179,6 +178,7 @@ header {
   display: flex;
   justify-content: center; 
   flex-grow: 1;
+  padding: 0;
 }
 
 /* 우측 메뉴 */
@@ -186,19 +186,22 @@ header {
   display: flex;
   justify-content: center; 
   flex-grow: 1;
+  padding: 0;
 }
 
 /* 1차 메뉴 */
 .nav-item {
   position: relative;
+  justify-content: center;
+  text-align: center;
   font-size: 18px;
+  width: 160px;
   /* border: 10px solid green; */
 }
 
 .nav-item a {
   color: #565656;
   font-weight: 600;
-  padding: 0 50px;
 }
 
 /* 2차 메뉴 */
