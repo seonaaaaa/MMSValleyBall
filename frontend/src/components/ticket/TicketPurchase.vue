@@ -59,10 +59,13 @@
                 2024.10.17(목)<br>
                 13:00
               </td>
-
               <!-- 티켓 예매 버튼 클릭 시 모달 열기 -->
               <td>
-                <button class="ticket-buy" @click="openModal">예매하기</button>
+                <button class="ticket-Modal" @click="openModal">예매하기</button>
+
+                <!-- 모달 컴포넌트 -->
+                <Modal :visible="isModalVisible" @close="closeModal" />
+                
               </td>
             </tr>
           </tbody>
@@ -70,59 +73,22 @@
       </div>
     </div>
   </div>
-
-  <!-- 모달 창 -->
-  <div id="modal" class="modal" v-if="isModalOpen">
-
-    <div class="modal-title">
-      <h2>GS MMS VS 한국전력</h2>
-      <div>
-        서울 하이체육관 | 2024.10.24(목) 19:00
-      </div>
-    </div>
-
-    <div>
-      <div class="modal-content">
-        <div class="modal-ticket-img">
-          <img src="@/assets/img/stadium/stadium-main.jpg" alt="stadium-img" class="stadium-image" />
-        </div>
-
-        <div class="modal-table">
-          <table>
-            <thead>
-              <tr>
-                <th>구역</th>
-                <th>매수선택</th>
-                <th>잔여석</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td>골드 [GOLD ZONE]</td>
-                <td>1~4</td>
-                <td>90석</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-        <button class="close-button" @click="closeModal">닫기</button>
-      </div>
-    </div>
-  </div>
 </template>
 
 <script>
 import LogoHeader from '../common/LogoHeader.vue';
+import Modal from './TicketModal.vue';
 
 export default {
   name: 'TicketPurchase',
   components: {
-    LogoHeader
+    LogoHeader,
+    Modal,
   },
   data() {
     return {
       activeMenu: this.$route.path, // 현재 활성화된 경로
-      isModalOpen: false // 모달 창이 열려 있는지 여부를 관리
+      isModalVisible: false // 모달 표시 여부
     };
   },
   watch: {
@@ -136,64 +102,20 @@ export default {
       this.$router.push(route);
       this.activeMenu = route; // 메뉴를 클릭할 때 활성화된 메뉴 업데이트
     },
+
+    // 모달 열기 닫기
     openModal() {
-      this.isModalOpen = true; // 모달 열기
+      this.isModalVisible = true;
     },
     closeModal() {
-      this.isModalOpen = false; // 모달 닫기
-    }
+      this.isModalVisible = false;
+    },
   }
 }
 </script>
 
 
 <style>
-/* 모달 틀 */
-
-.modal {
-  display: flex;
-  /* 모달 창을 flex로 설정하여 중앙 정렬 가능 */
-  position: fixed;
-  /* 화면 전체를 덮기 위해 고정 위치 */
-  width: 100%;
-  /* 화면 너비 전체 */
-  height: 100%;
-  /* 화면 높이 전체 */
-  background-color: rgba(0, 0, 0, 0.5);
-  /* 반투명한 검은 배경 */
-  z-index: 1000;
-  /* 다른 요소보다 위에 보이도록 설정 */
-}
-
-.modal-content {
-  padding: 20px;
-  background-color: white;
-}
-
-/* 티켓 이미지 */
-.modal-ticket-img img {
-  max-width: 1000px;
-  clip-path: inset(0 17% 0 0);
-  /* 위쪽, 오른쪽, 아래쪽, 왼쪽 여백 순서 */
-}
-
-.close-button {
-  background-color: #f44336;
-  color: white;
-  padding: 10px 20px;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  font-size: 16px;
-  margin-top: 20px;
-  right: 0%;
-  left: 100%
-}
-
-.close-button:hover {
-  background-color: #d32f2f;
-}
-
 .ticket-purchase {
   width: 62%;
   /* 표 전체 너비 설정 */
@@ -232,7 +154,7 @@ th {
 }
 
 
-.ticket-buy {
+.ticket-Modal {
   background-color: #4CAF50;
   /* 버튼 배경색 (녹색) */
 
@@ -258,7 +180,6 @@ th {
   transition: background-color 0.3s;
   /* 배경색이 바뀌는 효과 추가 */
   margin: 20px;
-
   width: 150px;
   /* 버튼의 너비 */
   height: 80px;
