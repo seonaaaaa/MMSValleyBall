@@ -61,8 +61,6 @@ export default {
     return {
       selectedYear: new Date().getFullYear(),
       selectedMonth: new Date().getMonth() + 1,
-      years: [2023, 2024],
-      months: ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12'],
     };
   },
   methods: {
