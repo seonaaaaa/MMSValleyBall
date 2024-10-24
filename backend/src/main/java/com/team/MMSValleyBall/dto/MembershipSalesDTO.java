@@ -19,6 +19,19 @@ public class MembershipSalesDTO {
     private LocalDateTime membershipSalesCreateAt;
     private LocalDateTime membershipSalesUpdateAt;
 
+    @Override
+    public String toString() {
+        return "MembershipSalesDTO{" +
+                "Id=" + membershipSalesId +
+                ", User=" + (membershipSalesUser != null ? membershipSalesUser.getUserId() : "null") +
+                ", Membership=" + (membershipSalesMembership != null ? membershipSalesMembership.getMembershipName() : "null") +
+                ", Status=" + membershipSalesStatus +
+                ", CreateAt=" + membershipSalesCreateAt +
+                ", UpdateAt=" + membershipSalesUpdateAt +
+                '}' + '\n';
+    }
+
+
     public static MembershipSalesDTO fromEntity(MembershipSales membershipSales){
         return new MembershipSalesDTO(
                 membershipSales.getMembershipSalesId(),

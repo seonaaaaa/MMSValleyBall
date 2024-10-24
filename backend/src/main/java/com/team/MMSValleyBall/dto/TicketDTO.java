@@ -17,12 +17,29 @@ import java.util.List;
 public class TicketDTO {
     private Long ticketId;
     private String ticketNumber;
-    private MatchDTO ticketMatch;
-    private UserDTO ticketUser;
+    private Long ticketMatch;
+    private Long ticketUser;
+    private int ticketPaidPrice;
     private TicketStatus ticketStatus = TicketStatus.BOOKED;
     private LocalDateTime ticketCreateAt;
     private LocalDateTime ticketUpdateAt;
     private List<TicketDetailDTO> ticketDetails;
+
+    @Override
+    public String toString() {
+        return "TicketDTO{" +
+                "Id=" + ticketId +
+                ", Number='" + ticketNumber + '\'' +
+                ", MatchId=" + ticketMatch +
+                ", UserId=" + ticketUser +
+                ", TicketPaidPrice=" + ticketPaidPrice +
+                ", Status=" + ticketStatus +
+                ", CreateAt=" + ticketCreateAt +
+                ", UpdateAt=" + ticketUpdateAt +
+                ", DetailsCount=" + (ticketDetails != null ? ticketDetails.size() : 0) +
+                '}' + '\n';
+    }
+
 
     public static TicketDTO fromEntity(Ticket ticket){
         List<TicketDetailDTO> ticketDetailDTOList = null;
@@ -33,8 +50,9 @@ public class TicketDTO {
         return new TicketDTO(
                 ticket.getTicketId(),
                 ticket.getTicketNumber(),
-                MatchDTO.fromEntity(ticket.getTicketMatch()),
-                UserDTO.fromEntity(ticket.getTicketUser()),
+                ticket.getTicketId(),
+                ticket.getTicketUser().getUserId(),
+                ticket.getTicketPaidPrice(),
                 ticket.getTicketStatus(),
                 ticket.getTicketCreateAt(),
                 ticket.getTicketUpdateAt(),

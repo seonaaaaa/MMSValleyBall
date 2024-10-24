@@ -20,13 +20,33 @@ public class UserDTO {
     private String userName;
     private String userPhone;
     private String userAddress;
-    private MembershipDTO userMembership;
+    private Long userMembershipId;
     private UserRole userRole = UserRole.USER;
     private LocalDateTime userCreateAt;
     private LocalDateTime userUpdateAt;
     private List<TicketDTO> tickets;
     private List<PaymentDTO> payments;
     private List<MembershipSalesDTO> membershipSales;
+
+    @Override
+    public String toString() {
+        return "UserDTO{" +
+                "Id=" + userId +
+                ", Email='" + userEmail + '\'' +
+                ", Password='" + userPassword + '\'' +
+                ", Name='" + userName + '\'' +
+                ", Phone='" + userPhone + '\'' +
+                ", Address='" + userAddress + '\'' +
+                ", Membership=" + userMembershipId +
+                ", Role=" + userRole +
+                ", CreateAt=" + userCreateAt +
+                ", UpdateAt=" + userUpdateAt +
+                ", TicketsCount=" + (tickets != null ? tickets.size() : 0) +
+                ", PaymentsCount=" + (payments != null ? payments.size() : 0) +
+                ", MembershipSalesCount=" + (membershipSales != null ? membershipSales.size() : 0) +
+                '}' + '\n';
+    }
+
 
     public static UserDTO fromEntity(Users user){
         List<TicketDTO> ticketDTOList = null;
@@ -51,7 +71,7 @@ public class UserDTO {
                 user.getUserName(),
                 user.getUserPhone(),
                 user.getUserAddress(),
-                MembershipDTO.fromEntity(user.getUserMembership()),
+                user.getUserMembership().getMembershipId(),
                 user.getUserRole(),
                 user.getUserCreateAt(),
                 user.getUserUpdateAt(),

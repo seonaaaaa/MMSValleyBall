@@ -22,6 +22,19 @@ public class SeatDTO {
     private int seatCount;
     private List<TicketDetailDTO> ticketDetails;
 
+    @Override
+    public String toString() {
+        return "SeatDTO{" +
+                "seatId=" + seatId +
+                ", seatZone='" + seatZone + '\'' +
+                ", seatSection=" + seatSection + // SeatSection에 대한 toString() 구현 필요
+                ", seatPrice=" + seatPrice +
+                ", seatCount=" + seatCount +
+                ", ticketDetails=" + ticketDetails + // TicketDetailDTO에 대한 toString() 구현 필요
+                '}';
+    }
+
+
     public static SeatDTO fromEntity(Seat seat){
         List<TicketDetailDTO> ticketDetailDTOList = null;
         List<TicketDetail> ticketDetailList = seat.getTicketDetails();

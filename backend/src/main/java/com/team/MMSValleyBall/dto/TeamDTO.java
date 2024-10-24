@@ -18,6 +18,17 @@ public class TeamDTO {
     private String teamStadium;
     private List<MatchDTO> matches;
 
+    @Override
+    public String toString() {
+        return "TeamDTO{" +
+                "teamId=" + teamId +
+                ", teamName='" + teamName + '\'' +
+                ", teamStadium='" + teamStadium + '\'' +
+                ", matches=" + matches + // MatchDTO에 대한 toString() 구현 필요
+                '}';
+    }
+
+
     public static TeamDTO fromEntity(Team team){
         List<MatchDTO> matchDTOList = null;
         List<Match> matchList = team.getMatches();
