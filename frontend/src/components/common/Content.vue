@@ -21,7 +21,7 @@
       <div class="slider-container">
         <div class="slides" :style="{ transform: `translateX(-${currentSlide * 100}%)` }">
           <div v-for="(slide, index) in slides" :key="index" class="slide">
-            <img :src="slide.img" :alt="'Slide ' + (index + 1)" /> <!-- 셀프 클로징 -->
+            <img :src="slide.img" :alt="'Slide ' + (index + 1)" />
           </div>
         </div>
         <button class="prev" @click="prevSlide">
@@ -46,8 +46,8 @@
         <div class="highlight-slider-container">
           <div class="highlight-slides" :style="{ transform: `translateX(-${currentHighlightSlide * 100}%)` }">
             <div v-for="(slide, index) in highlightSlides" :key="index" class="highlight-slide">
-              <img :src="slide.img" :alt="'Highlight Slide ' + (index + 1)" /> <!-- 셀프 클로징 -->
-              <img class="highlight-play-button" src="@/assets/img/common/content-slide-icon-play-button.png" alt="Play Button" /> <!-- 셀프 클로징 -->
+              <img :src="slide.img" :alt="'Highlight Slide ' + (index + 1)" />
+              <img class="highlight-play-button" src="@/assets/img/common/content-slide-icon-play-button.png" alt="Play Button" />
               <div class="highlight-overlay"></div>
             </div>
           </div>
@@ -109,13 +109,12 @@ export default {
         { img: require('@/assets/img/common/content-highlight-slide-002.png') }
       ],
 
-
       // Calendar에 전달할 경기 일정 데이터
       events: [
         {
           id: 1,
           team: 'blueFangs',
-          location: '인천',
+          location: '서울',
           time: '18:30',
           result: '승',
           score: '6:3',
@@ -125,14 +124,14 @@ export default {
         {
           id: 2,
           team: 'jumbos',
-          location: '서울',
+          location: '인천',
           time: '17:00',
           result: '패',
           score: '2:5',
           date: '2024-10-24',
           isHomeGame: false // 원정 경기 여부 추가
         }
-        // 다른 이벤트 데이터 추가 가능
+        // 테스트용 데이터, axios - api 연동할 때 Calender*.vew 로직 수정 예정
       ]
 
 
