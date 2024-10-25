@@ -57,16 +57,19 @@
         $.ajax({
             url : "/membership/purchase",
             type : "get",
+            data :
             success: function(data) {
-                $('#payment').text(data.leftMoney.toLocaleString()); // API에서 받은 leftMoney로 충전 금액 설정
+                $('#payment').text(data.userMoney.toLocaleString()); // API에서 받은 leftMoney로 충전 금액 설정
                 updatePrices(); // 초기 업데이트
             },
             error: function(xhr, status, error) {
                 console.error('Error fetching user money:', error);
             }
         });
+
         // 멤버십 선택시 잔액 변경
         $('#membership-select').change(updatePrices);
+
         // 구매하기 버튼 클릭시 사용자 정보, 선택한 멤버십 정보 보내기
         $('#btn-purchase').on("click", function(){
             // 멤버십 선택값으로 멤버십 아이디 설정
@@ -77,24 +80,26 @@
             } else if(membershipPrice == 300000){
                 membershipId = 6;
             }
+            // newMembership 데이터를 저장
+            membershipData = data.newMembership;
+            // newMembership의 membershipSalesMembershipId에 선택한 membershipId 설정
+            membershipData.membershipSalesMembershipId = membershipId;
+
             $.ajax({
                 url : "/membership/purchase/completed",
                 type : "post",
-                datatype : "text",
+                dataType : "json",
                 headers : {
                     "Content-Type" : "application/json",
                 },
-                data : JSON.stringify(
-                    'membershipSalesMembershipId' : membershipId,
-                ),
+                data : JSON.stringify(membershipData), // 수정된 newMembership 데이터 전송
                 success : function(data, status, xhr){
                         console.log(data);
                     },
-                    error : function(xhr, status, error){
+                error : function(xhr, status, error){
                         console.log(error);
                     },
             });
-        });
     });
 
 </script>
