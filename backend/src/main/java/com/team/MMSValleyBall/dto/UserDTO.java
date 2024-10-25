@@ -20,7 +20,7 @@ public class UserDTO {
     private String userName;
     private String userPhone;
     private String userAddress;
-    private Long userMembershipId;
+    private String userMembershipName; // 출력 편의를 위해 멤버십 이름으로 변경
     private UserRole userRole = UserRole.USER;
     private LocalDateTime userCreateAt;
     private LocalDateTime userUpdateAt;
@@ -37,7 +37,7 @@ public class UserDTO {
                 ", Name='" + userName + '\'' +
                 ", Phone='" + userPhone + '\'' +
                 ", Address='" + userAddress + '\'' +
-                ", Membership=" + userMembershipId +
+                ", Membership=" + userMembershipName +
                 ", Role=" + userRole +
                 ", CreateAt=" + userCreateAt +
                 ", UpdateAt=" + userUpdateAt +
@@ -71,7 +71,7 @@ public class UserDTO {
                 user.getUserName(),
                 user.getUserPhone(),
                 user.getUserAddress(),
-                user.getUserMembership().getMembershipId(),
+                user.getUserMembership().getMembershipName(),
                 user.getUserRole(),
                 user.getUserCreateAt(),
                 user.getUserUpdateAt(),
