@@ -19,9 +19,9 @@ public class MatchDTO {
     private LocalDateTime matchDate;
     private MatchStadium matchStadium;
     private int matchSetScore;
-    private TeamDTO matchOpponentTeam;
+    private Long matchOpponentTeamId;
     private int matchOpponentTeamSetScore;
-    private SeasonDTO matchSeason;
+    private Long matchSeasonId;
     private List<TicketDTO> tickets;
 
     @Override
@@ -31,9 +31,9 @@ public class MatchDTO {
                 ", Date=" + matchDate +
                 ", Stadium=" + (matchStadium != null ? matchStadium : "null") +
                 ", SetScore=" + matchSetScore +
-                ", OpponentTeam=" + (matchOpponentTeam != null ? matchOpponentTeam.getTeamName() : "null") +
+                ", OpponentTeam=" + matchOpponentTeamId +
                 ", OpponentTeamSetScore=" + matchOpponentTeamSetScore +
-                ", Season=" + (matchSeason != null ? matchSeason.getSeasonName() : "null") +
+                ", Season=" + matchSeasonId +
                 ", tickets=" + (tickets != null ? tickets : "null") +
                 '}' + '\n';
     }
@@ -50,9 +50,9 @@ public class MatchDTO {
                 match.getMatchDate(),
                 match.getMatchStadium(),
                 match.getMatchSetScore(),
-                TeamDTO.fromEntity(match.getMatchOpponentTeam()),
+                match.getMatchOpponentTeam().getTeamId(),
                 match.getMatchOpponentTeamSetScore(),
-                SeasonDTO.fromEntity(match.getMatchSeason()),
+                match.getMatchSeason().getSeasonId(),
                 ticketDTOList
         );
     }

@@ -17,8 +17,8 @@ import java.util.List;
 public class TicketDTO {
     private Long ticketId;
     private String ticketNumber;
-    private Long ticketMatch;
-    private Long ticketUser;
+    private Long ticketMatchId;
+    private Long ticketUserId;
     private int ticketPaidPrice;
     private TicketStatus ticketStatus = TicketStatus.BOOKED;
     private LocalDateTime ticketCreateAt;
@@ -30,8 +30,8 @@ public class TicketDTO {
         return "TicketDTO{" +
                 "Id=" + ticketId +
                 ", Number='" + ticketNumber + '\'' +
-                ", MatchId=" + ticketMatch +
-                ", UserId=" + ticketUser +
+                ", MatchId=" + ticketMatchId +
+                ", UserId=" + ticketUserId +
                 ", TicketPaidPrice=" + ticketPaidPrice +
                 ", Status=" + ticketStatus +
                 ", CreateAt=" + ticketCreateAt +
