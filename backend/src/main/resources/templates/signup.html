@@ -16,17 +16,39 @@
                     alert('이메일 중복 확인 중 오류가 발생했습니다. 다시 시도해주세요.');
                 });
         }
+
+        function validatePasswords() {
+            const password = document.getElementById("userPassword").value;
+            const confirmPassword = document.getElementById("userConfirmPassword").value;
+            if (password !== confirmPassword) {
+                alert('비밀번호가 일치하지 않습니다. 다시 확인해주세요.');
+                return false;
+            }
+            return true;
+        }
+
+        function findAddress() {
+            new window.daum.Postcode({
+                oncomplete: function(data) {
+                    document.getElementById("userAddress").value = data.address;
+                }
+            }).open();
+        }
     </script>
+    <script src="https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
+    <link rel="stylesheet" href="/static/css/signup.css">
 </head>
 <body>
 <h2>회원가입 페이지</h2>
 <hr>
-<form th:action="@{/signupProc}" method="post" name="joinForm">
+<form th:action="@{/signupProc}" method="post" name="joinForm" onsubmit="return validatePasswords()">
     <!-- 이메일 입력 및 중복 확인 버튼 -->
     <div class="form-group">
         <label for="userEmail">**이메일</label>
-        <input id="userEmail" name="userEmail" type="email" placeholder="이메일을 입력하세요" required>
-        <button type="button" onclick="checkEmail()">중복 확인</button>
+        <div class="input-with-button">
+            <input id="userEmail" name="userEmail" type="email" placeholder="이메일을 입력하세요" required>
+            <button type="button" onclick="checkEmail()">중복 확인</button>
+        </div>
     </div>
 
     <!-- 비밀번호 입력 -->
@@ -37,8 +59,8 @@
 
     <!-- 비밀번호 확인 -->
     <div class="form-group">
-        <label for="confirmPassword">**비밀번호 확인</label>
-        <input id="confirmPassword" name="confirmPassword" type="password" required>
+        <label for="userConfirmPassword">**비밀번호 확인</label>
+        <input id="userConfirmPassword" name="userConfirmPassword" type="password" required>
     </div>
 
     <!-- 이름 입력 -->
@@ -56,8 +78,10 @@
     <!-- 주소 입력 및 주소 찾기 버튼 -->
     <div class="form-group">
         <label for="userAddress">주소</label>
-        <input id="userAddress" name="userAddress" type="text" placeholder="주소를 입력하세요" readonly required>
-        <button type="button">주소 찾기</button>
+        <div class="input-with-button">
+            <input id="userAddress" name="userAddress" type="text" placeholder="주소를 입력하세요" readonly required>
+            <button type="button" onclick="findAddress()">주소 찾기</button>
+        </div>
     </div>
 
     <input type="submit" value="회원가입">

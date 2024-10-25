@@ -42,7 +42,7 @@
           <label for="userAddress">주소</label>
           <div class="input-with-button">
             <input type="text" id="userAddress" v-model="userAddress" placeholder="주소를 입력하세요" readonly required />
-            <button type="button" class="check-button">주소 찾기</button>
+            <button type="button" @click="findAddress" class="check-button">주소 찾기</button>
           </div>
         </div>
         <button type="submit" class="submit-button">회원가입</button>
@@ -88,8 +88,22 @@ export default {
         console.error('이메일 중복 확인 중 오류 발생:', error);
         alert('이메일 중복 확인 중 오류가 발생했습니다. 다시 시도해주세요.');
       }
+    },
+    findAddress() {
+      new window.daum.Postcode({
+        oncomplete: (data) => {
+          // 팝업에서 검색결과 선택 시 호출되는 콜백 함수
+          this.userAddress = data.address;
+        }
+      }).open();
     }
   },
+  mounted() {
+    // 카카오 주소 API 스크립트 로드
+    const script = document.createElement('script');
+    script.src = 'https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js';
+    document.head.appendChild(script);
+  }
 };
 </script>
 
