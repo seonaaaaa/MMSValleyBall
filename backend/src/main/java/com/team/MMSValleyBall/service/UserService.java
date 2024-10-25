@@ -36,12 +36,12 @@ public class UserService {
         return null;
     }
 
-    public MoneyDTO getUserMoney(Long id) {
+    public MoneyDTO getUserMoney(String email) {
         // Optional 사용 시 값이 있는지 체크
-        Optional<Users> userOptional = userRepository.findById(id);
+        Optional<Users> userOptional = userRepository.findByUserEmail(email);
 
         if (userOptional.isEmpty()) {
-            throw new RuntimeException("User not found with id: " + id);
+            throw new RuntimeException("User not found with id: " + userOptional.get().getUserId());
         }
 
         Users user = userOptional.get();
