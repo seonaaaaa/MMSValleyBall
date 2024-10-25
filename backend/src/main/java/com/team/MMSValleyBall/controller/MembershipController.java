@@ -2,6 +2,7 @@ package com.team.MMSValleyBall.controller;
 
 import com.team.MMSValleyBall.dto.MembershipDTO;
 import com.team.MMSValleyBall.dto.MembershipSalesDTO;
+import com.team.MMSValleyBall.dto.MoneyDTO;
 import com.team.MMSValleyBall.dto.UserDTO;
 import com.team.MMSValleyBall.service.MembershipService;
 import com.team.MMSValleyBall.service.UserService;
@@ -31,16 +32,15 @@ public class MembershipController {
     public String viewMembershipPurchase(Model model) {
         //1. 로그인 정보 확인 -> 로그인 안된 상태면 로그인 화면으로 이동
 
-        //2. 세션으로 user 정보 가져와서 dto로 보내기
-        Long id = 2L;
-        UserDTO userDTO = userService.findOneByUserId(id);
-//        System.out.println("controller - user :"+userDTO.toString());
-        model.addAttribute("user", userDTO);
-
+        //2. 세션으로 user 정보 가져와서 user의 moneyDTO 생성, dto로 보내기
+        Long id = 14L;
+        MoneyDTO moneyDTO = userService.getUserMoney(id);
+        model.addAttribute("userMoney", moneyDTO);
+        System.out.println("controller - moneyDTO : "+moneyDTO.getLeftMoney());
 
         //3. membershipSalesDTO 보내기
         MembershipSalesDTO dto = new MembershipSalesDTO();
-        dto.setMembershipSalesUser(userDTO);
+//        dto.setMembershipSalesUser(userDTO);
 //        System.out.println("user 충전금액 : "+ userDTO.getPayments());
         model.addAttribute("membership", dto);
         return "purchase";

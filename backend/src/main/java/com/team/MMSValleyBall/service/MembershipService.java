@@ -10,7 +10,7 @@ public class MembershipService {
     private final MembershipShipRepository membershipRepository;
 
     @Autowired
-    public MembershipService(MembershipShipRepository membershipRepository, UserRepository userRepository) {
+    public MembershipService(MembershipShipRepository membershipRepository) {
         this.membershipRepository = membershipRepository;
     }
 
