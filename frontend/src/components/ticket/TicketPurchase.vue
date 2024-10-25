@@ -62,10 +62,9 @@
               <!-- 티켓 예매 버튼 클릭 시 모달 열기 -->
               <td>
                 <button class="ticket-Modal" @click="openModal">예매하기</button>
-
                 <!-- 모달 컴포넌트 -->
                 <Modal :visible="isModalVisible" @close="closeModal" />
-                
+
               </td>
             </tr>
           </tbody>
@@ -83,7 +82,7 @@ export default {
   name: 'TicketPurchase',
   components: {
     LogoHeader,
-    Modal,
+    Modal,    
   },
   data() {
     return {
