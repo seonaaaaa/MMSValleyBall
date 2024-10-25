@@ -25,6 +25,11 @@ public class UserService {
         this.userRepository = userRepository;
     }
 
+    public UserDTO findByEmail(String email) {
+        Users user = userRepository.findByUserEmail(email);
+        return UserDTO.fromEntity(user);
+    }
+
     public UserDTO findOneByUserId(Long id) {
         Optional<Users> user = userRepository.findById(id);
         if (user.isPresent()) {  // Optional의 존재 여부를 확인
