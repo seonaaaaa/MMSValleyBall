@@ -7,20 +7,23 @@
 
             <!-- 모달 제목 -->
             <!-- 선택한 데이터 가져와서 일정 넣어야함 -->
-            <div class="modal-title">
+            <div class="modal-title" v-if="firstPage">
                 <h2>GS MMS VS 한국전력</h2>
                 <div>
                     서울 하이체육관 | 2024.10.24(목) 19:00
                 </div>
             </div>
             <hr class="divider" />
+
             <!-- 모달 디테일 -->
             <div v-if="firstPage">
+
                 <div class="modal-body">
                     <!-- 모달 이미지 -->
                     <div class="modal-ticket-img" v-if="selectedZoneImage">
                         <img :src="selectedZoneImage" alt="선택한 구역 이미지" class="stadium-image" />
                     </div>
+
                     <!-- 모달 표 -->
                     <div class="modal-table-container">
                         <table class="modal-table">
@@ -123,28 +126,22 @@
                                 </thead>
                                 <tbody>
                                     <tr>
-                                        <td colspan="4">2000000 원</td>
+                                        <td colspan="4">{{ formattedTotal }}원</td>
                                     </tr>
                                 </tbody>
-
                             </table>
                         </div>
-
-                        <!-- 오른쪽 표 -->
-                        <div>
-                            123131313213131
-
-                        </div>
-
                     </div>
-                    <hr class="divider" />
 
-                    <div class="result-text">
-                        <div v-for="zone in selectedZones" :key="zone.name">
-                            선택한 좌석 : {{ zone.name }}구역 {{ zone.quantity }}매
-                        </div>
-                        <div class="result-text-all">
-                            총 : {{ countTicket.count }}매
+                    <!-- 오른쪽 표 -->
+                    <div>
+                        <!-- 모달 제목 -->
+                        <!-- 선택한 데이터 가져와서 일정 넣어야함 -->
+                        <div class="modal-title">
+                            <h2>GS MMS VS 한국전력</h2>
+                            <div>
+                                서울 하이체육관 | 2024.10.24(목) 19:00
+                            </div>
                         </div>
                     </div>
 
@@ -181,6 +178,15 @@ export default {
         selectedZones() {
             // 수량이 1 이상인 구역만 필터링
             return this.zones.filter(zone => zone.quantity > 0);
+        },
+        formattedTotal() {
+            // 숫자를 세 자리마다 쉼표가 붙은 문자열로 변환
+            return this.total.toLocaleString();
+        },
+        
+        isFormValid() {
+            // 모든 입력 필드가 비어 있지 않으면 버튼을 활성화
+            return this.zones.quantity.trim() !== '' && this.selectedZones.trim() !== '';
         }
     },
 
@@ -208,10 +214,18 @@ export default {
             firstPage: true,
             secondPage: false,
 
+            total: 0,
+
         };
     },
 
     methods: {
+        // 총합
+        calculateTotal() {
+            for (let i = 0; i < this.zones.length; i++) {
+                this.total = this.selectedZones[i].price + this.total;
+            }
+        },
 
         // 첫 모달창으로 이동
         openFirstPage() {
@@ -221,6 +235,7 @@ export default {
 
         // 두번째 모달창으로 이동
         openSecondPage() {
+            this.calculateTotal();
             this.firstPage = false;
             this.secondPage = true;
         },
