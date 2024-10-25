@@ -1,5 +1,6 @@
 package com.team.MMSValleyBall.service;
 
+import com.team.MMSValleyBall.dto.MembershipDTO;
 import com.team.MMSValleyBall.dto.MembershipSalesDTO;
 import com.team.MMSValleyBall.entity.Membership;
 import com.team.MMSValleyBall.entity.MembershipSales;
@@ -7,9 +8,9 @@ import com.team.MMSValleyBall.entity.Users;
 import com.team.MMSValleyBall.repository.MembershipRepository;
 import com.team.MMSValleyBall.repository.MembershipSalesRepository;
 import com.team.MMSValleyBall.repository.UserRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -38,5 +39,16 @@ public class MembershipService {
         }
         //3. 새로운 membershipSales 엔티티 저장
         membershipSalesRepository.save(newMembership);
+    }
+
+    // 사용자의 멤버십 결제 내역
+    public List<MembershipSalesDTO> myMembershipSalesList(String email){
+        List<MembershipSales> membershipSalesList = membershipSalesRepository.findByMembershipSalesUser(userRepository.findByUserEmail(email));
+        return membershipSalesList.stream().map(x-> MembershipSalesDTO.fromEntity(x)).toList();
+    }
+
+    // 사용자가 가진 멤버십이름으로 멤버십의 정보 불러오기
+    public MembershipDTO getUsersMembership(String userMembershipName) {
+        return MembershipDTO.fromEntity(membershipRepository.findByMembershipName(userMembershipName));
     }
 }

@@ -38,13 +38,7 @@ public class UserService {
 
     public MoneyDTO getUserMoney(String email) {
         // Optional 사용 시 값이 있는지 체크
-        Optional<Users> userOptional = userRepository.findByUserEmail(email);
-
-        if (userOptional.isEmpty()) {
-            throw new RuntimeException("User not found with id: " + userOptional.get().getUserId());
-        }
-
-        Users user = userOptional.get();
+        Users user = userRepository.findByUserEmail(email);
 
         // 총 충전 금액, 결제 금액 계산하기
         int payment = 0;
@@ -84,5 +78,10 @@ public class UserService {
         System.out.println("left money : "+moneyDTO.getLeftMoney());
 
         return moneyDTO;
+    }
+
+    // 이메일로 유저 찾기
+    public UserDTO findByEmail(String email) {
+        return UserDTO.fromEntity(userRepository.findByUserEmail(email));
     }
 }
