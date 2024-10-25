@@ -130,7 +130,7 @@
   
   /* 스태프 */
   .staff-content {
-    padding-top: 15px;
+    padding-top: 30px;
     padding-bottom: 80px;
   }
   

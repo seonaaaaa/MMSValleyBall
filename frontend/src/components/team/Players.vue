@@ -14,7 +14,7 @@
     <div class="players-content">
         <!-- 아포짓 스파이커 (레프트) -->
         <div class="players-group">
-          <div class="position-title">아포짓 스파이커 (레프트)</div>
+          <div class="position-title"><h2>아포짓 스파이커 (레프트)</h2></div>
           <div class="player-cards">
             <div class="player-card">
               <div class="player-image">
@@ -51,7 +51,7 @@
   
         <!-- 아웃사이드 히터 (라이트) -->
         <div class="players-group">
-          <div class="position-title">아웃사이드 히터 (라이트)</div>
+          <div class="position-title"><h2>아웃사이드 히터 (라이트)</h2></div>
           <div class="player-cards">
             <div class="player-card">
               <div class="player-image">
@@ -88,7 +88,7 @@
   
         <!-- 세터 -->
         <div class="players-group">
-          <div class="position-title">세터</div>
+          <div class="position-title"><h2>세터</h2></div>
           <div class="player-cards">
             <div class="player-card">
               <div class="player-image">
@@ -125,7 +125,7 @@
   
         <!-- 미들 블로커 -->
         <div class="players-group">
-          <div class="position-title">미들 블로커</div>
+          <div class="position-title"><h2>미들 블로커</h2></div>
           <div class="player-cards">
             <div class="player-card">
               <div class="player-image">
@@ -172,7 +172,7 @@
   
         <!-- 리베로 -->
         <div class="players-group">
-          <div class="position-title">리베로</div>
+          <div class="position-title"><h2>리베로</h2></div>
           <div class="player-cards">
             <div class="player-card">
               <div class="player-image">
@@ -288,47 +288,46 @@
   
   /* 선수 */
   .players-content {
-    max-width: 900px;
+    max-width: 1000px;
     margin: 0 auto;
-    padding-top: 50px;
+    padding-top: 27px;
     padding-bottom: 60px;
+    text-align: center;
   }
-  
-  .position-title {
-    text-align: left;
-    margin-bottom: 20px;
-    padding-left: 20px;
-    font-size: 18px;
-    font-weight: bold;
+
+  .position-title h2 {
+    text-align: center;
+    font-size: 24px;
+    margin:40px 0;
     color: #333;
   }
   
   .player-cards {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr); /* 기본 4열 */
-    margin-bottom: 30px;
-  }
-  
-  @media (max-width: 768px) {
-    .player-cards {
-      grid-template-columns: repeat(2, 1fr); /* 한 줄에 2개 */
-    }
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    margin-bottom: 60px;
   }
   
   .player-card {
     text-align: center;
     position: relative;
+    margin: 0;
+    max-width: 300px; /* 카드의 최대 너비 */
   }
   
   .player-image {
     position: relative;
-    width: 14vw;
-    height: 14vw;
+    width: 13vw;
+    height: 13vw;
     min-width: 190px;
     min-height: 190px; 
     border-radius: 50%;
     overflow: hidden;
     margin: 0 auto;
+    display: flex; /* flexbox로 변경 */
+    justify-content: center;
+    align-items: center; /* 이미지를 가운데 정렬 */
   }
   
   .player-image img {
