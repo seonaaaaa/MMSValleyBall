@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 public class MembershipSalesDTO {
     private Long membershipSalesId;
-    private UserDTO membershipSalesUser;
+    private Long membershipSalesUser;
     private MembershipDTO membershipSalesMembership;
     private MembershipSalesStatus membershipSalesStatus = MembershipSalesStatus.PURCHASE;
     private LocalDateTime membershipSalesCreateAt;
@@ -23,7 +23,7 @@ public class MembershipSalesDTO {
     public String toString() {
         return "MembershipSalesDTO{" +
                 "Id=" + membershipSalesId +
-                ", User=" + (membershipSalesUser != null ? membershipSalesUser.getUserId() : "null") +
+                ", User=" + membershipSalesUser +
                 ", Membership=" + (membershipSalesMembership != null ? membershipSalesMembership.getMembershipName() : "null") +
                 ", Status=" + membershipSalesStatus +
                 ", CreateAt=" + membershipSalesCreateAt +
@@ -35,7 +35,7 @@ public class MembershipSalesDTO {
     public static MembershipSalesDTO fromEntity(MembershipSales membershipSales){
         return new MembershipSalesDTO(
                 membershipSales.getMembershipSalesId(),
-                UserDTO.fromEntity(membershipSales.getMembershipSalesUser()),
+                membershipSales.getMembershipSalesUser().getUserId(),
                 MembershipDTO.fromEntity(membershipSales.getMembershipSalesMembership()),
                 membershipSales.getMembershipSalesStatus(),
                 membershipSales.getMembershipSalesCreateAt(),
