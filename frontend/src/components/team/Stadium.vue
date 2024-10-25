@@ -72,8 +72,8 @@
       <div class="directions-map">
         <h2>찾아오시는 길</h2>
         <!-- 구글 지도 -->
-        <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3162.171804369904!2d126.98236254092268!3d37.574571922152806!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x357ca2c2ea3fdf6b%3A0x5723ef2aa5dbaa07!2z7ISc7Jq47Yq567OE7IucIOyiheuhnOq1rCDsnbjsgqzrj5kxMuq4uA!5e0!3m2!1sko!2skr!4v1729786353973!5m2!1sko!2skr" 
-        width="800" height="400" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+        <!-- <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3162.171804369904!2d126.98236254092268!3d37.574571922152806!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x357ca2c2ea3fdf6b%3A0x5723ef2aa5dbaa07!2z7ISc7Jq47Yq567OE7IucIOyiheuhnOq1rCDsnbjsgqzrj5kxMuq4uA!5e0!3m2!1sko!2skr!4v1729786353973!5m2!1sko!2skr" 
+        width="800" height="400" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe> -->
         <!-- 카카오 지도 API -->
         <div class="kakao-map-container">
           <KakaoMap />

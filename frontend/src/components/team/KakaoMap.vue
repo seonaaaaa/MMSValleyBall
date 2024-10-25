@@ -1,4 +1,6 @@
 <template>
+    <!-- Web 플랫폼 http://localhost:8080 등록 -->
+    <!-- JavaScript 키 174d633fdbdf8cc840d5ab1909104e05 -->
     <div id="map"></div>
 </template>
 
