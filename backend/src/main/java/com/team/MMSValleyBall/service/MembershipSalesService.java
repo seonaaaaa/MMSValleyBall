@@ -7,18 +7,17 @@ import com.team.MMSValleyBall.entity.Users;
 import com.team.MMSValleyBall.repository.MembershipRepository;
 import com.team.MMSValleyBall.repository.MembershipSalesRepository;
 import com.team.MMSValleyBall.repository.UserRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
 
 @Service
-public class MembershipService {
+public class MembershipSalesService {
     private final MembershipSalesRepository membershipSalesRepository;
     private final MembershipRepository membershipRepository;
     private final UserRepository userRepository;
 
-    public MembershipService(MembershipSalesRepository membershipSalesRepository, MembershipRepository membershipRepository, UserRepository userRepository) {
+    public MembershipSalesService(MembershipSalesRepository membershipSalesRepository, MembershipRepository membershipRepository, UserRepository userRepository) {
         this.membershipSalesRepository = membershipSalesRepository;
         this.membershipRepository = membershipRepository;
         this.userRepository = userRepository;

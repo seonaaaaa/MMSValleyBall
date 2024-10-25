@@ -1,15 +1,12 @@
 package com.team.MMSValleyBall.controller;
 
-import com.team.MMSValleyBall.dto.MembershipDTO;
 import com.team.MMSValleyBall.dto.MembershipSalesDTO;
 import com.team.MMSValleyBall.dto.MoneyDTO;
-import com.team.MMSValleyBall.dto.UserDTO;
-import com.team.MMSValleyBall.service.MembershipService;
+import com.team.MMSValleyBall.service.MembershipSalesService;
 import com.team.MMSValleyBall.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
@@ -19,7 +16,7 @@ import java.util.Map;
 @RequestMapping("/membership")
 public class MembershipController {
     @Autowired
-    MembershipService membershipService;
+    MembershipSalesService membershipSalesService;
     @Autowired
     UserService userService;
 
@@ -69,7 +66,7 @@ public class MembershipController {
             System.out.println("Membership ID: " + newMembership.getMembershipSalesMembershipId());
             System.out.println("User ID: " + newMembership.getMembershipSalesUserId());
             // 받은 멤버십 구매 정보 저장
-            membershipService.saveMembership(newMembership);
+            membershipSalesService.saveMembership(newMembership);
             return ResponseEntity.ok("Purchase completed successfully!");
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error completing purchase");

@@ -1,6 +1,7 @@
 package com.team.MMSValleyBall.controller;
 
 import com.team.MMSValleyBall.dto.MatchDTO;
+import com.team.MMSValleyBall.dto.MatchTableDTO;
 import com.team.MMSValleyBall.dto.TicketSalesDTO;
 import com.team.MMSValleyBall.service.MatchService;
 import com.team.MMSValleyBall.service.TicketService;
@@ -32,9 +33,14 @@ public class TicketController {
     public ResponseEntity<?> viewTicketPurchase() {
         try {
             // 경기 정보 가져오기
-            List<MatchDTO> matches = matchService.findAllMatches();
-            System.out.println("service - match size : " + matches.get(45));
+            List<MatchTableDTO> matches = matchService.convertMatchToString();
 
+            // matches가 비어있는지 체크
+            if (matches.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.NO_CONTENT).body("No matches available");
+            }
+
+            System.out.println("service - match size : " + matches.size()); // matches.size()로 전체 개수를 출력
             return ResponseEntity.ok(matches); // matches를 JSON으로 반환
         } catch (Exception e) {
             System.err.println("Error fetching matches: " + e.getMessage());
