@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html xmlns:th="www.thymeleaf.org" xmlns:sec="www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <title>회원가입 페이지</title>
+</head>
+<body>
+<h2>회원가입 페이지</h2>
+<hr>
+<form th:action="@{/signupProc}" method="post" name="joinForm">
+    <!-- 이메일 입력 및 중복 확인 버튼 -->
+    <div class="form-group">
+        <label for="userEmail">**이메일</label>
+        <input id="userEmail" name="userEmail" type="email" placeholder="이메일을 입력하세요" required>
+        <button type="button">중복 확인</button>
+    </div>
+
+    <!-- 비밀번호 입력 -->
+    <div class="form-group">
+        <label for="userPassword">**비밀번호</label>
+        <input id="userPassword" name="userPassword" type="password" required>
+    </div>
+
+    <!-- 비밀번호 확인 -->
+    <div class="form-group">
+        <label for="confirmPassword">**비밀번호 확인</label>
+        <input id="confirmPassword" name="confirmPassword" type="password" required>
+    </div>
+
+    <!-- 이름 입력 -->
+    <div class="form-group">
+        <label for="userName">**이름</label>
+        <input id="userName" name="userName" type="text" required>
+    </div>
+
+    <!-- 핸드폰 번호 입력 -->
+    <div class="form-group">
+        <label for="userPhone">핸드폰 번호</label>
+        <input id="userPhone" name="userPhone" type="tel" placeholder="010-1234-5678" required>
+    </div>
+
+    <!-- 주소 입력 및 주소 찾기 버튼 -->
+    <div class="form-group">
+        <label for="userAddress">주소</label>
+        <input id="userAddress" name="userAddress" type="text" placeholder="주소를 입력하세요" readonly required>
+        <button type="button">주소 찾기</button>
+    </div>
+
+    <input type="submit" value="회원가입">
+</form>
+<a th:href="@{/}">돌아가기</a>
+</body>
+</html>

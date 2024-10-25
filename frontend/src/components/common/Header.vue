@@ -2,7 +2,7 @@
   <header>
     <!-- 로그인, 회원가입 링크 상단 -->
     <div class="auth-links">
-      <a href="#" class="login">로그인</a> | <a href="#" class="signup">회원가입</a>
+     <router-link to="/login" class="login">로그인</router-link> | <router-link to="/signup" class="signup">회원가입</router-link>
     </div>
   
     <!-- 네비게이션 바 -->
