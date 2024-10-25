@@ -41,7 +41,7 @@ public class MembershipController {
 
             // 3. 응답 데이터 생성 - 새로운 membershipSalesDTO에 유저 아이디 저장해서 보내기
             MembershipSalesDTO membershipSalesDTO = new MembershipSalesDTO();
-            membershipSalesDTO.setMembershipSalesUser(id);
+            membershipSalesDTO.setMembershipSalesUserId(id);
             Map<String, Object> response = new HashMap<>();
             response.put("userMoney", moneyDTO);
             response.put("newMembership", membershipSalesDTO);
