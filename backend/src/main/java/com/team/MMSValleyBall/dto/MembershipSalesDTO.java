@@ -13,8 +13,8 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 public class MembershipSalesDTO {
     private Long membershipSalesId;
-    private UserDTO membershipSalesUser;
-    private MembershipDTO membershipSalesMembership;
+    private Long membershipSalesUserId;
+    private Long membershipSalesMembershipId;
     private MembershipSalesStatus membershipSalesStatus = MembershipSalesStatus.PURCHASE;
     private LocalDateTime membershipSalesCreateAt;
     private LocalDateTime membershipSalesUpdateAt;
@@ -23,8 +23,8 @@ public class MembershipSalesDTO {
     public String toString() {
         return "MembershipSalesDTO{" +
                 "Id=" + membershipSalesId +
-                ", User=" + (membershipSalesUser != null ? membershipSalesUser.getUserId() : "null") +
-                ", Membership=" + (membershipSalesMembership != null ? membershipSalesMembership.getMembershipName() : "null") +
+                ", User=" + membershipSalesUserId +
+                ", Membership=" + membershipSalesMembershipId +
                 ", Status=" + membershipSalesStatus +
                 ", CreateAt=" + membershipSalesCreateAt +
                 ", UpdateAt=" + membershipSalesUpdateAt +
@@ -35,8 +35,8 @@ public class MembershipSalesDTO {
     public static MembershipSalesDTO fromEntity(MembershipSales membershipSales){
         return new MembershipSalesDTO(
                 membershipSales.getMembershipSalesId(),
-                UserDTO.fromEntity(membershipSales.getMembershipSalesUser()),
-                MembershipDTO.fromEntity(membershipSales.getMembershipSalesMembership()),
+                membershipSales.getMembershipSalesUser().getUserId(),
+                membershipSales.getMembershipSalesMembership().getMembershipId(),
                 membershipSales.getMembershipSalesStatus(),
                 membershipSales.getMembershipSalesCreateAt(),
                 membershipSales.getMembershipSalesUpdateAt()

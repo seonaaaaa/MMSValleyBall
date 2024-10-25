@@ -21,7 +21,7 @@
       <div class="slider-container">
         <div class="slides" :style="{ transform: `translateX(-${currentSlide * 100}%)` }">
           <div v-for="(slide, index) in slides" :key="index" class="slide">
-            <img :src="slide.img" :alt="'Slide ' + (index + 1)" />
+            <img :src="slide.img" :alt="'Slide ' + (index + 1)" /> <!-- 셀프 클로징 -->
           </div>
         </div>
         <button class="prev" @click="prevSlide">
@@ -108,6 +108,7 @@ export default {
         { img: require('@/assets/img/common/content-highlight-slide-006.png') },
         { img: require('@/assets/img/common/content-highlight-slide-002.png') }
       ],
+
 
       // Calendar에 전달할 경기 일정 데이터
       events: [

@@ -9,6 +9,7 @@
           <li><a href="#">개인정보 처리방침</a></li>
           <li><a href="#">서비스 이용약관</a></li>
           <li><a href="#">운영정책</a></li>
+          <li><a href="#">이메일 무단수집거부</a></li>
           <li><a href="#">오시는 길</a></li>
         </ul>
         <ul class="mms-info">
