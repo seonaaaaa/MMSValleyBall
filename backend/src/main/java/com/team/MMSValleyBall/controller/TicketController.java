@@ -4,6 +4,7 @@ import com.team.MMSValleyBall.dto.MatchDTO;
 import com.team.MMSValleyBall.dto.TicketSalesDTO;
 import com.team.MMSValleyBall.service.MatchService;
 import com.team.MMSValleyBall.service.TicketService;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -28,11 +29,19 @@ public class TicketController {
 
     //티켓 구매 페이지
     @GetMapping("/purchase")
-    public ResponseEntity<String> viewTicketPurchase() {
-        // 경기 정보 가져오기
-        List<MatchDTO> matches = matchService.findAllMatches();
-        return ResponseEntity.ok("Ticket purchase Info");
+    public ResponseEntity<?> viewTicketPurchase() {
+        try {
+            // 경기 정보 가져오기
+            List<MatchDTO> matches = matchService.findAllMatches();
+            System.out.println("service - match size : " + matches.get(45));
+
+            return ResponseEntity.ok(matches); // matches를 JSON으로 반환
+        } catch (Exception e) {
+            System.err.println("Error fetching matches: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error fetching match data");
+        }
     }
+
     //티켓 예매 모달 - 메인
     @GetMapping("/purchase/main")
     public ResponseEntity<String> viewTicketPurchaseMain() {
