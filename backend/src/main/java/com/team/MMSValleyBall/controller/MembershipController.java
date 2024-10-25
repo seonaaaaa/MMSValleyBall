@@ -58,6 +58,7 @@ public class MembershipController {
         // 여기서 실제 멤버십 구매 로직 처리 (서비스 호출 등)
         // 성공적인 구매라면 응답을 리턴
         try {
+            System.out.println(membership.getMembershipSalesMembershipId());
             // 받은 멤버십 구매 정보 저장
             membershipService.saveMembership(membership);
             return ResponseEntity.ok("Purchase completed successfully!");
