@@ -18,9 +18,10 @@
                 <!-- 모달 디테일 -->
                 <div class="modal-body">
 
+
                     <!-- 모달 이미지 -->
-                    <div class="modal-ticket-img">
-                        <img src="@/assets/img/stadium/stadium-main.jpg" alt="stadium-img" class="stadium-image" />
+                    <div class="modal-ticket-img" v-if="selectedZoneImage">
+                        <img :src="selectedZoneImage" alt="선택한 구역 이미지" class="stadium-image" />
                     </div>
 
                     <!-- 모달 표 -->
@@ -37,39 +38,53 @@
                             <tbody>
                                 <tr>
                                     <td>
-                                        <input type="button" class="select-zone-btn" @click="showDetails">
+                                        <input type="checkbox" class="select-zone-btn" v-model="isChecked"
+                                            @change="onCheckboxChange">
                                         골드 [GOLD ZONE]
                                     </td>
                                     <td>
-                                        <!-- <div class="quantity-selector">
-                                            <button @click="decreaseQuantity('zone')"
-                                                :disabled="quantities.zone <= 1">-</button>
-                                            <input type="text" v-model="quantities.zone" readonly />
-                                            <button @click="increaseQuantity('zone')"
-                                                :disabled="quantities.zone >= maxSeats.zone">+</button>
-                                        </div> -->
                                     </td>
                                     <td>90석</td>
                                 </tr>
-                                <tr>
-                                    {{ this.zones[0].name }}
-                                </tr>
-                                <tr>
-                                    {{ this.zones[1].name }}
-                                </tr>
-                                <tr>
-                                    {{ this.zones[2].name }}
-                                </tr>
+
+                                <!-- 숨겨진 테이블 -->
+                                <table v-if="isChecked" class="hideTable">
+                                    <tr v-for="(zone, index) in zones" :key="zone.name">
+                                        <td>{{ zone.name }}</td>
+                                        <td>
+                                            <div class="quantity-selector">
+                                                <button @click="decreaseQuantity(index)"
+                                                    :disabled="zone.quantity <= 0">-</button>
+                                                <input type="text" v-model="zone.quantity" readonly />
+                                                <button @click="increaseQuantity(index)"
+                                                    :disabled="zone.quantity >= zone.maxSeats">+</button>
+                                            </div>
+                                        </td>
+                                        <td>{{ zone.fullSeats }}</td>
+                                    </tr>
+                                </table>
                             </tbody>
                         </table>
                     </div>
                 </div>
-
+                <hr class="divider" />
+                <div class="result-text">
+                    구역을 선택하면 좌석은 자동 배정됩니다.
+                    <div v-for="zone in selectedZones" :key="zone.name">
+                        선택한 좌석 : {{ zone.name }}구역 {{ zone.quantity }}매
+                    </div>
+                    <div class="result-text-all">
+                        총 : {{ countTicket.count }}매
+                    </div>
+                </div>
+                <!-- 결제 버튼 -->
+                <button class="buy-button" @click="buy">결제</button>
                 <!-- 모달 종료버튼 -->
                 <button class="close-button" @click="closeModal">닫기</button>
             </div>
         </div>
     </div>
+
 </template>
 
 <script>
@@ -83,25 +98,53 @@ export default {
             default: false,
         },
     },
+
+    computed: {
+        selectedZones() {
+            // 수량이 1 이상인 구역만 필터링
+            return this.zones.filter(zone => zone.quantity > 0);
+        }
+    },
+
     data() {
         return {
-            quantities: {
-                zone: 0, // 구역의 초기 매수 선택
-            },
-            maxSeats: {
-                zone: 4, // 구역의 최대 구매 가능 잔여석 수
-            },
+            // 구역 정보
             zones: [
-                { name: 'GA', quantity: '1~4', fullSeats: '30석' },
-                { name: 'GB', quantity: '1~4', fullSeats: '30석' },
-                { name: 'GC', quantity: '1~4', fullSeats: '30석' }
+                { name: 'GA', quantity: 0, maxSeats: 4, fullSeats: '30석', imageUrl: 'stadium-GA.jpg' },
+                { name: 'GB', quantity: 0, maxSeats: 4, fullSeats: '30석', imageUrl: 'stadium-GB.jpg' },
+                { name: 'GC', quantity: 0, maxSeats: 4, fullSeats: '30석', imageUrl: 'stadium-GC.jpg' }
             ],
+
+            isChecked: false, // 체크박스의 초기 상태
+
+            // 선택좌석 출력
+            countTicket: {
+                count: 0,
+            },
+
+            // 선택된 구역의 이미지 URL
+            selectedZoneImage:
+                require('@/assets/img/stadium/stadium-main.jpg'),
         };
     },
 
     methods: {
+        onCheckboxChange() {
+            if (this.isChecked) {
+                this.showDetails();
+            } else {
+                this.hideDetails();
+            }
+        },
         showDetails() {
-            this.zones = true;
+        },
+        hideDetails() {
+            this.countTicket.count = 0;
+            this.zones.forEach(zone => {
+                zone.quantity = 0; // 모든 구역의 수량을 0으로 설정                
+            });
+            this.selectedZoneImage =
+                require('@/assets/img/stadium/stadium-main.jpg'); // 이미지도 초기화
         },
 
         // 모달 열기 닫기
@@ -111,18 +154,26 @@ export default {
         openModal() {
             this.isModalOpen = true;
         },
-
         // 숫자 버튼
-        increaseQuantity(zone) {
-            if (this.quantities[zone] < this.maxSeats[zone]) {
-                this.quantities[zone]++;
+        increaseQuantity(index) {
+            if (this.zones[index].quantity < this.zones[index].maxSeats) {
+                this.zones[index].quantity++;
+                this.countTicket.count++;
+                this.selectedZoneImage = require(`@/assets/img/stadium/${this.zones[index].imageUrl}`);
             }
         },
-        decreaseQuantity(zone) {
-            if (this.quantities[zone] > 1) {
-                this.quantities[zone]--;
+        decreaseQuantity(index) {
+            if (this.zones[index].quantity > 0) {
+                this.zones[index].quantity--;
+                this.countTicket.count--;
+                this.selectedZoneImage = require(`@/assets/img/stadium/${this.zones[index].imageUrl}`);
             }
         },
+
+        selectZone(index) {
+            // 선택한 구역의 이미지 URL을 설정
+            this.selectedZoneImage = this.zones[index].imageUrl;
+        }
     }
 }
 </script>
@@ -184,12 +235,8 @@ export default {
 }
 
 .select-zone-btn {
-    width: 30px;
-    height: 30px;
-    font-size: 16px;
-    text-align: center;
-    border: 1px solid #ccc;
-    background-color: yellow;
+    width: 15px;
+    height: 15px;
     cursor: pointer;
 }
 
@@ -227,9 +274,42 @@ export default {
     font-size: 16px;
 }
 
+.hideTable {
+    border: 1px solid black;
+    background-color: lightgray;
+}
+
+.result-text {
+    margin-left: 30%;
+    width: 500px;
+    font-size: 20px;
+}
+
+.result-text-all {
+    color: red;
+    width: 500px;
+    font-size: 30px;
+}
+
+.buy-button {
+    background-color: red;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    height: 50px;
+    width: 100px;
+    position: absolute;
+    top: 90%;
+    right: 15%;
+
+}
+
 /* 닫기 버튼 */
 .close-button {
-    background-color: #f44336;
+    background-color: black;
     color: white;
     padding: 10px 20px;
     border: none;
