@@ -3,13 +3,9 @@ package com.team.MMSValleyBall.controller;
 import com.team.MMSValleyBall.dto.UserDTO;
 import com.team.MMSValleyBall.service.SignupService;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 
-@Controller
+@RestController
 public class SignupController {
     private final SignupService signupService;
 
@@ -17,27 +13,21 @@ public class SignupController {
         this.signupService = signupService;
     }
 
-    @GetMapping("/signup")
-    public String joinForm(){
-        return "signup";
-    }
-
     @GetMapping("/signup/check/email")
-    @ResponseBody
-    public ResponseEntity<String> checkEmail(@RequestParam String userEmail) {
+    public ResponseEntity<String> checkEmail(String userEmail) {
         String message = signupService.checkEmail(userEmail);
         return ResponseEntity.ok(message);
     }
 
-    @PostMapping("/signupProc")
-    public String joinProcess(UserDTO userDTO) {
+    @PostMapping("/signup")
+    public ResponseEntity<String> joinProcess(UserDTO userDTO) {
+        System.out.println(userDTO);
         signupService.signupProcess(userDTO);
-        return "redirect:/login";
+        return ResponseEntity.ok("회원가입이 페이지입니다.");
     }
 
     @GetMapping("/login")
-    public String loginForm(){
-        return "login";
+    public ResponseEntity<String> loginForm() {
+        return ResponseEntity.ok("로그인 페이지입니다.");
     }
-
 }
