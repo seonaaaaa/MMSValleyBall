@@ -50,7 +50,7 @@ public class TicketDTO {
         return new TicketDTO(
                 ticket.getTicketId(),
                 ticket.getTicketNumber(),
-                ticket.getTicketId(),
+                ticket.getTicketMatch().getMatchId(),
                 ticket.getTicketUser().getUserId(),
                 ticket.getTicketPaidPrice(),
                 ticket.getTicketStatus(),
