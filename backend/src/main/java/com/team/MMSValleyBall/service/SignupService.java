@@ -20,17 +20,27 @@ public class SignupService {
     @PersistenceContext
     private EntityManager em;
 
+    public String checkEmail(String UserEmail) {
+        // 이메일 중복 확인
+        Boolean isUser = userRepository.existsByUserEmail(UserEmail);
+        if (isUser) {
+            return "이미 존재하는 이메일입니다.";
+        }
+        return "사용 가능한 이메일입니다.";
+    }
+
     public void signupProcess(UserDTO userDTO) {
         // 기존 같은 유저가 있는지 확인
         Boolean isUser = userRepository.existsByUserEmail(userDTO.getUserEmail());
 
         if (isUser) {
-            return;
+            throw new IllegalArgumentException("이미 존재하는 이메일입니다."); // 예외를 던져 중복 알림
         }
 
         // 이번 시즌의 브론즈 멤버십 가져오기
         Long bronzeMembershipId = 2L;
         Membership bronzeMembership = em.find(Membership.class, bronzeMembershipId);
+
 
         // 없으면 회원가입
         Users data = new Users();

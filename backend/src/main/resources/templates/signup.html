@@ -3,6 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <title>회원가입 페이지</title>
+    <script>
+        function checkEmail() {
+            const email = document.getElementById("userEmail").value;
+            fetch(`/signup/check/email?userEmail=${encodeURIComponent(email)}`)
+                .then(response => response.text())
+                .then(message => {
+                    alert(message);
+                })
+                .catch(error => {
+                    console.error('이메일 중복 확인 중 오류 발생:', error);
+                    alert('이메일 중복 확인 중 오류가 발생했습니다. 다시 시도해주세요.');
+                });
+        }
+    </script>
 </head>
 <body>
 <h2>회원가입 페이지</h2>
@@ -12,7 +26,7 @@
     <div class="form-group">
         <label for="userEmail">**이메일</label>
         <input id="userEmail" name="userEmail" type="email" placeholder="이메일을 입력하세요" required>
-        <button type="button">중복 확인</button>
+        <button type="button" onclick="checkEmail()">중복 확인</button>
     </div>
 
     <!-- 비밀번호 입력 -->
