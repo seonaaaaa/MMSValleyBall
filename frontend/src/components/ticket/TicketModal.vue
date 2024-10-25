@@ -12,8 +12,9 @@
                 <div>
                     서울 하이체육관 | 2024.10.24(목) 19:00
                 </div>
+                <hr class="divider" />
             </div>
-            <hr class="divider" />
+
 
             <!-- 모달 디테일 -->
             <div v-if="firstPage">
@@ -130,6 +131,22 @@
                                     </tr>
                                 </tbody>
                             </table>
+                            
+                            <div class="info-box">
+                                <div class="icon">
+                                    <img src="@/assets/img/anyImg/bell-icon.png" alt="alert" />
+                                </div>
+                                <div class="info-content">
+                                    <h4>예매 마감안내</h4>
+                                    <ul>
+                                        <li> - 당일 경기 시작 전 1시간 까지 가능</li>
+                                        <li> - 취소 시간 이후 구매한 티켓은 취소 및 좌석 변경이 되지 않습니다.</li>
+                                    </ul>
+                                    <h4>예매 취소안내</h4>
+                                    <p>당일 경기 시작 12시간 전까지 가능
+                                    </p>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
@@ -183,15 +200,12 @@ export default {
             // 숫자를 세 자리마다 쉼표가 붙은 문자열로 변환
             return this.total.toLocaleString();
         },
-        
-        isFormValid() {
-            // 모든 입력 필드가 비어 있지 않으면 버튼을 활성화
-            return this.zones.quantity.trim() !== '' && this.selectedZones.trim() !== '';
-        }
+
     },
 
     data() {
         return {
+
             // 구역 정보
             zones: [
                 { name: 'GA', quantity: 0, maxSeats: 4, fullSeats: '30석', imageUrl: 'stadium-GA.jpg', price: 30000 },
@@ -222,8 +236,8 @@ export default {
     methods: {
         // 총합
         calculateTotal() {
-            for (let i = 0; i < this.zones.length; i++) {
-                this.total = this.selectedZones[i].price + this.total;
+            for (let i = 0; i < this.selectedZones.length; i++) {
+                this.total = this.selectedZones[i].price * this.selectedZones[i].quantity + this.total;
             }
         },
 
@@ -231,13 +245,18 @@ export default {
         openFirstPage() {
             this.firstPage = true;
             this.secondPage = false;
+            this.total = 0;
         },
 
         // 두번째 모달창으로 이동
         openSecondPage() {
             this.calculateTotal();
-            this.firstPage = false;
-            this.secondPage = true;
+            if (this.total > 0) {
+                this.firstPage = false;
+                this.secondPage = true;
+            } else {
+                alert("좌석을 선택해주세요.");
+            }
         },
 
 
@@ -339,10 +358,12 @@ export default {
     /* 위쪽, 오른쪽, 아래쪽, 왼쪽 여백 순서 */
 }
 
+/* 이미 잘린 이미지 부분 안으로 표가 들어가게 함 */
 .modal-table-container {
     margin-left: -10%;
-    /* 이미 잘린 이미지 부분 안으로 표가 들어가게 함 */
 }
+
+
 
 .modal-table {
     margin-left: 10%;
@@ -371,6 +392,59 @@ export default {
     width: 15px;
     height: 15px;
     cursor: pointer;
+}
+
+.info-box {
+    position: relative;
+    display: flex;
+    /* 아이콘과 텍스트를 나란히 배치 */
+    align-items: center;
+    /* 아이템들을 수직으로 가운데 정렬 */
+    background-color: #f7f7f7;
+    /* 배경색 설정 */
+    border: 1px solid #ccc;
+    /* 경계선 설정 */
+    border-radius: 10px;
+    /* 모서리를 둥글게 설정 */
+    padding: 20px;
+    /* 내부 여백 */
+    margin-top: 30px;
+    margin-bottom: 30px;
+    width: 50%;
+}
+
+.icon {
+    margin-right: 20px;
+    /* 아이콘과 텍스트 사이의 간격 */
+}
+
+.icon img {
+    width: 120px;
+    /* 아이콘 크기 */
+    height: 120px;
+    /* 아이콘 크기 */
+}
+
+.info-content {
+    text-align: left;
+    /* 글자 왼쪽 정렬 */
+    color: #000000;
+    /* 글자 색상 */
+    font-size: 16px;
+    /* 일반 문단 글자 크기 */
+    list-style-type: disc;
+    /* 목록 스타일 */
+    padding-left: 20px;
+    /* 목록 왼쪽 여백 */
+}
+
+.info-content p {
+    font-size: 13px;
+    /* 일반 문단 글자 크기 */
+    color: #1a1a1a;
+    /* 부드러운 색상 */
+    margin-top: 10px;
+    /* 위쪽 여백 */
 }
 
 
