@@ -31,21 +31,23 @@ export default {
         },
         loadMap() {
             const container = document.getElementById("map"); // 지도를 담을 DOM 영역
+
+            // EPSG:5181 좌표를 WGS84로 변환
+            const coords = new window.kakao.maps.Coords(497180.0, 1131209.0);
+            const wgs84Coords = coords.toLatLng(); // WGS84 좌표로 변환
+
             const options = {
                 // 지도를 생성할 때 필요한 기본 옵션
-                center: new window.kakao.maps.LatLng(37.571828, 126.986024), // 서울 종로구 인사동길 12의 좌표
-                level: 3, // 지도의 레벨(확대, 축소 정도)
+                center: wgs84Coords, // 변환된 WGS84 좌표 사용
+                level: 4, // 지도의 레벨(확대, 축소 정도)
             };
 
             this.map = new window.kakao.maps.Map(container, options); // 지도 생성 및 객체 리턴
-            this.loadMaker();
+            this.loadMaker(wgs84Coords); // 마커 위치 지정
         },
         // 지정한 위치에 마커 불러오기
-        loadMaker() {
-        const markerPosition = new window.kakao.maps.LatLng(
-            37.571828,
-            126.986024
-        );
+        loadMaker(coords) {
+        const markerPosition = coords; // 변환된 좌표로 마커 위치 지정
 
         const marker = new window.kakao.maps.Marker({
             position: markerPosition,
