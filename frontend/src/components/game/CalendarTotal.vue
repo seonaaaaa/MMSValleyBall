@@ -88,24 +88,23 @@ export default {
     };
   },
   methods: {
-    getTeamLogo(team) {
-      switch (team) {
-        case 'blueFangs':
-          return require('@/assets/img/game/blueFangs.png');
-        case 'jumbos': 
-          return require('@/assets/img/game/jumbos.png');
-        case 'ok': 
-          return require('@/assets/img/game/ok.png');
-        case 'vixtorm': 
-          return require('@/assets/img/game/vixtorm.png');
-        case 'walkers': 
-          return require('@/assets/img/game/walkers.png');
-        case 'won': 
-          return require('@/assets/img/game/won.png');
-        case 'stars': 
-        return require('@/assets/img/game/stars.png');
+    // 팀 로고 표시
+    getTeamLogo(teamId) {
+      switch (teamId) {
+        case 1:
+          return require('@/assets/img/game/team_id_1_ok.png');
+        case 2:
+          return require('@/assets/img/game/team_id_2_vixtorm.png');
+        case 3:
+          return require('@/assets/img/game/team_id_3_walkers.png');
+        case 4:
+          return require('@/assets/img/game/team_id_4_blueFangs.png');
+        case 5:
+          return require('@/assets/img/game/team_id_5_stars.png');
+        case 6:
+          return require('@/assets/img/game/team_id_6_won.png');
         default:
-          return ''; // 팀 이름이 없으면 기본값 빈 이미지
+          return ''; // 기본값 (팀 이름이 없으면 빈 이미지)
       }
     },
     getResultClass(result, eventDate) {

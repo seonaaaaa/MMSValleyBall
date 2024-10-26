@@ -1,4 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router';
+
 // MMS 메뉴
 import AppMMS from '@/components/mms/MMS.vue';
 import AppGreeting from '@/components/mms/Greeting.vue';
@@ -34,6 +35,15 @@ import loginPage from '@/components/member/Login.vue';
 import SignupPage from '@/components/member/Signup.vue'
 
 const routes = [
+  // 홈 화면 경로 (AppContent 표시됨)
+  // 홈 페이지(/)는 AppContent를 렌더링하고 나머지 경로에서는 AppContent가 숨겨짐
+  {
+    path: '/',
+    name: 'Home',
+    component: AppMMS,
+    meta: { hideContent: false },
+  },
+  // MMS 메뉴
   {
     path: '/mms',
     name: 'MMS',
@@ -65,6 +75,7 @@ const routes = [
     component: AppSponsor,
     meta: { hideContent: true },
   },
+  // TEAM 메뉴
   {
     path: '/team/players',
     name: 'Players',
@@ -158,6 +169,13 @@ const routes = [
     path: '/signup',
     name: 'SignupPage',
     component: SignupPage,
+    meta: { hideContent: true },
+  },
+  // 404 페이지 경로 (잘못된 경로로 접속 시 NotFound.vue 컴포넌트가 표시)
+  {
+    path: '/:catchAll(.*)',  // 와일드카드 경로로 모든 일치하지 않는 경로를 잡음
+    name: 'NotFound',
+    component: () => import('@/components/common/NotFound.vue'), // 404 페이지 컴포넌트
     meta: { hideContent: true },
   }
 ];

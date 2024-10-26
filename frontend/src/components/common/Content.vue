@@ -72,7 +72,7 @@
       <div class="section">
         <h2>경기 일정</h2>
         <!-- Calendar 컴포넌트를 사용 -->
-        <Calendar :events="events" />
+        <CalendarMain :events="events" />
       </div>
 
     </div>
@@ -80,12 +80,13 @@
 </template>
 
 <script>
-import Calendar from '../common/CalendarMain.vue';
+import axios from 'axios';
+import CalendarMain from '../common/CalendarMain.vue';
 
 export default {
   name: 'AppContent',
   components: {
-    Calendar
+    CalendarMain,
   },
   data() {
     return {
@@ -109,33 +110,8 @@ export default {
         { img: require('@/assets/img/common/content-highlight-slide-002.png') }
       ],
 
-
-      // Calendar에 전달할 경기 일정 데이터
-      events: [
-        {
-          id: 1,
-          team: 'blueFangs',
-          location: '서울',
-          time: '18:30',
-          result: '승',
-          score: '6:3',
-          date: '2024-10-23',
-          isHomeGame: true // 홈 경기 여부 추가
-        },
-        {
-          id: 2,
-          team: 'jumbos',
-          location: '인천',
-          time: '17:00',
-          result: '패',
-          score: '2:5',
-          date: '2024-10-24',
-          isHomeGame: false // 원정 경기 여부 추가
-        }
-        // 테스트용 데이터, axios - api 연동할 때 Calender*.vew 로직 수정 예정
-      ]
-
-
+      // CalendarMain에 전달할 경기 일정 데이터
+      events: [],
     };
   },
   methods: {
@@ -178,7 +154,20 @@ export default {
     },
     goToHighlightSlide(index) {
       this.currentHighlightSlide = index;
-    }
+    },
+
+    async fetchEvents() {
+      try {
+        const response = await axios.get('http://localhost:4000/game/schedule');
+        console.log(response.data); // 데이터 확인
+        this.events = response.data; // 응답 데이터 설정
+      } catch (error) {
+        console.error("Error fetching events:", error);
+      }
+    },
+  },
+  mounted() {
+    this.fetchEvents(); // 컴포넌트가 로드될 때 데이터를 가져옴
   }
 };
 </script>
