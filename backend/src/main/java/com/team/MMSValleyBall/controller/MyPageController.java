@@ -4,7 +4,6 @@ import com.team.MMSValleyBall.dto.MembershipDTO;
 import com.team.MMSValleyBall.dto.MembershipSalesDTO;
 import com.team.MMSValleyBall.dto.UserDTO;
 import com.team.MMSValleyBall.service.MembershipSalesService;
-import com.team.MMSValleyBall.service.MembershipService;
 import com.team.MMSValleyBall.service.UserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

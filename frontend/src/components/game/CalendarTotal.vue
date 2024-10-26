@@ -121,17 +121,16 @@ export default {
       } else if (result === '패') {
           return 'lose'; // 패일 경우 'lose' 클래스 반환
       }
-
-      return ''; // 그 외의 경우 기본값 반환
-  },
-  getDisplayResult(result, eventDate) {
-  const currentDate = new Date();
-  const eventDateObject = new Date(eventDate);
-  if (!result && eventDateObject > currentDate) {
-      return '예'; // 경기 예정
-  }
-  return result || ''; // 경기 결과가 있으면 그 결과 표시
-  },
+          return ''; // 그 외의 경우 기본값 반환
+      },
+      getDisplayResult(result, eventDate) {
+      const currentDate = new Date();
+      const eventDateObject = new Date(eventDate);
+      if (!result && eventDateObject > currentDate) {
+          return '예'; // 경기 예정
+      }
+      return result || ''; // 경기 결과가 있으면 그 결과 표시
+      },
     // 이전 달 출력 함수
     prevMonth() {
     if (this.selectedMonth === 1) {
@@ -156,7 +155,7 @@ export default {
           const eventDate = new Date(`${event.date} ${event.time}`);
           return eventDate > currentDate; // 현재 시간보다 이후인 경우에만 true
       }
-  },
+    },
   computed: {
     calendarWeeks() {
       const daysInMonth = new Date(this.selectedYear, this.selectedMonth, 0).getDate();
@@ -189,7 +188,6 @@ export default {
         }
         weeks.push(days);
       }
-
       return weeks;
     }
   }
