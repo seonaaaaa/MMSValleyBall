@@ -56,9 +56,9 @@
                 </div>
                 <span class="score">{{ event.matchSetScore }}:{{ event.matchOpponentTeamSetScore }}</span>
               </div>
-              <!-- 예매하기 버튼 (예약 가능 여부에 따라 활성화/비활성화) -->
-              <router-link to="/ticket/purchase">
-                <button :disabled="!isReservationAvailable(event)" class="reservation-button">
+              <!-- 예매하기 버튼 (예약 가능 여부에 따라 표시 및 활성화) -->
+              <router-link v-show="isReservationVisible(event)" to="/ticket/purchase">
+                <button :disabled="!isReservationEnabled(event)" :class="{ hidden: !isReservationVisible(event) }" class="reservation-button">
                   예매하기
                 </button>
               </router-link>
@@ -134,14 +134,21 @@ export default {
       }
       return `${location} ${time}`;
     },
-    // 경기 결과에 따라 CSS 클래스 반환
-    getResultClass(matchSetScore, matchOpponentTeamSetScore) {
+    // 경기 결과 및 일정에 따라 CSS 클래스 반환
+    getResultClass(matchSetScore, matchOpponentTeamSetScore, matchDate) {
+      const currentDate = new Date();
+      const eventDate = new Date(matchDate);
+      
+      if (eventDate > currentDate) return 'upcoming'; // 경기 예정일 경우
       if (matchSetScore > matchOpponentTeamSetScore) return 'win';
       else if (matchSetScore < matchOpponentTeamSetScore) return 'lose';
-      return 'upcoming'; // 경기 예정인 경우
     },
-    // 경기 결과에 따른 표시 텍스트 반환
-    getDisplayResult(matchSetScore, matchOpponentTeamSetScore) {
+    // 경기 결과 및 일정에 따른 표시 텍스트 반환
+    getDisplayResult(matchSetScore, matchOpponentTeamSetScore, matchDate) {
+      const currentDate = new Date();
+      const eventDate = new Date(matchDate);
+
+      if (eventDate > currentDate) return '예'; // 경기 예정 표시
       return matchSetScore > matchOpponentTeamSetScore ? '승' : '패';
     },
     // 이전 달 출력 함수
@@ -162,12 +169,43 @@ export default {
       this.selectedMonth++;
       }
     },
-    // 현재 날짜와 경기 날짜를 비교해 예매 가능 여부 반환
-    isReservationAvailable(event) {
+    isReservationVisible(event) {
+      const eventDate = new Date(event.matchDate);
+      const eventMonth = eventDate.getMonth() + 1;
+      const eventYear = eventDate.getFullYear();
+
+      const currentDate = new Date();
+      const currentMonth = currentDate.getMonth() + 1;
+      const currentYear = currentDate.getFullYear();
+
+      // 현재 달 확인
+      const isInCurrentMonth = eventMonth === currentMonth && eventYear === currentYear;
+
+      // 다음 달 확인 (연말에서 연초로 넘어가는 경우 포함)
+      const isInNextMonth = 
+        (currentMonth === 12 && eventMonth === 1 && eventYear === currentYear + 1) || 
+        (eventMonth === currentMonth + 1 && eventYear === currentYear);
+
+      // test
+      console.log(`Checking visibility for Event Date: ${eventDate}`);
+      console.log(`isInCurrentMonth: ${isInCurrentMonth}, isInNextMonth: ${isInNextMonth}`);
+      
+      // 현재 달 또는 다음 달일 때만 true 반환
+      return isInCurrentMonth || isInNextMonth;
+    },
+    isReservationEnabled(event) {
       const currentDate = new Date();
       const eventDate = new Date(event.matchDate);
-      return eventDate > currentDate && this.selectedYear === currentDate.getFullYear() &&
-             (this.selectedMonth === currentDate.getMonth() + 1 || this.selectedMonth === currentDate.getMonth() + 2);
+
+      // 현재 날짜보다 과거라면 비활성화
+      if (currentDate > eventDate) return false;
+
+      // 경기 7일 전 13시 이후부터 활성화
+      const sevenDaysBeforeEvent = new Date(eventDate);
+      sevenDaysBeforeEvent.setDate(eventDate.getDate() - 7);
+      sevenDaysBeforeEvent.setHours(13, 0, 0);
+
+      return currentDate >= sevenDaysBeforeEvent;
     }
   },
   computed: {
@@ -275,7 +313,6 @@ select {
   color: #333;
   outline: none;
   margin: 0 5px;
-  transition: border-color 0.3s ease;
   cursor: pointer;
 }
 
@@ -283,9 +320,9 @@ select {
 .calendar-table {
   width: 100%;
   max-width: 1200px;
-  height: auto;
   margin: 0 auto;
   border-collapse: collapse;
+  height: 100%;
 }
 
 .calendar-table thead {
@@ -306,11 +343,11 @@ select {
 
 .calendar-table td {
   position: relative;
-  width: 170.760px;
+  width: 170px;
   height: 180px;
   border: 1px solid #ddd;
   text-align: center;
-  vertical-align: top;
+  vertical-align: middle;
 }
 
 .day-number {
@@ -334,20 +371,18 @@ select {
 .event {
   display: flex;
   flex-direction: column; 
-  justify-content: flex-end;
+  justify-content: center;
   align-items: center;  
   text-align: center; 
   width: 100%; 
   height: 100%; 
-  margin-top: 13px;
 }
 
 .team-logo {
   width: 100%;
-  margin-top: 10px;
   max-height: 60px;
   width: auto;
-  margin-bottom: 10px;
+  margin-bottom: 5px;
 }
 
 .result-container {
@@ -359,7 +394,7 @@ select {
   margin-bottom: 10px;
 }
 
-/* 승,패 동그라미 */
+/* 동그라미 */
 .result-circle {
   display: flex;
   justify-content: center;
@@ -373,29 +408,25 @@ select {
   margin-left: auto;
 }
 
-/* 승일 경우 동그라미 컬러 */
 .win {
   background-color: #52a792;
 }
 
-/* 패일 경우 동그라미 컬러 */
 .lose {
   background-color: rgb(67, 67, 67);
 }
 
-/* 경기 예정 동그라미 컬러 */
 .upcoming {
 background-color: #afafaf;
-/* color: #333; */
 }
 
-/* 승,패 텍스트 */
+/* 동그라미 안 텍스트 */
 .result {
   font-size: 14px;
   text-align: center;
   align-items: center;
 }
-
+/* 점수 텍스트 */
 .score {
   font-size: 16px;
   font-weight: bold;
@@ -416,19 +447,15 @@ cursor: pointer;
 transition: background-color 0.3s, box-shadow 0.3s, font-weight 0.3s;
 }
 
-.reservation-button:disabled:hover {
-background-color: #cccccc;
-box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-cursor: not-allowed;
-}
-
-.reservation-button:hover {
-box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-}
-
 .reservation-button:disabled {
-background-color: #cccccc;
-cursor: not-allowed;
-color: #858383;
+  background-color: #cccccc;
+  cursor: not-allowed;
+  color: #858383;
+}
+
+.reservation-button:hover:not(:disabled) {
+  /* hover 효과 : 크기를 약간 확대 */
+  transform: scale(1.05);
+  color: #222;
 }
 </style>
