@@ -2,12 +2,10 @@ package com.team.MMSValleyBall.controller;
 
 import com.team.MMSValleyBall.dto.*;
 import com.team.MMSValleyBall.service.MyPageService;
-import com.team.MMSValleyBall.service.UsersBallaceService;
-import org.springframework.http.HttpStatus;
+import com.team.MMSValleyBall.service.UsersBalanceService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -16,11 +14,11 @@ import java.util.Map;
 @RequestMapping("myPage")
 public class MyPageController {
    private final MyPageService myPageService;
-   private final UsersBallaceService usersBallaceService;
+   private final UsersBalanceService usersBalanceService;
 
-    public MyPageController(MyPageService myPageService, UsersBallaceService usersBallaceService) {
+    public MyPageController(MyPageService myPageService, UsersBalanceService usersBalanceService) {
         this.myPageService = myPageService;
-        this.usersBallaceService = usersBallaceService;
+        this.usersBalanceService = usersBalanceService;
     }
 
     // 티켓 예매 탭에서 받을 티켓 예매 내역
@@ -48,7 +46,7 @@ public class MyPageController {
         Map<String, Object> body = new HashMap<>();
         body.put("user", findUser);
         // 충전 잔액 담기
-        body.put("balance", usersBallaceService.getUsersBalance(email).getLeftMoney());
+        body.put("balance", usersBalanceService.getUsersBalance(email).getLeftMoney());
         return ResponseEntity.ok(body);
     }
 
@@ -67,7 +65,7 @@ public class MyPageController {
     // 사용자의 충전 잔액
     @GetMapping("info/recharge")
     public ResponseEntity<Integer> balance(@RequestParam("email")String email){
-        return ResponseEntity.ok(usersBallaceService.getUsersBalance(email).getLeftMoney());
+        return ResponseEntity.ok(usersBalanceService.getUsersBalance(email).getLeftMoney());
     }
 
     // 잔액 충전

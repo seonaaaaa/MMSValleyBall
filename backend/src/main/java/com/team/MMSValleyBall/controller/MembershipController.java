@@ -4,7 +4,7 @@ import com.team.MMSValleyBall.dto.MembershipSalesDTO;
 import com.team.MMSValleyBall.dto.MoneyDTO;
 import com.team.MMSValleyBall.service.MembershipSalesService;
 import com.team.MMSValleyBall.service.UserService;
-import com.team.MMSValleyBall.service.UsersBallaceService;
+import com.team.MMSValleyBall.service.UsersBalanceService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,7 +21,7 @@ public class MembershipController {
     @Autowired
     UserService userService;
     @Autowired
-    UsersBallaceService usersBallaceService;
+    UsersBalanceService usersBalanceService;
 
     // 멤버십 정보 보기
     @GetMapping("/info")
@@ -41,7 +41,7 @@ public class MembershipController {
         // 1. 로그인 정보 확인 -> 로그인 안된 상태면 예외 처리
             String email = "kimka@cbc.com"; // 추후 세션에서 유저 정보를 가져오는 방식으로 수정 필요
             // 2. 세션으로 user 정보 가져와서 user의 moneyDTO 생성
-            MoneyDTO moneyDTO = usersBallaceService.getUsersBalance(email);
+            MoneyDTO moneyDTO = usersBalanceService.getUsersBalance(email);
             System.out.println("controller - moneyDTO : " + moneyDTO.getLeftMoney());
 
             // 3. 응답 데이터 생성 - 새로운 membershipSalesDTO에 유저 아이디 저장해서 보내기

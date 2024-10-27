@@ -13,10 +13,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
 
 @Service
-public class UsersBallaceService {
+public class UsersBalanceService {
     private final UserRepository userRepository;
 
-    public UsersBallaceService(UserRepository userRepository) {
+    public UsersBalanceService(UserRepository userRepository) {
         this.userRepository = userRepository;
     }
 
