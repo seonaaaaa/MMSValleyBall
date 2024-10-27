@@ -1,7 +1,7 @@
 package com.team.MMSValleyBall.controller;
 
 import com.team.MMSValleyBall.dto.MatchDTO;
-import com.team.MMSValleyBall.repository.GameRepository;
+import com.team.MMSValleyBall.dto.MatchWithTeamDTO;
 import com.team.MMSValleyBall.service.GameService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -19,11 +19,17 @@ public class GameController {
         this.gameService = gameService;
     }
 
-    // 경기 일정 페이지
-    @GetMapping("/schedule")
-    public ResponseEntity<List<MatchDTO>> getGameSchedule() {
+    // MAIN - 경기 일정 (최근 한달) API
+    @GetMapping("/schedule/main")
+    public ResponseEntity<List<MatchDTO>> getGameScheduleMain() {
         List<MatchDTO> matchList = gameService.findAllMatches();
         return ResponseEntity.ok(matchList);
     }
 
+    // GAME - 경기 일정 (전체) API
+    @GetMapping("/schedule/total")
+    public ResponseEntity<List<MatchWithTeamDTO>> getGameScheduleTotal() {
+        List<MatchWithTeamDTO> matchList = gameService.findAllMatchesWithTeams();
+        return ResponseEntity.ok(matchList);
+    }
 }

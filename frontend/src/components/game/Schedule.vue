@@ -19,6 +19,7 @@
   </template>
   
   <script>
+  import axios from 'axios';
   import LogoHeader from '../common/LogoHeader.vue';
   import CalendarTotal from './CalendarTotal.vue';
   
@@ -26,78 +27,18 @@
       name: 'AppSchedule',
       components: {
         LogoHeader,
-        CalendarTotal
+        CalendarTotal,
     },    
     data() {
       return {
         // 현재 활성화된 경로
         activeMenu: this.$route.path,
-
-        // Axios로 API와 연동하기 전에 화면 테스트
-        // Calendar에 전달할 경기 일정 데이터
-        events: [
-          {
-            id: 1,
-            team: 'blueFangs',
-            location: '서울',
-            time: '14:00',
-            result: '승',
-            score: '3:1',
-            date: '2024-10-19',
-            isHomeGame: true // 홈 경기
-          },
-          {
-            id: 2,
-            team: 'jumbos',
-            location: '수원',
-            time: '17:00',
-            result: '승',
-            score: '2:5',
-            date: '2024-10-23',
-            isHomeGame: false // 원정 경기
-          },
-          {
-            id: 3,
-            team: 'ok',
-            location: '부산',
-            time: '14:00',
-            result: '패',
-            score: '0:0',
-            date: '2024-10-27',
-            isHomeGame: false
-          },
-          {
-            id: 4,
-            team: 'vixtorm',
-            location: '서울',
-            time: '19:00',
-            result: '',
-            score: '0:0',
-            date: '2024-10-31',
-            isHomeGame: true
-          },
-          {
-            id: 5,
-            team: 'walkers',
-            location: '서울',
-            time: '16:00',
-            result: '',
-            score: '0:0',
-            date: '2024-11-05',
-            isHomeGame: true
-          },
-          {
-            id: 6,
-            team: 'won',
-            location: '서울',
-            time: '19:00',
-            result: '',
-            score: '0:0',
-            date: '2024-11-08',
-            isHomeGame: false
-          }
-        ]
+        // CalendarTotal에 전달할 경기 일정 데이터
+        events: []
       };
+    },
+    mounted() {
+      this.fetchEvents();
     },
     watch: {
       // 경로가 변경될 때마다 activeMenu를 업데이트
@@ -109,6 +50,16 @@
       navigateTo(route) {
         this.$router.push(route);
         this.activeMenu = route; // 메뉴를 클릭할 때 활성화된 메뉴 업데이트
+      },
+      async fetchEvents() {
+        try {
+          // API 엔드포인트 경로 설정
+          const response = await axios.get('http://localhost:4000/game/schedule/total');
+          // events 배열을 response로 업데이트
+          this.events = response.data;
+        } catch (error) {
+          console.error("Error fetching events:", error);
+        }
       }
     }
   }

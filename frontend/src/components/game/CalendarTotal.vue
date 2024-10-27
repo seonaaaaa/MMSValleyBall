@@ -1,71 +1,72 @@
 <template>
   <div class="calendar-main">
-      <!-- 부모 컨테이너 -->
-      <div class="header-container">
-          <!-- 홈경기/원정경기 정보 -->
-          <div class="legend">    
-              <div class="circle home-circle"></div>
-              <span class="legend-text">홈 경기</span>
-              <div class="circle away-circle"></div>
-              <span class="legend-text">원정 경기</span>
-          </div>
-          <!-- 셀렉트 박스 및 이전/다음 달 버튼 -->
-          <div class="header-controls">
-              <img src="@/assets/img/game/calendar-icon-previou.png" alt="이전달" 
-              class="nav-button" @click="prevMonth" />
-              <select v-model="selectedYear">
-                  <option v-for="year in years" :key="year" :value="year">{{ year }}년</option>
-              </select>
-              <select v-model="selectedMonth">
-                  <option v-for="(month, index) in months" :key="index" :value="index + 1">{{ month }}월</option>
-              </select>
-          <img src="@/assets/img/game/calendar-icon-next.png" alt="다음달" 
-              class="nav-button" @click="nextMonth" />
-          </div>
+    <!-- 부모 컨테이너 -->
+    <div class="header-container">
+      <!-- 홈경기/원정경기 정보 -->
+      <div class="legend">    
+        <div class="circle home-circle"></div>
+        <span class="legend-text">홈 경기</span>
+        <div class="circle away-circle"></div>
+        <span class="legend-text">원정 경기</span>
       </div>
+      <!-- 셀렉트 박스 및 이전/다음 달 버튼 -->
+      <div class="header-controls">
+        <img src="@/assets/img/game/calendar-icon-previou.png" alt="이전달" 
+          class="nav-button" @click="prevMonth" />
+        <select v-model="selectedYear">
+          <option v-for="year in years" :key="year" :value="year">{{ year }}년</option>
+        </select>
+        <select v-model="selectedMonth">
+          <option v-for="(month, index) in months" :key="index" :value="index + 1">{{ month }}월</option>
+        </select>
+      <img src="@/assets/img/game/calendar-icon-next.png" alt="다음달" 
+          class="nav-button" @click="nextMonth" />
+      </div>
+    </div>
 
   <!-- 달력 테이블 -->
   <table class="calendar-table">
-      <thead>
-          <tr>
-          <th>일</th>
-          <th>월</th>
-          <th>화</th>
-          <th>수</th>
-          <th>목</th>
-          <th>금</th>
-          <th>토</th>
-          </tr>
-      </thead>
-      <tbody>
-          <tr v-for="week in calendarWeeks" :key="week[0].date">
-          <td v-for="day in week" :key="day.date" :class="{ 'home-game': day.events.length && day.events[0].isHomeGame, 'away-game': day.events.length && !day.events[0].isHomeGame }">
-              <div class="day-number">{{ day.date }}</div>
-              <div v-if="day.events.length">
-                  <div v-for="event in day.events" :key="event.id" class="event">
-                      <!-- 팀 이름에 따른 로고 이미지 출력 -->
-                      <img :src="getTeamLogo(event.team)" alt="Team Logo" class="team-logo" />
-                      <!-- 장소 및 시간 -->
-                      <div class="event-info">
-                          {{ event.location }} {{ event.time }}
-                      </div>
-                      <!-- 결과 및 점수 (원 안에 승/패/예 출력, 경기 예정인 경우 '예') -->
-                      <div class="result-container">
-                          <div :class="['result-circle', getResultClass(event.result, event.date)]">
-                              <span class="result">{{ getDisplayResult(event.result, event.date) }}</span> <!-- 승/패/예 -->
-                          </div>
-                          <span class="score">{{ event.score }}</span> <!-- 점수 -->
-                      </div>
-                      <router-link to="/ticket/purchase">
-                          <button :disabled="!isReservationAvailable(event)" class="reservation-button">
-                              예매하기
-                          </button>
-                      </router-link>
-                  </div>
+    <thead>
+      <tr>
+      <th>일</th>
+      <th>월</th>
+      <th>화</th>
+      <th>수</th>
+      <th>목</th>
+      <th>금</th>
+      <th>토</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr v-for="week in calendarWeeks" :key="week[0].date">
+        <td v-for="day in week" :key="day.date" :class="{ 'home-game': day.events.length && day.events[0].matchStadium === 'HOME', 'away-game': day.events.length && day.events[0].matchStadium === 'AWAY' }">
+          <div class="day-number">{{ day.date }}</div>
+          <div v-if="day.events.length">
+            <div v-for="event in day.events" :key="event.matchId" class="event">
+              <!-- 팀 이름에 따른 로고 이미지 출력 -->
+              <img :src="getTeamLogo(event.teamId)" alt="Team Logo" class="team-logo" />
+              <!-- 장소 및 시간 -->
+              <div class="event-info">
+                {{ formatLocationAndTime(event) }}
               </div>
-          </td>
-          </tr>
-      </tbody>
+              <!-- 결과 및 점수 (원 안에 승/패/예 출력, 경기 예정인 경우 '예') -->
+              <div class="result-container">
+                <div :class="['result-circle', getResultClass(event.matchSetScore, event.matchOpponentTeamSetScore, event.matchDate)]">
+                  <span class="result">{{ getDisplayResult(event.matchSetScore, event.matchOpponentTeamSetScore, event.matchDate) }}</span>
+                </div>
+                <span class="score">{{ event.matchSetScore }}:{{ event.matchOpponentTeamSetScore }}</span>
+              </div>
+              <!-- 예매하기 버튼 (예약 가능 여부에 따라 활성화/비활성화) -->
+              <router-link to="/ticket/purchase">
+                <button :disabled="!isReservationAvailable(event)" class="reservation-button">
+                  예매하기
+                </button>
+              </router-link>
+            </div>
+          </div>
+        </td>
+      </tr>
+    </tbody>
   </table>
 </div>
 </template>
@@ -74,6 +75,7 @@
 export default {
   name: 'CalendarTotal',
   props: {
+    // 이벤트 목록을 부모로부터 전달받음
     events: {
       type: Array,
       default: () => []
@@ -81,9 +83,10 @@ export default {
   },
   data() {
     return {
+      // 현재 선택된 연도와 월을 데이터로 저장
       selectedYear: new Date().getFullYear(),
       selectedMonth: new Date().getMonth() + 1,
-      years: [2023, 2024],
+      years: [2023, 2024, 2025],
       months: ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12'],
     };
   },
@@ -107,29 +110,40 @@ export default {
           return ''; // 기본값 (팀 이름이 없으면 빈 이미지)
       }
     },
-    getResultClass(result, eventDate) {
-      const currentDate = new Date(); // 현재 날짜
-      const eventDateObject = new Date(eventDate); // 경기 날짜
+    // 경기 장소와 시간을 포맷팅
+    formatLocationAndTime(match) {
+      const date = new Date(match.matchDate);
+      const hours = String(date.getHours()).padStart(2, '0');
+      const minutes = String(date.getMinutes()).padStart(2, '0');
+      const time = `${hours}:${minutes}`;
+      let location = '';
 
-      if (!result && eventDateObject > currentDate) {
-          return 'upcoming'; // 경기 예정인 경우 'upcoming' 클래스 반환
+      // HOME 경기일 경우 장소에 '서울 하이' 출력
+      if (match.matchStadium === 'HOME') {
+        location = '서울 하이';
+      } else {
+        // AWAY 경기일 경우 상대 팀 ID에 따라 특정 장소 설정
+        if (match.matchOpponentTeamId === 2) {
+          location = '수원';
+        } else if (match.matchOpponentTeamId === 5) {
+          location = '의정부';
+        } else {
+          // 그 외의 AWAY 경기일 경우 '지역 + 체육관명' ex. '서울 장충'
+          location = match.teamStadium.slice(0, 2) + ' ' + match.teamStadium.slice(2, -3);
+        }
       }
-
-      if (result === '승') {
-          return 'win'; // 승일 경우 'win' 클래스 반환
-      } else if (result === '패') {
-          return 'lose'; // 패일 경우 'lose' 클래스 반환
-      }
-          return ''; // 그 외의 경우 기본값 반환
-      },
-      getDisplayResult(result, eventDate) {
-      const currentDate = new Date();
-      const eventDateObject = new Date(eventDate);
-      if (!result && eventDateObject > currentDate) {
-          return '예'; // 경기 예정
-      }
-      return result || ''; // 경기 결과가 있으면 그 결과 표시
-      },
+      return `${location} ${time}`;
+    },
+    // 경기 결과에 따라 CSS 클래스 반환
+    getResultClass(matchSetScore, matchOpponentTeamSetScore) {
+      if (matchSetScore > matchOpponentTeamSetScore) return 'win';
+      else if (matchSetScore < matchOpponentTeamSetScore) return 'lose';
+      return 'upcoming'; // 경기 예정인 경우
+    },
+    // 경기 결과에 따른 표시 텍스트 반환
+    getDisplayResult(matchSetScore, matchOpponentTeamSetScore) {
+      return matchSetScore > matchOpponentTeamSetScore ? '승' : '패';
+    },
     // 이전 달 출력 함수
     prevMonth() {
     if (this.selectedMonth === 1) {
@@ -148,14 +162,16 @@ export default {
       this.selectedMonth++;
       }
     },
-      // 현재 시간과 비교하여 예매 가능 여부를 확인하는 함수
-      isReservationAvailable(event) {
-          const currentDate = new Date();
-          const eventDate = new Date(`${event.date} ${event.time}`);
-          return eventDate > currentDate; // 현재 시간보다 이후인 경우에만 true
-      }
-    },
+    // 현재 날짜와 경기 날짜를 비교해 예매 가능 여부 반환
+    isReservationAvailable(event) {
+      const currentDate = new Date();
+      const eventDate = new Date(event.matchDate);
+      return eventDate > currentDate && this.selectedYear === currentDate.getFullYear() &&
+             (this.selectedMonth === currentDate.getMonth() + 1 || this.selectedMonth === currentDate.getMonth() + 2);
+    }
+  },
   computed: {
+    // 달력에 표시할 주간 데이터를 계산
     calendarWeeks() {
       const daysInMonth = new Date(this.selectedYear, this.selectedMonth, 0).getDate();
       const firstDayOfMonth = new Date(this.selectedYear, this.selectedMonth - 1, 1).getDay();
@@ -167,24 +183,21 @@ export default {
         days.push({ date: '', events: [] });
       }
 
-      // 날짜와 이벤트 추가
+      // 각 날짜에 이벤트 추가
       for (let day = 1; day <= daysInMonth; day++) {
         const date = `${this.selectedYear}-${String(this.selectedMonth).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-        const dayEvents = this.events.filter(event => event.date === date);
+        const dayEvents = this.events.filter(event => new Date(event.matchDate).toISOString().split('T')[0] === date);
         days.push({ date: day, events: dayEvents });
-        
-        // 주별로 분리
+
         if (days.length === 7) {
           weeks.push(days);
           days = [];
         }
       }
 
-      // 마지막 주에 빈 칸 채우기
+      // 마지막 주 빈 칸 채우기
       if (days.length > 0) {
-        while (days.length < 7) {
-          days.push({ date: '', events: [] });
-        }
+        while (days.length < 7) days.push({ date: '', events: [] });
         weeks.push(days);
       }
       return weeks;
