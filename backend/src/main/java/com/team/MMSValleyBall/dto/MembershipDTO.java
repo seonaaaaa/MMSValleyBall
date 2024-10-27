@@ -17,7 +17,7 @@ public class MembershipDTO {
     private Long membershipId;
     private String membershipName;
     private int membershipPrice;
-    private SeasonDTO membershipSeason;
+    private Long membershipSeasonId;
     private List<UserDTO> users;
     private List<MembershipSalesDTO> membershipSales;
 
@@ -27,7 +27,7 @@ public class MembershipDTO {
                 "Id=" + membershipId +
                 ", Name='" + membershipName + '\'' +
                 ", Price=" + membershipPrice +
-                ", EndDate=" + (membershipSeason != null ? membershipSeason.getSeasonEndDate() : "null") +
+                ", EndDate=" + membershipSeasonId +
                 ", UsersCount=" + (users != null ? users.size() : 0) +
                 ", MembershipSalesCount=" + (membershipSales != null ? membershipSales.size() : 0) +
                 '}' + '\n';
@@ -49,7 +49,7 @@ public class MembershipDTO {
                 membership.getMembershipId(),
                 membership.getMembershipName(),
                 membership.getMembershipPrice(),
-                SeasonDTO.fromEntity(membership.getMembershipSeason()),
+               membership.getMembershipSeason().getSeasonId(),
                 userDTOList,
                 membershipSalesDTOList
         );

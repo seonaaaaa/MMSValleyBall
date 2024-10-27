@@ -1,5 +1,5 @@
 --team
-INSERT INTO team(team_stadium, team_name) VALUES
+INSERT INTO team(team_name, team_stadium) VALUES
 	 ('OK저축은행','안산상록수체육관'),
 	 ('한국전력','수원체육관'),
 	 ('현대캐피탈','천안유관순체육관'),

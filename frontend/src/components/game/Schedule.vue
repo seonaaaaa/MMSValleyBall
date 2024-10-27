@@ -11,7 +11,7 @@
     
       <!-- 경기 일정 페이지 내용 -->
       <div class="game-schedule-content">
-  
+      <CalendarTotal :events="events" />
   
   
       </div>
@@ -20,15 +20,83 @@
   
   <script>
   import LogoHeader from '../common/LogoHeader.vue';
+  import CalendarTotal from './CalendarTotal.vue';
   
   export default {
       name: 'AppSchedule',
       components: {
-        LogoHeader
+        LogoHeader,
+        CalendarTotal
     },    
     data() {
       return {
-        activeMenu: this.$route.path // 현재 활성화된 경로
+        // 현재 활성화된 경로
+        activeMenu: this.$route.path,
+
+        // Axios로 API와 연동하기 전에 화면 테스트
+        // Calendar에 전달할 경기 일정 데이터
+        events: [
+          {
+            id: 1,
+            team: 'blueFangs',
+            location: '서울',
+            time: '14:00',
+            result: '승',
+            score: '3:1',
+            date: '2024-10-19',
+            isHomeGame: true // 홈 경기
+          },
+          {
+            id: 2,
+            team: 'jumbos',
+            location: '수원',
+            time: '17:00',
+            result: '승',
+            score: '2:5',
+            date: '2024-10-23',
+            isHomeGame: false // 원정 경기
+          },
+          {
+            id: 3,
+            team: 'ok',
+            location: '부산',
+            time: '14:00',
+            result: '패',
+            score: '0:0',
+            date: '2024-10-27',
+            isHomeGame: false
+          },
+          {
+            id: 4,
+            team: 'vixtorm',
+            location: '서울',
+            time: '19:00',
+            result: '',
+            score: '0:0',
+            date: '2024-10-31',
+            isHomeGame: true
+          },
+          {
+            id: 5,
+            team: 'walkers',
+            location: '서울',
+            time: '16:00',
+            result: '',
+            score: '0:0',
+            date: '2024-11-05',
+            isHomeGame: true
+          },
+          {
+            id: 6,
+            team: 'won',
+            location: '서울',
+            time: '19:00',
+            result: '',
+            score: '0:0',
+            date: '2024-11-08',
+            isHomeGame: false
+          }
+        ]
       };
     },
     watch: {
@@ -95,5 +163,8 @@
   }
   
   /* 경기 일정 */
-  
+  .game-schedule-content {
+    padding-top: 50px;
+    padding-bottom: 80px;
+  }
   </style>

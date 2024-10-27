@@ -1,0 +1,50 @@
+package com.team.MMSValleyBall.service;
+
+import com.team.MMSValleyBall.dto.MatchDTO;
+import com.team.MMSValleyBall.dto.MatchTableDTO;
+import com.team.MMSValleyBall.entity.Match;
+import com.team.MMSValleyBall.repository.MatchRepository;
+import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.List;
+
+@Service
+public class MatchService {
+    private final MatchRepository matchRepository;
+
+    public MatchService(MatchRepository matchRepository) {
+        this.matchRepository = matchRepository;
+    }
+
+
+    public List<MatchDTO> findAllMatches() {
+        List<Match> matchList = matchRepository.findAll();
+        System.out.println("service - match size : " + matchList.size());
+        return matchList.stream().map(x -> MatchDTO.fromEntity(x)).toList();
+    }
+
+    public List<MatchTableDTO> convertMatchToString() {
+        List<Match> matchList = matchRepository.findAll();
+        List<MatchTableDTO> matches = new ArrayList<>();
+
+        for (Match match : matchList) {
+            MatchTableDTO dto = new MatchTableDTO();
+            dto.setMatchId(match.getMatchId());
+            dto.setMatchDate(match.getMatchDate());
+
+            // null 체크 추가
+            if (match.getMatchOpponentTeam() != null) {
+                dto.setMatchTeam(match.getMatchOpponentTeam().getTeamName());
+                dto.setMatchStadium(match.getMatchOpponentTeam().getTeamStadium());
+            } else {
+                dto.setMatchTeam("Unknown");
+                dto.setMatchStadium("Unknown"); // 혹은 다른 기본 값 설정
+            }
+
+            matches.add(dto);
+        }
+        return matches;
+    }
+
+}

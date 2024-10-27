@@ -2,7 +2,7 @@
   <header>
     <!-- 로그인, 회원가입 링크 상단 -->
     <div class="auth-links">
-      <a href="#" class="login">로그인</a> | <a href="#" class="signup">회원가입</a>
+     <router-link to="/login" class="login">로그인</router-link> | <router-link to="/signup" class="signup">회원가입</router-link>
     </div>
   
     <!-- 네비게이션 바 -->
@@ -126,7 +126,6 @@ header {
   justify-content: flex-end;
   padding: 10px 20px;
   background-color: white;
-  /* border: 10px solid blue; */
 }
 
 .auth-links a {
@@ -148,7 +147,6 @@ header {
   border-bottom: 1px solid #ddd;
   width: 100%;
   box-shadow: 0px 8px 8px -4px rgba(0, 0, 0, 0.1);
-  /* border: 10px solid red;	 */
 }
 
 /* 메뉴 전체를 감싸는 컨테이너 */
@@ -196,7 +194,6 @@ header {
   text-align: center;
   font-size: 18px;
   width: 160px;
-  /* border: 10px solid green; */
 }
 
 .nav-item a {

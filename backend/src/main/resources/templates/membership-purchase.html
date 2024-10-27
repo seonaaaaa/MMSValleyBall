@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Membership Purchase</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+<div>
+    <span>멤버십 선택</span>
+    <select class="form-select" id="membership-select">
+        <option value="">선택</option>
+        <option value="100000">SILVER</option>
+        <option value="300000">GOLD</option>
+    </select>
+</div>
+<br>
+<table>
+    <tr>
+        <th>충전 금액</th>
+        <th>멤버십 금액</th>
+        <th>잔액</th>
+    </tr>
+    <tr>
+        <td><p id="payment">0</p> 원</td>
+        <td>- <p id="membership-price">0</p> 원</td>
+        <td><p id="left-money">0</p> 원</td>
+        <td><button id="btn-charge" style="display: none;">충전하기</button></td>
+    </tr>
+</table>
+<br>
+<button type="submit" id="btn-purchase">구매하기</button>
+<button>취소</button>
+
+<script th:inline="javascript">
+    // 멤버십 선택시 잔액 변경 메서드 생성
+    function updatePrices() {
+        // 멤버십 선택값 가져오기
+        var membershipPrice = parseInt($('#membership-select').val()) || 0;
+        // 충전 금액 가져오기
+        var payment = parseInt($('#payment').text().replace(/[^0-9]/g, "")) || 0;
+        // 멤버십 금액 업데이트
+        $('#membership-price').text(membershipPrice.toLocaleString());
+        // 남은 금액 계산
+        var leftMoney = payment - membershipPrice;
+        $('#left-money').text(leftMoney.toLocaleString());
+        // leftMoney가 0보다 작으면 충전하기 버튼 보이기
+        if (leftMoney < 0) {
+            $('#btn-charge').show();
+        } else {
+            $('#btn-charge').hide();
+        }
+    }
+
+    $(document).ready(function(){
+        // 페이지가 로드될 때 충전 금액을 API로 가져오는 함수
+        $.ajax({
+            url : "/membership/purchase",
+            type : "get",
+            data :
+            success: function(data) {
+                $('#payment').text(data.userMoney.toLocaleString()); // API에서 받은 leftMoney로 충전 금액 설정
+                updatePrices(); // 초기 업데이트
+            },
+            error: function(xhr, status, error) {
+                console.error('Error fetching user money:', error);
+            }
+        });
+
+        // 멤버십 선택시 잔액 변경
+        $('#membership-select').change(updatePrices);
+
+        // 구매하기 버튼 클릭시 사용자 정보, 선택한 멤버십 정보 보내기
+        $('#btn-purchase').on("click", function(){
+            // 멤버십 선택값으로 멤버십 아이디 설정
+            var membershipPrice = parseInt($('#membership-select').val()) || 0;
+            var membershipId = 4,
+            if(membershipPrice == 100000){
+                membershipId = 5;
+            } else if(membershipPrice == 300000){
+                membershipId = 6;
+            }
+            // newMembership 데이터를 저장
+            membershipData = data.newMembership;
+            // newMembership의 membershipSalesMembershipId에 선택한 membershipId 설정
+            membershipData.membershipSalesMembershipId = membershipId;
+
+            $.ajax({
+                url : "/membership/purchase/completed",
+                type : "post",
+                dataType : "json",
+                headers : {
+                    "Content-Type" : "application/json",
+                },
+                data : JSON.stringify(membershipData), // 수정된 newMembership 데이터 전송
+                success : function(data, status, xhr){
+                        console.log(data);
+                    },
+                error : function(xhr, status, error){
+                        console.log(error);
+                    },
+            });
+    });
+
+</script>
+</body>
+</html>

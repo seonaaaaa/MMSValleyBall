@@ -46,8 +46,8 @@
         <div class="highlight-slider-container">
           <div class="highlight-slides" :style="{ transform: `translateX(-${currentHighlightSlide * 100}%)` }">
             <div v-for="(slide, index) in highlightSlides" :key="index" class="highlight-slide">
-              <img :src="slide.img" :alt="'Highlight Slide ' + (index + 1)" /> <!-- 셀프 클로징 -->
-              <img class="highlight-play-button" src="@/assets/img/common/content-slide-icon-play-button.png" alt="Play Button" /> <!-- 셀프 클로징 -->
+              <img :src="slide.img" :alt="'Highlight Slide ' + (index + 1)" />
+              <img class="highlight-play-button" src="@/assets/img/common/content-slide-icon-play-button.png" alt="Play Button" />
               <div class="highlight-overlay"></div>
             </div>
           </div>
@@ -80,7 +80,7 @@
 </template>
 
 <script>
-import Calendar from '../game/Calendar.vue';
+import Calendar from '../common/CalendarMain.vue';
 
 export default {
   name: 'AppContent',
@@ -114,14 +114,25 @@ export default {
       events: [
         {
           id: 1,
-          logo: require('@/assets/img/game/blueFangs.png'),
-          location: '인천',
+          team: 'blueFangs',
+          location: '서울',
           time: '18:30',
           result: '승',
           score: '6:3',
-          date: '2024-10-23'
+          date: '2024-10-23',
+          isHomeGame: true // 홈 경기 여부 추가
         },
-        // 다른 이벤트 데이터 추가 가능
+        {
+          id: 2,
+          team: 'jumbos',
+          location: '인천',
+          time: '17:00',
+          result: '패',
+          score: '2:5',
+          date: '2024-10-24',
+          isHomeGame: false // 원정 경기 여부 추가
+        }
+        // 테스트용 데이터, axios - api 연동할 때 Calender*.vew 로직 수정 예정
       ]
 
 
