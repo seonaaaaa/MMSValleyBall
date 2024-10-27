@@ -127,7 +127,7 @@
     max-width: 800px;
     margin: 0 auto;
     padding-top: 30px;
-    padding-bottom: 60px;
+    padding-bottom: 70px;
     text-align: left;
   }
   
