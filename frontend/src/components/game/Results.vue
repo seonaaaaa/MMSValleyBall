@@ -41,7 +41,11 @@
         <tr v-for="match in matches" :key="match.matchId">
           <td>{{ formatDate(match.matchDate) }}</td>
           <td>{{ match.matchId }}</td>
-          <td>{{ formatMatchResult(match) }}</td>
+          <td>
+            <span class="home-team">MMS GS</span>
+            <span class="score">{{ match.matchSetScore }}:{{ match.matchOpponentTeamSetScore }}</span>
+            <span class="away-team">{{ match.teamName }}</span>
+          </td>
           <td>{{ formatTime(match.matchDate) }}</td>
           <td>{{ match.teamStadium }}</td>
           <td>{{ (currentPage + 1) }} 라운드</td>
@@ -90,30 +94,30 @@ export default {
       this.activeMenu = route; 
     },
 
-    // 전체 경기를 보기 위한 데이터 가져오기
+    // 전체보기 - 선택된 시즌의 전체 데이터 가져오기
     async showAllMatches() {
       try {
-        const response = await axios.get(`http://localhost:4000/game/schedule/total`);
+        const response = await axios.get(`http://localhost:4000/game/schedule/total`, {
+          params: { seasonId: this.selectedSeasonId }
+        });
         this.matches = response.data.content;
-        this.totalPages = response.data.totalPages;
-        this.currentPage = 0; // 첫 페이지로 초기화
+        this.totalPages = 1; // 전체보기 시 페이지 1로 고정
+        this.currentPage = 0;
       } catch (error) {
         console.error("Error fetching all match data:", error);
       }
     },
 
-    // 선택된 시즌의 데이터 가져옴
+    // 선택된 시즌별 데이터 페이징 처리하여 가져오기
     async fetchMatches(page = 0) {
       try {
-        const response = await axios.get(`http://localhost:4000/game/results`, 
-          {
-            params: {
-              seasonId: this.selectedSeasonId,
-              page: page,
-              size: 6,
-            },
-          }
-        );
+        const response = await axios.get(`http://localhost:4000/game/results`, {
+          params: {
+            seasonId: this.selectedSeasonId,
+            page: page,
+            size: 6,
+          },
+        });
         this.matches = response.data.content;
         this.totalPages = response.data.totalPages;
         this.currentPage = page;
@@ -121,7 +125,7 @@ export default {
         console.error("Error fetching data:", error);
       }
     },
-
+    
     // 페이지 이동
     goToPage(page) {
       if (page >= 0 && page < this.totalPages) {
@@ -141,7 +145,7 @@ export default {
     },
     // 경기 결과 포맷팅
     formatMatchResult(match) {
-      return `${match.teamName} ${match.matchSetScore}:${match.matchOpponentTeamSetScore} ${match.opponentTeamName}`;
+      return `MMS GS   ${match.matchSetScore}:${match.matchOpponentTeamSetScore}   ${match.teamName}`;
     },
   },
   mounted() {
@@ -225,5 +229,12 @@ export default {
   padding: 10px;
   border: 1px solid #ddd;
   text-align: center;
+}
+
+.home-team, .away-team {
+  margin-right: 10px; /* 팀명 사이의 공백 */
+}
+.score {
+  margin: 0 13px; /* 스코어와 팀명 사이의 여백 */
 }
 </style>
