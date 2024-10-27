@@ -1,57 +1,79 @@
 package com.team.MMSValleyBall.controller;
 
-import com.team.MMSValleyBall.dto.MembershipDTO;
-import com.team.MMSValleyBall.dto.MembershipSalesDTO;
-import com.team.MMSValleyBall.dto.UserDTO;
-import com.team.MMSValleyBall.service.MembershipSalesService;
-import com.team.MMSValleyBall.service.MembershipService;
-import com.team.MMSValleyBall.service.UserService;
+import com.team.MMSValleyBall.dto.*;
+import com.team.MMSValleyBall.service.MyPageService;
+import com.team.MMSValleyBall.service.UsersBallaceService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("myPage")
 public class MyPageController {
-    private final UserService userService;
-    private final MembershipSalesService membershipService;
+   private final MyPageService myPageService;
+   private final UsersBallaceService usersBallaceService;
 
-    public MyPageController(UserService userService, MembershipSalesService membershipService) {
-        this.userService = userService;
-        this.membershipService = membershipService;
+    public MyPageController(MyPageService myPageService, UsersBallaceService usersBallaceService) {
+        this.myPageService = myPageService;
+        this.usersBallaceService = usersBallaceService;
     }
 
     // 티켓 예매 탭에서 받을 티켓 예매 내역
     @GetMapping("ticket")
-    public ResponseEntity<?> myTicket(){
-        // 인증 정보가 가진 이메일로 조회
-        UserDTO findUser = userService.findByEmail("won@cbc.com");
-        return ResponseEntity.status(HttpStatus.OK).body(findUser.getTickets());
+    public ResponseEntity<List<TicketDTO>> userTicket(@RequestParam("email")String email){
+        UserDTO findUser = myPageService.findByEmail(email);
+        return ResponseEntity.ok(findUser.getTickets());
     }
 
     // 나의 멤버십 탭에서 받을 사용자 멤버십 정보
     @GetMapping("membership")
-    public ResponseEntity<?> myMembership(){
-        UserDTO findUser = userService.findByEmail("won@cbc.com");
-        // 사용자가 가진 멤버십의 정보
-        MembershipDTO usersMembership = membershipService.getUsersMembership(findUser.getUserMembershipName());
-        usersMembership.setUsers(null); // 출력에 불필요한 정보 삭제
-        if(usersMembership.getMembershipPrice() == 0){
-            return ResponseEntity.ok(usersMembership);
-        }else {
-            // 사용자의 멤버십 결제 정보
-            List<MembershipSalesDTO> membershipSalesList = membershipService.myMembershipSalesList("won@cbc.com");
-            // 마지막 결제 정보만 불러오면 됨
-            return ResponseEntity.status(HttpStatus.OK).body(membershipSalesList.get(membershipSalesList.size()-1));
-        }
+    public ResponseEntity<Map<String, Object>> userMembership(@RequestParam("email")String email){
+        return ResponseEntity.ok(myPageService.getUserCurrentMembership(email));
     }
 
+    // 나의 정보 탭에서 받을 사용자 정보
     @GetMapping("info")
-    public ResponseEntity<?> myInfo(){
-        UserDTO findUser = userService.findByEmail("won@cbc.com");
-        findUser.setTickets(null); // 출력에 불필요한 정보 삭제
-        return ResponseEntity.status(HttpStatus.OK).body(findUser);
+    public ResponseEntity<Map<String, Object>> userInfo(@RequestParam("email")String email){
+        UserDTO findUser = myPageService.findByEmail(email);
+        // 출력에 불필요한 정보 삭제
+        findUser.setTickets(null);
+        findUser.setPayments(null);
+        findUser.setMembershipSales(null);
+        // 맵에 담아서 보내기
+        Map<String, Object> body = new HashMap<>();
+        body.put("user", findUser);
+        // 충전 잔액 담기
+        body.put("balance", usersBallaceService.getUsersBalance(email).getLeftMoney());
+        return ResponseEntity.ok(body);
+    }
+
+    // 사용자 정보 수정 요청처리
+    @PatchMapping("info/modify")
+    public ResponseEntity<String> modifyUserInfo(@RequestBody UserDTO userDTO){
+        return ResponseEntity.ok(myPageService.modifyUserInfo(userDTO));
+    }
+
+    // 회원 탈퇴
+    @DeleteMapping("info/delete")
+    public ResponseEntity<String> deleteUser(@RequestBody UserDTO userDTO){
+        return ResponseEntity.ok(myPageService.deleteUserById(userDTO.getUserId()));
+    }
+
+    // 사용자의 충전 잔액
+    @GetMapping("info/recharge")
+    public ResponseEntity<Integer> balance(@RequestParam("email")String email){
+        return ResponseEntity.ok(usersBallaceService.getUsersBalance(email).getLeftMoney());
+    }
+
+    // 잔액 충전
+    @PostMapping("info/recharge")
+    public ResponseEntity<String> topUp(@RequestBody Map<String, String> data){
+
+        return ResponseEntity.ok(myPageService.topUp(data));
     }
 }
