@@ -1,8 +1,8 @@
 <template>
   <div class="calendar-main">
-    <!-- 부모 컨테이너 -->
+    <!-- 달력 위 컨테이너 -->
     <div class="header-container">
-      <!-- 홈경기/원정경기 정보 -->
+      <!-- 홈경기/원정경기 라벨 -->
       <div class="legend">    
         <div class="circle home-circle"></div>
         <span class="legend-text">홈 경기</span>
@@ -22,6 +22,10 @@
       <img src="@/assets/img/game/calendar-icon-next.png" alt="다음달" 
           class="nav-button" @click="nextMonth" />
       </div>
+      <!-- 티켓 예매하기 버튼 -->
+      <router-link to="/ticket/purchase">
+        <button class="ticket-purchase-btn">티켓 예매하기</button>
+      </router-link>
     </div>
 
   <!-- 달력 테이블 -->
@@ -304,7 +308,7 @@ cursor: pointer;
 
 select {
   background-color: #f8f9fa;
-  border: none;
+  border: 1px solid #ddd;
   box-shadow: 0 2px 8px rgba(50, 50, 50, 0.2);
   padding: 10px;
   border-radius: 5px;
@@ -314,6 +318,28 @@ select {
   outline: none;
   margin: 0 5px;
   cursor: pointer;
+}
+
+/* 상단 티켓 예매하기 버튼 */
+.ticket-purchase-btn {
+  background-color: #f8f9fa;
+  border: 1px solid #ddd;
+  box-shadow: 0 2px 8px rgba(50, 50, 50, 0.2);
+  padding: 10px 20px;
+  border-radius: 5px;
+  font-size: 16px;
+  font-weight: bold;
+  color: #333;
+  cursor: pointer;
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.ticket-purchase-btn:hover {
+  transform: translateY(-50%) scale(1.05);
+  color: #222;
 }
 
 /* 달력 테이블 */
@@ -444,7 +470,6 @@ font-size: 14px;
 font-weight: bold;
 color: #333;
 cursor: pointer;
-transition: background-color 0.3s, box-shadow 0.3s, font-weight 0.3s;
 }
 
 .reservation-button:disabled {
@@ -454,7 +479,6 @@ transition: background-color 0.3s, box-shadow 0.3s, font-weight 0.3s;
 }
 
 .reservation-button:hover:not(:disabled) {
-  /* hover 효과 : 크기를 약간 확대 */
   transform: scale(1.05);
   color: #222;
 }

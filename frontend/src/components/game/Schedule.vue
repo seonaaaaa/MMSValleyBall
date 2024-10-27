@@ -115,7 +115,7 @@
   
   /* 경기 일정 */
   .game-schedule-content {
-    padding-top: 50px;
-    padding-bottom: 80px;
+    padding-top: 75px;
+    padding-bottom: 100px;
   }
   </style>

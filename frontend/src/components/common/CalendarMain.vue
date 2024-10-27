@@ -214,14 +214,13 @@ export default {
 
 .view-all-btn {
   background-color: #f8f9fa;
-  border: none;
+  border: 1px solid #ddd;
   box-shadow: 0 2px 8px rgba(50, 50, 50, 0.2);
   padding: 10px;
   border-radius: 5px;
   font-size: 16px;
   font-weight: bold;
   color: #333;
-  outline: none;
   margin-left: 20px;
   transition: border-color 0.3s ease;
   cursor: pointer;
