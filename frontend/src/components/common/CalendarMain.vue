@@ -99,17 +99,21 @@ export default {
       if (match.matchStadium === 'HOME') {
         location = '서울 하이';
       } else {
-        // AWAY 경기 + 수원일 경우 장소에 '수원' 출력
+      // AWAY 경기일 경우
+      const teamStadium = this.getTeamStadium(match.matchOpponentTeamId);
+        // 수원, 의정부 -> '지역' 출력
         if (match.matchOpponentTeamId === 2) {
           location = '수원';
+        } else if (match.matchOpponentTeamId === 5) {
+          location = '의정부';
         } else {
-          // AWAY 경기일 경우 장소에 '지역 + 체육관명' 출력 ex. 서울 장충
-          const teamStadium = this.getTeamStadium(match.matchOpponentTeamId);
+          // 그 외의 AWAY 경기일 경우 장소에 '지역 + 체육관명' 출력 ex. 서울 장충
           location = teamStadium.slice(0, 2) + ' ' + teamStadium.slice(2, -3);
         }
       }
       return `${location} ${time}`;
     },
+    // 팀 정보는 변경될 일이 거의 없으므로 API 호출 없이 직접 ID와 경기장 위치를 매핑함
     getTeamStadium(teamId) {
       switch (teamId) {
         case 1:
