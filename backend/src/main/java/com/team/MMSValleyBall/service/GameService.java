@@ -2,8 +2,10 @@ package com.team.MMSValleyBall.service;
 
 import com.team.MMSValleyBall.dto.MatchDTO;
 import com.team.MMSValleyBall.dto.MatchWithTeamDTO;
-import com.team.MMSValleyBall.entity.Match;
 import com.team.MMSValleyBall.repository.GameRepository;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -43,5 +45,20 @@ public class GameService {
         System.out.println("matchList.size() : " + matchList.size());
 
         return matchList;
+    }
+
+    // 시즌별 페이지 단위 경기 일정 조회 (Page<MatchWithTeamDTO> 반환)
+    public Page<MatchWithTeamDTO> findPagedMatchesBySeason(Long seasonId, Pageable pageable) {
+        Page<MatchWithTeamDTO> matchPages = gameRepository.findByMatchSeason_SeasonId(seasonId, pageable)
+                                                          .map(entity -> MatchWithTeamDTO.fromEntity(entity));
+    
+        // 전체 검색된 경기의 수
+        System.out.println("Total elements in matchPages: " + matchPages.getTotalElements());
+        // 현재 페이지의 요소 수
+        System.out.println("Number of elements in current page: " + matchPages.getNumberOfElements());
+        // 총 페이지 수
+        System.out.println("Total pages: " + matchPages.getTotalPages());
+        
+        return matchPages;
     }
 }
