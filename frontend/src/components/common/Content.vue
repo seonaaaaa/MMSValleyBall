@@ -155,11 +155,13 @@ export default {
     goToHighlightSlide(index) {
       this.currentHighlightSlide = index;
     },
-
     async fetchEvents() {
       try {
         const response = await axios.get('http://localhost:4000/game/schedule');
-        console.log(response.data); // 데이터 확인
+        // 데이터 확인
+        // Vue 개발 모드에서 컴포넌트 초기화를 두 번 함 -> 초기 메인 페이지 띄울 때 console.log 2번 뜨니 참고
+        // Vue 배포 모드에서는 자동으로 한 번만 렌더링하도록 동작하므로 별도의 설정 넣지 않음
+        console.log(response.data); 
         this.events = response.data; // 응답 데이터 설정
       } catch (error) {
         console.error("Error fetching events:", error);

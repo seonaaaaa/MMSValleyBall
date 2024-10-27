@@ -15,7 +15,7 @@ public class WebConfig {
             @Override
             public void addCorsMappings(CorsRegistry registry) {
                 registry.addMapping("/**")
-                        .allowedOrigins("http://localhost:8081") // 프론트엔드 서버의 포트
+                        .allowedOrigins("http://localhost:8080") // 프론트엔드 서버의 포트
                         .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS");
             }
         };

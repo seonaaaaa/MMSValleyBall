@@ -1,5 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router';
 
+import AppContent from '@/components/common/Content.vue';
+
 // MMS 메뉴
 import AppMMS from '@/components/mms/MMS.vue';
 import AppGreeting from '@/components/mms/Greeting.vue';
@@ -35,14 +37,14 @@ import loginPage from '@/components/member/Login.vue';
 import SignupPage from '@/components/member/Signup.vue'
 
 const routes = [
-  // 홈 화면 경로 (AppContent 표시됨)
-  // 홈 페이지(/)는 AppContent를 렌더링하고 나머지 경로에서는 AppContent가 숨겨짐
+  // 기본 홈 화면 경로 추가
   {
     path: '/',
     name: 'Home',
-    component: AppMMS,
-    meta: { hideContent: false },
+    component: AppContent,
+    meta: { hideContent: true },
   },
+
   // MMS 메뉴
   {
     path: '/mms',
@@ -95,7 +97,7 @@ const routes = [
     meta: { hideContent: true },
   },
    // GAME 메뉴
-   {
+  {
     path: '/game/schedule',
     name: 'Schedule',
     component: AppSchedule,
@@ -171,13 +173,17 @@ const routes = [
     component: SignupPage,
     meta: { hideContent: true },
   },
+  // 라우터 경로 맨 하단에 두기 ***
+  // 배포 전 404 처리 추가하기
   // 404 페이지 경로 (잘못된 경로로 접속 시 NotFound.vue 컴포넌트가 표시)
-  {
-    path: '/:catchAll(.*)',  // 와일드카드 경로로 모든 일치하지 않는 경로를 잡음
-    name: 'NotFound',
-    component: () => import('@/components/common/NotFound.vue'), // 404 페이지 컴포넌트
-    meta: { hideContent: true },
-  }
+  // {
+  //   // 와일드카드 경로로 모든 일치하지 않는 경로를 잡음
+  //   path: '/:catchAll(.*)',  
+  //   name: 'NotFound',
+  //   // 404 페이지 컴포넌트
+  //   component: () => import('@/components/common/NotFound.vue'), 
+  //   meta: { hideContent: true },
+  // }
 ];
 
 const router = createRouter({

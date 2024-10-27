@@ -18,7 +18,7 @@ public class GameService {
     public List<MatchDTO> findAllMatches() {
         // 모든 경기 정보를 조회하고 MatchDTO로 변환하여 반환
 //        List<Match> matchList = gameRepository.findAll();
-//        System.out.println("service - match size : " + matchList.size());
+//        System.out.println("smatchList.size : " + matchList.size());
 //        return gameRepository.findAll()
 //                .stream()
 //                .map(entity-> MatchDTO.fromEntity(entity)).toList();
