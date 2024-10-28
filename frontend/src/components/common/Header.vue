@@ -101,8 +101,9 @@
           path: '/mypage/reservations',
           submenu: [
             { title: '예매 내역', path: '/mypage/reservations' }, 
-            { title: '나의 멤버십', path: '/mypage/membership' }, 
-            { title: '나의 정보 수정', path: '/mypage/edit-profile' }, 
+            { title: '멤버십 내역', path: '/mypage/membership' }, 
+            { title: '개인정보 수정', path: '/mypage/edit-profile' }, 
+            { title: '회원 탈퇴', path: '/mypage/delete-account' }
           ] 
         }
       ]
