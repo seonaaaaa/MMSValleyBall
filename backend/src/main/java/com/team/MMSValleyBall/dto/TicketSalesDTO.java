@@ -11,7 +11,9 @@ public class TicketSalesDTO {
     private Long ticketId;
     private Long userId;
     private Long matchId;
+    //좌석 구역 id
     private Long ticketDetailSeat;
+    //티켓 예매 수량
     private int ticketDetailAmount;
     private int ticketPaidPrice;
     private String ticketNumber;

@@ -5,6 +5,7 @@ import com.team.MMSValleyBall.repository.TicketRepository;
 import org.springframework.stereotype.Service;
 
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 
 @Service
 public class TicketService {
@@ -23,5 +24,11 @@ public class TicketService {
                 + ticketSalesDTO.getMatchId()
                 + ticketSalesDTO.getTicketDetailAmount()
                 + ticketSalesDTO.getUserId();
+    }
+
+    public List<Object[]> getAvailableSeatsByMatch(Long matchId) {
+        List<Object[]> resultList = ticketRepository.findAvailableSeatsByMatch(matchId);
+        System.out.println("ticket service - available seats : " + resultList);
+        return resultList;
     }
 }

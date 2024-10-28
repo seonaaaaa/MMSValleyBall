@@ -1,6 +1,5 @@
 package com.team.MMSValleyBall.controller;
 
-import com.team.MMSValleyBall.dto.MatchDTO;
 import com.team.MMSValleyBall.dto.MatchTableDTO;
 import com.team.MMSValleyBall.dto.TicketSalesDTO;
 import com.team.MMSValleyBall.service.MatchService;
@@ -9,7 +8,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/ticket")
@@ -49,15 +50,39 @@ public class TicketController {
     }
 
     //티켓 예매 모달 - 메인
-    @GetMapping("/purchase/main")
-    public ResponseEntity<String> viewTicketPurchaseMain() {
-        //잔여석 정보 가져오기
-        return ResponseEntity.ok("Ticket purchase modal main");
+    @GetMapping("/purchase/main/{matchId}")
+    ResponseEntity<Map<String, Object>> viewTicketPurchaseMain(@PathVariable Long matchId) {
+        //1. 로그인 세션 확인 -> 로그인 안된 상태면 로그인 페이지로 이동
+
+        //2. 경기 정보 가져오기
+        MatchTableDTO match = matchService.getOneMatch(matchId);
+
+        //3. 잔여석 정보 가져오기
+        List<Object[]> leftSeatList = ticketService.getAvailableSeatsByMatch(matchId);
+
+        //4. 보내기
+        Map<String, Object> response = new HashMap<>();
+        response.put("matchInfo", match);
+        response.put("availableSeatList", leftSeatList);
+
+        return ResponseEntity.ok(response);
     }
+
     //티켓 예매 모달 - 구역 선택(1-get)
-    @GetMapping("/purchase/selection")
-    public ResponseEntity<String> viewTicketPurchaseSelection() {
-        return ResponseEntity.ok("Ticket purchase modal selection");
+    @GetMapping("/purchase/selection/{matchId}")
+    ResponseEntity<Map<String, Object>> viewTicketPurchaseSelection(@PathVariable Long matchId) {
+        //1. 경기 정보 가져오기
+        MatchTableDTO match = matchService.getOneMatch(matchId);
+
+        //2. 잔여석 정보 가져오기
+        List<Object[]> leftSeatList = ticketService.getAvailableSeatsByMatch(matchId);
+
+        //3. 보내기
+        Map<String, Object> response = new HashMap<>();
+        response.put("matchInfo", match);
+        response.put("availableSeatList", leftSeatList);
+
+        return ResponseEntity.ok(response);
     }
     //티켓 예매 모달 - 구역 선택(2-post)
     @PostMapping("/purchase/selection/select")
