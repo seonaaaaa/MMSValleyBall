@@ -3,7 +3,7 @@
     <div id="modal" class="modal" v-if="visible">
 
         <!-- 모달 내용 -->
-        <div class="modal-content">
+        <div class="first-modal-content">
 
             <!-- 모달 제목 -->
             <!-- 선택한 데이터 가져와서 일정 넣어야함 -->
@@ -54,19 +54,38 @@
                         <!-- 숨겨진 테이블 -->
                         <table v-if="isChecked" class="modal-table-hide">
                             <tbody>
+
                                 <tr v-for="(zone, index) in zones" :key="zone.name">
                                     <td>{{ zone.name }}</td>
                                     <td>
                                         <div class="quantity-selector">
                                             <button @click="decreaseQuantity(index)"
+                                                :disabled="zone.quantity <= 0 || (activeButtonIndex !== null && activeButtonIndex !== index)">
+                                                -
+                                            </button>
+                                            <input type="text" v-model="zone.quantity" readonly class="quantity-box" />
+                                            <button @click="increaseQuantity(index)"
+                                                :disabled="zone.quantity >= zone.maxSeats || (activeButtonIndex !== null && activeButtonIndex !== index)">
+                                                +
+                                            </button>
+                                        </div>
+                                    </td>
+                                    <td>{{ zone.fullSeats }}</td>
+                                </tr>
+
+                                <!-- <tr v-for="(zone, index) in zones" :key="zone.name">
+                                    <td>{{ zone.name }}</td>
+                                    <td>
+                                        <div class="quantity-selector">
+                                            <button @click="decreaseQuantity(index)"
                                                 :disabled="zone.quantity <= 0">-</button>
-                                            <input type="text" v-model="zone.quantity" readonly />
+                                            <input type="text" v-model="zone.quantity" readonly class="quantity-box" />
                                             <button @click="increaseQuantity(index)"
                                                 :disabled="zone.quantity >= zone.maxSeats">+</button>
                                         </div>
                                     </td>
                                     <td>{{ zone.fullSeats }}</td>
-                                </tr>
+                                </tr> -->
                             </tbody>
                         </table>
                     </div>
@@ -83,20 +102,23 @@
                         총 : {{ countTicket.count }}매
                     </div>
                 </div>
-                <!-- 결제 버튼 -->
-                <button class="buy-button" @click="openSecondPage">결제</button>
+                <div class="first-button">
+                    <!-- 결제 버튼 -->
+                    <button class="buy-button" @click="openSecondPage">다음</button>
 
-                <!-- 모달 종료버튼 -->
-                <button class="close-button" @click="closeModal">닫기</button>
+                    <!-- 모달 종료버튼 -->
+                    <button class="close-button" @click="closeModal">닫기</button>
+                </div>
+
             </div>
             <!-- ------------------------------------------------------------------ -->
 
             <!-- 2번째 모달  -->
-            <div v-if="secondPage">
+            <div v-if="secondPage" class="second-modal-content">
                 <div class="modal-body">
 
                     <!-- 왼쪽 표 -->
-                    <div>
+                    <div class="left-table">
                         <div class="modal-table-container">
                             <table class="modal-table">
                                 <thead class="table-theader">
@@ -131,7 +153,7 @@
                                     </tr>
                                 </tbody>
                             </table>
-                            
+
                             <div class="info-box">
                                 <div class="icon">
                                     <img src="@/assets/img/anyImg/bell-icon.png" alt="alert" />
@@ -143,32 +165,88 @@
                                         <li> - 취소 시간 이후 구매한 티켓은 취소 및 좌석 변경이 되지 않습니다.</li>
                                     </ul>
                                     <h4>예매 취소안내</h4>
-                                    <p>당일 경기 시작 12시간 전까지 가능
+                                    <p class="p">당일 경기 시작 12시간 전까지 가능
                                     </p>
                                 </div>
                             </div>
                         </div>
                     </div>
 
+                    <div class="vertical-divider"></div>
+
                     <!-- 오른쪽 표 -->
-                    <div>
+                    <div class="right-table">
+
                         <!-- 모달 제목 -->
                         <!-- 선택한 데이터 가져와서 일정 넣어야함 -->
-                        <div class="modal-title">
+                        <div class="modal-second-title">
                             <h2>GS MMS VS 한국전력</h2>
                             <div>
                                 서울 하이체육관 | 2024.10.24(목) 19:00
                             </div>
                         </div>
+                        <div>
+                            예매정보
+                        </div>
+                        <div v-for="zone in selectedZones" :key="zone.name">
+                            {{ zone.name }}구역 / {{ zone.quantity }}매
+                        </div>
+                        <hr class="divider" />
+
+                        <div>
+                            <table class="second-modal-table">
+                                <tr>
+                                    <td>티켓 금액</td>
+                                    <td>
+                                        {{ formattedTotal }}원
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>멤버십 할인</td>
+                                    <td>
+                                        골드
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>총 결제 금액</td>
+                                    <td>
+                                        {{ formattedTotal }}원
+                                    </td>
+                                </tr>
+                            </table>
+                            <br>
+                            <table class="second-modal-table">
+                                <tr>
+                                    <td>충전 금액</td>
+                                    <td>충전 금액</td>
+                                </tr>
+                                <tr>
+                                    <td> - 총 결제 금액</td>
+                                    <td>총 결제 금액</td>
+                                </tr>
+                                <tr>
+                                    <td>충전 잔액</td>
+                                    <td>충전 잔액</td>
+                                </tr>
+                            </table>
+
+                        </div>
+                        <div>
+                            <p class="p">
+                                취소기한 : 자동계산 [12시간 전]<br>
+                                <!-- 링크 -->
+                                취소수수료 : [상세보기]
+                            </p>
+                        </div>
+                        <div class="second-button">
+                            <!-- 결제 버튼 -->
+                            <button class="buy-button" @click="openThirdPage">예매 하기</button>
+                            <!-- 모달 종료버튼 -->
+                            <button class="close-button" @click="openFirstPage">취소</button>
+                        </div>
                     </div>
 
-                    <div>
-                        <!-- 결제 버튼 -->
-                        <button class="buy-button" @click="openThirdPage">결제</button>
 
-                        <!-- 모달 종료버튼 -->
-                        <button class="close-button" @click="openFirstPage">돌아가기</button>
-                    </div>
                 </div>
             </div>
         </div>
@@ -196,11 +274,24 @@ export default {
             // 수량이 1 이상인 구역만 필터링
             return this.zones.filter(zone => zone.quantity > 0);
         },
+        
         formattedTotal() {
             // 숫자를 세 자리마다 쉼표가 붙은 문자열로 변환
             return this.total.toLocaleString();
         },
 
+    },
+
+    watch: {
+        // 버튼의 수량이 변경되었을 때, 모든 수량이 0이면 activeButtonIndex 초기화
+        zones: {
+            handler() {
+                if (this.zones.every(zone => zone.quantity === 0)) {
+                    this.activeButtonIndex = null;
+                }
+            },
+            deep: true
+        }
     },
 
     data() {
@@ -212,6 +303,8 @@ export default {
                 { name: 'GB', quantity: 0, maxSeats: 4, fullSeats: '30석', imageUrl: 'stadium-GB.jpg', price: 30000 },
                 { name: 'GC', quantity: 0, maxSeats: 4, fullSeats: '30석', imageUrl: 'stadium-GC.jpg', price: 30000 }
             ],
+
+            activeButtonIndex: null, // 현재 활성화된 버튼의 인덱스를 저장
 
             isChecked: false, // 체크박스의 초기 상태
 
@@ -291,15 +384,19 @@ export default {
         increaseQuantity(index) {
             if (this.zones[index].quantity < this.zones[index].maxSeats) {
                 this.zones[index].quantity++;
+                this.activeButtonIndex = index; // 현재 클릭된 버튼 인덱스 저장
                 this.countTicket.count++;
                 this.selectedZoneImage = require(`@/assets/img/stadium/${this.zones[index].imageUrl}`);
+
             }
         },
         decreaseQuantity(index) {
             if (this.zones[index].quantity > 0) {
                 this.zones[index].quantity--;
+                this.activeButtonIndex = index; // 현재 클릭된 버튼 인덱스 저장
                 this.countTicket.count--;
                 this.selectedZoneImage = require(`@/assets/img/stadium/${this.zones[index].imageUrl}`);
+
             }
         },
 
@@ -328,7 +425,7 @@ export default {
     z-index: 1000
 }
 
-.modal-content {
+.first-modal-content {
     background: white;
     padding: 20px;
     border-radius: 10px;
@@ -337,9 +434,24 @@ export default {
     position: relative;
 }
 
+.second-modal-content {
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    max-width: 1300px;
+    max-height: 1000px;
+    position: relative;
+
+}
+
 .modal-title {
     text-align: center;
     /* 타이틀을 가운데 정렬 */
+    margin-bottom: 20px;
+    /* 타이틀 아래 간격 */
+}
+
+.modal-second-title {
     margin-bottom: 20px;
     /* 타이틀 아래 간격 */
 }
@@ -363,14 +475,22 @@ export default {
     margin-left: -10%;
 }
 
-
-
 .modal-table {
     margin-left: 10%;
     border-collapse: collapse;
     width: 700px;
     table-layout: fixed;
     /* 테이블 레이아웃을 고정(fixed)으로 설정 */
+}
+
+.vertical-divider {
+    position: absolute;
+    right: 38%;
+    width: 1px;
+    height: 750px;
+    background-color: black;
+    /* 세로 줄 색상 */
+    margin: 0 20px;
 
 }
 
@@ -389,8 +509,6 @@ export default {
 }
 
 .select-zone-btn {
-    width: 15px;
-    height: 15px;
     cursor: pointer;
 }
 
@@ -410,7 +528,8 @@ export default {
     /* 내부 여백 */
     margin-top: 30px;
     margin-bottom: 30px;
-    width: 50%;
+    width: 45%;
+    left: -16%;
 }
 
 .icon {
@@ -438,7 +557,7 @@ export default {
     /* 목록 왼쪽 여백 */
 }
 
-.info-content p {
+.p {
     font-size: 13px;
     /* 일반 문단 글자 크기 */
     color: #1a1a1a;
@@ -447,10 +566,23 @@ export default {
     /* 위쪽 여백 */
 }
 
+.right-table {
+    margin-left: -45%;
+    width: 400px;
+}
 
-.quantity-selector {
-    display: flex;
-    margin-left: 25%;
+.left-table {
+    margin-top: 100px;
+}
+
+.second-modal-table {
+    width: 400px;
+    margin-left: auto;
+    margin-right: auto;
+    align-content: center;
+    background: white;
+    border-collapse: collapse;
+    table-layout: fixed;
 }
 
 .quantity-selector button {
@@ -468,12 +600,13 @@ export default {
     cursor: not-allowed;
 }
 
-.quantity-selector input {
-    width: 40px;
+.quantity-box {
+    max-width: 40px;
     text-align: center;
     border: 1px solid #ddd;
     margin: 0 5px;
     font-size: 16px;
+    height: 30px;
 }
 
 .result-text {
@@ -488,6 +621,13 @@ export default {
     font-size: 30px;
 }
 
+.first-button {
+    position: absolute;
+    right: 1%;
+    bottom: 1%;
+}
+
+/* 다음 버튼 */
 .buy-button {
     background-color: red;
     color: white;
@@ -497,11 +637,8 @@ export default {
     cursor: pointer;
     font-size: 16px;
     height: 50px;
-    width: 100px;
-    position: absolute;
-    top: 90%;
-    right: 15%;
-
+    width: 120px;
+    margin: 10px;
 }
 
 /* 닫기 버튼 */
@@ -514,13 +651,15 @@ export default {
     cursor: pointer;
     font-size: 16px;
     height: 50px;
-    width: 100px;
-    position: absolute;
-    top: 90%;
-    right: 5%;
+    width: 120px;
+    margin: 10px;
+}
+
+.buy-button:hover {
+    background-color: #d32f2f;
 }
 
 .close-button:hover {
-    background-color: #d32f2f;
+    background-color: #583939;
 }
 </style>

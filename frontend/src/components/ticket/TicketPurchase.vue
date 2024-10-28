@@ -24,6 +24,7 @@
             <li> - 경기 일반예매는 경기일 7일 전 13시에 오픈됩니다. (※GS MMS: 경기일 7일 전 13시)</li>
             <li> - 경기 선예매는 혜택이 포함된 멤버십 상품 구매 회원에 한해 제공되며, 해당 계정에 자동으로 선예매 권한이 부여되어 선예매 기간 내 예매 페이지 접속이 가능합니다.</li>
             <li> - PC에서 티켓 예매가 가능합니다.</li>
+            <li> - 1인 최대 4매 예매 가능합니다.</li>
           </ul>
           <p>※ 반드시 [TICKET] - [티켓안내] 내 안내사항을 확인하신 후 예매를 진행하시기 바랍니다.
           </p>
@@ -64,7 +65,6 @@
                 <button class="ticket-Modal" @click="openModal">예매하기</button>
                 <!-- 모달 컴포넌트 -->
                 <Modal :visible="isModalVisible" @close="closeModal" />
-
               </td>
             </tr>
           </tbody>
@@ -204,7 +204,7 @@ th {
   /* 모서리를 둥글게 설정 */
   padding: 20px;
   /* 내부 여백 */
-  margin-left: 300px;
+  margin-left: 400px;
   margin-right: 300px;
   margin-bottom: 30px;
 
