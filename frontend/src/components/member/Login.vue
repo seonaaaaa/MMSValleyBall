@@ -6,7 +6,7 @@
       <!-- 로그인 폼 -->
       <div class="login-form">
              <h2>로그인</h2>
-             <form @submit.prevent="handleLogin">
+             <form @submit.prevent="login">
                  <div class="form-group">
                      <label for="userEmail">사용자 이메일</label>
                      <input type="email" id="userEmail" v-model="userEmail" required />
@@ -48,14 +48,41 @@
          }
      },
      methods: {
-         handleLogin() {
-             // 로그인 처리 로직을 여기에 추가합니다.
-             console.log('로그인 시도:', this.username, this.password);
-         },
          navigateTo(route) {
              this.$router.push(route);
              this.activeMenu = route; // 메뉴를 클릭할 때 활성화된 메뉴 업데이트
-         }
+         },
+         login() {
+            const user = {
+                email: this.userEmail,
+                password: this.userPassword,
+            };
+            this.$axios({
+                method: "post",
+                url: "/login",
+                data: JSON.stringify(user),
+                headers: {
+                "Content-Type": "application/json",
+                },
+            }).then((response) => {
+                console.log(response);
+                if (response.status === 401) {
+                alert("이메일 혹은 패스워드가 잘못 입력되었습니다.");
+                } else {
+                let accessToken = response.headers.authorization;  // 응답헤더에서 토큰 받기
+                console.log("access 토큰 :", accessToken);
+                localStorage.setItem("accessToken", accessToken); // 토큰 localStorage에 저장
+                this.$axios.defaults.headers.common[
+                    "Authorization"
+                ] = `Bearer ${accessToken}`;
+                alert("로그인 성공");
+                this.$router.replace("/");
+                }
+            })
+            .catch(() => {
+                alert("로그인 실패!!");
+                });
+            },
      }
  }
  </script>
