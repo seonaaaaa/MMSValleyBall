@@ -5,6 +5,7 @@ import com.team.MMSValleyBall.dto.MatchWithTeamDTO;
 import com.team.MMSValleyBall.service.GameService;
 
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -40,10 +41,20 @@ public class GameController {
     }
 
     // GAME - 경기 결과 API
+    // @GetMapping("/results")
+    // public ResponseEntity<Page<MatchWithTeamDTO>> getPagedGameData(
+    //         @RequestParam("seasonId") Long seasonId, Pageable pageable) {
+    //     Page<MatchWithTeamDTO> matchData = gameService.findPagedMatchesBySeason(seasonId, pageable);
+    //     return ResponseEntity.ok(matchData);
+    // }
+    // GAME - 경기 결과 API
     @GetMapping("/results")
-    public ResponseEntity<Page<MatchWithTeamDTO>> getPagedGameData(
-            @RequestParam("seasonId") Long seasonId, Pageable pageable) {
-        Page<MatchWithTeamDTO> matchData = gameService.findPagedMatchesBySeason(seasonId, pageable);
-        return ResponseEntity.ok(matchData);
+    public ResponseEntity<Page<MatchWithTeamDTO>> getMatches(
+            @RequestParam("seasonId") Long seasonId,
+            @RequestParam(name = "month", required = false) Integer month,
+            @RequestParam(name = "matchRoundId", required = false) Integer matchRoundId,
+            Pageable pageable) {
+        Page<MatchWithTeamDTO> matchPage = gameService.getMatchesBySeasonMonthAndRound(seasonId, month, matchRoundId, pageable);
+        return ResponseEntity.ok(matchPage);
     }
 }

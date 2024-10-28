@@ -44,6 +44,7 @@ public class GameService {
         return matchList;
     }
 
+    // 기존 코드 ***** 새로 만든 코드 잘되면 지우기
     // 시즌별 페이지 단위 경기 일정 조회 (Page<MatchWithTeamDTO> 반환)
     public Page<MatchWithTeamDTO> findPagedMatchesBySeason(Long seasonId, Pageable pageable) {
         Page<MatchWithTeamDTO> matchPages = gameRepository.findByMatchSeason_SeasonId(seasonId, pageable)
@@ -57,5 +58,10 @@ public class GameService {
         // System.out.println("Total pages: " + matchPages.getTotalPages());
         
         return matchPages;
+    }
+    // 신규 작성 코드 *****
+    public Page<MatchWithTeamDTO> getMatchesBySeasonMonthAndRound(Long seasonId, Integer month, Integer matchRoundId, Pageable pageable) {
+        return gameRepository.findBySeasonAndMonthAndRound(seasonId, month, matchRoundId, pageable)
+                                .map(entity -> MatchWithTeamDTO.fromEntity(entity));
     }
 }

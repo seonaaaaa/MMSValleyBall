@@ -2,6 +2,7 @@ package com.team.MMSValleyBall.dto;
 
 import java.time.LocalDateTime;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.team.MMSValleyBall.entity.Match;
 import com.team.MMSValleyBall.enums.MailStatus;
 import com.team.MMSValleyBall.enums.MatchStadium;
@@ -29,7 +30,7 @@ public class MatchWithTeamDTO {
     private String seasonName;
 
     // 라운드 정보
-    private int roundId;
+    private int matchRoundId;
 
     // 팀 정보
     private Long teamId;
@@ -37,7 +38,7 @@ public class MatchWithTeamDTO {
     private String teamStadium;
 
     // 메일 발송 상태
-    private MailStatus mailStatus;
+    private MailStatus matchMailStatus;
 
     // 경기 상태
     private MatchStatus matchStatus;
