@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Ticket Modal Main</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <div id="match">
+        <ul>
+            <li id="match-info">GS MMS VS 한국전력</li>
+            <li id="match-stadium">서울하이체육관</li>
+            <li id="match-date">2024.10.24(목) 19:00</li>
+        </ul>
+    </div>
+
+    <div id="seat">
+        <table>
+            <thead>
+                <tr>
+                    <th>구역</th>
+                    <th>매수 선택</th>
+                    <th>잔여석</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr class="zone">
+                    <td class="zone-name">골드</td>
+                    <td><p class="available-seat-zone">90</p>석</td>
+                </tr>
+                <tr class="section">
+                    <td class="section-name">GA</td>
+                    <td>
+                        - <input class="ticket-amount" type="number"/> +
+                    </td>
+                    <td><p class="available-seat-section">30</p> 석</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div id="buttons">
+        <button id="btn-pay">결제하기</button>
+        <button id="btn-cancel">취소</button>
+    </div>
+    <script th:inline="javascript">
+        $(document).ready(function(){
+            $.ajax({
+              url: "/purchase/selection/{matchId}",
+              type: "get",
+              success: function(data) {
+                // 받아온 데이터 저장
+                  var match = data.matchInfo;
+
+                  //1. 경기 정보 저장 및 변환
+                  var matchId = match.matchId; // match를 올바르게 정의해야 합니다.
+                  var matchDate = new Date(match.matchDate).toLocaleString(); // Date 객체로 변환 후 포맷팅
+                  var matchTeam = match.matchTeam; // 데이터에서 직접 가져옴
+                  var matchStadium = match.matchStadium; // 데이터에서 직접 가져옴
+                  var thisTeam = "GS ITM"; // 예시 팀 이름
+                  var matchInfo = "";
+
+                  // 경기 정보 출력 방식 수정
+                  if (matchTeam === "서울하이체육관") {
+                      matchInfo = thisTeam + " VS " + matchTeam;
+                  } else {
+                      matchInfo = matchTeam + " VS " + thisTeam;
+                  }
+
+                  // 경기 날짜 및 정보 출력
+                  $('#match-date').text(matchDate);
+                  $('#match-info').text(matchInfo);
+                  $('#match-stadium').text(matchStadium);
+
+                //2. zone과 섹션 정보를 테이블에 추가
+                // zone 정보를 추가하기 위한 배열
+                let availableSeats = data.availableSeatList;
+                availableSeats.forEach(function(zone) {
+                    // Zone 추가
+                    let zoneRow = `<tr class="zone">
+                        <td class="zone-name">${zone.zoneName}</td>
+                        <td><p class="available-seat-zone">${zone.availableSeatAmount}</p>석</td>
+                    </tr>`;
+                    $('#seat-body').append(zoneRow);
+
+                    // 각 Zone에 속한 Section 추가
+                    zone.sections.forEach(function(section) {
+                        let sectionRow = `<tr class="section">
+                            <td class="section-name">${section.sectionName}</td>
+                            <td>
+                                - <input class="ticket-amount" type="number" min="0" max="${section.availableSeatAmount}" data-seat-id="${section.seatId}" class="section-input"/> +
+                            </td>
+                            <td><p class="available-seat-section">${section.availableSeatAmount}</p> 석</td>
+                        </tr>`;
+                        $('#seat-body').append(sectionRow);
+                    });
+                });
+
+                // 결제하기 버튼 클릭 시 선택한 구역과 좌석 수 전송
+                $('#btn-pay').on("click", function() {
+                    // 각 섹션에서 선택된 좌석 수를 가져오기
+                    let selectedSeat = {};
+
+                    // 섹션 정보를 가져오는 부분
+                    $('.section').each(function() {
+                        const seatId = $(this).find('.ticket-amount').data('seat-id'); // seatId 가져오기
+                        const ticketAmount = parseInt($(this).find('.ticket-amount').val()); // 사용자가 입력한 좌석 수
+
+                        if (ticketAmount > 0) { // 사용자가 입력한 좌석 수가 0보다 클 경우에만
+                            // 선택된 좌석 정보를 객체로 저장
+                            selectedSeat = {
+                                matchId: matchId, // matchId 추가
+                                seatId: seatId, // seatId 추가
+                                ticketAmount: ticketAmount // 티켓 수량 추가
+                            };
+                        }
+                    });
+
+                    // 선택된 좌석 수가 없으면 경고
+                    if (!selectedSeat.seatId) {
+                        alert("구역을 선택해주세요.");
+                        return;
+                    }
+
+                    // DTO를 서버로 전송
+                    $.ajax({
+                        url: "/ticket/purchase/payment",
+                        type: "post",
+                        contentType: "application/json",
+                        data: JSON.stringify(selectedSeat), // 선택된 좌석 정보 객체 전송
+                        success: function(response) {
+                            console.log("Reservation successful:", response);
+                            // 성공적인 응답 처리, 예: 결제 페이지로 이동
+                            window.location.href = "/payment"; // 결제 페이지로 이동
+                        },
+                        error: function(xhr, status, error) {
+                            console.error('Error during reservation:', error);
+                        },
+                    });
+                });
+
+                //취소 버튼 클릭 시 티켓 구매 페이지로 이동
+                 $('#btn-cancel').on("click", function(){
+                     location.href = '/ticket/purchase';
+                 });
+              },
+              error: function(xhr, status, error) {
+                  console.error('Error fetching matches:', error);
+              }
+          });
+      });
+    </script>
+</body>
+</html>

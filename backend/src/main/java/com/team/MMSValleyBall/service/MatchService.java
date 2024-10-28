@@ -8,6 +8,8 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.Optional;
 
 @Service
 public class MatchService {
@@ -47,4 +49,16 @@ public class MatchService {
         return matches;
     }
 
+    public MatchTableDTO getOneMatch(Long matchId) {
+        Match e = matchRepository.findById(matchId)
+                .orElseThrow(() -> new NoSuchElementException("Match not found with id: " + matchId));
+
+        MatchTableDTO dto = new MatchTableDTO();
+        dto.setMatchId(matchId);
+        dto.setMatchDate(e.getMatchDate());
+        dto.setMatchTeam(e.getMatchOpponentTeam().getTeamName());
+        dto.setMatchStadium(e.getMatchOpponentTeam().getTeamStadium());
+
+        return dto;
+    }
 }
