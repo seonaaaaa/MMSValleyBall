@@ -41,7 +41,7 @@ INSERT INTO seat(seat_zone, seat_section, seat_price, seat_count) VALUES
 	 ('EAST','C',10000,100);
 
 --match
-INSERT INTO match (match_date, match_stadium, match_set_score, match_opponent_team_id, match_opponent_team_set_score, match_season_id, round_id) VALUES
+INSERT INTO match (match_date, match_stadium, match_set_score, match_opponent_team_id, match_opponent_team_set_score, match_season_id, match_round_id) VALUES
     ('2023-10-14 14:00:00','HOME',3,3,0,1,1),
     ('2023-10-19 19:00:00','AWAY',2,4,3,1,1),
     ('2023-10-25 19:00:00','AWAY',2,6,3,1,1),
@@ -52,7 +52,7 @@ INSERT INTO match (match_date, match_stadium, match_set_score, match_opponent_te
     ('2023-11-15 19:00:00','HOME',3,4,0,1,2),
     ('2023-11-18 14:00:00','HOME',1,2,3,1,2),
     ('2023-11-22 19:00:00','AWAY',3,1,0,1,2);
-INSERT INTO match (match_date, match_stadium, match_set_score, match_opponent_team_id, match_opponent_team_set_score, match_season_id, round_id) VALUES
+INSERT INTO match (match_date, match_stadium, match_set_score, match_opponent_team_id, match_opponent_team_set_score, match_season_id, match_round_id) VALUES
     ('2023-11-25 14:00:00','AWAY',3,3,0,1,2),
     ('2023-11-30 19:00:00','HOME',0,6,3,1,2),
     ('2023-12-07 19:00:00','AWAY',1,6,3,1,3),
@@ -63,7 +63,7 @@ INSERT INTO match (match_date, match_stadium, match_set_score, match_opponent_te
     ('2023-12-25 14:00:00','HOME',3,1,0,1,3),
     ('2023-12-29 19:00:00','AWAY',0,1,3,1,4),
     ('2024-01-01 14:00:00','HOME',2,2,3,1,4);
-INSERT INTO match (match_date, match_stadium, match_set_score, match_opponent_team_id, match_opponent_team_set_score, match_season_id, round_id) VALUES
+INSERT INTO match (match_date, match_stadium, match_set_score, match_opponent_team_id, match_opponent_team_set_score, match_season_id, match_round_id) VALUES
     ('2024-01-05 19:00:00','HOME',3,6,0,1,4),
     ('2024-01-09 19:00:00','AWAY',1,5,3,1,4),
     ('2024-01-12 19:00:00','AWAY',3,3,2,1,4),
@@ -74,7 +74,7 @@ INSERT INTO match (match_date, match_stadium, match_set_score, match_opponent_te
     ('2024-02-11 14:00:00','AWAY',0,2,3,1,5),
     ('2024-02-14 19:00:00','HOME',3,1,1,1,5),
     ('2024-02-17 14:00:00','AWAY',3,6,2,1,5);
-INSERT INTO match (match_date, match_stadium, match_set_score, match_opponent_team_id, match_opponent_team_set_score, match_season_id, round_id) VALUES
+INSERT INTO match (match_date, match_stadium, match_set_score, match_opponent_team_id, match_opponent_team_set_score, match_season_id, match_round_id) VALUES
     ('2024-02-23 19:00:00','HOME',3,4,1,1,6),
     ('2024-02-27 19:00:00','HOME',3,2,0,1,6),
     ('2024-03-01 14:00:00','AWAY',3,3,1,1,6),
@@ -85,7 +85,7 @@ INSERT INTO match (match_date, match_stadium, match_set_score, match_opponent_te
     ('2024-09-23 19:00:00','AWAY',3,2,0,2,1),
     ('2024-09-27 14:00:00','AWAY',2,3,3,2,1),
     ('2024-10-01 19:00:00','HOME',2,4,3,2,1);
-INSERT INTO match (match_date, match_stadium, match_set_score, match_opponent_team_id, match_opponent_team_set_score, match_season_id, round_id) VALUES
+INSERT INTO match (match_date, match_stadium, match_set_score, match_opponent_team_id, match_opponent_team_set_score, match_season_id, match_round_id) VALUES
     ('2024-10-05 19:00:00','HOME',3,5,0,2,1),
     ('2024-10-08 19:00:00','AWAY',2,6,3,2,1),
     ('2024-10-13 19:00:00','AWAY',3,5,2,2,2),
@@ -96,7 +96,7 @@ INSERT INTO match (match_date, match_stadium, match_set_score, match_opponent_te
     ('2024-11-03 19:00:00','HOME',0,3,0,2,2),
     ('2024-11-08 14:00:00','AWAY',0,2,0,2,3),
     ('2024-11-12 19:00:00','AWAY',0,6,0,2,3);
-INSERT INTO match (match_date, match_stadium, match_set_score, match_opponent_team_id, match_opponent_team_set_score, match_season_id, round_id) VALUES
+INSERT INTO match (match_date, match_stadium, match_set_score, match_opponent_team_id, match_opponent_team_set_score, match_season_id, match_round_id) VALUES
     ('2024-11-15 14:00:00','HOME',0,4,0,2,3),
     ('2024-11-20 19:00:00','HOME',0,1,0,2,3),
     ('2024-11-25 14:00:00','AWAY',0,3,0,2,3),
@@ -107,7 +107,7 @@ INSERT INTO match (match_date, match_stadium, match_set_score, match_opponent_te
     ('2024-12-22 19:00:00','HOME',0,6,0,2,4),
     ('2024-12-25 14:00:00','AWAY',0,1,0,2,4),
     ('2024-12-29 19:00:00','HOME',0,3,0,2,4);
-INSERT INTO match (match_date, match_stadium, match_set_score, match_opponent_team_id, match_opponent_team_set_score, match_season_id, round_id) VALUES
+INSERT INTO match (match_date, match_stadium, match_set_score, match_opponent_team_id, match_opponent_team_set_score, match_season_id, match_round_id) VALUES
     ('2025-01-04 19:00:00','AWAY',0,2,0,2,5),
     ('2025-01-07 19:00:00','AWAY',0,6,0,2,5),
     ('2025-01-11 19:00:00','HOME',0,4,0,2,5),
@@ -118,7 +118,7 @@ INSERT INTO match (match_date, match_stadium, match_set_score, match_opponent_te
     ('2025-02-02 14:00:00','HOME',0,3,0,2,6),
     ('2025-02-06 19:00:00','AWAY',0,1,0,2,6),
     ('2025-02-09 14:00:00','HOME',0,6,0,2,6);
-INSERT INTO match (match_date, match_stadium, match_set_score, match_opponent_team_id, match_opponent_team_set_score, match_season_id, round_id) VALUES
+INSERT INTO match (match_date, match_stadium, match_set_score, match_opponent_team_id, match_opponent_team_set_score, match_season_id, match_round_id) VALUES
     ('2025-02-13 19:00:00','HOME',0,2,0,2,6),
     ('2025-02-18 19:00:00','AWAY',0,5,0,2,6);
 

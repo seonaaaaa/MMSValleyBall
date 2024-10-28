@@ -29,7 +29,7 @@
               :class="{ disabled: currentPage === 0 }" />
 
         <!-- 내브 버튼 사이에 페이지 전체보기 할 때는 '전체' / 라운드 선택하면 '라운드' 출력 -->
-        <h2>{{ totalPages === 1 ? '전체' : currentPage + 1 + ' 라운드' }}</h2>
+        <h2>{{ totalPages === 1 ? '전체' : (matches.length > 0 ? matches[0].matchRoundId + ' 라운드' : '라운드') }}</h2>
 
         <img src="@/assets/img/game/nav-icon-next.png"
               alt="Next"
@@ -63,7 +63,7 @@
           </td>
           <td>{{ formatTime(match.matchDate) }}</td>
           <td>{{ match.teamStadium }}</td>
-          <td>{{ (currentPage + 1) }} 라운드</td>
+          <td>{{ match.matchRoundId }} 라운드</td>
         </tr>
       </tbody>
     </table>
@@ -118,12 +118,14 @@ export default {
           seasonId: this.selectedSeasonId,
           page: 0,
           size: 1000, // 한 페이지에 최대한 큰 값을 설정하여 모든 데이터를 가져오기
+          status: 'DEFAULT' // MatchStatus가 DEFAULT인 데이터만 가져오기
           },
         });
-        // 가져온 데이터에 순번 매기기
+        // 가져온 데이터의 인덱스를 기준으로 index + 1로 계산해서 순번을 1부터 시작하도록 설정
+        // 데이터의 고유 ID나 순서와는 무관, 화면에 표시할 때 가독성을 높이기 위해 추가하는 순번
         this.matches = response.data.content.map((match, index) => ({
           ...match,
-          tableIndex: index + 1, // 순번을 1부터 시작
+          tableIndex: index + 1,
         }));
         this.totalPages = 1; // 전체보기 시 페이지 1로 고정
         this.currentPage = 0;
@@ -135,23 +137,27 @@ export default {
     // 선택된 시즌별 데이터 페이징 처리하여 가져오기
     async fetchMatches(page = 0) {
       try {
-        const response = await axios.get(`http://localhost:4000/game/results`, 
-        {
+        const response = await axios.get(`http://localhost:4000/game/results`, {
           params: {
             seasonId: this.selectedSeasonId,
             page: page,
             size: 6, // 6개씩 페이징 처리
+            status: 'DEFAULT' // MatchStatus가 DEFAULT인 데이터만 가져오기
           },
         });
-        // 페이지별 순번 계산 (matchId 기준이 아니라 seasonId 내에서 순서 계산)
-        // Match 테이블 아예 round_id 컬럼 추가 후 변경 예정
+        // 테이블 인덱스 (순번) 계산
         this.matches = response.data.content.map((match, index) => ({
           ...match,
           tableIndex: index + 1 + page * 6
         }));
-        // this.matches = response.data.content;
+        // 콘솔에서 확인
+        console.log(this.matches);
         this.totalPages = response.data.totalPages;
         this.currentPage = page;
+        // roundId를 확인하기 위한 콘솔 출력
+        this.matches.forEach(match => {
+          console.log("Round ID:", match.matchRoundId);
+        });
       } catch (error) {
         console.error("Error fetching data:", error);
       }

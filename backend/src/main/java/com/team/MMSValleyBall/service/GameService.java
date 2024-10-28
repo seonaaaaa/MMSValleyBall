@@ -26,7 +26,6 @@ public class GameService {
 //        return gameRepository.findAll()
 //                .stream()
 //                .map(entity-> MatchDTO.fromEntity(entity)).toList();
-
         return gameRepository.findAll()
                 .stream()
                 .map(entity-> MatchDTO.fromEntity(entity))
@@ -40,10 +39,8 @@ public class GameService {
                                             .stream()
                                             .map(entity -> MatchWithTeamDTO.fromEntity(entity))
                                             .toList();
-
         // 리스트 크기 출력
-        System.out.println("matchList.size() : " + matchList.size());
-
+        // System.out.println("matchList.size() : " + matchList.size());
         return matchList;
     }
 
@@ -53,11 +50,11 @@ public class GameService {
                                                           .map(entity -> MatchWithTeamDTO.fromEntity(entity));
     
         // 가져온 전체 경기의 수
-        System.out.println("Total elements in matchPages: " + matchPages.getTotalElements());
+        // System.out.println("Total elements in matchPages: " + matchPages.getTotalElements());
         // 현재 페이지의 요소 수
-        System.out.println("Number of elements in current page: " + matchPages.getNumberOfElements());
+        // System.out.println("Number of elements in current page: " + matchPages.getNumberOfElements());
         // 총 페이지 수
-        System.out.println("Total pages: " + matchPages.getTotalPages());
+        // System.out.println("Total pages: " + matchPages.getTotalPages());
         
         return matchPages;
     }

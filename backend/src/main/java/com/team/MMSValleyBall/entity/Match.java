@@ -40,11 +40,11 @@ public class Match {
     private int matchOpponentTeamSetScore;
 
     @ManyToOne
-    @JoinColumn(name = "match_season_id")
+    @JoinColumn(name = "match_season_id", nullable = false)
     private Season matchSeason;
 
-    @Column(name = "round_id")
-    private int roundId;
+    @Column(nullable = false)
+    private int matchRoundId;
 
     @OneToMany(mappedBy = "ticketMatch", fetch = FetchType.EAGER)
     private List<Ticket> tickets;
@@ -52,7 +52,7 @@ public class Match {
     @Enumerated(EnumType.STRING)
     @ColumnDefault("'DEFAULT'")
     @Column(nullable = false)
-    private MailStatus mailStatus;
+    private MailStatus matchMailStatus;
 
     @Enumerated(EnumType.STRING)
     @ColumnDefault("'DEFAULT'")
@@ -69,7 +69,10 @@ public class Match {
                 ", OpponentTeam=" + matchOpponentTeam.getTeamName() +
                 ", OpponentTeamSetScore=" + matchOpponentTeamSetScore +
                 ", Season=" + matchSeason.getSeasonName() +
+//                ", RoundId=" + matchRoundId +
                 ", tickets=" + tickets +
+//                ", " + matchMailStatus +
+//                ", " + matchStatus +
                 '}'+'\n';
     }
 }

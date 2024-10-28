@@ -4,8 +4,6 @@ import lombok.Getter;
 
 @Getter
 public enum MailStatus {
-    // 메일 발송 필요 없음 (기본 상태)
-    DEFAULT,
-    // 메일 발송 필요 (경기 정보 수정, 삭제 시 변경됨)
-    REQUIRED;
+    DEFAULT,  // 메일 발송 필요 없음 (기본)
+    REQUIRED;  // 메일 발송 필요 (경기 정보 변경 시)
 }
