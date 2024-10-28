@@ -25,9 +25,4 @@ public class SignupController {
         signupService.signupProcess(userDTO);
         return ResponseEntity.ok("회원가입이 페이지입니다.");
     }
-
-    @GetMapping("/login")
-    public ResponseEntity<String> loginForm() {
-        return ResponseEntity.ok("로그인 페이지입니다.");
-    }
 }

@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
+@ResponseBody
 @RequestMapping("myPage")
 public class MyPageController {
    private final MyPageService myPageService;
