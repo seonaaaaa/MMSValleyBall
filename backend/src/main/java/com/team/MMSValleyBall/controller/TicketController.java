@@ -1,5 +1,6 @@
 package com.team.MMSValleyBall.controller;
 
+import com.team.MMSValleyBall.dto.AvailableSeatDTO;
 import com.team.MMSValleyBall.dto.MatchTableDTO;
 import com.team.MMSValleyBall.dto.TicketSalesDTO;
 import com.team.MMSValleyBall.service.MatchService;
@@ -58,12 +59,13 @@ public class TicketController {
         MatchTableDTO match = matchService.getOneMatch(matchId);
 
         //3. 잔여석 정보 가져오기
-        List<Object[]> leftSeatList = ticketService.getAvailableSeatsByMatch(matchId);
+        List<AvailableSeatDTO> availableSeats = ticketService.getAvailableSeatsByMatch(matchId);
+        System.out.println("ticket controller - zone available seat : " + availableSeats.subList(0,1));
 
         //4. 보내기
         Map<String, Object> response = new HashMap<>();
         response.put("matchInfo", match);
-        response.put("availableSeatList", leftSeatList);
+        response.put("availableSeatList", availableSeats);
 
         return ResponseEntity.ok(response);
     }
@@ -74,32 +76,43 @@ public class TicketController {
         //1. 경기 정보 가져오기
         MatchTableDTO match = matchService.getOneMatch(matchId);
 
-        //2. 잔여석 정보 가져오기
-        List<Object[]> leftSeatList = ticketService.getAvailableSeatsByMatch(matchId);
+        //2. 잔여석 정보 가져오기, zone별 잔여석 수 계산
+        List<AvailableSeatDTO> availableSeats = ticketService.getAvailableSeatsByMatch(matchId);
 
-        //3. 보내기
+
+        //3. 로그인 정보 확인, 유저 정보 저장
+        TicketSalesDTO dto = new TicketSalesDTO();
+//        dto.setUserEmail();
+        dto.setMatchId(matchId);
+
+        //4. 경기 정보, 잔여석 정보, TicketSalesDTO 보내기
         Map<String, Object> response = new HashMap<>();
         response.put("matchInfo", match);
-        response.put("availableSeatList", leftSeatList);
+        response.put("availableSeatList", availableSeats);
+        response.put("ticketSalesDTO", dto);
 
         return ResponseEntity.ok(response);
     }
-    //티켓 예매 모달 - 구역 선택(2-post)
-    @PostMapping("/purchase/selection/select")
-    public ResponseEntity<String> viewTicketPurchaseSelected() {
-        return ResponseEntity.ok("Ticket purchase modal section selected");
-    }
+//
+//    //티켓 예매 모달 - 구역 선택(2-post)
+//    @PostMapping("/purchase/selection/select")
+//    public ResponseEntity<String> viewTicketPurchaseSelected() {
+//
+//        return ResponseEntity.ok("Ticket purchase modal section selected");
+//    }
+
     //티켓 예매 모달 - 결제하기(1-get)
-    @GetMapping("/purchase/payment")
-    public ResponseEntity<String> viewTicketPurchasePayment() {
-        return ResponseEntity.ok("Ticket purchase modal payment");
+    @PostMapping("/purchase/payment")
+    public ResponseEntity<?> viewTicketPurchasePayment(@RequestBody TicketSalesDTO ticketSalesDTO) {
+
+        return ResponseEntity.ok(null);
     }
     //티켓 예매 모달 - 결제하기(2-post)
     @PostMapping("/purchase/payment/completed")
     public ResponseEntity<String> viewTicketPurchasePaymentCompleted(@RequestBody TicketSalesDTO ticketSalesDTO) {
         //티켓번호 생성
         String ticketNumber = ticketService.createTicketNumber(ticketSalesDTO);
-        return ResponseEntity.ok("Ticket purchase modal payment completed");
+        return ResponseEntity.ok(null);
     }
 
 }

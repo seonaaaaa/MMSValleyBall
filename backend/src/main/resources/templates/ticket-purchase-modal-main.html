@@ -23,11 +23,15 @@
             </thead>
             <tbody>
                 <tr>
-                    <td id="seat-name">골드</td>
-                    <td id="available-seat">90석</td>
+                    <td class="zone-name">골드</td>
+                    <td class="available-seat-zone">90석</td>
                 </tr>
             </tbody>
         </table>
+    </div>
+    <div id="buttons">
+        <button id="btn-selection">다음단계</button>
+        <button id="btn-cancel">취소</button>
     </div>
     <script th:inline="javascript">
         $(document).ready(function(){
@@ -35,14 +39,15 @@
               url: "/purchase/main/{matchId}",
               type: "get",
               success: function(data) {
-                  // data는 MatchTableDTO 리스트입니다.
-                  console.log("Matches fetched: ", data);
+                  // 받아온 데이터 저장
+                  var match = data.matchInfo;
+                  var seat = data.availableSeatList;
 
-                  // matchId와 matchDate 등의 값을 서버에서 받아온다고 가정
-                  var matchId = data.matchId; // data를 올바르게 정의해야 합니다.
-                  var matchDate = new Date(data.matchDate).toLocaleString(); // Date 객체로 변환 후 포맷팅
-                  var matchTeam = data.matchTeam; // 데이터에서 직접 가져옴
-                  var matchStadium = data.matchStadium; // 데이터에서 직접 가져옴
+                  //1. 경기 정보 저장 및 변환
+                  var matchId = match.matchId; // match를 올바르게 정의해야 합니다.
+                  var matchDate = new Date(match.matchDate).toLocaleString(); // Date 객체로 변환 후 포맷팅
+                  var matchTeam = match.matchTeam; // 데이터에서 직접 가져옴
+                  var matchStadium = match.matchStadium; // 데이터에서 직접 가져옴
                   var thisTeam = "GS ITM"; // 예시 팀 이름
                   var matchInfo = "";
 
@@ -58,10 +63,13 @@
                   $('#match-info').text(matchInfo);
                   $('#match-stadium').text(matchStadium);
 
-                // 예매하기 버튼 클릭 시 matchId 포함하여 전송
-                  $('#btn-reservation').on("click", function() {
+                //2. 구역별 잔여석 정보
+                var zoneNameList = seat.seatName
+
+                //다음단계 버튼 클릭 시 matchId 포함하여 전송
+                  $('#btn-selection').on("click", function() {
                       $.ajax({
-                          url: "/ticket/purchase/main/" + matchId, // matchId를 URL에 포함
+                          url: "/ticket/purchase/selection/" + matchId, // matchId를 URL에 포함
                           type: "get",
                           success: function(response) {
                               console.log("Reservation successful:", response);
@@ -72,6 +80,10 @@
                           },
                       });
                   });
+                //취소 버튼 클릭 시 티켓 구매 페이지로 이동
+                 $('#btn-cancel').on("click", function(){
+                     location.href = '/ticket/purchase';
+                 });
               },
               error: function(xhr, status, error) {
                   console.error('Error fetching matches:', error);

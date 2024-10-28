@@ -8,6 +8,7 @@ import org.springframework.data.repository.query.Param;
 import java.util.List;
 
 public interface TicketRepository extends JpaRepository<Ticket, Long> {
+    //구역별 잔여좌석 조회 쿼리문
     @Query("SELECT s.seatZone, s.seatSection, (s.seatCount - COALESCE(SUM(td.ticketDetailAmount), 0)) AS availableSeats " +
             "FROM Seat s " +
             "LEFT JOIN TicketDetail td ON td.ticketDetailSeat = s " +

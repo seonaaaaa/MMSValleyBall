@@ -18,16 +18,16 @@
   </thead>
   <tbody>
     <tr>
-      <td id="match-date">2024.10.25(금) 19:00</td>
-      <td id="match-info">우리카드 VS KB손해보험</td>
-      <td id="match-stadium">의정부체육관</td>
+      <td class="match-date">2024.10.25(금) 19:00</td>
+      <td class="match-info">우리카드 VS KB손해보험</td>
+      <td class="match-stadium">의정부체육관</td>
       <td>
         <p>[선예매]</p>
-        <p id="reservation-date-1">2024.10.18 11:00</p>
+        <p class="reservation-date-1">2024.10.18 11:00</p>
         <p>[일반예매]</p>
-        <p id="reservation-date-2">2024.10.21 11:00</p>
+        <p class="reservation-date-2">2024.10.21 11:00</p>
       </td>
-      <td><button id="btn-reservation">예매하기</button></td>
+      <td><button class="btn-reservation">예매하기</button></td>
     </tr>
   </tbody>
 </table>
@@ -55,10 +55,10 @@
                 matchInfo = matchTeam + " VS " + thisTeam;
             }
 
-            // 경기 날짜 및 정보 출력
-            $('#match-date').text(matchDate);
-            $('#match-info').text(matchInfo);
-            $('#match-stadium').text(matchStadium);
+            // 경기 날짜 및 정보 출력 for문
+            $('.match-date').text(matchDate);
+            $('.match-info').text(matchInfo);
+            $('.match-stadium').text(matchStadium);
 
           // 예매하기 버튼 클릭 시 matchId 포함하여 전송
             $('#btn-reservation').on("click", function() {
