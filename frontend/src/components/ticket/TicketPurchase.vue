@@ -132,7 +132,6 @@ export default {
   margin-right: auto;
   margin-bottom: 40px;
 }
-
 th,
 td {
   border: 1px solid #ddd;
