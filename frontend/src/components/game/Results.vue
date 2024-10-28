@@ -279,7 +279,7 @@ select {
 }
 
 .show-all-btn {
-  border: 1px solid #ddd;
+  border: 1px solid #ccc;
   padding: 10px 30px;
   border-radius: 5px;
   font-size: 16px;

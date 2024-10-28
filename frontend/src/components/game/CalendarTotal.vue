@@ -308,12 +308,24 @@ margin: 0 20px;
 cursor: pointer;
 }
 
+.header-controls select:first-of-type {
+  /* 연도와 월 셀렉트 박스 사이의 여백 */
+  margin-right: 10px;
+}
+
 select {
+  -webkit-appearance: none; /* 기본 화살표 제거 */
+  -moz-appearance: none; /* Firefox 기본 화살표 제거 */
+  appearance: none; /* 기본 화살표 제거 */
+
+  border: 1px solid #ddd;
   background-color: #f8f9fa;
-  /* border: 1px solid #ddd; */
   border: none;
-  box-shadow: 0 2px 8px rgba(50, 50, 50, 0.2);
-  padding: 10px;
+  box-shadow: 0 2px 4px rgba(50, 50, 50, 0.2);
+  /* padding: 10px; */
+  padding: 10px 30px;
+  padding-right: 40px;
+
   border-radius: 5px;
   font-size: 18px;
   font-weight: bold;
@@ -321,13 +333,19 @@ select {
   outline: none;
   margin: 0 5px;
   cursor: pointer;
+
+  background-image: url('@/assets/img/game/select-icon-down.png'); /* 화살표 아이콘 경로 */
+  background-repeat: no-repeat;
+  background-position: right 15px center; /* 화살표 위치 */
+  background-size: 12px; /* 화살표 크기 */
 }
 
 /* 상단 티켓 예매하기 버튼 */
 .ticket-purchase-btn {
   background-color: #f8f9fa;
   border: 1px solid #ddd;
-  box-shadow: 0 2px 8px rgba(50, 50, 50, 0.2);
+  border: none;
+  box-shadow: 0 2px 4px rgba(50, 50, 50, 0.2);
   padding: 10px 20px;
   border-radius: 5px;
   font-size: 16px;
@@ -468,7 +486,7 @@ padding: 10px 20px;
 background-color: #fff;
 border: none;
 border-radius: 8px;
-box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
 font-size: 14px;
 font-weight: bold;
 color: #333;
