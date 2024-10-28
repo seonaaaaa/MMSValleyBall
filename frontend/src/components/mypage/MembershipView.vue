@@ -123,4 +123,38 @@
     margin: 10px 0;
     font-size: 16px;
   }
-</style>
+
+  .cancel-membership-button {
+    background-color: #d9534f;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+
+  .cancel-button-container {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 20px;
+  }
+
+  .cancel-membership-button {
+    background-color: #d9534f;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+
+  .cancel-membership-button:hover {
+    background-color: #c9302c;
+  }
+
+  .membership-note {
+    font-size: 14px;
+    color: #666;
+    margin-top: 10px;
+  }
+  </style>

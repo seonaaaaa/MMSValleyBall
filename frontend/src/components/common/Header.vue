@@ -109,126 +109,125 @@
     };
   }
 }
+</script>
 
-  </script>
-  
-  <style scoped>
-  header {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    z-index: 1000;
-  }
-  
-  /* 로그인, 회원가입 링크 상단 */
-  .auth-links {
-    display: flex;
-    justify-content: flex-end;
-    padding: 10px 20px;
-    background-color: white;
-    /* border: 10px solid blue; */
-  }
-  
-  .auth-links a {
-    color: #565656;
-    margin: 0 10px;
-  }
-  
-  .auth-links a:hover {
-    color: #000000;
-  }
-  
-  /* 네비게이션 바 */
-  .navbar {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding-bottom: 20px;
-    background-color: white;
-    border-bottom: 1px solid #ddd;
-    width: 100%;
-    box-shadow: 0px 8px 8px -4px rgba(0, 0, 0, 0.1);
-    /* border: 10px solid red;	 */
-  }
-  
-  /* 메뉴 전체를 감싸는 컨테이너 */
-  .nav-menu {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    width: 100%;
-    padding: 0;
-    margin: 0;
-  }
-  
-  /* 중앙 로고 */
-  .logo {
-    flex-grow: 0;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-  }
-  
-  .logo img {
-    height: 100px;
-  }
-  
-  /* 좌측 메뉴 */
-  .nav-left {
-    display: flex;
-    justify-content: center; 
-    flex-grow: 1;
-  }
-  
-  /* 우측 메뉴 */
-  .nav-right {
-    display: flex;
-    justify-content: center; 
-    flex-grow: 1;
-  }
-  
-  /* 1차 메뉴 */
-   .nav-item {
-    position: relative;
-    justify-content: center;
-    text-align: center;
-    font-size: 18px;
-    width: 160px;
-  }
-  
-  .nav-item a {
-    color: #565656;
-    font-weight: 600;
-  }
-  
-  /* 2차 메뉴 */
-  .dropdown {
-    display: none;
-    position: absolute;
-    top: 100%;  /* 2차 메뉴를 1차 메뉴의 바로 아래에 위치시킴 */
-    left: 0;  /* 2차 메뉴를 1차 메뉴의 왼쪽 벽에 붙임 */
-    width: 100%;  /* 부모의 너비를 그대로 받아옴 */
-    padding: 0;
-    background-color: white;
-    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
-    border-radius: 5px;
-    font-size: 16px;
-  }
-  
-  .nav-item:hover .dropdown {
-    display: block;
-  }
-  
-  .dropdown li a {
-    padding: 10px 20px;
-    display: block;
-    color: #565656;
-  }
-  
-  .dropdown li a:hover {
-    color: #000000;
-    background-color: #f2f2f2;
-    border-radius: 5px;
-  }
-  </style>
+<style scoped>
+header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 1000;
+}
+
+/* 로그인, 회원가입 링크 상단 */
+.auth-links {
+  display: flex;
+  justify-content: flex-end;
+  padding: 10px 20px;
+  background-color: white;
+}
+
+.auth-links a {
+  color: #565656;
+  margin: 0 10px;
+}
+
+.auth-links a:hover {
+  color: #000000;
+}
+
+/* 네비게이션 바 */
+.navbar {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding-bottom: 20px;
+  background-color: white;
+  border-bottom: 1px solid #ddd;
+  width: 100%;
+  box-shadow: 0px 8px 8px -4px rgba(0, 0, 0, 0.1);
+}
+
+/* 메뉴 전체를 감싸는 컨테이너 */
+.nav-menu {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  padding: 0;
+  margin: 0;
+}
+
+/* 중앙 로고 */
+.logo {
+  flex-grow: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.logo img {
+  height: 100px;
+}
+
+/* 좌측 메뉴 */
+.nav-left {
+  display: flex;
+  justify-content: center; 
+  flex-grow: 1;
+  padding: 0;
+}
+
+/* 우측 메뉴 */
+.nav-right {
+  display: flex;
+  justify-content: center; 
+  flex-grow: 1;
+  padding: 0;
+}
+
+/* 1차 메뉴 */
+.nav-item {
+  position: relative;
+  justify-content: center;
+  text-align: center;
+  font-size: 18px;
+  width: 160px;
+}
+
+.nav-item a {
+  color: #565656;
+  font-weight: 600;
+}
+
+/* 2차 메뉴 */
+.dropdown {
+  display: none;
+  position: absolute;
+  top: 100%;  /* 2차 메뉴를 1차 메뉴의 바로 아래에 위치시킴 */
+  left: 0;  /* 2차 메뉴를 1차 메뉴의 왼쪽 벽에 붙임 */
+  width: 100%;  /* 부모의 너비를 그대로 받아옴 */
+  padding: 0;
+  background-color: white;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+  border-radius: 5px;
+  font-size: 16px;
+}
+
+.nav-item:hover .dropdown {
+  display: block;
+}
+
+.dropdown li a {
+  padding: 10px 20px;
+  display: block;
+  color: #565656;
+}
+
+.dropdown li a:hover {
+  color: #000000;
+  background-color: #f2f2f2;
+  border-radius: 5px;
+}
+</style>

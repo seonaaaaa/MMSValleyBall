@@ -70,9 +70,168 @@
         itemsPerPage: 2,
       };
     },
-}
-</script>
+    computed: {
+      totalPages() {
+        return Math.ceil(this.reservations.length / this.itemsPerPage);
+      },
+      paginatedReservations() {
+        const start = (this.currentPage - 1) * this.itemsPerPage;
+        const end = start + this.itemsPerPage;
+        return this.reservations.slice(start, end);
+      },
+    },
+    watch: {
+      // 경로가 변경될 때마다 activeMenu를 업데이트
+      $route(to) {
+        this.activeMenu = to.path;
+      }
+    },
+    methods: {
+      navigateTo(route) {
+        this.$router.push(route);
+        this.activeMenu = route; // 메뉴를 클릭할 때 활성화된 메뉴 업데이트
+      },
+      cancelReservation(id) {
+        // 예매 취소 로직
+        this.reservations = this.reservations.filter(reservation => reservation.id !== id);
+        alert('예매가 취소되었습니다.');
+        if (this.currentPage > this.totalPages) {
+          this.currentPage = this.totalPages;
+        }
+      },
+      nextPage() {
+        if (this.currentPage < this.totalPages) {
+          this.currentPage++;
+        }
+      },
+      prevPage() {
+        if (this.currentPage > 1) {
+          this.currentPage--;
+        }
+      },
+    }
+  }
+  </script>
+  
+  <style>
+  .reservations-view-page {
+      padding-top: var(--header-height);
+      padding-bottom: var(--footer-height);
+      text-align: center;
+  }
+  
+  /* 메뉴 */
+  .menu {
+    display: flex;
+    justify-content: center;
+    gap: 50px;
+    padding-bottom: 20px;
+  }
+  
+  .menu-item {
+    width: 120px;
+    padding: 10px 0;
+    position: relative;
+    cursor: pointer;
+    font-weight: bold;
+    color: #565656;
+  }
+  
+  .menu-item::after {
+    content: "";
+    position: absolute;
+    bottom: -5px; /* 밑줄이 텍스트 아래에 표시되도록 간격을 조정 */
+    left: 0;
+    width: 100%;  /* 밑줄을 전체 div 너비에 맞춤 */
+    height: 3px;
+    background-color: black;
+    transform: scaleX(0); /* 기본적으로 밑줄을 숨김 */
+    transition: transform 0.3s ease;
+  }
+  
+  .active-menu-item {
+    color: black;  /* 선택된 메뉴의 텍스트 색상을 black으로 설정 */
+  }
+  
+  .active-menu-item::after {
+    transform: scaleX(1);  /* 활성화된 메뉴에만 밑줄 표시 */
+  }
+  
+  .menu-item:hover::after {
+    transform: scaleX(1);  /* 마우스를 올리면 밑줄 표시 */
+  }
+  
+  /* 예매 내역 */
+  .no-reservations {
+    font-size: 18px;
+    color: #999;
+  }
 
-<style>
+  .reservation-table-wrapper {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    margin-top: 20px;
+  }
 
-</style>
+  .reservation-table {
+    width: 80%;
+    max-width: 800px;
+    border-collapse: collapse;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    margin: 0 auto;
+  }
+
+  .reservation-table th, .reservation-table td {
+    border: 1px solid #ccc;
+    padding: 15px;
+    text-align: center;
+  }
+
+  .reservation-table th {
+    background-color: #f5f5f5;
+    font-weight: bold;
+  }
+
+  .cancel-button {
+    background-color: #d9534f;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+
+  .cancel-button:hover {
+    background-color: #c9302c;
+  }
+
+  .pagination-controls {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    margin-top: 20px;
+    margin-bottom: 20px;
+  }
+
+  .pagination-controls button {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 10px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+
+  .pagination-controls button:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+  }
+
+  .pagination-controls span {
+    font-size: 16px;
+    font-weight: bold;
+  }
+  </style>
