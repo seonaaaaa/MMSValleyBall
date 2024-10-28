@@ -28,7 +28,8 @@
               @click="goToPage(currentPage - 1)"
               :class="{ disabled: currentPage === 0 }" />
 
-        <h2>{{ currentPage + 1 }} 라운드</h2>
+        <!-- 내브 버튼 사이에 페이지 전체보기 할 때는 '전체' / 라운드 선택하면 '라운드' 출력 -->
+        <h2>{{ totalPages === 1 ? '전체' : currentPage + 1 + ' 라운드' }}</h2>
 
         <img src="@/assets/img/game/nav-icon-next.png"
               alt="Next"
@@ -54,7 +55,7 @@
       <tbody>
         <tr v-for="match in matches" :key="match.matchId">
           <td>{{ formatDate(match.matchDate) }}</td>
-          <td>{{ match.seasonOrder }}</td>
+          <td>{{ match.tableIndex }}</td>
           <td>
             <span class="home-team">MMS GS</span>
             <span class="score">{{ match.matchSetScore }}:{{ match.matchOpponentTeamSetScore }}</span>
@@ -111,10 +112,19 @@ export default {
     // 전체보기 - 선택된 시즌의 전체 데이터 가져오기
     async showAllMatches() {
       try {
-        const response = await axios.get(`http://localhost:4000/game/schedule/total`, {
-          params: { seasonId: this.selectedSeasonId }
+        const response = await axios.get(`http://localhost:4000/game/results`, 
+        {
+          params: {
+          seasonId: this.selectedSeasonId,
+          page: 0,
+          size: 1000, // 한 페이지에 최대한 큰 값을 설정하여 모든 데이터를 가져오기
+          },
         });
-        this.matches = response.data.content;
+        // 가져온 데이터에 순번 매기기
+        this.matches = response.data.content.map((match, index) => ({
+          ...match,
+          tableIndex: index + 1, // 순번을 1부터 시작
+        }));
         this.totalPages = 1; // 전체보기 시 페이지 1로 고정
         this.currentPage = 0;
       } catch (error) {
@@ -130,13 +140,14 @@ export default {
           params: {
             seasonId: this.selectedSeasonId,
             page: page,
-            size: 6,
+            size: 6, // 6개씩 페이징 처리
           },
         });
         // 페이지별 순번 계산 (matchId 기준이 아니라 seasonId 내에서 순서 계산)
+        // Match 테이블 아예 round_id 컬럼 추가 후 변경 예정
         this.matches = response.data.content.map((match, index) => ({
           ...match,
-          seasonOrder: index + 1 + page * 6
+          tableIndex: index + 1 + page * 6
         }));
         // this.matches = response.data.content;
         this.totalPages = response.data.totalPages;
