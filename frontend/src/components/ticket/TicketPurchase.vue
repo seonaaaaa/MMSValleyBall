@@ -82,7 +82,7 @@ export default {
   name: 'TicketPurchase',
   components: {
     LogoHeader,
-    Modal,    
+    Modal,
   },
   data() {
     return {
@@ -204,10 +204,10 @@ th {
   /* 모서리를 둥글게 설정 */
   padding: 20px;
   /* 내부 여백 */
-  margin-left: 400px;
+  margin-left: 300px;
   margin-right: 300px;
   margin-bottom: 30px;
-
+  width: 70%;
 }
 
 .icon {

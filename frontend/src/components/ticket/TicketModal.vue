@@ -154,7 +154,7 @@
                                 </tbody>
                             </table>
 
-                            <div class="info-box">
+                            <div class="modal-info-box">
                                 <div class="icon">
                                     <img src="@/assets/img/anyImg/bell-icon.png" alt="alert" />
                                 </div>
@@ -274,7 +274,7 @@ export default {
             // 수량이 1 이상인 구역만 필터링
             return this.zones.filter(zone => zone.quantity > 0);
         },
-        
+
         formattedTotal() {
             // 숫자를 세 자리마다 쉼표가 붙은 문자열로 변환
             return this.total.toLocaleString();
@@ -438,10 +438,8 @@ export default {
     background: white;
     padding: 20px;
     border-radius: 10px;
-    max-width: 1300px;
+    width: 1300px;
     max-height: 1000px;
-    position: relative;
-
 }
 
 .modal-title {
@@ -512,8 +510,7 @@ export default {
     cursor: pointer;
 }
 
-.info-box {
-    position: relative;
+.modal-info-box {
     display: flex;
     /* 아이콘과 텍스트를 나란히 배치 */
     align-items: center;
@@ -528,8 +525,8 @@ export default {
     /* 내부 여백 */
     margin-top: 30px;
     margin-bottom: 30px;
-    width: 45%;
-    left: -16%;
+    margin-left: 70px;
+    width: 90%;
 }
 
 .icon {
@@ -567,7 +564,7 @@ export default {
 }
 
 .right-table {
-    margin-left: -45%;
+    margin-left: 10%;
     width: 400px;
 }
 
