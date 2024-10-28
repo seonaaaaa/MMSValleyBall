@@ -210,7 +210,6 @@ th {
   width: 70%;
 }
 
-
 .icon {
   margin-right: 20px;
   /* 아이콘과 텍스트 사이의 간격 */

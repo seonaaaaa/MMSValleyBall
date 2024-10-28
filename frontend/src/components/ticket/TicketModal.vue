@@ -72,25 +72,10 @@
                                     </td>
                                     <td>{{ zone.fullSeats }}</td>
                                 </tr>
-
-                                <!-- <tr v-for="(zone, index) in zones" :key="zone.name">
-                                    <td>{{ zone.name }}</td>
-                                    <td>
-                                        <div class="quantity-selector">
-                                            <button @click="decreaseQuantity(index)"
-                                                :disabled="zone.quantity <= 0">-</button>
-                                            <input type="text" v-model="zone.quantity" readonly class="quantity-box" />
-                                            <button @click="increaseQuantity(index)"
-                                                :disabled="zone.quantity >= zone.maxSeats">+</button>
-                                        </div>
-                                    </td>
-                                    <td>{{ zone.fullSeats }}</td>
-                                </tr> -->
                             </tbody>
                         </table>
                     </div>
                 </div>
-
                 <hr class="divider" />
 
                 <div class="result-text">
@@ -528,7 +513,6 @@ export default {
     margin-left: 70px;
     width: 90%;
 }
-
 
 .icon {
     margin-right: 20px;
