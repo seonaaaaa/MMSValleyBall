@@ -112,7 +112,7 @@
   /* 인사말 */
   .greeting-content {
     margin-top: 20px;
-    padding-bottom: 60px;
+    padding-bottom: 78px;
   }
   
   .slogan {
