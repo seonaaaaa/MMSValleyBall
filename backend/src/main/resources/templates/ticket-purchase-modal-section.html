@@ -88,35 +88,36 @@
                         let sectionRow = `<tr class="section">
                             <td class="section-name">${section.sectionName}</td>
                             <td>
-                                - <input class="ticket-amount" type="number" min="0" max="${section.availableSeatAmount}" data-section-name="${section.sectionName}" class="section-input"/> +
+                                - <input class="ticket-amount" type="number" min="0" max="${section.availableSeatAmount}" data-seat-id="${section.seatId}" class="section-input"/> +
                             </td>
                             <td><p class="available-seat-section">${section.availableSeatAmount}</p> 석</td>
                         </tr>`;
                         $('#seat-body').append(sectionRow);
                     });
                 });
-                // 3. 결제하기 버튼 클릭 시 선택한 구역과 좌석 수 전송
-                $('#btn-pay').on("click", function() {
-                    // 선택한 구역과 좌석 수 정보를 모은 배열
-                    let selectedSeats = [];
 
+                // 결제하기 버튼 클릭 시 선택한 구역과 좌석 수 전송
+                $('#btn-pay').on("click", function() {
                     // 각 섹션에서 선택된 좌석 수를 가져오기
+                    let selectedSeat = {};
+
+                    // 섹션 정보를 가져오는 부분
                     $('.section').each(function() {
-                        const sectionName = $(this).find('.section-name').text(); // 섹션 이름
+                        const seatId = $(this).find('.ticket-amount').data('seat-id'); // seatId 가져오기
                         const ticketAmount = parseInt($(this).find('.ticket-amount').val()); // 사용자가 입력한 좌석 수
 
                         if (ticketAmount > 0) { // 사용자가 입력한 좌석 수가 0보다 클 경우에만
-                            // 각 선택된 좌석 정보를 객체로 만들어 추가
-                            selectedSeats.push({
-                                matchId: dto.matchId, // matchId 추가
-                                sectionName: sectionName, // 섹션 이름 추가
+                            // 선택된 좌석 정보를 객체로 저장
+                            selectedSeat = {
+                                matchId: matchId, // matchId 추가
+                                seatId: seatId, // seatId 추가
                                 ticketAmount: ticketAmount // 티켓 수량 추가
-                            });
+                            };
                         }
                     });
 
                     // 선택된 좌석 수가 없으면 경고
-                    if (selectedSeats.length === 0) {
+                    if (!selectedSeat.seatId) {
                         alert("구역을 선택해주세요.");
                         return;
                     }
@@ -126,9 +127,7 @@
                         url: "/ticket/purchase/payment",
                         type: "post",
                         contentType: "application/json",
-                        data: JSON.stringify({
-                            selectedSeats: selectedSeats // 선택된 좌석 정보 배열 전송
-                        }),
+                        data: JSON.stringify(selectedSeat), // 선택된 좌석 정보 객체 전송
                         success: function(response) {
                             console.log("Reservation successful:", response);
                             // 성공적인 응답 처리, 예: 결제 페이지로 이동

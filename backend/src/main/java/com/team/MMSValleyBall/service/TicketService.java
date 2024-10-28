@@ -3,25 +3,28 @@ package com.team.MMSValleyBall.service;
 import com.team.MMSValleyBall.dto.AvailableSeatDTO;
 import com.team.MMSValleyBall.dto.SectionInfo;
 import com.team.MMSValleyBall.dto.TicketSalesDTO;
+import com.team.MMSValleyBall.entity.*;
 import com.team.MMSValleyBall.enums.SeatSection;
-import com.team.MMSValleyBall.repository.TicketRepository;
-import com.team.MMSValleyBall.repository.UserRepository;
+import com.team.MMSValleyBall.repository.*;
 import org.springframework.stereotype.Service;
 
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Service
 public class TicketService {
     private final TicketRepository ticketRepository;
     private final UserRepository userRepository;
+    private final MatchRepository matchRepository;
+    private final SeatRepository seatRepository;
+    private final TicketDetailRepository ticketDetailRepository;
 
-    public TicketService(TicketRepository ticketRepository, UserRepository userRepository) {
+    public TicketService(TicketRepository ticketRepository, UserRepository userRepository, MatchRepository matchRepository, SeatRepository seatRepository, TicketDetailRepository ticketDetailRepository) {
         this.ticketRepository = ticketRepository;
         this.userRepository = userRepository;
+        this.matchRepository = matchRepository;
+        this.seatRepository = seatRepository;
+        this.ticketDetailRepository = ticketDetailRepository;
     }
 
     //티켓 넘버 생성 메서드
@@ -83,9 +86,33 @@ public class TicketService {
         return dtoList;
     }
 
-    public void makeTicketSalesDTO(String userEmail, Long matchId, String sectionName, int ticketAmount) {
+    public void reserveTickets(TicketSalesDTO dto) {
+        // Match와 Seat 정보 조회
+        Match match = matchRepository.findById(dto.getMatchId()).orElseThrow(() ->
+                new RuntimeException("Match not found for ID: " + dto.getMatchId()));
+        Seat seat = seatRepository.findById(dto.getTicketDetailSeat()).orElseThrow(() ->
+                new RuntimeException("Seat not found for ID: " + dto.getTicketDetailSeat()));
+        Users user = userRepository.findByUserEmail(dto.getUserEmail());
+
+        // Ticket 객체 생성
+        Ticket newTicket = new Ticket();
+        newTicket.setTicketMatch(match);
+        newTicket.setTicketPaidPrice(dto.getTicketPaidPrice());
+        newTicket.setTicketNumber(dto.getTicketNumber());
+        newTicket.setTicketUser(user);
+
+        // TicketDetail 객체 생성
+        TicketDetail newTicketDetail = new TicketDetail();
+        newTicketDetail.setTicketDetailAmount(dto.getTicketDetailAmount());
+        newTicketDetail.setTicketDetailTicket(newTicket);
+        newTicketDetail.setTicketDetailSeat(seat);
+
+        // Ticket 저장
+        newTicket.getTicketDetails().add(newTicketDetail);
+        ticketRepository.save(newTicket);
+
+        // TicketDetail 저장
+        ticketDetailRepository.save(newTicketDetail);
     }
 
-    public void reserveTickets(TicketSalesDTO ticketSalesDTO) {
-    }
 }

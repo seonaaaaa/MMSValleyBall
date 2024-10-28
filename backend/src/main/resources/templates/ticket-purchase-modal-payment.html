@@ -6,14 +6,6 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </head>
 <body>
-    <div id="match">
-        <ul>
-            <li id="match-info">GS MMS VS 한국전력</li>
-            <li id="match-stadium">서울하이체육관</li>
-            <li id="match-date">2024.10.24(목) 19:00</li>
-        </ul>
-    </div>
-
     <div id="selected-ticket">
         <table>
             <tr>##구역 @@매를 선택하셨습니다.</tr>
@@ -33,20 +25,78 @@
         </table>
     </div>
 
-    <div id="payment">
+    <div id="match">
+        <ul>
+            <li id="match-info">GS MMS VS 한국전력</li>
+            <li id="match-stadium">서울하이체육관</li>
+            <li id="match-date">2024.10.24(목) 19:00</li>
+        </ul>
+    </div>
 
+    <div id="payment">
+        <ul>
+            <li>예매정보</li>
+            <li></li>
+        </ul>
+        <table id="tb-ticket">
+            <tr>
+                <th>티켓 금액</th>
+                <td><p>40,000</p>원</td>
+            </tr>
+            <tr>
+                <th>멤버십 할인</th>
+                <td><p>30</p>%</td>
+            </tr>
+            <tr>
+                <th>총 결제 금액</th>
+                <td><p>28,000</p>원</td>
+            </tr>
+        </table>
+        <table id="tb-charge">
+            <tr>
+                <th>충전 금액</th>
+                <td><p>50,000</p>원</td>
+            </tr>
+            <tr>
+                <th>- 총 결제 금액</th>
+                <td><p>28,000</p>원</td>
+            </tr>
+            <tr>
+                <th>충전 잔액</th>
+                <td><p>22,000</p>원</td>
+            </tr>
+        </table>
     </div>
 
     <div id="buttons">
-        <button id="btn-pay">결제하기</button>
+        <button id="btn-pay">예매하기</button>
         <button id="btn-cancel">취소</button>
     </div>
     <script th:inline="javascript">
         $(document).ready(function(){
             $.ajax({
-              url: "/purchase/section/{matchId}",
-              type: "get",
+              url: "/purchase/payment",
+              type: "post",
               success: function(data) {
+                //받은 데이터 저장
+
+                //1. 예매 티켓 정보 출력
+
+                //2. 충전 금액 정보 출력
+
+                //예매하기 버튼 클릭 시 구매 티켓 정보 전송
+                $('#btn-pay').on("click", function(){
+                    $.ajax({
+                        url : "/purchase/payment/completed",
+                        type : "post",
+                        success : function(){
+
+                        },
+                        error : function(xhr, status, error) {
+                              console.error('Error fetching matches:', error);
+                        }
+                    });
+                });
 
                 //취소 버튼 클릭 시 티켓 구매 페이지로 이동
                  $('#btn-cancel').on("click", function(){

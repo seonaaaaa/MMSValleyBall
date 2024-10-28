@@ -2,9 +2,11 @@ package com.team.MMSValleyBall.controller;
 
 import com.team.MMSValleyBall.dto.AvailableSeatDTO;
 import com.team.MMSValleyBall.dto.MatchTableDTO;
+import com.team.MMSValleyBall.dto.MoneyDTO;
 import com.team.MMSValleyBall.dto.TicketSalesDTO;
 import com.team.MMSValleyBall.service.MatchService;
 import com.team.MMSValleyBall.service.TicketService;
+import com.team.MMSValleyBall.service.UsersBalanceService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -18,10 +20,12 @@ import java.util.Map;
 public class TicketController {
     private final TicketService ticketService;
     private final MatchService matchService;
+    private final UsersBalanceService usersBalanceService;
 
-    public TicketController(TicketService ticketService, MatchService matchService) {
+    public TicketController(TicketService ticketService, MatchService matchService, UsersBalanceService usersBalanceService) {
         this.ticketService = ticketService;
         this.matchService = matchService;
+        this.usersBalanceService = usersBalanceService;
     }
 
     //티켓 안내 페이지
@@ -80,7 +84,7 @@ public class TicketController {
         List<AvailableSeatDTO> availableSeats = ticketService.getAvailableSeatsByMatch(matchId);
         System.out.println("ticket controller - available seats : " + availableSeats);
 
-        //4. 경기 정보, 잔여석 정보, TicketSalesDTO 보내기
+        //3. 경기 정보, 잔여석 정보 보내기
         Map<String, Object> response = new HashMap<>();
         response.put("matchInfo", match);
         response.put("availableSeatList", availableSeats);
@@ -97,31 +101,50 @@ public class TicketController {
 
     // 티켓 예매 모달 - 결제하기 (1-get)
     @PostMapping("/purchase/payment")
-    public ResponseEntity<?> viewTicketPurchasePayment(@RequestBody List<Map<String, Object>> selectedSeats) {
-        // 선택된 좌석 정보를 처리하는 로직 추가
-        for (Map<String, Object> seat : selectedSeats) {
-            Long matchId = Long.valueOf(seat.get("matchId").toString());
-            String sectionName = seat.get("sectionName").toString();
-            int ticketAmount = Integer.parseInt(seat.get("ticketAmount").toString());
+    public ResponseEntity<?> viewTicketPurchasePayment(@RequestBody Map<String, Object> selectedSeat) {
+        // 1. 로그인 정보로 사용자 정보 가져오기
+        String userEmail = "kimka@cbc.com";
 
-            // 여기서 해당 정보를 사용하여 ticketSalesDTO 생성 로직 구현
-            String userEmail = "kimka@cbc.com";
-            ticketService.makeTicketSalesDTO(userEmail, matchId, sectionName, ticketAmount);
+        // 2. 선택된 좌석 정보를 처리하는 로직 추가
+        Long matchId = Long.valueOf(selectedSeat.get("matchId").toString());
+        Long seatId = Long.valueOf(selectedSeat.get("seatId").toString());
+        int ticketAmount = Integer.parseInt(selectedSeat.get("ticketAmount").toString());
 
-            // 디버깅을 위한 로그 출력
-            System.out.println("Match ID: " + matchId + ", Section Name: " + sectionName + ", Ticket Amount: " + ticketAmount);
-        }
+        // TicketSalesDTO 생성
+        TicketSalesDTO dto = new TicketSalesDTO();
+        dto.setUserEmail(userEmail);
+        dto.setMatchId(matchId);
+        // 좌석 ID
+        dto.setTicketDetailSeat(seatId);
+        // 예매 좌석 수
+        dto.setTicketDetailAmount(ticketAmount);
+
+        // 디버깅을 위한 로그 출력
+        System.out.println("Match ID: " + matchId + ", Seat ID: " + seatId + ", Ticket Amount: " + ticketAmount);
+
+        // 3. 경기 정보 가져오기
+        MatchTableDTO match = matchService.getOneMatch(matchId);
+
+        // 4. 로그인 정보로 사용자의 충전금액 찾기
+        MoneyDTO moneyDTO = usersBalanceService.getUsersBalance(userEmail);
+
+        // 5. 응답으로 보낼 데이터 구성
+        Map<String, Object> response = new HashMap<>();
+        response.put("ticketSalesDto", dto);
+        response.put("userBalance", moneyDTO);
+        response.put("matchInfo", match);
 
         // 예약이 성공적으로 처리되었음을 나타내는 응답
-        return ResponseEntity.ok("Reservation successful");
+        return ResponseEntity.ok(response);
     }
-
 
     //티켓 예매 모달 - 결제하기(2-post)
     @PostMapping("/purchase/payment/completed")
     public ResponseEntity<String> viewTicketPurchasePaymentCompleted(@RequestBody TicketSalesDTO ticketSalesDTO) {
-        //티켓번호 생성
+        // 1. 티켓번호 생성
         String ticketNumber = ticketService.createTicketNumber(ticketSalesDTO);
+        ticketSalesDTO.setTicketNumber(ticketNumber);
+        // 2. 티켓 판매 정보 저장
         ticketService.reserveTickets(ticketSalesDTO);
         return ResponseEntity.ok("Reservation successful");
     }
