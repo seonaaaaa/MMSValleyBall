@@ -84,12 +84,10 @@ public class MyPageService {
     }
 
     public String deactivateUser(Long userId) {
-        Users users = userRepository.findById(userId).orElse(null);
-        if(ObjectUtils.isEmpty(users)){
-            return "회원정보가 존재하지 않습니다.";
-        }
-        users.setUserStatus(UserStatus.INACTIVE);
-        return "회원 탈퇴가 완료되었습니다.";
+        Users deactivateUser = userRepository.findById(userId).orElse(null);
+        if(ObjectUtils.isEmpty(deactivateUser)) return "해당 회원이 존재하지 않습니다.";
+        deactivateUser.setUserStatus(UserStatus.INACTIVE); // 찾은 회원 비활성화 상태로 변경
+        return "회원 탈퇴 성공";
     }
 
     public String topUp(Map<String, String> data) {

@@ -30,7 +30,7 @@
 
         <h2>{{ currentPage + 1 }} 라운드</h2>
 
-        <img src="@/assets/img/game/nav-icon-next.png" 
+        <img src="@/assets/img/game/nav-icon-next.png"
               alt="Next"
               @click="goToPage(currentPage + 1)"
               :class="{ disabled: currentPage + 1 === totalPages }" />
@@ -79,7 +79,7 @@ export default {
   name: 'AppResults',
   components: {
     LogoHeader
-  },    
+  },
   data() {
     return {
       activeMenu: this.$route.path, // 현재 활성화된 경로
@@ -105,7 +105,7 @@ export default {
     navigateTo(route) {
       this.$router.push(route);
       // 메뉴를 클릭할 때 활성화된 메뉴 업데이트
-      this.activeMenu = route; 
+      this.activeMenu = route;
     },
 
     // 전체보기 - 선택된 시즌의 전체 데이터 가져오기
@@ -139,7 +139,7 @@ export default {
         console.error("Error fetching data:", error);
       }
     },
-    
+
     // 페이지 이동
     goToPage(page) {
       if (page >= 0 && page < this.totalPages) {
