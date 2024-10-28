@@ -9,6 +9,7 @@
       <form @submit.prevent="handleSignup">
         <div class="form-group">
           <label class="notice">** 필수 입력 항목입니다.</label>
+          <!-- 이메일 -->
           <label for="userEmail">**이메일</label>
           <div class="input-with-button">
             <input type="email" id="userEmail" v-model="userEmail" placeholder="이메일을 입력하세요" required />
@@ -16,6 +17,7 @@
           </div>
         </div>
 
+        <!-- 비밀번호 -->
         <div class="form-group">
           <label for="userPassword">**비밀번호</label>
           <input type="password" id="userPassword" v-model="userPassword" required />
@@ -26,6 +28,7 @@
           <input type="password" id="userConfirmPassword" v-model="userConfirmPassword" required />
         </div>
 
+        <!-- 이름 -->
         <div class="form-group">
           <label for="userName">**이름</label>
           <input type="text" id="userName" v-model="userName" required />
@@ -33,8 +36,17 @@
 
         <!-- 핸드폰 번호 -->
         <div class="form-group">
-          <label for="userPhone">핸드폰 번호</label>
-          <input type="tel" id="userPhone" v-model="userPhone" placeholder="010-1234-5678" required />
+          <label for="userPhone">전화번호</label>
+          <div class="phone-input-group single-line">
+            <select v-model="userPhonePart1" required>
+              <option value="010">010</option>
+              <option value="011">011</option>
+              <option value="016">016</option>
+              <option value="017">017</option>
+            </select> -
+            <input type="tel" v-model="userPhonePart2" maxlength="4" required /> -
+            <input type="tel" v-model="userPhonePart3" maxlength="4" required />
+          </div>
         </div>
 
         <!-- 주소 -->
@@ -65,7 +77,9 @@ export default {
       userPassword: '',
       userConfirmPassword: '',
       userName: '',
-      userPhone: '',
+      userPhonePart1: '010', // 기본값 설정
+      userPhonePart2: '',
+      userPhonePart3: '',
       userAddress: '',
     };
   },
@@ -76,7 +90,8 @@ export default {
         alert('비밀번호가 일치하지 않습니다. 다시 확인해주세요.');
         return;
       }
-      console.log('회원가입 시도:', this.userEmail, this.userPassword, this.userConfirmPassword, this.userName, this.userPhone, this.userAddress);
+      const userPhone = `${this.userPhonePart1}-${this.userPhonePart2}-${this.userPhonePart3}`;
+      console.log('회원가입 시도:', this.userEmail, this.userPassword, this.userConfirmPassword, this.userName, userPhone, this.userAddress);
     },
     async checkEmail() {
       console.log('이메일 중복 확인:', this.userEmail);
@@ -114,13 +129,6 @@ export default {
   text-align: left;
 }
 
-.signup-form h2 {
-margin-bottom: 40px;
-color: #333;
-text-align: center;
-padding-bottom: 30px;
-}
-
 .signup-form {
   max-width: 500px;
   margin: 50px auto;
@@ -131,8 +139,10 @@ padding-bottom: 30px;
 }
 
 .signup-form h2 {
-  margin-bottom: 30px;
+  margin-bottom: 40px;
   color: #333;
+  text-align: center;
+  padding-bottom: 30px;
 }
 
 .form-group {
@@ -200,7 +210,7 @@ input[type="text"]:focus {
   background-color: #3f6f68;
 }
 
-.notice{
+.notice {
   text-align: right;
   margin-bottom: 40px;
   font-size: 20px;
