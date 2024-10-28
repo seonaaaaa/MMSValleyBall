@@ -6,7 +6,6 @@ import com.team.MMSValleyBall.entity.Payment;
 import com.team.MMSValleyBall.entity.Ticket;
 import com.team.MMSValleyBall.entity.Users;
 import com.team.MMSValleyBall.enums.PaymentStatus;
-import com.team.MMSValleyBall.enums.UserStatus;
 import com.team.MMSValleyBall.repository.MembershipRepository;
 import com.team.MMSValleyBall.repository.MembershipSalesRepository;
 import com.team.MMSValleyBall.repository.PaymentRepository;
@@ -83,13 +82,13 @@ public class MyPageService {
         }
     }
 
-    public String deactivateUser(Long userId) {
-        Users users = userRepository.findById(userId).orElse(null);
-        if(ObjectUtils.isEmpty(users)){
-            return "회원정보가 존재하지 않습니다.";
+    public String deleteUserById(Long userId) {
+        userRepository.deleteById(userId);
+        if(userRepository.existsById(userId)){
+            return "오류가 발생했습니다. 고객센터로 문의해 주세요.";
+        }else {
+            return "회정정보가 삭제되었습니다.";
         }
-        users.setUserStatus(UserStatus.INACTIVE);
-        return "회원 탈퇴가 완료되었습니다.";
     }
 
     public String topUp(Map<String, String> data) {
