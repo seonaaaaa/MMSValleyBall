@@ -31,6 +31,9 @@ public class Ticket {
     @JoinColumn(name = "ticket_user_id", nullable = false)
     private Users ticketUser;
 
+    @Column
+    private int ticketPaidPrice;
+
     @Enumerated(EnumType.STRING)
     @ColumnDefault("'BOOKED'")
     @Column(nullable = false, length = 50)
@@ -52,6 +55,7 @@ public class Ticket {
                 ", Number='" + ticketNumber + '\'' +
                 ", MatchId=" + ticketMatch.getMatchId() +
                 ", UserId=" + ticketUser.getUserId() +
+                ", TickePaidPrice=" + ticketPaidPrice +
                 ", Status=" + ticketStatus +
                 ", CreateAt=" + ticketCreateAt +
                 ", UpdateAt=" + ticketUpdateAt +

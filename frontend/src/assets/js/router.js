@@ -29,6 +29,10 @@ import MembershipView from '@/components/mypage/MembershipView.vue';
 import EditProfile from '@/components/mypage/EditProfile.vue';
 import DeleteAccount from '@/components/mypage/DeleteAccount.vue';
 
+// login, joinpage 만들기
+import loginPage from '@/components/member/Login.vue';
+import SignupPage from '@/components/member/Signup.vue'
+
 const routes = [
   {
     path: '/mms',
@@ -141,6 +145,19 @@ const routes = [
     path: '/mypage/delete-account',
     name: 'DeleteAccount',
     component: DeleteAccount,
+    meta: { hideContent: true },
+  },
+  // 로그인, 회원가입 
+  {
+    path: '/login',
+    name: 'loginPage',
+    component: loginPage,
+    meta: { hideContent: true },
+  },
+  {
+    path: '/signup',
+    name: 'SignupPage',
+    component: SignupPage,
     meta: { hideContent: true },
   }
 ];

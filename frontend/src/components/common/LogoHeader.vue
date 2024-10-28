@@ -23,11 +23,13 @@ export default {
         return 'TICKET';
         } else if (path.includes('/membership')) {
         return 'MEMBERSHIP';
-        } else if (path.includes('/my-page')) {
-        return 'MY PAGE';
-        }
+        } else if (path.includes('/login')) {
+        return 'LOGIN';
+        }  else if (path.includes('/signup')) {
+        return 'SIGN UP';
+        } 
         return 'DEFAULT'; // 기본 텍스트
-    }
+        }
     }
 }
 </script>

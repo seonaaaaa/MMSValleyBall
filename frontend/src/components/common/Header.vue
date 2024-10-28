@@ -2,7 +2,7 @@
   <header>
     <!-- 로그인, 회원가입 링크 상단 -->
     <div class="auth-links">
-      <a href="#" class="login">로그인</a> | <a href="#" class="signup">회원가입</a>
+     <router-link to="/login" class="login">로그인</router-link> | <router-link to="/signup" class="signup">회원가입</router-link>
     </div>
   
     <!-- 네비게이션 바 -->
@@ -110,6 +110,7 @@
     };
   }
 }
+
   </script>
   
   <style scoped>
@@ -189,16 +190,17 @@
   }
   
   /* 1차 메뉴 */
-  .nav-item {
+   .nav-item {
     position: relative;
+    justify-content: center;
+    text-align: center;
     font-size: 18px;
-    /* border: 10px solid green; */
+    width: 160px;
   }
   
   .nav-item a {
     color: #565656;
     font-weight: 600;
-    padding: 0 50px;
   }
   
   /* 2차 메뉴 */
