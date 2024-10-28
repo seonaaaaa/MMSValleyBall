@@ -16,12 +16,12 @@ INSERT INTO seat(seat_zone, seat_section, seat_price, seat_count) VALUES
 	 ('GOLD','A',30000,30),
 	 ('GOLD','B',30000,30),
 	 ('GOLD','C',30000,30),
-	 ('BLUE-N','A',20000,30),
-	 ('BLUE-N','B',20000,30),
-	 ('BLUE-N','C',20000,30),
-	 ('BLUE-S','A',20000,30),
-	 ('BLUE-S','B',20000,30),
-	 ('BLUE-S','C',20000,30),
+	 ('BLUE','A',20000,30),
+	 ('BLUE','B',20000,30),
+	 ('BLUE','C',20000,30),
+	 ('BLUE','D',20000,30),
+	 ('BLUE','E',20000,30),
+	 ('BLUE','F',20000,30),
 	 ('AWAY','A',30000,30);
 INSERT INTO seat(seat_zone, seat_section, seat_price, seat_count) VALUES
 	 ('AWAY','B',30000,30),
