@@ -87,7 +87,7 @@
  }
  </script>
  
- <style>
+ <style scoped>
  .login-page {
      padding-top: var(--header-height);
      padding-bottom: var(--footer-height);

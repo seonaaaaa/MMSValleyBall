@@ -54,7 +54,7 @@
       <tbody>
         <tr v-for="match in matches" :key="match.matchId">
           <td>{{ formatDate(match.matchDate) }}</td>
-          <td>{{ match.matchId }}</td>
+          <td>{{ match.seasonOrder }}</td>
           <td>
             <span class="home-team">MMS GS</span>
             <span class="score">{{ match.matchSetScore }}:{{ match.matchOpponentTeamSetScore }}</span>
@@ -88,7 +88,7 @@ export default {
         { seasonId: 1, seasonName: '도드람 2023-2024 V-리그' },
         { seasonId: 2, seasonName: '도드람 2024-2025 V-리그' },
       ],
-      selectedSeasonId: 1, // 기본 선택 시즌 ID
+      selectedSeasonId: 2, // 기본 선택 시즌(ID) 2024-2025 V-리그로 설정
       matches: [], // 전체 경기 데이터 저장
       currentPage: 0, // 현재 페이지
       totalPages: 0, // 전체 페이지 수
@@ -125,14 +125,20 @@ export default {
     // 선택된 시즌별 데이터 페이징 처리하여 가져오기
     async fetchMatches(page = 0) {
       try {
-        const response = await axios.get(`http://localhost:4000/game/results`, {
+        const response = await axios.get(`http://localhost:4000/game/results`, 
+        {
           params: {
             seasonId: this.selectedSeasonId,
             page: page,
             size: 6,
           },
         });
-        this.matches = response.data.content;
+        // 페이지별 순번 계산 (matchId 기준이 아니라 seasonId 내에서 순서 계산)
+        this.matches = response.data.content.map((match, index) => ({
+          ...match,
+          seasonOrder: index + 1 + page * 6
+        }));
+        // this.matches = response.data.content;
         this.totalPages = response.data.totalPages;
         this.currentPage = page;
       } catch (error) {
@@ -150,7 +156,9 @@ export default {
     // 날짜 포맷팅
     formatDate(date) {
       const d = new Date(date);
-      return `${d.getMonth() + 1}.${d.getDate()} (${['일', '월', '화', '수', '목', '금', '토'][d.getDay()]})`;
+      const month = String(d.getMonth() + 1).padStart(2, '0'); // 월을 2자리로 표시
+      const day = String(d.getDate()).padStart(2, '0'); // 일을 2자리로 표시
+      return `${month}.${day} (${['일', '월', '화', '수', '목', '금', '토'][d.getDay()]})`;
     },
     // 시간 포맷팅
     formatTime(date) {
@@ -299,6 +307,8 @@ select {
   margin: 0 auto;
   border-collapse: collapse;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  /* 테이블 전체 너비 고정 */
+  /* table-layout: fixed; */
 }
 
 .match-table th, .match-table td {

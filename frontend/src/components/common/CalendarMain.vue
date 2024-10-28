@@ -215,7 +215,8 @@ export default {
 .view-all-btn {
   background-color: #f8f9fa;
   border: 1px solid #ddd;
-  box-shadow: 0 2px 8px rgba(50, 50, 50, 0.2);
+  border: none;
+  box-shadow: 0 2px 4px rgba(50, 50, 50, 0.2);
   padding: 10px;
   border-radius: 5px;
   font-size: 16px;

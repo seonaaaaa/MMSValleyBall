@@ -84,7 +84,8 @@ public class SecurityConfig{
         //http basic 인증 방식 disable
         http.httpBasic((auth) -> auth.disable());
         //경로별 인가 작업
-        http.authorizeHttpRequests((auth) -> auth.requestMatchers("/", "/login", "/signup").permitAll()
+        http.authorizeHttpRequests((auth) -> auth.requestMatchers("/", "/login", "/signup"
+        ,  "/game/schedule/**", "/game/results/**").permitAll()
 //                        .requestMatchers(PathRequest.toStaticResources().atCommonLocations()).permitAll()
                 .requestMatchers("/admin").hasRole("ADMIN")
                 .requestMatchers("/user", "/main").hasRole("USER")
