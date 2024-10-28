@@ -1,16 +1,11 @@
-const { defineConfig } = require('@vue/cli-service');
-const webpack = require('webpack'); // VUE_PROD_HYDRATION_MISMATCH_DETAILS 플래그를 추가
-
+const { defineConfig } = require('@vue/cli-service')
 module.exports = defineConfig({
   transpileDependencies: true,
-  // 이 플래그는 Vue의 하이드레이션 관련 디버그 정보를 제공하는 용도로, 
-  // 빌드 과정에서 플래그가 인식되면 해당 경고를 출력하지 않게 됨
-  // 실제로 확인하려면 빌드하고, 빌드 결과물에서 콘솔 경고가 출력되는지 확인 필요
-  configureWebpack: {
-    plugins: [
-      new webpack.DefinePlugin({
-        __VUE_PROD_HYDRATION_MISMATCH_DETAILS__: JSON.stringify(true) // 트리 쉐이킹 방지 목적의 true 설정
-      })
-    ]
-  }
+   // npm run build 타겟 디렉토리 -> 해당 경로에 vue 빌드 출력물 생성됨
+   outputDir: '../backend/src/main/resources/static',
+
+   // npm run serve 개발 진행시에 포트가 다르기때문에 프록시 설정
+   devServer: {
+     proxy: 'http://localhost:4000' //서버 프로젝트 포트번호와 동일할 것
+   },
 })

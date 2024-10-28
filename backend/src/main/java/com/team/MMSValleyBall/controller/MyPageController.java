@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
+@ResponseBody
 @RequestMapping("myPage")
 public class MyPageController {
    private final MyPageService myPageService;
@@ -57,9 +58,9 @@ public class MyPageController {
     }
 
     // 회원 탈퇴
-    @DeleteMapping("info/delete")
+    @DeleteMapping("info/deactivate")
     public ResponseEntity<String> deleteUser(@RequestBody UserDTO userDTO){
-        return ResponseEntity.ok(myPageService.deleteUserById(userDTO.getUserId()));
+        return ResponseEntity.ok(myPageService.deactivateUser(userDTO.getUserId()));
     }
 
     // 사용자의 충전 잔액

@@ -1,6 +1,7 @@
 package com.team.MMSValleyBall.entity;
 
 import com.team.MMSValleyBall.enums.UserRole;
+import com.team.MMSValleyBall.enums.UserStatus;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -43,6 +44,11 @@ public class Users {
     @ColumnDefault("'USER'")
     @Column(nullable = false)
     private UserRole userRole;
+
+    @Enumerated(EnumType.STRING)
+    @ColumnDefault("'ACTIVE'")
+    @Column(nullable = false)
+    private UserStatus userStatus;
 
     @Column(nullable = false)
     private LocalDateTime userCreateAt;
