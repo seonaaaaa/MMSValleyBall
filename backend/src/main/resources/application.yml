@@ -1,3 +1,18 @@
 spring:
-  profiles:
-    active: dev
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://localhost:5432/MMS_valley_ball
+    username: ${DB_USER}
+    password: ${DB_PW}
+
+  sql:
+    init:
+      mode: never
+
+  jpa:
+    defer-datasource-initialization: true
+    hibernate:
+      ddl-auto: validate
+    properties:
+      format_sql: true
+    show-sql: true
