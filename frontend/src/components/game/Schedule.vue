@@ -11,9 +11,8 @@
   
     <!-- 경기 일정 페이지 내용 -->
     <div class="game-schedule-content">
+      <h2 class="game-schedule-title">전체 경기 일정</h2>
     <CalendarTotal :events="events" />
-
-
     </div>
   </div>
 </template>
@@ -115,7 +114,11 @@ export default {
 
 /* 경기 일정 */
 .game-schedule-content {
-  padding-top: 75px;
+  padding-top: 30px;
   padding-bottom: 100px;
+}
+
+.game-schedule-title {
+  padding-bottom: 20px;
 }
 </style>

@@ -52,7 +52,7 @@ public class GameService {
         Page<MatchWithTeamDTO> matchPages = gameRepository.findByMatchSeason_SeasonId(seasonId, pageable)
                                                           .map(entity -> MatchWithTeamDTO.fromEntity(entity));
     
-        // 전체 검색된 경기의 수
+        // 가져온 전체 경기의 수
         System.out.println("Total elements in matchPages: " + matchPages.getTotalElements());
         // 현재 페이지의 요소 수
         System.out.println("Number of elements in current page: " + matchPages.getNumberOfElements());

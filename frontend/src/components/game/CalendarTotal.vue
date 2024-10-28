@@ -11,7 +11,7 @@
       </div>
       <!-- 셀렉트 박스 및 이전/다음 달 버튼 -->
       <div class="header-controls">
-        <img src="@/assets/img/game/calendar-icon-previou.png" alt="이전달" 
+        <img src="@/assets/img/game/nav-icon-previous.png" alt="이전달" 
           class="nav-button" @click="prevMonth" />
         <select v-model="selectedYear">
           <option v-for="year in years" :key="year" :value="year">{{ year }}년</option>
@@ -19,7 +19,7 @@
         <select v-model="selectedMonth">
           <option v-for="(month, index) in months" :key="index" :value="index + 1">{{ month }}월</option>
         </select>
-      <img src="@/assets/img/game/calendar-icon-next.png" alt="다음달" 
+      <img src="@/assets/img/game/nav-icon-next.png" alt="다음달" 
           class="nav-button" @click="nextMonth" />
       </div>
       <!-- 티켓 예매하기 버튼 -->
@@ -173,6 +173,7 @@ export default {
       this.selectedMonth++;
       }
     },
+    // 예매하기 버튼 보이기
     isReservationVisible(event) {
       const eventDate = new Date(event.matchDate);
       const eventMonth = eventDate.getMonth() + 1;
@@ -197,6 +198,7 @@ export default {
       // 현재 달 또는 다음 달일 때만 true 반환
       return isInCurrentMonth || isInNextMonth;
     },
+    // 예매하기 버튼 활성화
     isReservationEnabled(event) {
       const currentDate = new Date();
       const eventDate = new Date(event.matchDate);
@@ -308,7 +310,8 @@ cursor: pointer;
 
 select {
   background-color: #f8f9fa;
-  border: 1px solid #ddd;
+  /* border: 1px solid #ddd; */
+  border: none;
   box-shadow: 0 2px 8px rgba(50, 50, 50, 0.2);
   padding: 10px;
   border-radius: 5px;

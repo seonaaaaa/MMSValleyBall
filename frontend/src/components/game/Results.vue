@@ -11,18 +11,32 @@
 
   <!-- 경기 결과 페이지 내용 -->
   <div class="game-results-content">
+    <h2 class="game-results-title">전체 경기 결과</h2>
 
-    <div class="filter-container">
-      <select v-model="selectedSeasonId" @change="fetchMatches(0)">
-        <option v-for="season in seasons" :key="season.seasonId" :value="season.seasonId">
-          {{ season.seasonName }}
-        </option>
+    <!-- 상단 컨트롤 박스 (시즌 선택, 라운드 네비게이션, 전체보기 버튼) -->
+    <div class="header-container">
+      <div class="select-container">
+        <select v-model="selectedSeasonId" @change="fetchMatches(0)">
+          <option v-for="season in seasons" :key="season.seasonId" :value="season.seasonId">
+            {{ season.seasonName }}
+          </option>
       </select>
-      <button @click="showAllMatches">전체보기</button>
+      </div>
       <div class="round-navigation">
-        <button @click="goToPage(currentPage - 1)" :disabled="currentPage === 0">&lt;</button>
-        <span>{{ currentPage + 1 }} 라운드</span>
-        <button @click="goToPage(currentPage + 1)" :disabled="currentPage + 1 === totalPages">&gt;</button>
+        <img src="@/assets/img/game/nav-icon-previous.png"
+              alt="Previous"
+              @click="goToPage(currentPage - 1)"
+              :class="{ disabled: currentPage === 0 }" />
+
+        <h2>{{ currentPage + 1 }} 라운드</h2>
+
+        <img src="@/assets/img/game/nav-icon-next.png" 
+              alt="Next"
+              @click="goToPage(currentPage + 1)"
+              :class="{ disabled: currentPage + 1 === totalPages }" />
+      </div>
+      <div class="button-container">
+        <button class="show-all-btn" @click="showAllMatches">전체보기</button>
       </div>
     </div>
 
@@ -154,7 +168,7 @@ export default {
 };
 </script>
 
-<style>
+<style scoped>
 .game-results-page {
   padding-top: var(--header-height);
   padding-bottom: var(--footer-height);
@@ -203,32 +217,99 @@ export default {
 }
 
 /* 경기 결과 */
-.match-results {
-  max-width: 1200px;
-  margin: 0 auto;
+.game-results-content {
+  padding-top: 30px;
+  padding-bottom: 100px;
 }
 
-.controls {
+.header-container {
+  position: relative;
   display: flex;
-  justify-content: space-between;
-  margin-bottom: 20px;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto 20px;
+  margin-bottom: 0px;
+}
+
+.select-container {
+  position: absolute;
+  left: 0px;
+  display: flex;
+}
+
+select {
+  /* background-color: #f8f9fa; */
+  -webkit-appearance: none; /* 기본 화살표 제거 */
+  -moz-appearance: none; /* Firefox 기본 화살표 제거 */
+  appearance: none; /* 기본 화살표 제거 */
+  border: 1px solid #ccc;
+  padding: 10px 40px;
+  padding-right: 50px;
+  border-radius: 5px;
+  font-size: 16px;
+  font-weight: bold;
+  color: #333;
+  cursor: pointer;
+  background-image: url('@/assets/img/game/select-icon-down.png'); /* 화살표 아이콘 경로 */
+  background-repeat: no-repeat;
+  background-position: right 15px center; /* 화살표 위치 */
+  background-size: 12px; /* 화살표 크기 */
 }
 
 .round-navigation {
   display: flex;
+  justify-content: center;
   align-items: center;
+}
+
+.round-navigation img {
+  width: 40px;
+  height: 40px;
+  margin: 0 20px;
+  cursor: pointer;
+  transition: opacity 0.3s; /* 투명도 변경 애니메이션 추가 */
+}
+
+.round-navigation img.disabled {
+  cursor: not-allowed;
+  pointer-events: none;
+  opacity: 0.5;
+}
+
+.show-all-btn {
+  border: 1px solid #ddd;
+  padding: 10px 30px;
+  border-radius: 5px;
+  font-size: 16px;
+  font-weight: bold;
+  color: #333;
+  cursor: pointer;
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
 }
 
 /* 테이블 스타일 */
 .match-table {
   width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
   border-collapse: collapse;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
 .match-table th, .match-table td {
-  padding: 10px;
-  border: 1px solid #ddd;
+  border: 1px solid #ccc;
   text-align: center;
+  padding: 15px;
+}
+
+.match-table th {
+  background-color: #f5f5f5;
+  font-weight: bold;
 }
 
 .home-team, .away-team {
