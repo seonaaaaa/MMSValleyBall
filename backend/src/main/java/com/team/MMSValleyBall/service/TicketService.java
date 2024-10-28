@@ -115,4 +115,8 @@ public class TicketService {
         ticketDetailRepository.save(newTicketDetail);
     }
 
+    public int findTicketPriceBySeatId(Long seatId) {
+        Seat seat = seatRepository.findById(seatId).orElseThrow(() -> new RuntimeException("Seat not found for ID : " + seatId));
+        return seat.getSeatPrice();
+    }
 }

@@ -1,11 +1,10 @@
 package com.team.MMSValleyBall.controller;
 
-import com.team.MMSValleyBall.dto.AvailableSeatDTO;
-import com.team.MMSValleyBall.dto.MatchTableDTO;
-import com.team.MMSValleyBall.dto.MoneyDTO;
-import com.team.MMSValleyBall.dto.TicketSalesDTO;
+import com.team.MMSValleyBall.dto.*;
+import com.team.MMSValleyBall.entity.Users;
 import com.team.MMSValleyBall.service.MatchService;
 import com.team.MMSValleyBall.service.TicketService;
+import com.team.MMSValleyBall.service.UserService;
 import com.team.MMSValleyBall.service.UsersBalanceService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,11 +20,13 @@ public class TicketController {
     private final TicketService ticketService;
     private final MatchService matchService;
     private final UsersBalanceService usersBalanceService;
+    private final UserService userService;
 
-    public TicketController(TicketService ticketService, MatchService matchService, UsersBalanceService usersBalanceService) {
+    public TicketController(TicketService ticketService, MatchService matchService, UsersBalanceService usersBalanceService, UserService userService) {
         this.ticketService = ticketService;
         this.matchService = matchService;
         this.usersBalanceService = usersBalanceService;
+        this.userService = userService;
     }
 
     //티켓 안내 페이지
@@ -91,13 +92,6 @@ public class TicketController {
 
         return ResponseEntity.ok(response);
     }
-//
-//    //티켓 예매 모달 - 구역 선택(2-post)
-//    @PostMapping("/purchase/selection/select")
-//    public ResponseEntity<String> viewTicketPurchaseSelected() {
-//
-//        return ResponseEntity.ok("Ticket purchase modal section selected");
-//    }
 
     // 티켓 예매 모달 - 결제하기 (1-get)
     @PostMapping("/purchase/payment")
@@ -128,11 +122,19 @@ public class TicketController {
         // 4. 로그인 정보로 사용자의 충전금액 찾기
         MoneyDTO moneyDTO = usersBalanceService.getUsersBalance(userEmail);
 
+        // 5. 좌석별 금액 정보 찾기
+        int ticketPrice = ticketService.findTicketPriceBySeatId(seatId);
+
+        // 6. 사용자의 멤버십 정보 찾기
+        Map<String, Object> userMembership = userService.findMembership(userEmail);
+
         // 5. 응답으로 보낼 데이터 구성
         Map<String, Object> response = new HashMap<>();
         response.put("ticketSalesDto", dto);
         response.put("userBalance", moneyDTO);
         response.put("matchInfo", match);
+        response.put("ticketPrice", ticketPrice);
+        response.put("userMembership", userMembership);
 
         // 예약이 성공적으로 처리되었음을 나타내는 응답
         return ResponseEntity.ok(response);
