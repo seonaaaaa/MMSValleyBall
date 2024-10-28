@@ -9,10 +9,15 @@ import java.util.List;
 
 public interface TicketRepository extends JpaRepository<Ticket, Long> {
     //구역별 잔여좌석 조회 쿼리문
-    @Query("SELECT s.seatZone, s.seatSection, (s.seatCount - COALESCE(SUM(td.ticketDetailAmount), 0)) AS availableSeats " +
+    @Query("SELECT s.seatId AS seatId, " +
+            "s.seatZone AS seatZone, " +
+            "s.seatSection AS seatSection, " +
+            "COALESCE(s.seatCount - SUM(td.ticketDetailAmount), s.seatCount) AS availableSeats " +
             "FROM Seat s " +
             "LEFT JOIN TicketDetail td ON td.ticketDetailSeat = s " +
             "LEFT JOIN Ticket t ON t = td.ticketDetailTicket AND t.ticketMatch.matchId = :matchId " +
-            "GROUP BY s.seatZone, s.seatSection, s.seatCount")
+            "GROUP BY s.seatId, s.seatZone, s.seatSection, s.seatCount " +
+            "ORDER BY s.seatId")
     List<Object[]> findAvailableSeatsByMatch(@Param("matchId") Long matchId);
+
 }

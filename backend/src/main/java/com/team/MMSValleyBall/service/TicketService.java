@@ -44,17 +44,15 @@ public class TicketService {
 
         // section별 좌석수 dto 추가 및 zone별 잔여 좌석 수 집계
         for (Object[] result : resultList) {
-            String seatName = ((String) result[0]) + "/" + ((SeatSection) result[1]).toString(); // enum 타입인 SeatSection을 문자열로 변환
-            Long availableSeats = (Long) result[2]; // 잔여석 수
-
-            // zone 이름 추출
-            String zoneName = seatName.split("/")[0]; // seatName에서 zone 이름 추출
+            String zoneName = (String) result[1]; // zone 이름
+            String sectionName = ((SeatSection) result[2]).toString(); // section 이름
+            Long availableSeats = ((Number) result[3]).longValue(); // 잔여석 수 안전 변환
 
             // zone별 잔여 좌석 수 집계
             zoneSeatMap.merge(zoneName, availableSeats, Long::sum);
         }
 
-        // object를 dto로 변환
+        // DTO 리스트로 변환
         List<AvailableSeatDTO> dtoList = new ArrayList<>();
 
         // zone별 좌석 수를 dtoList에 추가
@@ -69,16 +67,14 @@ public class TicketService {
         // section별 좌석수 dtoList에 추가
         for (Object[] result : resultList) {
             SectionInfo sectionDto = new SectionInfo();
-            sectionDto.setSectionName(((String) result[0]) + "/" + ((SeatSection) result[1]).toString()); // 섹션 이름
-            sectionDto.setAvailableSeatAmount((Long) result[2]); // 잔여석 수
+            sectionDto.setSeatId((Long) result[0]);
+            sectionDto.setSectionName((String) result[1] + "/" + ((SeatSection) result[2]).toString()); // 섹션 이름
+            sectionDto.setAvailableSeatAmount(((Number) result[3]).longValue()); // 잔여석 수 변환
 
             // 해당 zone에 섹션 추가
-            for (AvailableSeatDTO x : dtoList) {
-                if (((String) result[0]).equals(x.getZoneName())) { // 문자열 비교 수정
-                    if (x.getSections() == null) {
-                        x.setSections(new ArrayList<>()); // 섹션 리스트 초기화
-                    }
-                    x.getSections().add(sectionDto); // 섹션 추가
+            for (AvailableSeatDTO zoneDto : dtoList) {
+                if (zoneDto.getZoneName().equals((String) result[1])) { // zone 이름 비교
+                    zoneDto.getSections().add(sectionDto); // 섹션 추가
                 }
             }
         }
@@ -87,5 +83,9 @@ public class TicketService {
         return dtoList;
     }
 
+    public void makeTicketSalesDTO(String userEmail, Long matchId, String sectionName, int ticketAmount) {
+    }
 
+    public void reserveTickets(TicketSalesDTO ticketSalesDTO) {
+    }
 }

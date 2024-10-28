@@ -78,18 +78,12 @@ public class TicketController {
 
         //2. 잔여석 정보 가져오기, zone별 잔여석 수 계산
         List<AvailableSeatDTO> availableSeats = ticketService.getAvailableSeatsByMatch(matchId);
-
-
-        //3. 로그인 정보 확인, 유저 정보 저장
-        TicketSalesDTO dto = new TicketSalesDTO();
-//        dto.setUserEmail();
-        dto.setMatchId(matchId);
+        System.out.println("ticket controller - available seats : " + availableSeats);
 
         //4. 경기 정보, 잔여석 정보, TicketSalesDTO 보내기
         Map<String, Object> response = new HashMap<>();
         response.put("matchInfo", match);
         response.put("availableSeatList", availableSeats);
-        response.put("ticketSalesDTO", dto);
 
         return ResponseEntity.ok(response);
     }
@@ -101,18 +95,35 @@ public class TicketController {
 //        return ResponseEntity.ok("Ticket purchase modal section selected");
 //    }
 
-    //티켓 예매 모달 - 결제하기(1-get)
+    // 티켓 예매 모달 - 결제하기 (1-get)
     @PostMapping("/purchase/payment")
-    public ResponseEntity<?> viewTicketPurchasePayment(@RequestBody TicketSalesDTO ticketSalesDTO) {
+    public ResponseEntity<?> viewTicketPurchasePayment(@RequestBody List<Map<String, Object>> selectedSeats) {
+        // 선택된 좌석 정보를 처리하는 로직 추가
+        for (Map<String, Object> seat : selectedSeats) {
+            Long matchId = Long.valueOf(seat.get("matchId").toString());
+            String sectionName = seat.get("sectionName").toString();
+            int ticketAmount = Integer.parseInt(seat.get("ticketAmount").toString());
 
-        return ResponseEntity.ok(null);
+            // 여기서 해당 정보를 사용하여 ticketSalesDTO 생성 로직 구현
+            String userEmail = "kimka@cbc.com";
+            ticketService.makeTicketSalesDTO(userEmail, matchId, sectionName, ticketAmount);
+
+            // 디버깅을 위한 로그 출력
+            System.out.println("Match ID: " + matchId + ", Section Name: " + sectionName + ", Ticket Amount: " + ticketAmount);
+        }
+
+        // 예약이 성공적으로 처리되었음을 나타내는 응답
+        return ResponseEntity.ok("Reservation successful");
     }
+
+
     //티켓 예매 모달 - 결제하기(2-post)
     @PostMapping("/purchase/payment/completed")
     public ResponseEntity<String> viewTicketPurchasePaymentCompleted(@RequestBody TicketSalesDTO ticketSalesDTO) {
         //티켓번호 생성
         String ticketNumber = ticketService.createTicketNumber(ticketSalesDTO);
-        return ResponseEntity.ok(null);
+        ticketService.reserveTickets(ticketSalesDTO);
+        return ResponseEntity.ok("Reservation successful");
     }
 
 }

@@ -2,7 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Ticket Modal Main</title>
+    <title>Ticket Modal Payment</title>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </head>
 <body>
@@ -14,29 +14,27 @@
         </ul>
     </div>
 
-    <div id="seat">
+    <div id="selected-ticket">
         <table>
-            <thead>
-                <tr>
-                    <th>구역</th>
-                    <th>매수 선택</th>
-                    <th>잔여석</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr class="zone">
-                    <td class="zone-name">골드</td>
-                    <td><p class="available-seat-zone">90</p>석</td>
-                </tr>
-                <tr class="section">
-                    <td class="section-name">GA</td>
-                    <td>
-                        - <input class="ticket-amount" type="number"/> +
-                    </td>
-                    <td><p class="available-seat-section">30</p> 석</td>
-                </tr>
-            </tbody>
+            <tr>##구역 @@매를 선택하셨습니다.</tr>
+            <tr>
+                <th>일반</th>
+                <td><p>20,000</p> 원</td>
+                <td><p>2</p> 매</td>
+            </tr>
+            <tr>
+                <th>멤버십 할인</th>
+                <td><p>30</p>%</td>
+            </tr>
+            <tr>
+                <th>결제 금액</th>
+                <td><p></p> 원</td>
+            </tr>
         </table>
+    </div>
+
+    <div id="payment">
+
     </div>
 
     <div id="buttons">
@@ -50,31 +48,30 @@
               type: "get",
               success: function(data) {
                 // 받아온 데이터 저장
-                  var match = data.matchInfo;
+                let match = data.matchInfo;
+                let availableSeats = data.availableSeatList;
 
-                  //1. 경기 정보 저장 및 변환
-                  var matchId = match.matchId; // match를 올바르게 정의해야 합니다.
-                  var matchDate = new Date(match.matchDate).toLocaleString(); // Date 객체로 변환 후 포맷팅
-                  var matchTeam = match.matchTeam; // 데이터에서 직접 가져옴
-                  var matchStadium = match.matchStadium; // 데이터에서 직접 가져옴
-                  var thisTeam = "GS ITM"; // 예시 팀 이름
-                  var matchInfo = "";
+                //1. 경기 정보 저장 및 변환
+                let matchId = match.matchId;
+                let matchDate = new Date(match.matchDate).toLocaleString(); // Date 객체로 변환 후 포맷팅
+                let matchTeam = match.matchTeam; // 데이터에서 직접 가져옴
+                let matchStadium = match.matchStadium; // 데이터에서 직접 가져옴
+                let thisTeam = "GS ITM"; // 예시 팀 이름
+                let matchInfo = "";
 
-                  // 경기 정보 출력 방식 수정
-                  if (matchTeam === "서울하이체육관") {
+                // 경기 정보 출력 방식 수정
+                if (matchTeam === "서울하이체육관") {
                       matchInfo = thisTeam + " VS " + matchTeam;
-                  } else {
+                } else {
                       matchInfo = matchTeam + " VS " + thisTeam;
-                  }
+                }
 
-                  // 경기 날짜 및 정보 출력
-                  $('#match-date').text(matchDate);
-                  $('#match-info').text(matchInfo);
-                  $('#match-stadium').text(matchStadium);
+                // 경기 날짜 및 정보 출력
+                $('#match-date').text(matchDate);
+                $('#match-info').text(matchInfo);
+                $('#match-stadium').text(matchStadium);
 
                 //2. zone과 섹션 정보를 테이블에 추가
-                // zone 정보를 추가하기 위한 배열
-                let availableSeats = data.availableSeatList;
                 availableSeats.forEach(function(zone) {
                     // Zone 추가
                     let zoneRow = `<tr class="zone">
@@ -88,13 +85,14 @@
                         let sectionRow = `<tr class="section">
                             <td class="section-name">${section.sectionName}</td>
                             <td>
-                                - <input class="ticket-amount" type="number" min="0" max="${section.availableSeatAmount}" data-section-name="${section.sectionName}" class="section-input"/> +
+                                - <input class="ticket-amount" type="number"/> +
                             </td>
                             <td><p class="available-seat-section">${section.availableSeatAmount}</p> 석</td>
                         </tr>`;
                         $('#seat-body').append(sectionRow);
                     });
-                });
+                  });
+
                 // 3. 결제하기 버튼 클릭 시 선택한 구역과 좌석 수 전송
                 $('#btn-pay').on("click", function() {
                     // 선택한 구역과 좌석 수 정보를 모은 배열
@@ -108,7 +106,7 @@
                         if (ticketAmount > 0) { // 사용자가 입력한 좌석 수가 0보다 클 경우에만
                             // 각 선택된 좌석 정보를 객체로 만들어 추가
                             selectedSeats.push({
-                                matchId: dto.matchId, // matchId 추가
+                                matchId: matchId, // matchId 추가
                                 sectionName: sectionName, // 섹션 이름 추가
                                 ticketAmount: ticketAmount // 티켓 수량 추가
                             });
