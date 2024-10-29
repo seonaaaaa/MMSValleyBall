@@ -38,23 +38,33 @@ public class AutoStatusSystemService {
     @Scheduled(cron = "0 */1 * * * ?")
     @Transactional
     public void updatePaymentStatus() {
-        // 충전: 현재 서버 시간 기준으로 3일이 지나면 CONFIRMED로 상태 변경됨
-        LocalDateTime threeDaysAgo = LocalDateTime.now().minusDays(3);
-        List<Payment> payments = paymentRepository.findByPaymentStatusAndPaymentCreateAtBefore(PaymentStatus.COMPLETED, threeDaysAgo);
+        // 충전: 현재 서버 시간 기준으로 7일이 지나면 CONFIRMED로 상태 변경됨
+        LocalDateTime sevenDaysAgo = LocalDateTime.now().minusDays(7);
+        List<Payment> payments = paymentRepository.findByPaymentStatusAndPaymentCreateAtBefore(PaymentStatus.COMPLETED, sevenDaysAgo);
 
-        Process logger;
         for (Payment payment : payments) {
-            if (payment.getPaymentStatus() != PaymentStatus.CONFIRMED) {
-                payment.setPaymentStatus(PaymentStatus.CONFIRMED);
-                payment.setPaymentUpdateAt(LocalDateTime.now());
-                paymentRepository.save(payment);
-                log.info("Updated payment status for payment ID: {}", payment.getPaymentId());
-            }
+            payment.setPaymentStatus(PaymentStatus.CONFIRMED);
+            payment.setPaymentUpdateAt(LocalDateTime.now());
+            paymentRepository.save(payment);
+            log.info("Updated payment status for payment ID: {}", payment.getPaymentId());
         }
 
-        // 티켓: 현재 서버 시간 기준으로 1일이 지나면 CONFIRMED로 상태 변경됨
-        LocalDateTime oneDayAgo = LocalDateTime.now().minusDays(1);
-        List<Ticket> tickets = ticketRepository.findByTicketStatusAndTicketCreateAtBefore(TicketStatus.CONFIRMED, oneDayAgo);
+        // 멤버십: 현재 서버 시간 기준으로 7일이 지나면 CONFIRMED로 상태 변경됨
+        List<MembershipSales> membershipSalesList = membershipSalesRepository.findByMembershipSalesStatusAndMembershipSalesCreateAtBefore(MembershipSalesStatus.CONFIRMED, sevenDaysAgo);
+
+        for (MembershipSales membershipSales : membershipSalesList) {
+            membershipSales.setMembershipSalesStatus(MembershipSalesStatus.CONFIRMED);
+            membershipSales.setMembershipSalesUpdateAt(LocalDateTime.now());
+            membershipSalesRepository.save(membershipSales);
+            log.info("Updated membership sales status for ID: {}", membershipSales.getMembershipSalesId());
+        }
+
+        // 티켓: match_date가 오늘 날짜인 티켓을 찾고, 아직 CONFIRMED 상태가 아닌 경우 상태를 업데이트
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime midnightToday = now.toLocalDate().atStartOfDay(); // 오늘 자정 (00:00)
+        LocalDateTime midnightTomorrow = midnightToday.plusDays(1); // 다음 날 자정 (24:00)
+
+        List<Ticket> tickets = ticketRepository.findByTicketStatusAndMatchDateBetween(TicketStatus.CONFIRMED, midnightToday, midnightTomorrow);
 
         for (Ticket ticket : tickets) {
             if (ticket.getTicketStatus() != TicketStatus.CONFIRMED) {
@@ -65,17 +75,5 @@ public class AutoStatusSystemService {
             }
         }
 
-        // 멤버십: 현재 서버 시간 기준으로 7일이 지나면 CONFIRMED로 상태 변경됨
-        LocalDateTime sevenDaysAgo = LocalDateTime.now().minusDays(7);
-        List<MembershipSales> membershipSalesList = membershipSalesRepository.findByMembershipSalesStatusAndMembershipSalesCreateAtBefore(MembershipSalesStatus.CONFIRMED, sevenDaysAgo);
-
-        for (MembershipSales membershipSales : membershipSalesList) {
-            if (membershipSales.getMembershipSalesStatus() != MembershipSalesStatus.CONFIRMED) {
-                membershipSales.setMembershipSalesStatus(MembershipSalesStatus.CONFIRMED);
-                membershipSales.setMembershipSalesUpdateAt(LocalDateTime.now());
-                membershipSalesRepository.save(membershipSales);
-                log.info("Updated membership sales status for ID: {}", membershipSales.getMembershipSalesId());
-            }
-        }
     }
 }

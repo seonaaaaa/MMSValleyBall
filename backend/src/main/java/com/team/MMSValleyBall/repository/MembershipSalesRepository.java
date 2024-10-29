@@ -14,7 +14,7 @@ import java.util.List;
 @Repository
 public interface MembershipSalesRepository extends JpaRepository<MembershipSales, Long> {
    // 멤버십 구매 테이블: 자동 상태 변환 로직 - 7일
-   List<MembershipSales> findByMembershipSalesStatusAndMembershipSalesCreateAtBefore(MembershipSalesStatus membershipSalesStatus, LocalDateTime sevenDaysAgo);
+   List<MembershipSales> findByMembershipSalesStatusAndMembershipSalesCreateAtBefore(MembershipSalesStatus membershipSalesStatus, LocalDateTime createAt);
 
    // 멤버십 리스트 조회
    List<MembershipSales> findByMembershipSalesUser(Users user);
