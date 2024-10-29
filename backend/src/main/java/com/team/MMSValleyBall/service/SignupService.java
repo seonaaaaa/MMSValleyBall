@@ -4,6 +4,7 @@ import com.team.MMSValleyBall.dto.UserDTO;
 import com.team.MMSValleyBall.entity.Membership;
 import com.team.MMSValleyBall.entity.Users;
 import com.team.MMSValleyBall.enums.UserRole;
+import com.team.MMSValleyBall.enums.UserStatus;
 import com.team.MMSValleyBall.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -54,6 +55,7 @@ public class SignupService {
         data.setUserAddress(userDTO.getUserAddress());
         data.setUserMembership(bronzeMembership); // 브론즈 멤버십 설정
         data.setUserRole(UserRole.USER);
+        data.setUserStatus(UserStatus.ACTIVE);
 
         userRepository.save(data);
     }

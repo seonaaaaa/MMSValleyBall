@@ -122,6 +122,7 @@ export default {
     };
 
     console.log(users);
+    console.log(users.userPhone.length);
 
     // 회원가입 요청 보내기
     this.$axios({
