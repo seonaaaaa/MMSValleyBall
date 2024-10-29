@@ -24,22 +24,22 @@
       </thead>
       <tbody>
         <tr v-for="week in calendarWeeks" :key="week[0].date">
-          <td v-for="day in week" :key="day.date" :class="{ 'home-game': day.events.length && day.events[0].isHomeGame, 'away-game': day.events.length && !day.events[0].isHomeGame }">
+          <td v-for="day in week" :key="day.date" :class="{ 'home-game': day.events.length && day.events[0].matchStadium === 'HOME', 'away-game': day.events.length && day.events[0].matchStadium === 'AWAY' }">
             <div class="day-number">{{ day.date }}</div>
             <div v-if="day.events.length">
               <div v-for="event in day.events" :key="event.id" class="event">
                 <!-- 팀 이름에 따른 로고 이미지 출력 -->
-                <img :src="getTeamLogo(event.team)" alt="Team Logo" class="team-logo" />
+                <img :src="getTeamLogo(event.matchOpponentTeamId)" alt="Team Logo" class="team-logo" />
                 <!-- 장소 및 시간 -->
                 <div class="event-info">
-                  {{ event.location }} {{ event.time }}
+                  {{ formatLocationAndTime(event) }}
                 </div>
                 <!-- 결과 및 점수 (원 안에) -->
                 <div class="result-container">
-                  <div :class="['result-circle', getResultClass(event.result)]">
-                    <span class="result">{{ event.result }}</span> <!-- 승/패 -->
+                  <div :class="['result-circle', getResultClass(event.matchSetScore, event.matchOpponentTeamSetScore)]">
+                    <span class="result">{{ getDisplayResult(event.matchSetScore, event.matchOpponentTeamSetScore) }}</span> <!-- 승/패 -->
                   </div>
-                  <span class="score">{{ event.score }}</span> <!-- 점수 -->
+                  <span class="score">{{ event.matchSetScore }}:{{ event.matchOpponentTeamSetScore }}</span> <!-- 점수 -->
                 </div>
               </div>
             </div>
@@ -66,31 +66,83 @@ export default {
     };
   },
   methods: {
-    getTeamLogo(team) {
-      switch (team) {
-        case 'blueFangs':
-          return require('@/assets/img/game/blueFangs.png');
-        case 'jumbos': 
-          return require('@/assets/img/game/jumbos.png');
-        case 'ok': 
-          return require('@/assets/img/game/ok.png');
-        case 'vixtorm': 
-          return require('@/assets/img/game/vixtorm.png');
-        case 'walkers': 
-          return require('@/assets/img/game/walkers.png');
-        case 'won': 
-          return require('@/assets/img/game/won.png');
+    // 팀 로고 표시
+    getTeamLogo(teamId) {
+      switch (teamId) {
+        case 1:
+          return require('@/assets/img/game/team_id_1_ok.png');
+        case 2:
+          return require('@/assets/img/game/team_id_2_vixtorm.png');
+        case 3:
+          return require('@/assets/img/game/team_id_3_walkers.png');
+        case 4:
+          return require('@/assets/img/game/team_id_4_blueFangs.png');
+        case 5:
+          return require('@/assets/img/game/team_id_5_stars.png');
+        case 6:
+          return require('@/assets/img/game/team_id_6_won.png');
         default:
-          return ''; // 팀 이름이 없으면 기본값 빈 이미지
+          return ''; // 기본값 (팀 이름이 없으면 빈 이미지)
       }
     },
-    getResultClass(result) {
-    if (result === '승') {
-      return 'win';
-    } else if (result === '패') {
-      return 'lose';
-    } 
-    return '';
+    // 장소와 시간 포맷팅 
+    // HOME -> 서울 하이 14:00 / AWAY -> 수원 14:00 , 서울 장충 14:00
+    formatLocationAndTime(match) {
+      const date = new Date(match.matchDate);
+      const hours = String(date.getHours()).padStart(2, '0');
+      const minutes = String(date.getMinutes()).padStart(2, '0');
+      const time = `${hours}:${minutes}`;
+
+      let location = '';
+
+      // HOME 경기일 경우 장소에 '서울 하이' 출력
+      if (match.matchStadium === 'HOME') {
+        location = '서울 하이';
+      } else {
+      // AWAY 경기일 경우
+      const teamStadium = this.getTeamStadium(match.matchOpponentTeamId);
+        // 수원, 의정부 -> '지역' 출력
+        if (match.matchOpponentTeamId === 2) {
+          location = '수원';
+        } else if (match.matchOpponentTeamId === 5) {
+          location = '의정부';
+        } else {
+          // 그 외의 AWAY 경기일 경우 장소에 '지역 + 체육관명' 출력 ex. 서울 장충
+          location = teamStadium.slice(0, 2) + ' ' + teamStadium.slice(2, -3);
+        }
+      }
+      return `${location} ${time}`;
+    },
+    // 팀 정보는 변경될 일이 거의 없으므로 API 호출 없이 직접 ID와 경기장 위치를 매핑함
+    getTeamStadium(teamId) {
+      switch (teamId) {
+        case 1:
+          return '안산상록수체육관';
+        case 2:
+          return '수원체육관';
+        case 3:
+          return '천안유관순체육관';
+        case 4:
+          return '대전충무체육관';
+        case 5:
+          return '의정부체육관';
+        case 6:
+          return '서울장충체육관';
+        default:
+          return '';
+      }
+    },
+    // 경기 결과에 따라 승, 패 표시하고 동그라미 색상 적용
+    getResultClass(matchSetScore, matchOpponentTeamSetScore) {
+      if (matchSetScore > matchOpponentTeamSetScore) {
+        return 'win';
+      } else if (matchSetScore < matchOpponentTeamSetScore) {
+        return 'lose';
+      }
+      return 'upcoming';
+    },
+    getDisplayResult(matchSetScore, matchOpponentTeamSetScore) {
+      return matchSetScore > matchOpponentTeamSetScore ? '승' : '패';
     }
   },
   computed: {
@@ -108,7 +160,16 @@ export default {
       // 날짜와 이벤트 추가
       for (let day = 1; day <= daysInMonth; day++) {
         const date = `${this.selectedYear}-${String(this.selectedMonth).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-        const dayEvents = this.events.filter(event => event.date === date);
+        
+        // const dayEvents = this.events.filter(event => event.date === date);
+        // days.push({ date: day, events: dayEvents });
+
+        // 여기서 event.matchDate를 ISO 형식으로 변환하여 정확한 비교 수행
+        const dayEvents = this.events.filter(event => {
+          const eventDate = new Date(event.matchDate).toISOString().split('T')[0];
+          return eventDate === date;
+        });
+
         days.push({ date: day, events: dayEvents });
         
         // 주별로 분리
@@ -153,14 +214,14 @@ export default {
 
 .view-all-btn {
   background-color: #f8f9fa;
+  border: 1px solid #ddd;
   border: none;
-  box-shadow: 0 2px 8px rgba(50, 50, 50, 0.2);
+  box-shadow: 0 2px 4px rgba(50, 50, 50, 0.2);
   padding: 10px;
   border-radius: 5px;
   font-size: 16px;
   font-weight: bold;
   color: #333;
-  outline: none;
   margin-left: 20px;
   transition: border-color 0.3s ease;
   cursor: pointer;

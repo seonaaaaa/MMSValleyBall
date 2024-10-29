@@ -2,7 +2,8 @@
   <div id="app">
     <AppHeader />
     <!-- 메타 데이터에서 hideContent가 true인 경우 AppContent를 숨김 -->
-    <AppContent v-if="!$route.meta.hideContent" />
+    <!-- 경로 없을 때 기본적으로 AppContent 표시 -->
+    <AppContent v-if="!$route.meta.hideContent || !$route.name" />
     <router-view />
     <AppFooter />
   </div>

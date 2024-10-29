@@ -192,7 +192,7 @@ mounted() {
 
 </script>
 
-<style>
+<style scoped>
 .signup-page {
   padding-top: var(--header-height);
   padding-bottom: var(--footer-height);

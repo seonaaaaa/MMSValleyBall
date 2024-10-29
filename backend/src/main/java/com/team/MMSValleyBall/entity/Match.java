@@ -1,6 +1,8 @@
 package com.team.MMSValleyBall.entity;
 
+import com.team.MMSValleyBall.enums.MailStatus;
 import com.team.MMSValleyBall.enums.MatchStadium;
+import com.team.MMSValleyBall.enums.MatchStatus;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -38,11 +40,24 @@ public class Match {
     private int matchOpponentTeamSetScore;
 
     @ManyToOne
-    @JoinColumn(name = "match_season_id")
+    @JoinColumn(name = "match_season_id", nullable = false)
     private Season matchSeason;
+
+    @Column(nullable = false)
+    private int matchRoundId;
 
     @OneToMany(mappedBy = "ticketMatch", fetch = FetchType.EAGER)
     private List<Ticket> tickets;
+
+    @Enumerated(EnumType.STRING)
+    @ColumnDefault("'DEFAULT'")
+    @Column(nullable = false)
+    private MailStatus matchMailStatus;
+
+    @Enumerated(EnumType.STRING)
+    @ColumnDefault("'DEFAULT'")
+    @Column(nullable = false)
+    private MatchStatus matchStatus;
 
     @Override
     public String toString() {
@@ -54,7 +69,10 @@ public class Match {
                 ", OpponentTeam=" + matchOpponentTeam.getTeamName() +
                 ", OpponentTeamSetScore=" + matchOpponentTeamSetScore +
                 ", Season=" + matchSeason.getSeasonName() +
+//                ", RoundId=" + matchRoundId +
                 ", tickets=" + tickets +
+//                ", " + matchMailStatus +
+//                ", " + matchStatus +
                 '}'+'\n';
     }
 }

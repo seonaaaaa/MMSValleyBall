@@ -1,4 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router';
+
+import AppContent from '@/components/common/Content.vue';
+
 // MMS 메뉴
 import AppMMS from '@/components/mms/MMS.vue';
 import AppGreeting from '@/components/mms/Greeting.vue';
@@ -34,6 +37,15 @@ import loginPage from '@/components/member/Login.vue';
 import SignupPage from '@/components/member/Signup.vue'
 
 const routes = [
+  // 기본 홈 화면 경로 추가
+  {
+    path: '/',
+    name: 'Home',
+    component: AppContent,
+    meta: { hideContent: true },
+  },
+
+  // MMS 메뉴
   {
     path: '/mms',
     name: 'MMS',
@@ -65,6 +77,7 @@ const routes = [
     component: AppSponsor,
     meta: { hideContent: true },
   },
+  // TEAM 메뉴
   {
     path: '/team/players',
     name: 'Players',
@@ -84,7 +97,7 @@ const routes = [
     meta: { hideContent: true },
   },
    // GAME 메뉴
-   {
+  {
     path: '/game/schedule',
     name: 'Schedule',
     component: AppSchedule,
@@ -159,7 +172,7 @@ const routes = [
     name: 'SignupPage',
     component: SignupPage,
     meta: { hideContent: true },
-  }
+  },
 ];
 
 const router = createRouter({
