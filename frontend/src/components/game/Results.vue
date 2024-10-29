@@ -11,7 +11,7 @@
 
   <!-- 경기 결과 페이지 내용 -->
   <div class="game-results-content">
-    <h2 class="game-results-title">전체 경기 결과</h2>
+    <h2>전체 경기 결과</h2>
 
     <!-- 상단 컨트롤 박스 (시즌 선택, 라운드 네비게이션, 전체보기 버튼) -->
     <div class="header-container">
@@ -27,21 +27,22 @@
       <div class="round-navigation">
         <img src="@/assets/img/game/nav-icon-previous.png"
               alt="Previous"
-              @click="goToPage(currentPage - 1)"
-              :class="{ disabled: currentPage === 0 }" />
+              @click="changeRound(-1)"
+              :class="{ disabled: matchRoundId <= 1 }" />
 
-        <!-- 페이지 전체보기 할 때는 '전체' / 라운드 선택하면 '라운드' / 월 선택하면 해당 '월' 출력 -->
-        <h2>{{ totalPages === 1 ? '전체' : (monthSelect ? monthSelect + '월' : (matches.length > 0 ? matches[0].matchRoundId + ' 라운드' : '라운드')) }}</h2>
-
+        <!-- 페이지 전체보기 할 때는 '전체' / 라운드 선택하면 '라운드' 출력 -->
+        <h2>
+          {{ totalPages === 1 && !matchRoundId ? '전체' : (matches.length > 0 ? matches[0].matchRoundId + ' 라운드' : '라운드') }}
+        </h2>
         <img src="@/assets/img/game/nav-icon-next.png"
               alt="Next"
-              @click="goToPage(currentPage + 1)"
-              :class="{ disabled: currentPage + 1 === totalPages }" />
+              @click="changeRound(1)"
+              :class="{ disabled: matchRoundId >= maxRound }" />
       </div>
 
       <!-- 라운드 셀렉트 박스 -->
-      <div class="select-container">
-        <select v-model="roundSelect" @change="fetchMatches(0)">
+      <div class="round-select-box">
+        <select v-model="matchRoundId" @change="fetchMatches(0)">
           <option disabled value="">라운드 선택</option>
           <option v-for="round in 6" :key="round" :value="round">
             {{ round }}라운드
@@ -49,19 +50,8 @@
         </select>
       </div>
 
-      <!-- 월 선택 셀렉트 박스 -->
-      <div class="select-container">
-        <select v-model="monthSelect" @change="fetchMatches(0)">
-          <option disabled value="">월 선택</option>
-          <option v-for="month in 12" :key="month" :value="month">
-            {{ month }}월
-          </option>
-        </select>
-      </div>
-
-      <div class="button-container">
-        <button class="show-all-btn" @click="showAllMatches">전체보기</button>
-      </div>
+      <!-- 전체보기 버튼 -->
+      <button class="show-all-btn" @click="showAllMatches">전체보기</button>
     </div>
 
     <table class="match-table">
@@ -107,18 +97,18 @@ export default {
   data() {
     return {
       activeMenu: this.$route.path, // 현재 활성화된 경로
-      // 시즌 데이터
+      // 시즌 
       seasons: [
         { seasonId: 1, seasonName: '도드람 2023-2024 V-리그' },
         { seasonId: 2, seasonName: '도드람 2024-2025 V-리그' },
       ],
-      selectedSeasonId: 2, // 기본 선택 시즌(ID) 2024-2025 V-리그로 설정
+      selectedSeasonId: 2, // 기본 선택 시즌 2024-2025 V-리그로 설정
       matches: [], // 전체 경기 데이터 저장
       currentPage: 0, // 현재 페이지
       totalPages: 0, // 전체 페이지 수
-      roundSelect: '',  // 라운드 선택
-      monthSelect: '',  // 월 선택
-      today: new Date(), // 오늘 날짜를 저장
+      // matchRoundId: '',  // 시작 라운드
+      matchRoundId: 1, // 시작 라운드
+      maxRound: 6, // 예시로 총 6라운드라고 가정
     };
   },
   watch: {
@@ -135,34 +125,12 @@ export default {
       this.activeMenu = route;
     },
 
-    // 페이지 클릭하면 보이는 디폴트 데이터 출력
-    async findClosestPastMatchPage() {
-      try {
-        // 한 시즌의 모든 데이터를 불러와 가장 가까운 과거 경기 찾기
-        const response = await axios.get(`http://localhost:4000/game/results`, {
-          params: {
-            seasonId: this.selectedSeasonId,
-            page: 0,
-            size: 1000, // 한 시즌의 전체 경기 로드
-          },
-        });
-
-        const matches = response.data.content;
-
-        // 오늘 이전에 있는 가장 가까운 과거 경기 찾기
-        const pastMatches = matches.filter(match => new Date(match.matchDate) < this.today);
-        const closestPastMatch = pastMatches[pastMatches.length - 1]; // 가장 가까운 과거 경기
-
-        if (closestPastMatch) {
-          // 가장 가까운 과거 경기의 라운드 ID로 roundSelect 설정
-          this.roundSelect = closestPastMatch.matchRoundId;
-          this.fetchMatches(0); // 페이지 0부터 해당 라운드의 데이터 로드
-        } else {
-          // 과거 경기가 없을 경우 기본으로 첫 페이지 로드
-          this.fetchMatches(0);
-        }
-      } catch (error) {
-        console.error("Error fetching closest past match:", error);
+    // 라운드 변경
+    changeRound(step) {
+      const newRound = this.matchRoundId + step;
+      if (newRound >= 1 && newRound <= this.maxRound) {
+        this.matchRoundId = newRound;
+        this.fetchMatches(); // 변경된 라운드의 데이터 호출
       }
     },
 
@@ -175,8 +143,7 @@ export default {
             page: page,
             size: 6, // 6개씩 페이징 처리
             status: 'DEFAULT', // MatchStatus가 DEFAULT인 데이터만 가져오기
-            matchRoundId: this.roundSelect || '', // 선택된 라운드
-            month: this.monthSelect || '', // 선택된 월
+            matchRoundId: this.matchRoundId // 선택된 라운드
           },
         });
         // 테이블 인덱스 (순번) 계산
@@ -184,15 +151,8 @@ export default {
           ...match,
           tableIndex: index + 1 + page * 6
         }));
-        // 콘솔에서 확인
-        // console.log(this.matches);
         this.totalPages = response.data.totalPages;
         this.currentPage = page;
-        // 콘솔에서 확인
-        // this.matches.forEach(match => {
-        //   console.log("matchRoundId:", match.matchRoundId);
-        // });
-        // console.log("Selected Round:", this.roundSelect);
       } catch (error) {
         console.error("Error fetching data:", error);
       }
@@ -200,6 +160,7 @@ export default {
 
     // 전체보기 - 선택된 시즌의 전체 데이터 가져오기
     async showAllMatches() {
+      this.matchRoundId = ''; // 라운드 선택 초기화
       try {
         const response = await axios.get(`http://localhost:4000/game/results`, 
         {
@@ -211,7 +172,7 @@ export default {
           },
         });
         // 가져온 데이터의 인덱스를 기준으로 index + 1로 계산해서 순번을 1부터 시작하도록 설정
-        // 데이터의 고유 ID나 순서와는 무관, 화면에 표시할 때 가독성을 높이기 위해 추가하는 테이블 인덱스 (순번)
+        // 화면에 표시할 때 가독성을 높이기 위해 추가하는 테이블 인덱스 (순번)
         this.matches = response.data.content.map((match, index) => ({
           ...match,
           tableIndex: index + 1,
@@ -248,8 +209,7 @@ export default {
     },
   },
   mounted() {
-    this.fetchMatches();
-    this.findClosestPastMatchPage();
+    this.fetchMatches();  // 초기 페이지 로딩 시 데이터를 가져오도록 설정
   }
 };
 </script>
@@ -311,12 +271,12 @@ export default {
 .header-container {
   position: relative;
   display: flex;
-  justify-content: center;
   align-items: center;
+  justify-content: center;
   width: 100%;
   max-width: 1200px;
-  margin: 0 auto 20px;
-  margin-bottom: 0px;
+  margin: 0 auto;
+  margin-bottom: 8px;
 }
 
 .select-container {
@@ -342,6 +302,7 @@ select {
   background-repeat: no-repeat;
   background-position: right 15px center; /* 화살표 위치 */
   background-size: 12px; /* 화살표 크기 */
+  margin-top: 0;
 }
 
 .round-navigation {
@@ -362,6 +323,13 @@ select {
   cursor: not-allowed;
   pointer-events: none;
   opacity: 0.5;
+}
+
+.round-select-box {
+  position: absolute;
+  right: 150px;
+  top: 50%;
+  transform: translateY(-50%);
 }
 
 .show-all-btn {
@@ -385,8 +353,6 @@ select {
   margin: 0 auto;
   border-collapse: collapse;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-  /* 테이블 전체 너비 고정 */
-  /* table-layout: fixed; */
 }
 
 .match-table th, .match-table td {

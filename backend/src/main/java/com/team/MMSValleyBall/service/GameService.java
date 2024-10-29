@@ -60,8 +60,8 @@ public class GameService {
         return matchPages;
     }
     // 신규 작성 코드 *****
-    public Page<MatchWithTeamDTO> getMatchesBySeasonMonthAndRound(Long seasonId, Integer month, Integer matchRoundId, Pageable pageable) {
-        return gameRepository.findBySeasonAndMonthAndRound(seasonId, month, matchRoundId, pageable)
+    public Page<MatchWithTeamDTO> getMatchesBySeasonAndRound(Long seasonId, Integer matchRoundId, Pageable pageable) {
+        return gameRepository.findBySeasonAndRound(seasonId, matchRoundId, pageable)
                                 .map(entity -> MatchWithTeamDTO.fromEntity(entity));
     }
 }

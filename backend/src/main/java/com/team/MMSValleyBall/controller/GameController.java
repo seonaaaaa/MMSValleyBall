@@ -51,10 +51,10 @@ public class GameController {
     @GetMapping("/results")
     public ResponseEntity<Page<MatchWithTeamDTO>> getMatches(
             @RequestParam("seasonId") Long seasonId,
-            @RequestParam(name = "month", required = false) Integer month,
+            // matchRoundId는 선택적으로 전달 가능하며, 전달되지 않을 경우 null로 처리
             @RequestParam(name = "matchRoundId", required = false) Integer matchRoundId,
             Pageable pageable) {
-        Page<MatchWithTeamDTO> matchPage = gameService.getMatchesBySeasonMonthAndRound(seasonId, month, matchRoundId, pageable);
+        Page<MatchWithTeamDTO> matchPage = gameService.getMatchesBySeasonAndRound(seasonId, matchRoundId, pageable);
         return ResponseEntity.ok(matchPage);
     }
 }

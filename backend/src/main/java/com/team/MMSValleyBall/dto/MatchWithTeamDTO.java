@@ -2,7 +2,6 @@ package com.team.MMSValleyBall.dto;
 
 import java.time.LocalDateTime;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.team.MMSValleyBall.entity.Match;
 import com.team.MMSValleyBall.enums.MailStatus;
 import com.team.MMSValleyBall.enums.MatchStadium;
