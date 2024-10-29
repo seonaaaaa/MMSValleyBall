@@ -41,39 +41,42 @@ public class AutoStatusSystemService {
         // 충전: 현재 서버 시간 기준으로 7일이 지나면 CONFIRMED로 상태 변경됨
         LocalDateTime sevenDaysAgo = LocalDateTime.now().minusDays(7);
         List<Payment> payments = paymentRepository.findByPaymentStatusAndPaymentCreateAtBefore(PaymentStatus.COMPLETED, sevenDaysAgo);
-
+        System.out.println("payments"+payments);
         for (Payment payment : payments) {
-            payment.setPaymentStatus(PaymentStatus.CONFIRMED);
-            payment.setPaymentUpdateAt(LocalDateTime.now());
-            paymentRepository.save(payment);
-            log.info("Updated payment status for payment ID: {}", payment.getPaymentId());
+            if (payment.getPaymentStatus() == PaymentStatus.COMPLETED) {
+                payment.setPaymentStatus(PaymentStatus.CONFIRMED);
+                payment.setPaymentUpdateAt(LocalDateTime.now());
+                paymentRepository.save(payment);
+                log.info("Updated payment status for payment ID: {}", payment.getPaymentId());
+            }
         }
 
         // 멤버십: 현재 서버 시간 기준으로 7일이 지나면 CONFIRMED로 상태 변경됨
         List<MembershipSales> membershipSalesList = membershipSalesRepository.findByMembershipSalesStatusAndMembershipSalesCreateAtBefore(MembershipSalesStatus.CONFIRMED, sevenDaysAgo);
-
+        System.out.println("membershipSalesList"+membershipSalesList);
         for (MembershipSales membershipSales : membershipSalesList) {
-            membershipSales.setMembershipSalesStatus(MembershipSalesStatus.CONFIRMED);
-            membershipSales.setMembershipSalesUpdateAt(LocalDateTime.now());
-            membershipSalesRepository.save(membershipSales);
-            log.info("Updated membership sales status for ID: {}", membershipSales.getMembershipSalesId());
+            if (membershipSales.getMembershipSalesStatus() == MembershipSalesStatus.PURCHASE) {
+                membershipSales.setMembershipSalesStatus(MembershipSalesStatus.CONFIRMED);
+                membershipSales.setMembershipSalesUpdateAt(LocalDateTime.now());
+                membershipSalesRepository.save(membershipSales);
+                log.info("Updated membership sales status for ID: {}", membershipSales.getMembershipSalesId());
+            }
         }
 
         // 티켓: match_date가 오늘 날짜인 티켓을 찾고, 아직 CONFIRMED 상태가 아닌 경우 상태를 업데이트
         LocalDateTime now = LocalDateTime.now();
         LocalDateTime midnightToday = now.toLocalDate().atStartOfDay(); // 오늘 자정 (00:00)
-        LocalDateTime midnightTomorrow = midnightToday.plusDays(1); // 다음 날 자정 (24:00)
 
-//        List<Ticket> tickets = ticketRepository.findByTicketStatusAndMatchDateBetween(TicketStatus.CONFIRMED, midnightToday, midnightTomorrow);
-//
-//        for (Ticket ticket : tickets) {
-//            if (ticket.getTicketStatus() != TicketStatus.CONFIRMED) {
-//                ticket.setTicketStatus(TicketStatus.CONFIRMED);
-//                ticket.setTicketUpdateAt(LocalDateTime.now());
-//                ticketRepository.save(ticket);
-//                log.info("Updated ticket status for ticket ID: {}", ticket.getTicketId());
-//            }
-//        }
-
+        // 특정 날짜의 티켓을 가져오고, 상태가 CONFIRMED가 아닌 경우
+        List<Ticket> tickets = ticketRepository.findTicketsByMatchDateAndStatus(midnightToday, TicketStatus.CONFIRMED);
+        System.out.println("ticket match date : " + tickets);
+        for (Ticket ticket : tickets) {
+            if (ticket.getTicketStatus() == TicketStatus.BOOKED) {
+                ticket.setTicketStatus(TicketStatus.CONFIRMED);
+                ticket.setTicketUpdateAt(LocalDateTime.now());
+                ticketRepository.save(ticket);
+                log.info("Updated ticket status for ticket ID: {}", ticket.getTicketId());
+            }
+        }
     }
 }

@@ -13,12 +13,12 @@ spring:
 
   sql:
     init:
-      mode: always
+      mode: never
 
   jpa:
     defer-datasource-initialization: true
     hibernate:
-      ddl-auto: create
+      ddl-auto: validate
     properties:
       format_sql: true
     show-sql: true
