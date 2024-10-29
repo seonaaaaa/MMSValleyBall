@@ -23,8 +23,8 @@
           <button class="btn-myPage" @click="goToMyPage">My Page</button>&nbsp;<button class="btn-logout" @click="logout">로그아웃</button>
       </div>
       <div v-else>
-        <button @click="login">로그인</button>
-        <button @click="signup">회원가입</button>
+        <button @click="goToLogin" class="btn-login">로그인</button><br>
+        <button @click="goToSignup" class="btn-signup">회원가입</button>
       </div>
     </div>
 
@@ -140,12 +140,38 @@ export default {
     };
   },
   methods: {
+    // 페이지 이동 버튼
     goToMyPage() {
       this.$router.push('/mypage/reservations');
     },
 
     goToRecharge(){
       this.$router.push('/myPage/info/recharge');
+    },
+
+    goToLogin(){
+      this.$router.push('/login');
+    },
+
+    goToSignup(){
+      this.$router.push('/signup');
+    },
+
+    // 로그아웃
+    logout() {
+    // localStorage에서 토큰 삭제
+    localStorage.removeItem('accessToken');
+    
+    // 삭제 여부 확인을 위한 로그 출력
+    const token = localStorage.getItem('accessToken');
+    if (token === null) {
+      console.log('토큰이 성공적으로 삭제되었습니다.');
+    } else {
+      console.log('토큰 삭제에 실패했습니다.', token);
+    }
+    
+    // 메인 페이지로 이동
+    this.$router.push('/');
     },
 
     // 상단 슬라이드 배너
@@ -269,7 +295,7 @@ a {
 /* 금액충전 창 */
 .money-box {
   margin-top: 15px;
-  margin-left: 15px;
+  margin-left: 19px;
   display: flex;
   align-items: center; /* 수직 정렬 */
   gap: 1px; /* 간격 조정 */
@@ -297,6 +323,19 @@ a {
   display: flex;
   align-items: center; /* 이미지와 텍스트를 수직 중앙 정렬 */
   gap: 2px; /* 이미지와 텍스트 간격 조절 */
+}
+
+/* 로그아웃시 버튼 */
+.btn-login, .btn-signup{
+  background-color: #60a191;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  width: 100%;
+  height: 50px;
+  margin-top: 25px;
+
 }
 
 
