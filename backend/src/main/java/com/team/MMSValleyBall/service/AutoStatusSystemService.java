@@ -64,16 +64,16 @@ public class AutoStatusSystemService {
         LocalDateTime midnightToday = now.toLocalDate().atStartOfDay(); // 오늘 자정 (00:00)
         LocalDateTime midnightTomorrow = midnightToday.plusDays(1); // 다음 날 자정 (24:00)
 
-        List<Ticket> tickets = ticketRepository.findByTicketStatusAndMatchDateBetween(TicketStatus.CONFIRMED, midnightToday, midnightTomorrow);
-
-        for (Ticket ticket : tickets) {
-            if (ticket.getTicketStatus() != TicketStatus.CONFIRMED) {
-                ticket.setTicketStatus(TicketStatus.CONFIRMED);
-                ticket.setTicketUpdateAt(LocalDateTime.now());
-                ticketRepository.save(ticket);
-                log.info("Updated ticket status for ticket ID: {}", ticket.getTicketId());
-            }
-        }
+//        List<Ticket> tickets = ticketRepository.findByTicketStatusAndMatchDateBetween(TicketStatus.CONFIRMED, midnightToday, midnightTomorrow);
+//
+//        for (Ticket ticket : tickets) {
+//            if (ticket.getTicketStatus() != TicketStatus.CONFIRMED) {
+//                ticket.setTicketStatus(TicketStatus.CONFIRMED);
+//                ticket.setTicketUpdateAt(LocalDateTime.now());
+//                ticketRepository.save(ticket);
+//                log.info("Updated ticket status for ticket ID: {}", ticket.getTicketId());
+//            }
+//        }
 
     }
 }
