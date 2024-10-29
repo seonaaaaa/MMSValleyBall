@@ -173,17 +173,6 @@ const routes = [
     component: SignupPage,
     meta: { hideContent: true },
   },
-  // 라우터 경로 맨 하단에 두기 ***
-  // 배포 전 404 처리 추가하기
-  // 404 페이지 경로 (잘못된 경로로 접속 시 NotFound.vue 컴포넌트가 표시)
-  // {
-  //   // 와일드카드 경로로 모든 일치하지 않는 경로를 잡음
-  //   path: '/:catchAll(.*)',  
-  //   name: 'NotFound',
-  //   // 404 페이지 컴포넌트
-  //   component: () => import('@/components/common/NotFound.vue'), 
-  //   meta: { hideContent: true },
-  // }
 ];
 
 const router = createRouter({
