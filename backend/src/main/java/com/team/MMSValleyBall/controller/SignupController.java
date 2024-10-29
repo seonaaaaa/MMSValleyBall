@@ -14,7 +14,7 @@ public class SignupController {
     }
 
     @PostMapping("/signup/check/email")
-    public String checkEmail(@RequestParam String userEmail) {
+    public String checkEmail(@RequestParam("userEmail") String userEmail) {
         System.out.println(userEmail);
         String message = signupService.checkEmail(userEmail);
         return message;
