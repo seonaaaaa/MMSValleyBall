@@ -84,42 +84,98 @@ export default {
     };
   },
   methods: {
-    handleSignup() {
-      // 비밀번호 확인
-      if (this.userPassword !== this.userConfirmPassword) {
-        alert('비밀번호가 일치하지 않습니다. 다시 확인해주세요.');
-        return;
-      }
-      const userPhone = `${this.userPhonePart1}-${this.userPhonePart2}-${this.userPhonePart3}`;
-      console.log('회원가입 시도:', this.userEmail, this.userPassword, this.userConfirmPassword, this.userName, userPhone, this.userAddress);
-    },
-    async checkEmail() {
-      console.log('이메일 중복 확인:', this.userEmail);
-      try {
-        const response = await fetch(`/api/user/check-email?email=${encodeURIComponent(this.userEmail)}`);
-        const message = await response.text();
-        alert(message);
-      } catch (error) {
-        console.error('이메일 중복 확인 중 오류 발생:', error);
-        alert('이메일 중복 확인 중 오류가 발생했습니다. 다시 시도해주세요.');
-      }
-    },
-    findAddress() {
-      new window.daum.Postcode({
-        oncomplete: (data) => {
-          // 팝업에서 검색결과 선택 시 호출되는 콜백 함수
-          this.userAddress = data.address;
+    // 이메일 중복 확인
+  checkEmail() {
+    const params = new URLSearchParams();
+    params.append('userEmail', this.userEmail);
+
+    this.$axios.post("/signup/check/email", null, { params: params })
+      .then((response) => {
+        console.log(response);
+        if (response.data === "True") {
+          alert("사용가능한 이메일입니다.");
+        } else if (response.data === "False") {
+          alert("이미 사용 중인 이메일입니다.");
+        } else {
+          alert("이메일을 입력해주세요.");
         }
-      }).open();
-    }
+      })
+      .catch((error) => {
+        alert(error);
+      });
   },
-  mounted() {
-    // 카카오 주소 API 스크립트 로드
-    const script = document.createElement('script');
-    script.src = 'https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js';
-    document.head.appendChild(script);
-  }
-};
+
+  async handleSignup() {
+    // 비밀번호 확인
+    if (this.userPassword !== this.userConfirmPassword) {
+      alert('비밀번호가 일치하지 않습니다. 다시 확인해주세요.');
+      return;
+    }
+
+    // 전화번호 합쳐서 보내기
+    const users = {
+      userEmail: this.userEmail,
+      userPassword: this.userPassword,
+      userName: this.userName,
+      userPhone:  `${this.userPhonePart1}-${this.userPhonePart2}-${this.userPhonePart3}`,
+      userAddress: this.userAddress,
+    };
+
+    console.log(users);
+    console.log(users.userPhone.length);
+
+    // 회원가입 요청 보내기
+    this.$axios({
+      method: "post",
+      url: "/signup",
+      data: users,
+      headers: {
+        "Content-Type": "application/json",
+      },
+    })
+    .then((response) => {
+      console.log(response);
+      alert("회원가입 성공");
+      this.$router.replace("/");
+    })
+    .catch((error) => {
+      console.error('회원가입 중 오류 발생:', error);
+      alert('회원가입 중 오류가 발생했습니다. 다시 시도해주세요.');
+    });
+  },
+
+  findAddress() {
+    // 카카오 주소 API 팝업 열기
+    if (!window.daum || !window.daum.Postcode) {
+      console.error('카카오 주소 API가 로드되지 않았습니다.');
+      alert('주소 찾기 기능을 사용할 수 없습니다. 페이지를 새로고침하거나 나중에 다시 시도해주세요.');
+      return;
+    }
+
+    new window.daum.Postcode({
+      oncomplete: (data) => {
+        // 팝업에서 검색결과 선택 시 호출되는 콜백 함수
+        this.userAddress = data.address; // 사용자가 선택한 주소를 userAddress에 저장
+      },
+    }).open();
+  },
+},
+
+mounted() {
+  // 카카오 주소 API 스크립트 로드
+  const script = document.createElement('script');
+  script.src = 'https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js';
+  script.onload = () => {
+    console.log('카카오 주소 API 스크립트가 성공적으로 로드되었습니다.');
+  };
+  script.onerror = () => {
+    console.error('카카오 주소 API 스크립트 로드 중 오류 발생');
+  };
+  document.head.appendChild(script);
+}
+
+}
+
 </script>
 
 <style>

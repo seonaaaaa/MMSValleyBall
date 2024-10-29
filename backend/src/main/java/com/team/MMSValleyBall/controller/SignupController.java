@@ -13,16 +13,17 @@ public class SignupController {
         this.signupService = signupService;
     }
 
-    @GetMapping("/signup/check/email")
-    public ResponseEntity<String> checkEmail(String userEmail) {
+    @PostMapping("/signup/check/email")
+    public String checkEmail(@RequestParam String userEmail) {
+        System.out.println(userEmail);
         String message = signupService.checkEmail(userEmail);
-        return ResponseEntity.ok(message);
+        return message;
     }
 
     @PostMapping("/signup")
-    public ResponseEntity<String> joinProcess(UserDTO userDTO) {
+    public ResponseEntity<String> joinProcess(@RequestBody UserDTO userDTO) {
         System.out.println(userDTO);
         signupService.signupProcess(userDTO);
-        return ResponseEntity.ok("회원가입이 페이지입니다.");
+        return ResponseEntity.ok("회원가입이 완료되었습니다.");
     }
 }
