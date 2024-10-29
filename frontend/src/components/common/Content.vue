@@ -3,17 +3,31 @@
     <!-- 유저 정보 박스 -->
     <div class="user-info-box">
       <div v-if="isLoggedIn">
-        <p><strong>{{ userId }}</strong></p>
-        <p>멤버십: <strong>{{ membershipLevel }}</strong></p>
-        <p>충전 금액: <strong>{{ balance }}</strong>원</p>
-        <p><a href="#"><strong>My Page</strong></a></p>
-        <button @click="logout">로그아웃</button>
+        <span class="membership-image-container">
+        <span v-if="membershipLevel == 'GOLD'">
+          <img :src="goldImage" alt="골드 등급" class="membershipLevel-image" />
+        </span>
+         <span v-else-if="membershipLevel == 'SILVER'">
+           <img :src="silverImage" alt="실버 등급" class="membershipLevel-image" />
+        </span>
+        <span v-else>
+          <img :src="bronzeImage" alt="브론즈 등급" class="membershipLevel-image" />
+        </span>
+        <p><strong>{{ userName }}</strong>&nbsp;/&nbsp;<strong>{{ userEmail}}</strong></p>
+        </span>
+
+
+        <div class="money-box"> 
+          <p>내 잔액: <strong>{{ balance }}</strong>원</p><button class="btn-charge" @click="goToRecharge">충전하기</button>
+        </div>
+          <button class="btn-myPage" @click="goToMyPage">My Page</button>&nbsp;<button class="btn-logout" @click="logout">로그아웃</button>
       </div>
       <div v-else>
         <button @click="login">로그인</button>
         <button @click="signup">회원가입</button>
       </div>
     </div>
+
 
     <!-- 본문 내용 -->
     <div class="main-content">
@@ -91,10 +105,21 @@ export default {
   data() {
     return {
       // 유저 정보 박스
-      isLoggedIn: true,  // 로그인 여부를 확인하는 변수
-      userId: 'user@mail.com',
-      membershipLevel: 'Gold', // <--- 멤버십 레벨 아이콘 삽입
+     isLoggedIn: true,  // 로그인 여부를 확인하는 변수
+      userName: '차은우',
+      userEmail: 'user@mail.com',
       balance: 10000,
+
+      //멤버십 레벨 아이콘 삽입
+      // 사용자의 등급 ('GOLD', 'SILVER','BRONZE')
+      membershipLevel: ['GOLD'],
+      // 골드 등급 이미지 경로
+      goldImage: require('@/assets/img/membershipImg/gold.png'),
+      // 실버 등급 이미지 경로 
+      silverImage: require('@/assets/img/membershipImg/silver.png'),
+      // 브론즈 등급 이미지 경로
+      bronzeImage: require('@/assets/img/membershipImg/bronze.png'),
+
       // 상단 슬라이드 배너
       currentSlide: 0, // 현재 보여지는 슬라이드의 인덱스
       slides: [
@@ -115,6 +140,14 @@ export default {
     };
   },
   methods: {
+    goToMyPage() {
+      this.$router.push('/mypage/reservations');
+    },
+
+    goToRecharge(){
+      this.$router.push('/myPage/info/recharge');
+    },
+
     // 상단 슬라이드 배너
     // 왼쪽 슬라이드로 이동
     prevSlide() {
@@ -194,12 +227,12 @@ a {
 /* 유저 정보 박스 */
 .user-info-box {
   position: absolute;
-  top: 630px;
+  top: 680px;
   right: 100px;
   background-color: #f8f9fa;
-  width: 220px;
-  height: 200px;
-  padding: 10px 20px;
+  width: 400px;
+  height: 250px;
+  padding: 3px 15px;
   border: 1px solid #ddd;
   border-radius: 8px;
   text-align: right;
@@ -210,15 +243,15 @@ a {
   z-index: 100;
 }
 
-.user-info-box button {
+.btn-myPage, .btn-logout {
   background-color: #60a191;
   color: white;
   border: none;
   padding: 10px;
-  margin: 5px;
+  margin-top: 20px;
   border-radius: 5px;
   cursor: pointer;
-  width: 100%;
+  width: 48%;
 }
 
 .user-info-box button:hover {
@@ -226,12 +259,55 @@ a {
 }
 
 .user-info-box p {
-  margin: 5px 5px;
+  margin: 5px 20px;
 }
 
 .user-info-box a:hover {
   text-decoration: underline;
 }
+
+/* 금액충전 창 */
+.money-box {
+  margin-top: 15px;
+  margin-left: 15px;
+  display: flex;
+  align-items: center; /* 수직 정렬 */
+  gap: 1px; /* 간격 조정 */
+  width: 330px;
+  height: 80px;
+  border: solid color(srgb rgb(68, 68, 68) green blue);
+  border-radius: 8px;
+  background: #c7dfd9;
+  text-align: left;
+}
+
+.money-box p {
+  margin-left: 15px; /* 기본 여백 제거 */
+}
+
+.btn-charge {
+  margin-left: 2px; /* 오른쪽으로 버튼 밀기 */
+  width: 100px;
+  background-color: #f0efc3;
+  border: solid color(srgb rgb(224, 224, 224) green blue);
+}
+
+/* 멤버십 로고 */
+.membership-image-container {
+  display: flex;
+  align-items: center; /* 이미지와 텍스트를 수직 중앙 정렬 */
+  gap: 2px; /* 이미지와 텍스트 간격 조절 */
+}
+
+
+.membershipLevel-image {
+  width: 50px;
+  /* 아이콘 크기 */
+  height: 50px;
+  /* 아이콘 크기 */
+  margin-left: 10px;
+}
+
 
 /* 상단 슬라이드 배너 */
 .slider-container {
