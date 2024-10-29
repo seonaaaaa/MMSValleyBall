@@ -13,7 +13,7 @@ import java.util.List;
 
 public interface TicketRepository extends JpaRepository<Ticket, Long> {
     // 티켓 예매 테이블: match_date가 오늘 날짜인 티켓을 찾고, 아직 CONFIRMED 상태가 아닌 경우 상태를 업데이트
-    List<Ticket> findByTicketStatusAndMatchDateBetween(TicketStatus ticketStatus, LocalDateTime startDate, LocalDateTime endDate);
+//    List<Ticket> findByTicketStatusAndMatchDateBetween(TicketStatus ticketStatus, LocalDateTime startDate, LocalDateTime endDate);
 //    List<Ticket> findByTicketStatusAndTicketCreateAtBefore(TicketStatus ticketStatus, LocalDateTime oneDayAgo);
 
     //구역별 잔여좌석 조회 쿼리문

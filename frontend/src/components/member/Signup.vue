@@ -57,7 +57,7 @@
             <button type="button" @click="findAddress" class="check-button">주소 찾기</button>
           </div>
         </div>
-        <button type="submit" class="submit-button">회원가입</button>
+        <button type="submit" class="submit-button" :class="{ disabled: !isEmailChecked }" :disabled="!isEmailChecked">회원가입</button>
       </form>
     </div>
   </div>
@@ -81,8 +81,19 @@ export default {
       userPhonePart2: '',
       userPhonePart3: '',
       userAddress: '',
+      isEmailChecked: false,
     };
   },
+
+  watch: {
+    userEmail(newVal, oldVal) {
+      // 이메일이 변경되면 중복 확인 상태를 초기화 (false)
+      if (newVal !== oldVal) {
+        this.isEmailChecked = false;
+      }
+    }
+  },
+
   methods: {
     // 이메일 중복 확인
   checkEmail() {
@@ -94,10 +105,13 @@ export default {
         console.log(response);
         if (response.data === "True") {
           alert("사용가능한 이메일입니다.");
+          this.isEmailChecked = true;
         } else if (response.data === "False") {
           alert("이미 사용 중인 이메일입니다.");
+          this.isEmailChecked = false;
         } else {
           alert("이메일을 입력해주세요.");
+          this.isEmailChecked = false;
         }
       })
       .catch((error) => {
@@ -265,6 +279,13 @@ input[type="text"]:focus {
 .submit-button:hover {
   background-color: #3f6f68;
 }
+
+.submit-button.disabled {
+  background-color: #ccc; /* 연한 그레이 색상 */
+  color: #999; /* 글자 색상도 연한 그레이 */
+  cursor: not-allowed; /* 비활성화 상태임을 나타내는 커서 */
+}
+
 
 .notice {
   text-align: right;
