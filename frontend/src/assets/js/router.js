@@ -17,6 +17,8 @@ import AppStadium from '@/components/team/Stadium.vue';
 // GAME 메뉴
 import AppSchedule from '@/components/game/Schedule.vue';
 import AppResults from '@/components/game/Results.vue';
+// GAME 관리자 페이지
+import GameAdmin from '@/components/game/GameAdmin.vue';
 
 // TICKET 메뉴
 import TicketInfo from '@/components/ticket/TicketInfo.vue';
@@ -108,6 +110,11 @@ const routes = [
     name: 'Results',
     component: AppResults,
     meta: { hideContent: true },
+  },
+  {
+    path: '/game/admin', // GAME 관리자
+    name: 'GameAdmin',
+    component: GameAdmin,
   },
   // TICKET 메뉴
   {

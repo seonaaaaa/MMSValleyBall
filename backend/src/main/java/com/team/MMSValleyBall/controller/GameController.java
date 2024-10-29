@@ -41,13 +41,6 @@ public class GameController {
     }
 
     // GAME - 경기 결과 API
-    // @GetMapping("/results")
-    // public ResponseEntity<Page<MatchWithTeamDTO>> getPagedGameData(
-    //         @RequestParam("seasonId") Long seasonId, Pageable pageable) {
-    //     Page<MatchWithTeamDTO> matchData = gameService.findPagedMatchesBySeason(seasonId, pageable);
-    //     return ResponseEntity.ok(matchData);
-    // }
-    // GAME - 경기 결과 API
     @GetMapping("/results")
     public ResponseEntity<Page<MatchWithTeamDTO>> getMatches(
             @RequestParam("seasonId") Long seasonId,
@@ -56,5 +49,12 @@ public class GameController {
             Pageable pageable) {
         Page<MatchWithTeamDTO> matchPage = gameService.getMatchesBySeasonAndRound(seasonId, matchRoundId, pageable);
         return ResponseEntity.ok(matchPage);
+    }
+
+    // ADMIN - 경기 정보
+    @GetMapping("/admin")
+    public ResponseEntity<List<MatchWithTeamDTO>> getAllMatches() {
+        List<MatchWithTeamDTO> matchList = gameService.findAllMatchesWithTeams();
+        return ResponseEntity.ok(matchList);
     }
 }
