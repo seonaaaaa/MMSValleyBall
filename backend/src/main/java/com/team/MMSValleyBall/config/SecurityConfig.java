@@ -85,9 +85,7 @@ public class SecurityConfig{
         http.httpBasic((auth) -> auth.disable());
         //경로별 인가 작업
         http.authorizeHttpRequests((auth) -> auth.requestMatchers("/**", "/login", "/signup/**", "/game/**").permitAll()
-//                        .requestMatchers(PathRequest.toStaticResources().atCommonLocations()).permitAll()
 //                .requestMatchers("/admin").hasRole("ADMIN")
-//                .requestMatchers("/user").hasRole("USER")
                 .anyRequest().authenticated());
         // JwtFilter 등록
         http.addFilterBefore(new JwtFilter(jwtUtil), LoginFilter.class);
