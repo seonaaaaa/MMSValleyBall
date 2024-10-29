@@ -69,7 +69,7 @@ public class AutoStatusSystemService {
 
         // 특정 날짜의 티켓을 가져오고, 상태가 CONFIRMED가 아닌 경우
         List<Ticket> tickets = ticketRepository.findTicketsByMatchDateAndStatus(midnightToday, TicketStatus.CONFIRMED);
-
+        System.out.println("ticket match date : " + tickets);
         for (Ticket ticket : tickets) {
             if (ticket.getTicketStatus() == TicketStatus.BOOKED) {
                 ticket.setTicketStatus(TicketStatus.CONFIRMED);
