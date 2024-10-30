@@ -26,4 +26,11 @@ public class SignupController {
         signupService.signupProcess(userDTO);
         return ResponseEntity.ok("회원가입이 완료되었습니다.");
     }
+
+    @PostMapping("/signup/check/phone")
+    public String checkPhone(@RequestParam("userPhone") String userPhone) {
+        System.out.println(userPhone);
+        String message = signupService.checkPhone(userPhone);
+        return message;
+    }
 }

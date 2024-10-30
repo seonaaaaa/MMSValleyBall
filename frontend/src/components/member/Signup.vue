@@ -95,12 +95,21 @@ import LogoHeader from '../common/LogoHeader.vue';
       }
     },
 
-    userPhone(newVal, oldVal) {
-      // 전화번호가 변경되면 중복 확인 상태를 초기화 (false)
-      if (newVal !== oldVal) {
-        this.isPhoneChecked = false;
-      }
+    userPhonePart1(newVal, oldVal) {
+    if (newVal !== oldVal) {
+      this.isPhoneChecked = false;
     }
+  },
+  userPhonePart2(newVal, oldVal) {
+    if (newVal !== oldVal) {
+      this.isPhoneChecked = false;
+    }
+  },
+  userPhonePart3(newVal, oldVal) {
+    if (newVal !== oldVal) {
+      this.isPhoneChecked = false;
+    }
+  }
   },
 
   computed: {
@@ -154,7 +163,7 @@ import LogoHeader from '../common/LogoHeader.vue';
             alert("인증이 완료 되었습니다.");
             this.isPhoneChecked = true;
           } else if (response.data === "False") {
-            alert("잘못된 번호입니다.");
+            alert("다른 번호를 사용해주세요");
             this.isPhoneChecked = false;
           } else {
             alert("번호를 입력해주세요.");
