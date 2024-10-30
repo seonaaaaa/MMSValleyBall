@@ -36,7 +36,7 @@
 
         <!-- 핸드폰 번호 -->
         <div class="form-group">
-          <label for="userPhone">전화번호</label>
+          <label for="userPhone">**전화번호</label>
           <div class="phone-input-group single-line">
             <select v-model="userPhonePart1">
               <option value="010">010</option>
@@ -46,6 +46,7 @@
             </select> -
             <input type="tel" v-model="userPhonePart2" maxlength="4" /> -
             <input type="tel" v-model="userPhonePart3" maxlength="4" />
+            <button type="button" @click="checkPhone" class="check-button">인증</button>
           </div>
         </div>
 
@@ -82,6 +83,7 @@ import LogoHeader from '../common/LogoHeader.vue';
       userPhonePart3: '',
       userAddress: '',
       isEmailChecked: false,
+      isPhoneChecked: false,
     };
   },
 
@@ -90,6 +92,13 @@ import LogoHeader from '../common/LogoHeader.vue';
       // 이메일이 변경되면 중복 확인 상태를 초기화 (false)
       if (newVal !== oldVal) {
         this.isEmailChecked = false;
+      }
+    },
+
+    userPhone(newVal, oldVal) {
+      // 전화번호가 변경되면 중복 확인 상태를 초기화 (false)
+      if (newVal !== oldVal) {
+        this.isPhoneChecked = false;
       }
     }
   },
@@ -102,7 +111,8 @@ import LogoHeader from '../common/LogoHeader.vue';
         this.userPassword &&
         this.userConfirmPassword &&
         this.userName &&
-        this.isEmailChecked
+        this.isEmailChecked &&
+        this.isPhoneChecked
       );
     }
   },
@@ -125,6 +135,30 @@ import LogoHeader from '../common/LogoHeader.vue';
           } else {
             alert("이메일을 입력해주세요.");
             this.isEmailChecked = false;
+          }
+        })
+        .catch((error) => {
+          alert(error);
+        });
+    },
+
+    // 핸드폰 중복확인
+    checkPhone() {
+      const params = new URLSearchParams();
+      params.append('userPhone',`${this.userPhonePart1}-${this.userPhonePart2}-${this.userPhonePart3}`);
+
+      this.$axios.post("/signup/check/phone", null, { params: params })
+        .then((response) => {
+          console.log(response);
+          if (response.data === "True") {
+            alert("인증이 완료 되었습니다.");
+            this.isPhoneChecked = true;
+          } else if (response.data === "False") {
+            alert("잘못된 번호입니다.");
+            this.isPhoneChecked = false;
+          } else {
+            alert("번호를 입력해주세요.");
+            this.isPhoneChecked = false;
           }
         })
         .catch((error) => {
@@ -244,10 +278,17 @@ label {
 
 input[type="email"],
 input[type="password"],
-input[type="tel"],
 input[type="text"] {
   margin-top: 10px;
   width: 100%;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+input[type="tel"]{
+  margin-top: 10px;
+  width: 50%;
   padding: 10px;
   border: 1px solid #ccc;
   border-radius: 5px;
