@@ -61,4 +61,17 @@ public class MainService {
         UserDTO userData = UserDTO.fromEntity(userRepository.findByUserEmail(email));
         return userData.getUserMembershipName().split("-")[1];
     }
+
+    public String checkPhone(String userPhone) {
+        // 이메일 중복 확인
+        Boolean isUser = userRepository.existsByUserPhone(userPhone);
+        if(userPhone.equals("010--")){
+            return "null";
+        }
+
+        if (isUser) {
+            return "False";
+        }
+        return "True";
+    }
 }

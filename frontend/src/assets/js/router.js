@@ -42,6 +42,7 @@ const routes = [
     path: '/',
     name: 'Home',
     component: AppContent,
+    meta: { hideContent: true },
   },
 
   // MMS 메뉴
@@ -49,107 +50,128 @@ const routes = [
     path: '/mms',
     name: 'MMS',
     component: AppMMS,
+    meta: { hideContent: true },  // AppContent 숨김 설정
   },
   {
     path: '/mms/greeting',
     name: 'Greeting',
     component: AppGreeting,
+    meta: { hideContent: true },
+
   },
   {
     path: '/mms/history',
     name: 'History',
     component: AppHistory,
+    meta: { hideContent: true },
   },
   {
     path: '/mms/ci',
     name: 'CI',
     component: AppCI,
+    meta: { hideContent: true },
   },
   {
     path: '/mms/sponsor',
     name: 'Sponsor',
     component: AppSponsor,
+    meta: { hideContent: true },
   },
   // TEAM 메뉴
   {
     path: '/team/players',
     name: 'Players',
     component: AppPlayers,
+    meta: { hideContent: true },
   },
   {
     path: '/team/staff',
     name: 'Staff',
     component: AppStaff,
+    meta: { hideContent: true },
   },
   {
     path: '/team/stadium',
     name: 'Stadium',
     component: AppStadium,
+    meta: { hideContent: true },
   },
    // GAME 메뉴
   {
     path: '/game/schedule',
     name: 'Schedule',
     component: AppSchedule,
+    meta: { hideContent: true },
   },
   {
     path: '/game/results',
     name: 'Results',
     component: AppResults,
+    meta: { hideContent: true },
   },
   // TICKET 메뉴
   {
     path: '/ticket/info',
     name: 'TicketInfo',
     component: TicketInfo,
+    meta: { hideContent: true },
   },
   {
     path: '/ticket/purchase',
     name: 'TicketPurchase',
     component: TicketPurchase,
+    meta: { hideContent: true },
   },
   // MEMBERSHIP 메뉴
   {
     path: '/membership/info',
     name: 'MembershipInfo',
     component: MembershipInfo,
+    meta: { hideContent: true },
   },
   {
     path: '/membership/purchase',
     name: 'MembershipPurchase',
     component: MembershipPurchase,
+    meta: { hideContent: true },
   },
   // MY PAGE 메뉴
   {
-    path: '/myPage/reservations',
+    path: '/mypage/reservations',
     name: 'ReservationsView',
     component: ReservationsView,
+    meta: { hideContent: true },
   },
   {
-    path: '/myPage/membership',
+    path: '/mypage/membership',
     name: 'MembershipView',
     component: MembershipView,
+    meta: { hideContent: true },
   },
   {
-    path: '/myPage/edit-profile',
+    path: '/mypage/edit-profile',
     name: 'EditProfile',
     component: EditProfile,
+    meta: { hideContent: true },
   },
   {
-    path: '/myPage/delete-account',
+    path: '/mypage/delete-account',
     name: 'DeleteAccount',
     component: DeleteAccount,
+    meta: { hideContent: true },
   },
   // 로그인, 회원가입 
   {
     path: '/login',
     name: 'loginPage',
     component: loginPage,
+    meta: { hideContent: true },
   },
   {
     path: '/signup',
     name: 'SignupPage',
     component: SignupPage,
+    meta: { hideContent: true },
   },
 ];
 

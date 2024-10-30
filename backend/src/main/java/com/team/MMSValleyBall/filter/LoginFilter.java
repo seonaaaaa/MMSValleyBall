@@ -70,11 +70,17 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         CustomUserDetails customUserDetails =
                 (CustomUserDetails) authentication.getPrincipal();
         // UserName과 role 꺼내기
-        Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
+        String username = customUserDetails.getUsername();
+        Collection<? extends GrantedAuthority> authorities =
+                authentication.getAuthorities();
+
         Iterator<? extends GrantedAuthority> iterator = authorities.iterator();
+
         GrantedAuthority authority = iterator.next();
-        Long expiredMillSecond = 60 * 60 * 24 * 1000L;
-        String token = jwtUtil.createJwt(customUserDetails.getUsername(), authority.getAuthority(), customUserDetails.getName(), expiredMillSecond);
+
+        String role = authority.getAuthority();
+        Long expiredMillSecond = 60 * 60 * 30 * 1000L;
+        String token = jwtUtil.createJwt(username, role, expiredMillSecond);
 
         System.out.println("============ Success");
         response.addHeader("Authorization", "Bearer " + token);

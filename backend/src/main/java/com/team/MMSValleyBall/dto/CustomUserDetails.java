@@ -42,10 +42,6 @@ public class CustomUserDetails implements UserDetails {
         return users.getUserEmail();
     }
 
-    public String getName() {
-        return users.getUserName();
-    } // 사용자 이름 반환하는 메서드 추가
-
     @Override
     public boolean isAccountNonExpired() {
         return true;
