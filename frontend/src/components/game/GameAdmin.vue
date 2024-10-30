@@ -1,5 +1,14 @@
 <template>
-  <div>
+  <div class="admin-game-page">
+
+    <!-- 경기 수정 모달 창 -->
+    <div v-if="showEditModal" class="modal-overlay" @click.self="showEditModal = false">
+      <div class="modal-content">
+        <MatchEdit @close="showEditModal = false" />
+      </div>
+    </div>
+
+    <button class="add-game-button">+ 신규 경기</button>
     <table>
         <thead>
             <tr>
@@ -17,16 +26,6 @@
                 <th>삭제</th>
                 <th>메일 상태 변경</th>
                 <th>메일 발송</th>
-                <!-- <th>Match ID</th>
-                <th>Match Date</th>
-                <th>Stadium</th>
-                <th>Set Score</th>
-                <th>Opponent Team Set Score</th>
-                <th>Season</th>
-                <th>Round</th>
-                <th>Team Name</th>
-                <th>Mail Status</th>
-                <th>Match Status</th> -->
             </tr>
         </thead>
         <tbody>
@@ -41,13 +40,45 @@
                 <td>{{ match.teamName }}</td>
                 <td>{{ match.matchMailStatus }}</td>
                 <td>{{ match.matchStatus }}</td>
-                <td><a src="#"><button>수정</button></a></td>
-                <td><a src="#"><button>삭제</button></a></td>
-                <td><a src="#"><button>메일 상태 변경</button></a></td>
-                <td><a src="#"><button>메일발송</button></a></td>
+                <td>
+                    <button @click="navigateToEditPage(match.matchId)">경기 수정</button>
+                </td>
+                <td>
+                    <button v-if="match.matchStatus === 'DEFAULT'" 
+                        @click="deactivateMatch(match.matchId)">
+                        삭제
+                    </button>
+                    <button v-else
+                    @click="activateMatch(match.matchId)">
+                        활성화
+                    </button>
+                </td>
+                <td>
+                    <button @click="updateMailStatus(match.matchId)"
+                     :disabled="match.matchMailStatus !== 'REQUIRED'">
+                        메일 상태 변경
+                    </button>
+                </td>
+                <td>
+                    <button @click="sendEmails(match.matchId)"
+                    :disabled="match.matchMailStatus !== 'REQUIRED'">
+                        메일 발송
+                    </button>
+                </td>
           </tr>
         </tbody>
     </table>
+
+    <!-- 페이지네이션 컨트롤 -->
+    <div class="pagination">
+        <div class="pages">
+            <button @click="changePage(currentPage - 1)" :disabled="currentPage === 0">&lt;</button>
+            <button v-for="page in totalPages" :key="page" @click="changePage(page - 1)" :class="{ active: page === currentPage + 1 }">{{ page }}</button>
+            <button @click="changePage(currentPage + 1)" :disabled="currentPage === totalPages - 1">&gt;</button>
+        </div>
+        <span>총 경기 수: {{ totalMatches }}개</span>
+    </div>
+
   </div>
 </template>
 
@@ -59,23 +90,101 @@ export default {
     data() {
         return {
             matchList: [],
+            totalMatches: 0,
+            totalPages: 1,
+            currentPage: 0,
+            pageSize: 10,
         }
     },
     mounted() {
-        axios.get('http://localhost:4000/game/admin')
-        .then(Response => {
-            this.matchList = Response.data;
-        })
-        .catch(error => {
-            console.error('Error fetching match data:', error);
-        });
+        this.fetchMatches(this.currentPage);
     },
     methods: {
-
+    fetchMatches(page) {
+      axios
+        .get(`http://localhost:4000/game/admin`, {
+          params: { page: page, size: this.pageSize }
+        })
+        .then((response) => {
+          const data = response.data;
+          this.matchList = data.content;
+          this.totalMatches = data.totalElements;
+          this.totalPages = data.totalPages;
+          this.currentPage = data.number;
+        })
+        .catch((error) => {
+          console.error('Error fetching match data:', error);
+        });
     },
+    changePage(page) {
+      if (page >= 0 && page < this.totalPages) {
+        this.fetchMatches(page);
+      }
+    },
+
+    // 경기 수정 페이지로 이동
+    navigateToEditPage(matchId) {
+      this.$router.push({ name: 'MatchEdit', params: { matchId } });
+    },
+
+    // 경기 삭제(비활성화)
+    deactivateMatch(matchId) {
+        axios
+            .patch(`http://localhost:4000/game/admin/delete/${matchId}`)
+            .then(response => {
+                alert(response.data); // "경기 삭제 성공" 메시지
+                this.fetchMatches(this.currentPage);   // 데이터 목록 갱신
+            })
+            .catch(error => {
+                console.error("Error deleting match:", error);
+            });
+    },
+
+    // 경기 활성화
+    // activateMatch(matchId) {
+    //     this.updateMatchStatus(matchId, 'DEFAULT');
+    // },
+
+    // 경기 상태 수정
+    updateMailStatus(matchId, status = 'DEFAULT') {
+        axios
+            .patch(`http://localhost:4000/game/admin/update-mail-status/${matchId}`, { mailStatus: status })
+            .then(response => {
+                alert(response.data); // "메일 상태가 DEFAULT로 변경되었습니다." 메시지
+                this.fetchMatches(this.currentPage);
+            })
+            .catch((error) => {
+                console.error("Error updating mail status:", error);
+            });
+    },
+
+
+
+    sendEmails(matchId) {
+    axios
+        .post(`http://localhost:4000/game/admin/${matchId}/sendEmail`)
+        .then(response => {
+            alert(response.data); // "메일 발송 완료 및 상태 업데이트 완료" 메시지
+            this.fetchMatches(this.currentPage); // 업데이트된 상태 목록 갱신
+        })
+        .catch((error) => {
+            console.error("Error sending email:", error);
+        });
+    },
+  },
 };
 </script>
 
-<style>
+<style scoped>
+.admin-game-page {
+    padding-top: var(--header-height);
+    padding-bottom: var(--footer-height);
+    margin-top: 100px;
+    margin-bottom: 100px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
 
 </style>

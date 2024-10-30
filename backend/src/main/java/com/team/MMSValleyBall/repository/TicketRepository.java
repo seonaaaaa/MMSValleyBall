@@ -31,4 +31,6 @@ public interface TicketRepository extends JpaRepository<Ticket, Long> {
             "ORDER BY s.seatId")
     List<Object[]> findAvailableSeatsByMatch(@Param("matchId") Long matchId);
 
+    // ticket_match_id (Match ID)를 사용하여 모든 티켓 조회
+    List<Ticket> findByTicketMatch_MatchId(Long matchId);
 }

@@ -19,6 +19,7 @@ import AppSchedule from '@/components/game/Schedule.vue';
 import AppResults from '@/components/game/Results.vue';
 // GAME 관리자 페이지
 import GameAdmin from '@/components/game/GameAdmin.vue';
+import MatchEdit from '@/components/game/MatchEdit.vue';
 
 // TICKET 메뉴
 import TicketInfo from '@/components/ticket/TicketInfo.vue';
@@ -103,6 +104,12 @@ const routes = [
     path: '/game/admin', // GAME 관리자
     name: 'GameAdmin',
     component: GameAdmin,
+  },
+  {
+    path: '/game/admin/update/:matchId',
+    name: 'MatchEdit',
+    component: MatchEdit,
+    props: true, // matchId를 props로 전달하기 위해 설정
   },
   // TICKET 메뉴
   {
