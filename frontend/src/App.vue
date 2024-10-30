@@ -1,26 +1,61 @@
 <template>
   <div id="app">
-    <AppHeader />
+    <AppHeader :user="user"/>
     <!-- 메타 데이터에서 hideContent가 true인 경우 AppContent를 숨김 -->
     <!-- 경로 없을 때 기본적으로 AppContent 표시 -->
-    <AppContent v-if="!$route.meta.hideContent || !$route.name" />
-    <router-view />
+    <!-- <AppContent v-if="!$route.meta.hideContent && loaded " :user="user"/> -->
+    <router-view :user="user"/>
     <AppFooter />
   </div>
 </template>
 
 <script>
 import AppHeader from './components/common/Header.vue'
-import AppContent from './components/common/Content.vue'
+// import AppContent from './components/common/Content.vue'
 import AppFooter from './components/common/Footer.vue'
 
 export default {
   name: 'App',
   components: {
     AppHeader,
-    AppContent,
+    // AppContent,
     AppFooter
-  }
+  },
+  data() {
+    return {
+      user: { name: '', role: 'guest', email: '', isLoggedIn: false},
+      loaded: false,
+    };
+  },
+  async mounted() {
+    await this.checkLogin();
+  },
+  methods: {
+    async checkLogin() {
+      const token = localStorage.getItem('accessToken');
+      if (token!=null) {
+        // 토큰이 있으면 로그인 상태로 설정하고 사용자 역할을 가져옴
+        this.user.isLoggedIn = true;
+        try {
+          const response = await this.$axios.get('/main', {
+            headers: {
+              Authorization: token, // Bearer 접두사 추가
+            },
+          });
+          this.user.role = response.data.role;
+          this.user.name = response.data.name;
+          this.user.email = response.data.email;
+        } catch (error) {
+          console.error('사용자 권한을 가져오는 중 오류 발생:', error);
+        }
+      } else {
+        // 토큰이 없으면 로그아웃 상태
+        this.user.isLoggedIn= false;
+        this.user.role='guest';
+      }
+      this.loaded = true
+    },
+  },
 }
 </script>
 
