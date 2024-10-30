@@ -134,7 +134,7 @@ INSERT INTO membership(membership_name, membership_price, membership_season_id) 
 --users
 INSERT INTO users(user_email, user_password, user_name, user_phone, user_address, user_membership_id, user_role, user_create_at, user_update_at)VALUES
 	 ('Admin@abc.com','admin','김형민','01011112222','서울시 인사동길 12',4,'ADMIN','2023-07-20 00:00:00','2024-10-23 00:00:00'),
-	 ('kimka@cbc.com','kimka3333','김가현','01022223333','서울시 강남구 역삼동',4,'USER','2023-09-10 00:00:00','2024-09-16 00:00:00'),
+	 ('ggg0909134@naver.com','kimka3333','김가현','01022223333','서울시 강남구 역삼동',4,'USER','2023-09-10 00:00:00','2024-09-16 00:00:00'),
 	 ('won@cbc.com','won4444','김예원','01033334444','경기도 고양시 덕양구',6,'USER','2023-08-24 00:00:00','2024-05-10 00:00:00'),
 	 ('hyell@hew.com','hyell5555','김혜리','01044445555','강원도 속초시 설악동',4,'USER','2023-08-17 00:00:00','2024-10-12 00:00:00'),
 	 ('suna@abc.com','suna6666','박선아','01055556666','서울시 도봉구 쌍문동',4,'USER','2023-09-12 00:00:00','2023-12-13 00:00:00'),
@@ -183,7 +183,8 @@ INSERT INTO ticket(ticket_number, ticket_match_id, ticket_user_id, ticket_paid_p
 	 ('T20241023130447314',47,14,21000,'2024-10-23 13:04:00'),
 	 ('T2024102314554712',47,2,20000,'2024-10-23 14:55:00'),
 	 ('T2024102420234728',47,8,20000,'2024-10-24 20:23:00'),
-	 ('T20241024213647213',47,13,60000,'2024-10-24 21:36:00');
+	 ('T20241024213647213',47,13,60000,'2024-10-24 21:36:00'),
+	 ('T202410302110212',2,2,42000,'2024-10-30 21:10:00');
 
 --ticket_detail
 INSERT INTO ticket_detail(ticket_detail_seat_id, ticket_detail_amount, ticket_detail_ticket_id) VALUES
@@ -196,4 +197,5 @@ INSERT INTO ticket_detail(ticket_detail_seat_id, ticket_detail_amount, ticket_de
 	 (20,3,7),
 	 (16,1,8),
 	 (23,2,9),
-	 (11,2,10);
+	 (11,2,10),
+	 (11,2,11);

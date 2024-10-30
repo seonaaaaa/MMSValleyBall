@@ -97,8 +97,8 @@
       <!-- 경기 일정 섹션 -->
       <div class="section">
         <h2>경기 일정</h2>
-        <!-- Calendar 컴포넌트를 사용 -->
-        <CalendarMain :events="events" />
+        <!-- Calendar 컴포넌트를 main 모드로 사용 -->
+        <Calendar :events="events" calendarMode="main" />
       </div>
 
     </div>
@@ -107,12 +107,12 @@
 
 <script>
 import axios from 'axios';
-import CalendarMain from '../common/CalendarMain.vue';
+import Calendar from './Calendar.vue';
 
 export default {
   name: 'AppContent',
   components: {
-    CalendarMain,
+    Calendar,
   },
   props: {
     user: {
@@ -238,10 +238,7 @@ export default {
     async fetchEvents() {
       try {
         const response = await axios.get('/game/schedule/main');
-        // 데이터 확인
-        // Vue 개발 모드에서 컴포넌트 초기화를 두 번 함 -> 초기 메인 페이지 띄울 때 console.log 2번 뜨니 참고
-        // Vue 배포 모드에서는 자동으로 한 번만 렌더링하도록 동작하므로 별도의 설정 넣지 않음
-        // console.log(response.data); 
+
         this.events = response.data; // 응답 데이터 설정
 
         // 이메일 정보 보내서 유저정보 받아오기
@@ -269,10 +266,7 @@ export default {
   flex-grow: 1; /* 콘텐츠가 화면의 나머지 공간을 차지하도록 설정 */
   padding-top: var(--header-height);  /* Header 높이만큼 패딩 */
   padding-bottom: var(--footer-height);  /* Footer 높이만큼 패딩 */
-  /* max-width: 1200px; */
-  /* margin: 30px auto; */
-  /* 상하 마진 제거, 하단에만 마진 30px */
-  margin: 0 auto;
+  margin: 0;
   margin-bottom: 100px;
   position: relative;
 }
@@ -395,7 +389,6 @@ a {
   padding-bottom: 20px;
 }
 
-
 /* 상단 슬라이드 배너 */
 .slider-container {
   position: relative;
@@ -470,7 +463,7 @@ a {
 /* 경기 하이라이트 슬라이드 배너 */
 .highlight-slider-container {
   position: relative;
-  width: 1200px;
+  max-width: 1200px;
   height: auto;
   margin: 0 auto;
   overflow: hidden;

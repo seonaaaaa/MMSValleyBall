@@ -141,9 +141,10 @@ export default {
           params: {
             seasonId: this.selectedSeasonId,
             page: page,
-            size: 6, // 6개씩 페이징 처리
+            size: 10, // 10개씩 페이징 처리
             status: 'DEFAULT', // MatchStatus가 DEFAULT인 데이터만 가져오기
-            matchRoundId: this.matchRoundId // 선택된 라운드
+            matchRoundId: this.matchRoundId, // 선택된 라운드
+            sort: 'matchDate,asc', // matchDate를 기준으로 오름차순 정렬
           },
         });
         // 테이블 인덱스 (순번) 계산
@@ -168,7 +169,8 @@ export default {
           seasonId: this.selectedSeasonId,
           page: 0,
           size: 1000, // 한 페이지에 최대한 큰 값을 설정하여 모든 데이터를 가져오기
-          status: 'DEFAULT' // MatchStatus가 DEFAULT인 데이터만 가져오기
+          status: 'DEFAULT', // MatchStatus가 DEFAULT인 데이터만 가져오기
+          sort: 'matchDate,asc', // matchDate를 기준으로 오름차순 정렬
           },
         });
         // 가져온 데이터의 인덱스를 기준으로 index + 1로 계산해서 순번을 1부터 시작하도록 설정

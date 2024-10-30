@@ -1,22 +1,18 @@
 <template>
   <div class="admin-game-page">
 
-    <!-- 경기 수정 모달 창 -->
-    <div v-if="showEditModal" class="modal-overlay" @click.self="showEditModal = false">
-      <div class="modal-content">
-        <MatchEdit @close="showEditModal = false" />
-      </div>
-    </div>
+    <!-- 신규 경기 버튼 -->
+    <button @click="navigateToInsertPage">+ 신규 경기</button>
 
-    <button class="add-game-button">+ 신규 경기</button>
+    <!-- 경기 목록 테이블 -->
     <table>
         <thead>
             <tr>
                 <th>경기 ID</th>
                 <th>경기 날짜</th>
                 <th>경기장</th>
-                <th>우리 팀 점수</th>
-                <th>상대 팀 점수</th>
+                <th>우리 팀 세트</th>
+                <th>상대 팀 세트</th>
                 <th>시즌</th>
                 <th>라운드</th>
                 <th>팀 이름</th>
@@ -86,7 +82,7 @@
 import axios from 'axios';
 
 export default {
-    name: 'GameAdmin',
+    name: 'AdminGame',
     data() {
         return {
             matchList: [],
@@ -122,28 +118,48 @@ export default {
       }
     },
 
+    // 경기 신규 페이지로 이동
+    navigateToInsertPage() {
+      this.$router.push({ name: 'InsertGame' });
+    },
+
     // 경기 수정 페이지로 이동
     navigateToEditPage(matchId) {
-      this.$router.push({ name: 'MatchEdit', params: { matchId } });
+      this.$router.push({ name: 'UpdateGame', params: { matchId } });
     },
 
     // 경기 삭제(비활성화)
     deactivateMatch(matchId) {
-        axios
-            .patch(`http://localhost:4000/game/admin/delete/${matchId}`)
-            .then(response => {
-                alert(response.data); // "경기 삭제 성공" 메시지
-                this.fetchMatches(this.currentPage);   // 데이터 목록 갱신
-            })
-            .catch(error => {
-                console.error("Error deleting match:", error);
-            });
+        // 삭제 확인 창을 표시
+        if (confirm("삭제하시겠습니까?")) {
+            axios
+                .patch(`http://localhost:4000/game/admin/delete/${matchId}`)
+                .then(response => {
+                    alert(response.data); // "경기 삭제 성공" 메시지
+                    this.fetchMatches(this.currentPage);   // 데이터 목록 갱신
+                })
+                .catch(error => {
+                    console.error("Error deleting match:", error);
+                });
+        }
     },
 
     // 경기 활성화
-    // activateMatch(matchId) {
-    //     this.updateMatchStatus(matchId, 'DEFAULT');
-    // },
+    activateMatch(matchId) {
+        this.updateMatchStatus(matchId, 'DEFAULT');
+    },
+
+    // 경기 상태 업데이트 메서드 
+    updateMatchStatus(matchId, status) {
+    axios.patch(`http://localhost:4000/game/admin/update-status/${matchId}`, { status })
+        .then(response => {
+            alert(response.data); // 상태 업데이트 성공 메시지
+            this.fetchMatches(this.currentPage); // 데이터 목록 갱신
+        })
+        .catch(error => {
+            console.error("Error updating match status:", error);
+        });
+    },
 
     // 경기 상태 수정
     updateMailStatus(matchId, status = 'DEFAULT') {
@@ -157,8 +173,6 @@ export default {
                 console.error("Error updating mail status:", error);
             });
     },
-
-
 
     sendEmails(matchId) {
     axios

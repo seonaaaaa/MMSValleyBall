@@ -12,7 +12,7 @@
     <!-- 경기 일정 페이지 내용 -->
     <div class="game-schedule-content">
       <h2 class="game-schedule-title">전체 경기 일정</h2>
-    <CalendarTotal :events="events" />
+    <Calendar :events="events" calendarMode="total" />
     </div>
   </div>
 </template>
@@ -20,19 +20,19 @@
 <script>
 import axios from 'axios';
 import LogoHeader from '../common/LogoHeader.vue';
-import CalendarTotal from './CalendarTotal.vue';
+import Calendar from '../common/Calendar.vue';
 
 export default {
     name: 'AppSchedule',
     components: {
       LogoHeader,
-      CalendarTotal,
+      Calendar,
   },    
   data() {
     return {
       // 현재 활성화된 경로
       activeMenu: this.$route.path,
-      // CalendarTotal에 전달할 경기 일정 데이터
+      // Calendar에 전달할 경기 일정 데이터
       events: []
     };
   },
