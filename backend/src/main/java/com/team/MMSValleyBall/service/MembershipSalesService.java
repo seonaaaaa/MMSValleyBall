@@ -5,15 +5,19 @@ import com.team.MMSValleyBall.dto.MembershipSalesDTO;
 import com.team.MMSValleyBall.entity.Membership;
 import com.team.MMSValleyBall.entity.MembershipSales;
 import com.team.MMSValleyBall.entity.Users;
+import com.team.MMSValleyBall.enums.MembershipSalesStatus;
 import com.team.MMSValleyBall.repository.MembershipRepository;
 import com.team.MMSValleyBall.repository.MembershipSalesRepository;
 import com.team.MMSValleyBall.repository.UserRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
 @Service
+@Slf4j
 public class MembershipSalesService {
     private final MembershipSalesRepository membershipSalesRepository;
     private final MembershipRepository membershipRepository;
@@ -37,6 +41,9 @@ public class MembershipSalesService {
         if (membership.isPresent()) {
             newMembership.setMembershipSalesMembership(membership.get());
         }
+        newMembership.setMembershipSalesStatus(MembershipSalesStatus.PURCHASE);
+        newMembership.setMembershipSalesCreateAt(LocalDateTime.now());
+        log.info("### membership sales service - new Membership : " + newMembership);
         //3. 새로운 membershipSales 엔티티 저장
         membershipSalesRepository.save(newMembership);
     }

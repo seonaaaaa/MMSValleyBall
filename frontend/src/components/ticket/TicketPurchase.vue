@@ -56,9 +56,12 @@
               </td>
               <!-- 티켓 예매 버튼 클릭 시 모달 열기 -->
               <td>
-                <button class="ticket-Modal" @click="openModal(match.matchId)">예매하기</button>
+                  <button class="ticket-Modal" 
+                          @click="handleButtonClick(match)">
+                    예매하기
+                  </button>
                 <!-- 모달 컴포넌트 -->
-                <Modal v-if="isModalVisible" :visible="isModalVisible" @close="closeModal" />
+                <Modal v-if="isModalVisible" :visible="isModalVisible" :user="user" :match="selectedMatch" @close="closeModal" />
               </td>
             </tr>
           </tbody>
@@ -94,10 +97,11 @@ export default {
       activeMenu: this.$route.path, // 현재 활성화된 경로
       thisTeam : "GS ITM",
       isModalVisible: false, // 모달 표시 여부
+      //ticket modal에 전달할 경기 아이디
+      selectedMatch : null,
       //서버에서 가져온 경기 정보 배열
       matches : [], 
-      //ticket modal에 전달할 경기 아이디
-      matchId : 0,
+      userMembership : {},
     };
   },
   watch: {
@@ -118,16 +122,25 @@ export default {
       this.activeMenu = route; // 메뉴를 클릭할 때 활성화된 메뉴 업데이트
     },
     // 매치 데이터를 가져오는 메서드
-    async fetchEvents(){
+    async fetchEvents() {
       try {
-        const response = await axios.get('/ticket/purchase');
+        const response = await axios.get('/ticket/purchase', {
+          params: {
+            "email": this.user.email
+          }
+        });
         console.log(response.data);
-        this.matches = response.data; //서버 응답을 배열에 저장
+        // matches가 배열인지 확인하고 할당
+        this.matches = Array.isArray(response.data.matches) ? response.data.matches : [];
+        this.userMembership = response.data.userMembership;
         console.log("Matches fetched: ", this.matches);
       } catch (error) {
         console.log("Error fetching matches:", error);
+        // 에러 발생 시 matches를 빈 배열로 초기화
+        this.matches = [];
       }
     },
+
 
     // 경기 정보 형식 지정 메서드
     formatMatchInfo(matchTeam, thisTeam) {
@@ -200,22 +213,44 @@ export default {
 
         return `${formattedDate} (${dayName})<br>${formattedTime}`;
       },
-    },
-    // 모달 열기 닫기
-    openModal(matchId) {
+      // 모달 열기 닫기
+    openModal(match) {
       this.isModalVisible = true;
-      axios.get(`/ticket/purchase/modal/${matchId}`)
-        .then((response) => {
-          console.log("Reservation successful:", response);
-          // 성공적인 응답 처리
-        })
-        .catch((error) => {
-          console.error("Error making reservation:", error);
-        });
+      //TicketModal로 이동할 때 matchId를 가져가도록
+      this.selectedMatch= match;
     },
     closeModal() {
       this.isModalVisible = false;
+      this.selectedMatch= null;
     },
+    handleButtonClick(match) {
+      const today = new Date();
+      const matchDate = new Date(match.matchDate);
+      const preBookStartDate = new Date(match.matchDate);
+      preBookStartDate.setDate(preBookStartDate.getDate() - 7);
+      preBookStartDate.setHours(11, 0, 0, 0);
+      const generalBookStartDate = new Date(match.matchDate);
+      generalBookStartDate.setDate(generalBookStartDate.getDate() - 5);
+      generalBookStartDate.setHours(11, 0, 0, 0);
+      const userMembership = this.user.role; // 유저의 멤버십 정보
+
+      if (generalBookStartDate <= today && today < matchDate) {
+        // 오늘 날짜가 일반 예매 시작일과 경기일 사이
+        this.openModal(match);
+      } else if ( preBookStartDate < today && today < generalBookStartDate) {
+        // 오늘 날짜가 일반 예매 시작일과 경기일 사이
+        if (userMembership && userMembership.endsWith('Bronze')) {
+          this.openModal(match);
+        } else {
+          alert('브론즈 회원님은 선예매가 불가능합니다.');
+        }
+      } else {
+        // 오늘 날짜가 선예매 시작일 이후
+        alert(`아직 예매 일정이 아닙니다. 예매 일정은 다음과 같습니다:\n${this.formatDatePreBook(match.matchDate)}`);
+      }
+    },
+  },
+    
 }
 </script>
 

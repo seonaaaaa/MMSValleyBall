@@ -8,9 +8,11 @@
             <!-- 모달 제목 -->
             <!-- 선택한 데이터 가져와서 일정 넣어야함 -->
             <div class="modal-title" v-if="firstPage">
-                <h2>GS MMS VS 한국전력</h2>
-                <div>
-                    서울 하이체육관 | 2024.10.24(목) 19:00
+                <p id="match-info"><strong>{{ formatMatchInfo(matchInfo.matchTeam, thisTeam) }}</strong></p>
+                <div class="match-info">
+                    <p>{{ match.matchStadium }}&nbsp;</p>
+                    <p> | &nbsp;</p> 
+                    <p v-html="formatDate(match.matchDate)"></p>
                 </div>
                 <hr class="divider" />
             </div>
@@ -18,84 +20,80 @@
 
             <!-- 모달 디테일 -->
             <div v-if="firstPage">
+        <div class="modal-body">
+            <!-- 모달 이미지 -->
+            <div class="modal-ticket-img" v-if="selectedZoneImage">
+                <img :src="selectedZoneImage" alt="선택한 구역 이미지" class="stadium-image" />
+            </div>
 
-                <div class="modal-body">
-                    <!-- 모달 이미지 -->
-                    <div class="modal-ticket-img" v-if="selectedZoneImage">
-                        <img :src="selectedZoneImage" alt="선택한 구역 이미지" class="stadium-image" />
-                    </div>
-
-                    <!-- 모달 표 -->
-                    <div class="modal-table-container">
+            <!-- 모달 표 -->
+            <div class="modal-table-container">
                         <table class="modal-table">
                             <thead class="table-theader">
                                 <tr>
                                     <th>구역</th>
-                                    <th>매수선택</th>
+                                    <th>선택</th>
                                     <th>잔여석</th>
                                 </tr>
                             </thead>
-
-                            <!-- DB 조회하여 데이터 넣는 구간 -->
                             <tbody>
-                                <tr>
+                                <tr v-for="zone in filteredAvailableSeats" :key="zone.zoneName" @click="selectZone(zone)">
+                                    <td>{{ zone.zoneName }}</td>
                                     <td>
-                                        <input type="checkbox" class="select-zone-btn" v-model="isChecked"
-                                            @change="onCheckboxChange">
-                                        골드 [GOLD ZONE]
+                                        <input type="checkbox" v-model="zone.isChecked" />
                                     </td>
-                                    <td>
-                                    </td>
-                                    <td>90석</td>
+                                    <td>{{ zone.availableSeatAmount }}석</td>
                                 </tr>
                             </tbody>
                         </table>
 
-                        <!-- 숨겨진 테이블 -->
-                        <table v-if="isChecked" class="modal-table-hide">
-                            <tbody>
-
-                                <tr v-for="(zone, index) in zones" :key="zone.name">
-                                    <td>{{ zone.name }}</td>
-                                    <td>
-                                        <div class="quantity-selector">
-                                            <button @click="decreaseQuantity(index)"
-                                                :disabled="zone.quantity <= 0 || (activeButtonIndex !== null && activeButtonIndex !== index)">
-                                                -
-                                            </button>
-                                            <input type="text" v-model="zone.quantity" readonly class="quantity-box" />
-                                            <button @click="increaseQuantity(index)"
-                                                :disabled="zone.quantity >= zone.maxSeats || (activeButtonIndex !== null && activeButtonIndex !== index)">
-                                                +
-                                            </button>
-                                        </div>
-                                    </td>
-                                    <td>{{ zone.fullSeats }}</td>
-                                </tr>
-                            </tbody>
-                        </table>
+                        <!-- 선택한 구역의 섹션 표시 -->
+                        <div v-for="zone in selectedZones" :key="zone.zoneName">
+                            <h3>{{ zone.zoneName }} 구역의 섹션</h3>
+                            <table class="modal-table">
+                                <thead class="table-theader">
+                                    <tr>
+                                        <th>섹션</th>
+                                        <th>매수 선택</th>
+                                        <th>잔여석</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr v-for="section in zone.sections" :key="section.seatId">
+                                        <td>{{ section.sectionName }}</td>
+                                        <td>
+                                            <div class="quantity-selector">
+                                                <button @click="decreaseQuantity(section.seatId)" :disabled="section.availableSeatAmount <= 0">-</button>
+                                                <input type="text" v-model="section.quantity" readonly class="quantity-box" />
+                                                <button @click="increaseQuantity(section.seatId, section.availableSeatAmount)">+</button>
+                                            </div>
+                                        </td>
+                                        <td>{{ section.availableSeatAmount }}석</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
                 <hr class="divider" />
 
-                <div class="result-text">
-                    구역을 선택하면 좌석은 자동 배정됩니다.
-                    <div v-for="zone in selectedZones" :key="zone.name">
-                        선택한 좌석 : {{ zone.name }}구역 {{ zone.quantity }}매
-                    </div>
-                    <div class="result-text-all">
-                        총 : {{ countTicket.count }}매
-                    </div>
-                </div>
-                <div class="first-button">
-                    <!-- 결제 버튼 -->
-                    <button class="buy-button" @click="openSecondPage">다음</button>
-
-                    <!-- 모달 종료버튼 -->
-                    <button class="close-button" @click="closeModal">닫기</button>
-                </div>
-
+        <div class="result-text">
+            구역을 선택하면 좌석은 자동 배정됩니다.
+            <div v-for="zone in selectedZones" :key="zone.zoneName">
+                선택한 좌석 : {{ zone.zoneName }}구역 {{ zone.quantity }}매
             </div>
+            <div class="result-text-all">
+                총 : {{ countTicket.count }}매
+            </div>
+        </div>
+        <div class="first-button">
+            <!-- 결제 버튼 -->
+            <button class="buy-button" @click="openSecondPage">다음</button>
+
+            <!-- 모달 종료버튼 -->
+            <button class="close-button" @click="closeModal">닫기</button>
+        </div>
+    </div>
             <!-- ------------------------------------------------------------------ -->
 
             <!-- 2번째 모달  -->
@@ -165,9 +163,11 @@
                         <!-- 모달 제목 -->
                         <!-- 선택한 데이터 가져와서 일정 넣어야함 -->
                         <div class="modal-second-title">
-                            <h2>GS MMS VS 한국전력</h2>
-                            <div>
-                                서울 하이체육관 | 2024.10.24(목) 19:00
+                            <h2>{{ formatMatchInfo(matchInfo.matchTeam, thisTeam) }}</h2>
+                            <div class="match-info">
+                                <p>{{ matchInfo.matchStadium }}</p>
+                                <p> | </p> 
+                                <p v-html="formatDate(matchInfo.matchDate)"></p>
                             </div>
                         </div>
                         <div>
@@ -239,7 +239,7 @@
 </template>
 
 <script>
-
+import axios from 'axios';
 export default {
     name: 'TicketModal',
 
@@ -252,17 +252,44 @@ export default {
             type: Boolean,
             default: false,
         },
+        user: {
+            type: Object,
+            default: () => ({ name: '', role: 'guest', email: '', isLoggedIn: false })
+        },
+        match: {
+            type: Object,
+            required: true,
+        },
+        
+    },
+    async mounted() {
+        console.log("Mounted with user:", this.user); // 유저 정보 출력
+        await this.fetchEvents(); // 데이터 fetch
     },
 
     computed: {
         selectedZones() {
             // 수량이 1 이상인 구역만 필터링
-            return this.zones.filter(zone => zone.quantity > 0);
+            return this.availableSeatsList
+                .filter(zone => zone.availableSeatAmount > 0 && zone.isChecked)
+                .map(zone => ({
+                    ...zone,
+                    sections: zone.sections || [],
+                    quantity: zone.sections.reduce((total, section) => total + (section.quantity || 0), 0), // 섹션의 수량 합계
+                    price: zone.price * zone.quantity // 가격 계산
+                }));
+        },
+        filteredAvailableSeats() {
+            return this.availableSeatsList.filter(zone => zone.availableSeatAmount > 0);
         },
 
         formattedTotal() {
             // 숫자를 세 자리마다 쉼표가 붙은 문자열로 변환
             return this.total.toLocaleString();
+        },
+
+        formattedPayment() {
+            return this.payment.toLocaleString();
         },
 
     },
@@ -281,37 +308,82 @@ export default {
 
     data() {
         return {
-
-            // 구역 정보
-            zones: [
-                { name: 'GA', quantity: 0, maxSeats: 4, fullSeats: '30석', imageUrl: 'stadium-GA.jpg', price: 30000 },
-                { name: 'GB', quantity: 0, maxSeats: 4, fullSeats: '30석', imageUrl: 'stadium-GB.jpg', price: 30000 },
-                { name: 'GC', quantity: 0, maxSeats: 4, fullSeats: '30석', imageUrl: 'stadium-GC.jpg', price: 30000 }
-            ],
-
-            activeButtonIndex: null, // 현재 활성화된 버튼의 인덱스를 저장
-
-            isChecked: false, // 체크박스의 초기 상태
-
-            // 선택좌석 출력
-            countTicket: {
-                count: 0,
-            },
-
-            // 선택된 구역의 이미지 URL
-            selectedZoneImage:
-                require('@/assets/img/stadium/stadium-main.jpg'),
-
             // 두번째 모달창으로 이동
             firstPage: true,
             secondPage: false,
 
-            total: 0,
+            // 서버에서 받는 데이터
+            ticketSalesDto: {},
+            userBalance: 0,
+            matchInfo: {},
+            availableSeatsList: [],
+            userMembership: {},
+            seatDTOList: [],
 
+            // 기타
+            selectedZoneImage: require('@/assets/img/stadium/stadium-main.jpg'),
+            countTicket: {
+                count: 0,
+            },
+            total: 0,
+            thisTeam: "GS ITM",
+            zones: []  // 초기값 설정
         };
     },
 
     methods: {
+        // API 호출
+        async fetchEvents() {
+            try {
+                console.log("Sending request with:", {
+                    email: this.user.email,
+                    matchId: this.match.matchId
+                });
+                const response = await axios.get('/ticket/purchase/modal', {
+                    params: {
+                        email: this.user.email,
+                        matchId: this.match.matchId
+                    }
+                });
+                // 서버 응답 처리
+                this.ticketSalesDto = response.data.ticketSalesDto;
+                this.userBalance = response.data.userBalance;
+                this.matchInfo = response.data.matchInfo;
+                this.availableSeatsList = response.data.availableSeatsList;
+                this.userMembership = response.data.userMembership;
+                this.seatDTOList = response.data.seatDTOList;
+                this.initializeSectionQuantities(); // 섹션 수량 초기화
+                console.log(response.data);
+                this.dataFetched = true; // 데이터가 불러와졌다고 표시
+            } catch (error) {
+                console.error("Error fetching data: ", error);
+            }
+        },
+        // 경기 정보 형식 지정 메서드
+        formatMatchInfo(matchTeam, thisTeam) {
+            return matchTeam === "서울하이체육관" ? `${thisTeam} VS ${matchTeam}` : `${matchTeam} VS ${thisTeam}`;
+        },
+        // 날짜 포맷팅 메서드
+        formatDate(date) {
+            const options = { year: 'numeric', month: '2-digit', day: '2-digit' };
+            const dateObj = new Date(date);
+            
+            // 날짜 포맷
+            const formattedDate = dateObj.toLocaleDateString('ko-KR', options);
+            
+            // 요일 가져오기
+            const days = ['일', '월', '화', '수', '목', '금', '토'];
+            const dayName = days[dateObj.getDay()];
+
+            // 시간 포맷
+            const formattedTime = dateObj.toLocaleTimeString('ko-KR', {
+            hour: '2-digit',
+            minute: '2-digit'
+            });
+
+            return `${formattedDate} (${dayName}) ${formattedTime}`; // <br> 제거
+        },
+
         // 총합
         calculateTotal() {
             for (let i = 0; i < this.selectedZones.length; i++) {
@@ -365,32 +437,56 @@ export default {
         openModal() {
             this.isModalOpen = true;
         },
-        // 숫자 버튼
-        increaseQuantity(index) {
-            if (this.zones[index].quantity < this.zones[index].maxSeats) {
-                this.zones[index].quantity++;
-                this.activeButtonIndex = index; // 현재 클릭된 버튼 인덱스 저장
-                this.countTicket.count++;
-                this.selectedZoneImage = require(`@/assets/img/stadium/${this.zones[index].imageUrl}`);
+        // 좌석 선택 관련
+        selectZone(zone) {
+            if (zone && typeof zone.isChecked !== 'undefined') {
+                // 모든 구역의 선택 상태를 해제
+                this.zones.forEach(z => {
+                    if (z.zoneName !== zone.zoneName) {
+                        z.isChecked = false; // 선택 해제
+                    }
+                });
 
+                // 선택된 구역을 체크
+                zone.isChecked = !zone.isChecked;
+
+                if (zone.isChecked) {
+                    // 선택한 구역을 selectedZones에 추가
+                    const existingZone = this.selectedZones.find(z => z.zoneName === zone.zoneName);
+                    if (!existingZone) {
+                        this.selectedZones = [{
+                            zoneName: zone.zoneName,
+                            sections: zone.sections, // 구역의 섹션 정보를 추가
+                            quantity: 0 // 수량 초기화
+                        }];
+                    }
+                } else {
+                    // 체크 해제 시 selectedZones에서 제거
+                    this.selectedZones = this.selectedZones.filter(z => z.zoneName !== zone.zoneName);
+                }
             }
         },
-        decreaseQuantity(index) {
-            if (this.zones[index].quantity > 0) {
-                this.zones[index].quantity--;
-                this.activeButtonIndex = index; // 현재 클릭된 버튼 인덱스 저장
-                this.countTicket.count--;
-                this.selectedZoneImage = require(`@/assets/img/stadium/${this.zones[index].imageUrl}`);
-
+        initializeSectionQuantities() {
+            // 각 섹션의 수량을 초기화
+            this.availableSeatsList.forEach(zone => {
+                zone.sections.forEach(section => {
+                    section.quantity = 0; // 수량 초기화
+                });
+            });
+        },
+        increaseQuantity(seatId, availableSeatAmount) {
+            const section = this.selectedZones.flatMap(zone => zone.sections).find(section => section.seatId === seatId);
+            if (section && section.quantity < availableSeatAmount) {
+                section.quantity++;
             }
         },
-
-        selectZone(index) {
-            // 선택한 구역의 이미지 URL을 설정
-            this.selectedZoneImage = this.zones[index].imageUrl;
+        decreaseQuantity(seatId) {
+            const section = this.selectedZones.flatMap(zone => zone.sections).find(section => section.seatId === seatId);
+            if (section && section.quantity > 0) {
+                section.quantity--;
+            }
         },
-
-    }
+    },
 }
 </script>
 
@@ -430,10 +526,14 @@ export default {
 .modal-title {
     text-align: center;
     /* 타이틀을 가운데 정렬 */
-    margin-bottom: 20px;
+    margin-bottom: 5px;
     /* 타이틀 아래 간격 */
+    font-size: 23px;
 }
-
+#match-info {
+    margin-bottom: 0px;
+    font-size: 26px;
+}
 .modal-second-title {
     margin-bottom: 20px;
     /* 타이틀 아래 간격 */
@@ -470,7 +570,7 @@ export default {
     position: absolute;
     right: 38%;
     width: 1px;
-    height: 750px;
+    height: 550px;
     background-color: black;
     /* 세로 줄 색상 */
     margin: 0 20px;
@@ -549,7 +649,7 @@ export default {
 }
 
 .right-table {
-    margin-left: 10%;
+    margin-left: 6.5%;
     width: 400px;
 }
 
@@ -601,6 +701,13 @@ export default {
     color: red;
     width: 500px;
     font-size: 30px;
+}
+
+.match-info {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 0px;
 }
 
 .first-button {

@@ -2,10 +2,12 @@ package com.team.MMSValleyBall.controller;
 
 import com.team.MMSValleyBall.dto.*;
 import com.team.MMSValleyBall.entity.Users;
+import com.team.MMSValleyBall.repository.SeatRepository;
 import com.team.MMSValleyBall.service.MatchService;
 import com.team.MMSValleyBall.service.TicketService;
 import com.team.MMSValleyBall.service.UserService;
 import com.team.MMSValleyBall.service.UsersBalanceService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -16,17 +18,20 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/ticket")
+@Slf4j
 public class TicketController {
     private final TicketService ticketService;
     private final MatchService matchService;
     private final UsersBalanceService usersBalanceService;
     private final UserService userService;
+    private final SeatRepository seatRepository;
 
-    public TicketController(TicketService ticketService, MatchService matchService, UsersBalanceService usersBalanceService, UserService userService) {
+    public TicketController(TicketService ticketService, MatchService matchService, UsersBalanceService usersBalanceService, UserService userService, SeatRepository seatRepository) {
         this.ticketService = ticketService;
         this.matchService = matchService;
         this.usersBalanceService = usersBalanceService;
         this.userService = userService;
+        this.seatRepository = seatRepository;
     }
 
     //티켓 안내 페이지
@@ -37,7 +42,7 @@ public class TicketController {
 
     //티켓 구매 페이지
     @GetMapping("/purchase")
-    public ResponseEntity<?> viewTicketPurchase() {
+    public ResponseEntity<?> viewTicketPurchase(@RequestParam String email) {
         try {
             // 경기 정보 가져오기
             List<MatchTableDTO> matches = matchService.convertMatchToString();
@@ -47,108 +52,79 @@ public class TicketController {
                 return ResponseEntity.status(HttpStatus.NO_CONTENT).body("No matches available");
             }
 
-            System.out.println("service - match size : " + matches.size()); // matches.size()로 전체 개수를 출력
-            return ResponseEntity.ok(matches); // matches를 JSON으로 반환
+            // 사용자의 멤버십 정보 가져오기
+            Map<String, Object> userMembership = userService.findMembership(email);
+
+            // response에 보내기
+            Map<String, Object> response = new HashMap<>();
+            response.put("matches", matches);
+            response.put("userMembership", userMembership);
+
+            return ResponseEntity.ok(response); // matches를 JSON으로 반환
         } catch (Exception e) {
             System.err.println("Error fetching matches: " + e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error fetching match data");
         }
     }
 
-    //티켓 예매 모달 - 메인
-    @GetMapping("/purchase/main/{matchId}")
-    ResponseEntity<Map<String, Object>> viewTicketPurchaseMain(@PathVariable Long matchId) {
-        //1. 로그인 세션 확인 -> 로그인 안된 상태면 로그인 페이지로 이동
+    // 티켓 구매 모달창 하나로 처리
+    @GetMapping("/purchase/modal")
+    public ResponseEntity<Map<String, Object>> viewTicketPurchaseModal(
+            @RequestParam("email") String email,
+            @RequestParam("matchId") Long matchId) {
+        try {
+            // 1. 세션에서 보낸 RequestParam으로 email 받아옴.
+            if (email == null || email.isEmpty()) {
+                return ResponseEntity.badRequest().body(Map.of("error", "Invalid email parameter"));
+            }
+            log.info("### ticket controller - request param: " + email + "/" + matchId);
 
-        //2. 경기 정보 가져오기
-        MatchTableDTO match = matchService.getOneMatch(matchId);
+            // 사용자 정보 - 충전금액
+            MoneyDTO moneyDTO = usersBalanceService.getUsersBalance(email);
+            if (moneyDTO == null) {
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("error", "Could not fetch user balance"));
+            }
 
-        //3. 잔여석 정보 가져오기
-        List<AvailableSeatDTO> availableSeats = ticketService.getAvailableSeatsByMatch(matchId);
-        System.out.println("ticket controller - zone available seat : " + availableSeats.subList(0,1));
+            // 사용자 정보 - 멤버십
+            Map<String, Object> userMembership = userService.findMembership(email);
+            if (userMembership == null) {
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("error", "Could not fetch user membership"));
+            }
 
-        //4. 보내기
-        Map<String, Object> response = new HashMap<>();
-        response.put("matchInfo", match);
-        response.put("availableSeatList", availableSeats);
+            // 경기 정보
+            MatchTableDTO match = matchService.getOneMatch(matchId);
+            if (match == null) {
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("error", "Could not fetch match information"));
+            }
 
-        return ResponseEntity.ok(response);
+            // 잔여석 정보
+            List<AvailableSeatDTO> availableSeats = ticketService.getAvailableSeatsByMatch(matchId);
+            if (availableSeats == null) {
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("error", "Could not fetch available seats"));
+            }
+
+            // ticketSalesDTO
+            TicketSalesDTO dto = new TicketSalesDTO();
+            dto.setUserEmail(email);
+
+            // 좌석 가격 정보
+            List<SeatDTO> seatDTOList = seatRepository.findAll().stream().map(SeatDTO::fromEntity).toList();
+
+            // API 응답 데이터
+            Map<String, Object> response = new HashMap<>();
+            response.put("ticketSalesDto", dto);
+            response.put("userBalance", moneyDTO.getLeftMoney());
+            response.put("matchInfo", match);
+            response.put("availableSeatsList", availableSeats);
+            response.put("userMembership", userMembership);
+            response.put("seatDTOList", seatDTOList);
+
+            return ResponseEntity.ok(response);  // 응답을 반환합니다.
+        } catch (Exception e) {
+            log.error("Error fetching user data", e);  // 예외 로그 추가
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("error", "Error fetching user data"));
+        }
     }
 
-    //티켓 예매 모달 - 구역 선택(1-get)
-    @GetMapping("/purchase/selection/{matchId}")
-    ResponseEntity<Map<String, Object>> viewTicketPurchaseSelection(@PathVariable Long matchId) {
-        //1. 경기 정보 가져오기
-        MatchTableDTO match = matchService.getOneMatch(matchId);
-
-        //2. 잔여석 정보 가져오기, zone별 잔여석 수 계산
-        List<AvailableSeatDTO> availableSeats = ticketService.getAvailableSeatsByMatch(matchId);
-        System.out.println("ticket controller - available seats : " + availableSeats);
-
-        //3. 경기 정보, 잔여석 정보 보내기
-        Map<String, Object> response = new HashMap<>();
-        response.put("matchInfo", match);
-        response.put("availableSeatList", availableSeats);
-
-        return ResponseEntity.ok(response);
-    }
-
-    // 티켓 예매 모달 - 결제하기 (1-get)
-    @PostMapping("/purchase/payment")
-    public ResponseEntity<?> viewTicketPurchasePayment(@RequestBody Map<String, Object> selectedSeat) {
-        // 1. 로그인 정보로 사용자 정보 가져오기
-        String userEmail = "kimka@cbc.com";
-
-        // 2. 선택된 좌석 정보를 처리하는 로직 추가
-        Long matchId = Long.valueOf(selectedSeat.get("matchId").toString());
-        Long seatId = Long.valueOf(selectedSeat.get("seatId").toString());
-        int ticketAmount = Integer.parseInt(selectedSeat.get("ticketAmount").toString());
-
-        // TicketSalesDTO 생성
-        TicketSalesDTO dto = new TicketSalesDTO();
-        dto.setUserEmail(userEmail);
-        dto.setMatchId(matchId);
-        // 좌석 ID
-        dto.setTicketDetailSeat(seatId);
-        // 예매 좌석 수
-        dto.setTicketDetailAmount(ticketAmount);
-
-        // 디버깅을 위한 로그 출력
-        System.out.println("Match ID: " + matchId + ", Seat ID: " + seatId + ", Ticket Amount: " + ticketAmount);
-
-        // 3. 경기 정보 가져오기
-        MatchTableDTO match = matchService.getOneMatch(matchId);
-
-        // 4. 로그인 정보로 사용자의 충전금액 찾기
-        MoneyDTO moneyDTO = usersBalanceService.getUsersBalance(userEmail);
-
-        // 5. 좌석별 금액 정보 찾기
-        int ticketPrice = ticketService.findTicketPriceBySeatId(seatId);
-
-        // 6. 사용자의 멤버십 정보 찾기
-        Map<String, Object> userMembership = userService.findMembership(userEmail);
-
-        // 5. 응답으로 보낼 데이터 구성
-        Map<String, Object> response = new HashMap<>();
-        response.put("ticketSalesDto", dto);
-        response.put("userBalance", moneyDTO);
-        response.put("matchInfo", match);
-        response.put("ticketPrice", ticketPrice);
-        response.put("userMembership", userMembership);
-
-        // 예약이 성공적으로 처리되었음을 나타내는 응답
-        return ResponseEntity.ok(response);
-    }
-
-    //티켓 예매 모달 - 결제하기(2-post)
-    @PostMapping("/purchase/payment/completed")
-    public ResponseEntity<String> viewTicketPurchasePaymentCompleted(@RequestBody TicketSalesDTO ticketSalesDTO) {
-        // 1. 티켓번호 생성
-        String ticketNumber = ticketService.createTicketNumber(ticketSalesDTO);
-        ticketSalesDTO.setTicketNumber(ticketNumber);
-        // 2. 티켓 판매 정보 저장
-        ticketService.reserveTickets(ticketSalesDTO);
-        return ResponseEntity.ok("Reservation successful");
-    }
 
 }
