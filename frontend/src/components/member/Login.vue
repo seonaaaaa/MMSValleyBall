@@ -70,7 +70,6 @@
                 alert("이메일 혹은 패스워드가 잘못 입력되었습니다.");
                 } else {
                 let accessToken = response.headers.authorization;  // 응답헤더에서 토큰 받기
-                console.log("access 토큰 :", accessToken);
                 localStorage.setItem("accessToken", accessToken); // 토큰 localStorage에 저장
                 this.$axios.defaults.headers.common[
                     "Authorization"
@@ -87,7 +86,7 @@
  }
  </script>
  
- <style>
+ <style scoped>
  .login-page {
      padding-top: var(--header-height);
      padding-bottom: var(--footer-height);

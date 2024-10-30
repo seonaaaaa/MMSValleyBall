@@ -2,16 +2,28 @@
   <div class="content">
     <!-- 유저 정보 박스 -->
     <div class="user-info-box">
-      <div v-if="isLoggedIn">
-        <p><strong>{{ userId }}</strong></p>
-        <p>멤버십: <strong>{{ membershipLevel }}</strong></p>
-        <p>충전 금액: <strong>{{ balance }}</strong>원</p>
-        <p><a href="#"><strong>My Page</strong></a></p>
-        <button @click="logout">로그아웃</button>
+      <div v-if="user.isLoggedIn">
+        <span class="membership-image-container">
+        <span v-if="membershipLevel == 'GOLD'">
+          <img :src="goldImage" alt="골드 등급" class="membershipLevel-image" />
+        </span>
+         <span v-else-if="membershipLevel == 'SILVER'">
+           <img :src="silverImage" alt="실버 등급" class="membershipLevel-image" />
+        </span>
+        <span v-else>
+          <img :src="bronzeImage" alt="브론즈 등급" class="membershipLevel-image" />
+        </span>
+        <p><strong>{{ user.name }}</strong> 님</p>
+        </span>
+
+        <div class="money-box">
+          <p>내 잔액: <strong>{{ balance }}</strong>원</p><button class="btn-charge" @click="goToRecharge">충전하기</button>
+        </div>
+          <button class="btn-myPage" @click="goToMyPage">My Page</button>&nbsp;<button class="btn-logout" @click="logout">로그아웃</button>
       </div>
       <div v-else>
-        <button @click="login">로그인</button>
-        <button @click="signup">회원가입</button>
+        <button @click="goToLogin" class="btn-login">로그인</button><br>
+        <button @click="goToSignup" class="btn-signup">회원가입</button>
       </div>
     </div>
 
@@ -72,7 +84,7 @@
       <div class="section">
         <h2>경기 일정</h2>
         <!-- Calendar 컴포넌트를 사용 -->
-        <Calendar :events="events" />
+        <CalendarMain :events="events" />
       </div>
 
     </div>
@@ -80,20 +92,35 @@
 </template>
 
 <script>
-import Calendar from '../common/CalendarMain.vue';
+import axios from 'axios';
+import CalendarMain from '../common/CalendarMain.vue';
 
 export default {
   name: 'AppContent',
   components: {
-    Calendar
+    CalendarMain,
+  },
+  props: {
+    user: {
+      type: Object,
+      default: () => ({ name: '', role: 'guest', email: '', isLoggedIn: false })
+    }
+  },
+  async mounted(){
+    this.fetchEvents(); // 컴포넌트가 로드될 때 데이터를 가져옴
   },
   data() {
     return {
-      // 유저 정보 박스
-      isLoggedIn: true,  // 로그인 여부를 확인하는 변수
-      userId: 'user@mail.com',
-      membershipLevel: 'Gold', // <--- 멤버십 레벨 아이콘 삽입
-      balance: 10000,
+      // 유저 정보 저장할 곳
+      balance: 0,
+      membershipLevel: 'GOLD',
+      // 골드 등급 이미지 경로
+      goldImage: require('@/assets/img/membershipImg/gold.png'),
+      // 실버 등급 이미지 경로
+      silverImage: require('@/assets/img/membershipImg/silver.png'),
+      // 브론즈 등급 이미지 경로
+      bronzeImage: require('@/assets/img/membershipImg/bronze.png'),
+
       // 상단 슬라이드 배너
       currentSlide: 0, // 현재 보여지는 슬라이드의 인덱스
       slides: [
@@ -109,36 +136,45 @@ export default {
         { img: require('@/assets/img/common/content-highlight-slide-002.png') }
       ],
 
-
-      // Calendar에 전달할 경기 일정 데이터
-      events: [
-        {
-          id: 1,
-          team: 'blueFangs',
-          location: '서울',
-          time: '18:30',
-          result: '승',
-          score: '6:3',
-          date: '2024-10-23',
-          isHomeGame: true // 홈 경기 여부 추가
-        },
-        {
-          id: 2,
-          team: 'jumbos',
-          location: '인천',
-          time: '17:00',
-          result: '패',
-          score: '2:5',
-          date: '2024-10-24',
-          isHomeGame: false // 원정 경기 여부 추가
-        }
-        // 테스트용 데이터, axios - api 연동할 때 Calender*.vew 로직 수정 예정
-      ]
-
-
+      // CalendarMain에 전달할 경기 일정 데이터
+      events: [],
     };
   },
   methods: {
+    // 페이지 이동 버튼
+    goToMyPage() {
+      this.$router.push('/mypage/reservations');
+    },
+
+    goToRecharge(){
+      this.$router.push('/myPage/info/recharge');
+    },
+
+    goToLogin(){
+      this.$router.push('/login');
+    },
+
+    goToSignup(){
+      this.$router.push('/signup');
+    },
+
+    // 로그아웃
+    logout() {
+    // localStorage에서 토큰 삭제
+    localStorage.removeItem('accessToken');
+
+    // 삭제 여부 확인을 위한 로그 출력
+    const token = localStorage.getItem('accessToken');
+    if (token === null) {
+      console.log('토큰이 성공적으로 삭제되었습니다.');
+    } else {
+      console.log('토큰 삭제에 실패했습니다.', token);
+    }
+
+    // 메인 페이지로 이동
+    this.$router.push('/');
+    },
+
     // 상단 슬라이드 배너
     // 왼쪽 슬라이드로 이동
     prevSlide() {
@@ -178,8 +214,32 @@ export default {
     },
     goToHighlightSlide(index) {
       this.currentHighlightSlide = index;
-    }
-  }
+    },
+    async fetchEvents() {
+      try {
+        const response = await axios.get('/game/schedule/main');
+        // 데이터 확인
+        // Vue 개발 모드에서 컴포넌트 초기화를 두 번 함 -> 초기 메인 페이지 띄울 때 console.log 2번 뜨니 참고
+        // Vue 배포 모드에서는 자동으로 한 번만 렌더링하도록 동작하므로 별도의 설정 넣지 않음
+        console.log(response.data); 
+        this.events = response.data; // 응답 데이터 설정
+
+        // 이메일 정보 보내서 유저정보 받아오기
+        const userData = await axios.post('/main', null, {
+          params: {
+              email: this.user.email
+          },
+          headers: {
+              "Content-Type": "application/json"
+          }
+        })
+        this.balance = userData.data.balance;
+        this.membershipLevel = userData.data.membership;
+      } catch (error) {
+        console.error("Error fetching events:", error);
+      }
+    },
+  },
 };
 </script>
 
@@ -203,12 +263,12 @@ a {
 /* 유저 정보 박스 */
 .user-info-box {
   position: absolute;
-  top: 630px;
+  top: 680px;
   right: 100px;
   background-color: #f8f9fa;
-  width: 220px;
-  height: 200px;
-  padding: 10px 20px;
+  width: 400px;
+  height: 250px;
+  padding: 3px 15px;
   border: 1px solid #ddd;
   border-radius: 8px;
   text-align: right;
@@ -219,15 +279,15 @@ a {
   z-index: 100;
 }
 
-.user-info-box button {
+.btn-myPage, .btn-logout {
   background-color: #60a191;
   color: white;
   border: none;
   padding: 10px;
-  margin: 5px;
+  margin-top: 20px;
   border-radius: 5px;
   cursor: pointer;
-  width: 100%;
+  width: 48%;
 }
 
 .user-info-box button:hover {
@@ -235,12 +295,68 @@ a {
 }
 
 .user-info-box p {
-  margin: 5px 5px;
+  margin: 5px 20px;
 }
 
 .user-info-box a:hover {
   text-decoration: underline;
 }
+
+/* 금액충전 창 */
+.money-box {
+  margin-top: 15px;
+  margin-left: 19px;
+  display: flex;
+  align-items: center; /* 수직 정렬 */
+  gap: 1px; /* 간격 조정 */
+  width: 330px;
+  height: 80px;
+  border: solid color(srgb rgb(68, 68, 68) green blue);
+  border-radius: 8px;
+  background: #c7dfd9;
+  text-align: left;
+}
+
+.money-box p {
+  margin-left: 15px; /* 기본 여백 제거 */
+}
+
+.btn-charge {
+  margin-left: 2px; /* 오른쪽으로 버튼 밀기 */
+  width: 100px;
+  background-color: #f0efc3;
+  border: solid color(srgb rgb(224, 224, 224) green blue);
+}
+
+/* 멤버십 로고 */
+.membership-image-container {
+  display: flex;
+  align-items: center; /* 이미지와 텍스트를 수직 중앙 정렬 */
+  gap: 2px; /* 이미지와 텍스트 간격 조절 */
+}
+
+/* 로그아웃시 버튼 */
+.btn-login, .btn-signup{
+  background-color: #60a191;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  width: 100%;
+  height: 50px;
+  margin-top: 25px;
+
+}
+
+
+.membershipLevel-image {
+  width: 50px;
+  /* 아이콘 크기 */
+  height: 50px;
+  /* 아이콘 크기 */
+  margin-left: 10px;
+}
+
 
 /* 상단 슬라이드 배너 */
 .slider-container {

@@ -157,7 +157,7 @@ export default {
 }
 </script>
 
-<style>
+<style scoped>
 .ticket-button {
   background-color: #4CAF50;
   /* 버튼 배경색 (녹색) */

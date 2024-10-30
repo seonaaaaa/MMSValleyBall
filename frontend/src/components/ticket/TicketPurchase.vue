@@ -113,8 +113,7 @@ export default {
 }
 </script>
 
-
-<style>
+<style scoped>
 .ticket-purchase {
   width: 62%;
   /* 표 전체 너비 설정 */
@@ -209,6 +208,7 @@ th {
   margin-bottom: 30px;
   width: 70%;
 }
+
 
 .icon {
   margin-right: 20px;
