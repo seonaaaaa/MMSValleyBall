@@ -2,7 +2,7 @@
   <div class="content">
     <!-- 유저 정보 박스 -->
     <div class="user-info-box">
-      <div v-if="isLoggedIn">
+      <div v-if="user.isLoggedIn">
         <span class="membership-image-container">
         <span v-if="membershipLevel == 'GOLD'">
           <img :src="goldImage" alt="골드 등급" class="membershipLevel-image" />
@@ -13,11 +13,10 @@
         <span v-else>
           <img :src="bronzeImage" alt="브론즈 등급" class="membershipLevel-image" />
         </span>
-        <p><strong>{{ userName }}</strong>&nbsp;/&nbsp;<strong>{{ userEmail}}</strong></p>
+        <p><strong>{{ user.name }}</strong> 님</p>
         </span>
 
-
-        <div class="money-box"> 
+        <div class="money-box">
           <p>내 잔액: <strong>{{ balance }}</strong>원</p><button class="btn-charge" @click="goToRecharge">충전하기</button>
         </div>
           <button class="btn-myPage" @click="goToMyPage">My Page</button>&nbsp;<button class="btn-logout" @click="logout">로그아웃</button>
@@ -27,7 +26,6 @@
         <button @click="goToSignup" class="btn-signup">회원가입</button>
       </div>
     </div>
-
 
     <!-- 본문 내용 -->
     <div class="main-content">
@@ -102,20 +100,23 @@ export default {
   components: {
     CalendarMain,
   },
+  props: {
+    user: {
+      type: Object,
+      default: () => ({ name: '', role: 'guest', email: '', isLoggedIn: false })
+    }
+  },
+  async mounted(){
+    this.fetchEvents(); // 컴포넌트가 로드될 때 데이터를 가져옴
+  },
   data() {
     return {
-      // 유저 정보 박스
-     isLoggedIn: true,  // 로그인 여부를 확인하는 변수
-      userName: '차은우',
-      userEmail: 'user@mail.com',
-      balance: 10000,
-
-      //멤버십 레벨 아이콘 삽입
-      // 사용자의 등급 ('GOLD', 'SILVER','BRONZE')
-      membershipLevel: ['GOLD'],
+      // 유저 정보 저장할 곳
+      balance: 0,
+      membershipLevel: 'GOLD',
       // 골드 등급 이미지 경로
       goldImage: require('@/assets/img/membershipImg/gold.png'),
-      // 실버 등급 이미지 경로 
+      // 실버 등급 이미지 경로
       silverImage: require('@/assets/img/membershipImg/silver.png'),
       // 브론즈 등급 이미지 경로
       bronzeImage: require('@/assets/img/membershipImg/bronze.png'),
@@ -161,7 +162,7 @@ export default {
     logout() {
     // localStorage에서 토큰 삭제
     localStorage.removeItem('accessToken');
-    
+
     // 삭제 여부 확인을 위한 로그 출력
     const token = localStorage.getItem('accessToken');
     if (token === null) {
@@ -169,7 +170,7 @@ export default {
     } else {
       console.log('토큰 삭제에 실패했습니다.', token);
     }
-    
+
     // 메인 페이지로 이동
     this.$router.push('/');
     },
@@ -216,20 +217,29 @@ export default {
     },
     async fetchEvents() {
       try {
-        const response = await axios.get('http://localhost:4000/game/schedule/main');
+        const response = await axios.get('/game/schedule/main');
         // 데이터 확인
         // Vue 개발 모드에서 컴포넌트 초기화를 두 번 함 -> 초기 메인 페이지 띄울 때 console.log 2번 뜨니 참고
         // Vue 배포 모드에서는 자동으로 한 번만 렌더링하도록 동작하므로 별도의 설정 넣지 않음
         console.log(response.data); 
         this.events = response.data; // 응답 데이터 설정
+
+        // 이메일 정보 보내서 유저정보 받아오기
+        const userData = await axios.post('/main', null, {
+          params: {
+              email: this.user.email
+          },
+          headers: {
+              "Content-Type": "application/json"
+          }
+        })
+        this.balance = userData.data.balance;
+        this.membershipLevel = userData.data.membership;
       } catch (error) {
         console.error("Error fetching events:", error);
       }
     },
   },
-  mounted() {
-    this.fetchEvents(); // 컴포넌트가 로드될 때 데이터를 가져옴
-  }
 };
 </script>
 

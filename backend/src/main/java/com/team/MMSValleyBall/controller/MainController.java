@@ -35,13 +35,6 @@ public class MainController {
         return message;
     }
 
-    @PostMapping("/signup/check/phone")
-    public String checkPhone(@RequestParam("userPhone") String userPhone) {
-        System.out.println(userPhone);
-        String message = mainService.checkPhone(userPhone);
-        return message;
-    }
-
     @PostMapping("/signup")
     public ResponseEntity<String> joinProcess(@RequestBody UserDTO userDTO) {
         System.out.println(userDTO);

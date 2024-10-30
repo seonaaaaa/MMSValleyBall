@@ -8,7 +8,7 @@ import lombok.Setter;
 @Setter
 @Builder
 public class ResponseDto {
-    private String username;
+    private String name;
     private String role;
     private String email;
 }
