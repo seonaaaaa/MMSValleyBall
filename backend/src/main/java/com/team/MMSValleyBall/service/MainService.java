@@ -35,6 +35,19 @@ public class MainService {
         return "True";
     }
 
+    public String checkPhone(String userPhone) {
+        // 전화번호 중복 확인
+        Boolean isUser = userRepository.existsByUserPhone(userPhone);
+        if(userPhone.equals("010--")){
+            return "null";
+        }
+
+        if (isUser) {
+            return "False";
+        }
+        return "True";
+    }
+
     public void signupProcess(UserDTO userDTO) {
         // 이번 시즌의 브론즈 멤버십 가져오기
         Long bronzeMembershipId = 2L;
