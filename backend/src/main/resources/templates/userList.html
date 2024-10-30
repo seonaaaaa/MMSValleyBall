@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html xmlns:th="www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/layout}">
+<meta charset="UTF-8">
+<body>
+<div layout:fragment="content" class="content">
+    <section>
+        <div class="tab-menu">
+            <a href="#reservation" class="active">회원 조회</a>
+            <a href="#membership">매출 조회</a>
+            <a href="#edit-profile">경기 조회</a>
+        </div>
+        <div class="container">
+            <div class="table-header">
+                <div class="search-bar">
+                    <span class="filter-icon">🔍</span>
+                    <select class="search-criteria">
+                        <option value="name">이름</option>
+                        <option value="email">이메일</option>
+                        <option value="membership">멤버십</option>
+                    </select>
+                    <input type="text" placeholder="Search...">
+                </div>
+                <button class="add-button">+ 신규 관리자</button>
+            </div>
+
+            <table class="table">
+                <thead>
+                <tr>
+                    <th>#</th>
+                    <th>이름</th>
+                    <th>이메일</th>
+                    <th>멤버십</th>
+                    <th>충전 잔액</th>
+                    <th>회원 상태</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td>1</td>
+                    <td>박선아</td>
+                    <td>seon04520@gmail.com</td>
+                    <td>BRONZE</td>
+                    <td class="balance negative">0₩</td>
+                    <td><span class="status ACTIVE">ACTIVE</span></td>
+                </tr>
+                <tr>
+                    <td>2</td>
+                    <td>김형민</td>
+                    <td>zzzmini@gmail.com</td>
+                    <td>GOLD</td>
+                    <td class="balance positive">100,000₩</td>
+                    <td><span class="status INACTIVE">INACTIVE</span></td>
+                </tr>
+                </tbody>
+            </table>
+
+            <div class="pagination">
+                <div class="pages">
+                    <a href="#">&laquo;</a>
+                    <a href="#">&lt;</a>
+                    <a href="#" class="active">1</a>
+                    <a href="#">2</a>
+                    <a href="#">3</a>
+                    <a href="#">4</a>
+                    <a href="#">5</a>
+                    <a href="#">&gt;</a>
+                    <a href="#">&raquo;</a>
+                </div>
+                <span>총 회원 수 : 100명</span>
+            </div>
+        </div>
+</div>
+</body>
+</html>

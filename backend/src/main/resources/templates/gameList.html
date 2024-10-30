@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/layout}">
+<head>
+    <meta charset="UTF-8">
+    <title>경기 조회</title>
+</head>
+<body>
+
+<!--일단 틀만..데이터 가져오는지 확인 안 함-->
+<div layout:fragment="content" class="content">
+    <section>
+        <div class="tab-menu">
+            <a href="#reservation">회원 조회</a>
+            <a href="#membership">매출 조회</a>
+            <a href="#edit-profile" class="active">경기 조회</a>
+        </div>
+
+        <div class="container">
+            <!-- 테이블 상단 검색바와 추가 버튼 -->
+            <div class="table-header">
+                <div class="search-bar">
+                    <span class="filter-icon">🔍</span>
+                    <select class="search-criteria">
+                        <option value="matchId">경기 ID</option>
+                        <option value="teamName">팀 이름</option>
+                        <option value="season">시즌</option>
+                    </select>
+                    <input type="text" placeholder="Search...">
+                </div>
+                <button class="add-button">+ 신규 경기</button>
+            </div>
+
+            <!-- 경기 목록 테이블 -->
+            <table class="table">
+                <thead>
+                <tr>
+                    <th>경기 ID</th>
+                    <th>경기 날짜</th>
+                    <th>경기장</th>
+                    <th>우리 팀 점수</th>
+                    <th>상대 팀 점수</th>
+                    <th>시즌</th>
+                    <th>라운드</th>
+                    <th>팀 이름</th>
+                    <th>메일 상태</th>
+                    <th>경기 상태</th>
+                    <th>수정</th>
+                    <th>삭제</th>
+                    <th>메일 상태 변경</th>
+                    <th>메일 발송</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="match : ${matchList}">
+                    <td th:text="${match.matchId}">1</td>
+                    <td th:text="${match.matchDate}">2023-10-28T14:00:00</td>
+                    <td th:text="${match.matchStadium}">HOME</td>
+                    <td th:text="${match.matchSetScore}">3</td>
+                    <td th:text="${match.matchOpponentTeamSetScore}">2</td>
+                    <td th:text="${match.seasonName}">23/24</td>
+                    <td th:text="${match.matchRoundId}">1</td>
+                    <td th:text="${match.teamName}">KB손해보험</td>
+                    <td th:text="${match.matchMailStatus}">DEFAULT</td>
+                    <td th:text="${match.matchStatus}">DEFAULT</td>
+                    <td><button th:onclick="'editMatch(' + ${match.matchId} + ')'" class="btn btn-primary">수정</button></td>
+                    <td><button th:onclick="'deleteMatch(' + ${match.matchId} + ')'" class="btn btn-danger">삭제</button></td>
+                    <td><button th:if="${match.matchMailStatus == 'REQUIRED'}" th:onclick="'toggleMailStatus(' + ${match.matchId} + ')'" class="btn btn-secondary">메일 상태 변경</button></td>
+                    <td><button th:onclick="'sendMail(' + ${match.matchId} + ')'" class="btn btn-warning">메일 발송</button></td>
+                </tr>
+                </tbody>
+            </table>
+
+            <!-- 페이지네이션 및 총 경기 수 -->
+            <div class="pagination">
+                <div class="pages">
+                    <a href="#">&laquo;</a>
+                    <a href="#">&lt;</a>
+                    <a href="#" class="active">1</a>
+                    <a href="#">2</a>
+                    <a href="#">3</a>
+                    <a href="#">4</a>
+                    <a href="#">5</a>
+                    <a href="#">&gt;</a>
+                    <a href="#">&raquo;</a>
+                </div>
+                <span>총 경기 수 : <span th:text="${totalMatches}">0</span>명</span>
+            </div>
+        </div>
+    </section>
+</div>
+</body>
+</html>
