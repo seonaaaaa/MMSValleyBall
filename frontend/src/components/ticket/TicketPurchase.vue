@@ -13,7 +13,7 @@
 
     <!-- 티켓 안내 페이지 내용 -->
     <div class="ticket-purchase-content">
-
+      <div  class="ticket-purchase-layout">
       <div class="info-box">
         <div class="icon">
           <img src="@/assets/img/anyImg/bell-icon.png" alt="alert" />
@@ -32,7 +32,7 @@
       </div>
 
       <!-- 티켓 예약표  -->
-      <div>
+      <div class="table-container">
         <table class="ticket-purchase">
           <thead>
             <tr>
@@ -44,37 +44,33 @@
             </tr>
           </thead>
           <tbody>
-            <tr>
+            <tr v-for="match in upcomingMatches" :key="match.matchId">
+              <td v-html="formatDate(match.matchDate)"></td>
+              <td> {{ formatMatchInfo(match.matchTeam, thisTeam) }}</td>
+              <td> {{ match.matchStadium }}</td>
               <td>
-                2024.10.24(목)<br>
-                19:00
-              </td>
-              <td>GS MMS VS 한국전력</td>
-              <td>서울 하이체육관</td>
-              <td>
-                [멤버쉽 선예매]<br>
-                2024.10.14(월)<br>
-                13:00<br>
-                <br>
-                [일반 예매]<br>
-                2024.10.17(목)<br>
-                13:00
+                <p>[선예매]</p>
+                <p v-html="formatDatePreBook(match.matchDate)"></p>
+                <p>[일반예매]</p>
+                <p v-html="formatDateBook(match.matchDate)"></p>
               </td>
               <!-- 티켓 예매 버튼 클릭 시 모달 열기 -->
               <td>
-                <button class="ticket-Modal" @click="openModal">예매하기</button>
+                <button class="ticket-Modal" @click="openModal(match.matchId)">예매하기</button>
                 <!-- 모달 컴포넌트 -->
-                <Modal :visible="isModalVisible" @close="closeModal" />
+                <Modal v-if="isModalVisible" :visible="isModalVisible" @close="closeModal" />
               </td>
             </tr>
           </tbody>
         </table>
       </div>
     </div>
+    </div>
   </div>
 </template>
 
 <script>
+import axios from 'axios';
 import LogoHeader from '../common/LogoHeader.vue';
 import Modal from './TicketModal.vue';
 
@@ -84,10 +80,24 @@ export default {
     LogoHeader,
     Modal,
   },
+  props: {
+    user : {
+      type: Object,
+      default: () => ({ name: '', role: 'guest', email: '', isLoggedIn: false})
+    },
+  },
+  async mounted(){
+    this.fetchEvents();
+  },
   data() {
     return {
       activeMenu: this.$route.path, // 현재 활성화된 경로
-      isModalVisible: false // 모달 표시 여부
+      thisTeam : "GS ITM",
+      isModalVisible: false, // 모달 표시 여부
+      //서버에서 가져온 경기 정보 배열
+      matches : [], 
+      //ticket modal에 전달할 경기 아이디
+      matchId : 0,
     };
   },
   watch: {
@@ -96,26 +106,186 @@ export default {
       this.activeMenu = to.path;
     }
   },
+  computed: {
+    upcomingMatches(){
+      const today = new Date();
+      return this.matches.filter(match => new Date(match.matchDate) >= today);
+    }
+  },
   methods: {
     navigateTo(route) {
       this.$router.push(route);
       this.activeMenu = route; // 메뉴를 클릭할 때 활성화된 메뉴 업데이트
     },
+    // 매치 데이터를 가져오는 메서드
+    async fetchEvents(){
+      try {
+        const response = await axios.get('/ticket/purchase');
+        console.log(response.data);
+        this.matches = response.data; //서버 응답을 배열에 저장
+        console.log("Matches fetched: ", this.matches);
+      } catch (error) {
+        console.log("Error fetching matches:", error);
+      }
+    },
 
+    // 경기 정보 형식 지정 메서드
+    formatMatchInfo(matchTeam, thisTeam) {
+      return matchTeam === "서울하이체육관" ? `${thisTeam} VS ${matchTeam}` : `${matchTeam} VS ${thisTeam}`;
+    },
+    // 날짜 포맷팅 메서드
+    formatDate(date) {
+        const options = { year: 'numeric', month: '2-digit', day: '2-digit' };
+        const dateObj = new Date(date);
+        
+        // 날짜 포맷
+        const formattedDate = dateObj.toLocaleDateString('ko-KR', options);
+        
+        // 요일 가져오기
+        const days = ['일', '월', '화', '수', '목', '금', '토'];
+        const dayName = days[dateObj.getDay()];
+
+        // 시간 포맷
+        const formattedTime = dateObj.toLocaleTimeString('ko-KR', {
+          hour: '2-digit',
+          minute: '2-digit'
+        });
+
+        return `${formattedDate} (${dayName})<br>${formattedTime}`;
+      },
+      // 7일 전 오전 11시 날짜 포맷팅 메서드
+      formatDatePreBook(date) {
+        const dateObj = new Date(date);
+        dateObj.setDate(dateObj.getDate() - 7); // 7일 전
+        dateObj.setHours(11, 0, 0, 0); // 시간 설정: 11시 0분 0초
+        
+        const options = { year: 'numeric', month: '2-digit', day: '2-digit' };
+        
+        // 날짜 포맷
+        const formattedDate = dateObj.toLocaleDateString('ko-KR', options);
+        
+        // 요일 가져오기
+        const days = ['일', '월', '화', '수', '목', '금', '토'];
+        const dayName = days[dateObj.getDay()];
+
+        // 시간 포맷
+        const formattedTime = dateObj.toLocaleTimeString('ko-KR', {
+          hour: '2-digit',
+          minute: '2-digit'
+        });
+
+        return `${formattedDate} (${dayName})<br>${formattedTime}`;
+      },
+
+      // 5일 전 오전 11시 날짜 포맷팅 메서드
+      formatDateBook(date) {
+        const dateObj = new Date(date);
+        dateObj.setDate(dateObj.getDate() - 5); // 5일 전
+        dateObj.setHours(11, 0, 0, 0); // 시간 설정: 11시 0분 0초
+
+        const options = { year: 'numeric', month: '2-digit', day: '2-digit' };
+        
+        // 날짜 포맷
+        const formattedDate = dateObj.toLocaleDateString('ko-KR', options);
+        
+        // 요일 가져오기
+        const days = ['일', '월', '화', '수', '목', '금', '토'];
+        const dayName = days[dateObj.getDay()];
+
+        // 시간 포맷
+        const formattedTime = dateObj.toLocaleTimeString('ko-KR', {
+          hour: '2-digit',
+          minute: '2-digit'
+        });
+
+        return `${formattedDate} (${dayName})<br>${formattedTime}`;
+      },
+    },
     // 모달 열기 닫기
-    openModal() {
+    openModal(matchId) {
       this.isModalVisible = true;
+      axios.get(`/ticket/purchase/modal/${matchId}`)
+        .then((response) => {
+          console.log("Reservation successful:", response);
+          // 성공적인 응답 처리
+        })
+        .catch((error) => {
+          console.error("Error making reservation:", error);
+        });
     },
     closeModal() {
       this.isModalVisible = false;
     },
-  }
 }
 </script>
 
 <style scoped>
+
+/* 메뉴 */
+.menu {
+  display: flex;
+  justify-content: center;
+  gap: 50px;
+  padding-bottom: 20px;
+}
+
+.menu-item {
+  width: 120px;
+  padding: 10px 0;
+  position: relative;
+  cursor: pointer;
+  font-weight: bold;
+  color: #565656;
+}
+
+.menu-item::after {
+  content: "";
+  position: absolute;
+  bottom: -5px;
+  /* 밑줄이 텍스트 아래에 표시되도록 간격을 조정 */
+  left: 0;
+  width: 100%;
+  /* 밑줄을 전체 div 너비에 맞춤 */
+  height: 3px;
+  background-color: black;
+  transform: scaleX(0);
+  /* 기본적으로 밑줄을 숨김 */
+  transition: transform 0.3s ease;
+}
+
+.active-menu-item {
+  color: black;
+  /* 선택된 메뉴의 텍스트 색상을 black으로 설정 */
+}
+
+.active-menu-item::after {
+  transform: scaleX(1);
+  /* 활성화된 메뉴에만 밑줄 표시 */
+}
+
+.menu-item:hover::after {
+  transform: scaleX(1);
+  /* 마우스를 올리면 밑줄 표시 */
+}
+
+/* 티켓 안내 */
+.ticket-purchase-layout {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  max-width: 1400px;
+}
+
+.table-container {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+}
+
 .ticket-purchase {
-  width: 62%;
+  width: 100%;
   /* 표 전체 너비 설정 */
   border-collapse: collapse;
   /* 경계선 합치기 */
@@ -132,8 +302,7 @@ export default {
   margin-bottom: 40px;
 }
 
-th,
-td {
+th, td {
   border: 1px solid #ddd;
   /* 셀의 경계선 설정 */
   text-align: center;
@@ -151,17 +320,20 @@ th {
   /* 머리글 텍스트 굵게 */
 }
 
+.ticket-purchase p {
+  margin: 5px;
+  text-align: left;
+  margin-left: 20px;
+}
 
 .ticket-Modal {
   background-color: #4CAF50;
   /* 버튼 배경색 (녹색) */
-
   border: 1px;
   border-color: #000000;
-
   color: white;
   /* 글자 색 (흰색) */
-  padding: 12px 24px;
+  padding: 7px 14px;
   /* 버튼 내부 여백 (위아래 12px, 좌우 24px) */
   text-align: center;
   /* 글자 가운데 정렬 */
@@ -171,16 +343,16 @@ th {
   /* 기본 인라인 블록 설정 */
   font-size: 20px;
   /* 글자 크기 */
-  border-radius: 8px;
+  border-radius: 15px;
   /* 모서리를 둥글게 */
   cursor: pointer;
   /* 마우스를 올렸을 때 포인터 모양 */
   transition: background-color 0.3s;
   /* 배경색이 바뀌는 효과 추가 */
-  margin: 20px;
-  width: 150px;
+  margin: 15px;
+  width: 140px;
   /* 버튼의 너비 */
-  height: 80px;
+  height: 70px;
   /* 버튼의 높이 */
 }
 
@@ -250,52 +422,4 @@ th {
   text-align: center;
 }
 
-/* 메뉴 */
-.menu {
-  display: flex;
-  justify-content: center;
-  gap: 50px;
-  padding-bottom: 20px;
-}
-
-.menu-item {
-  width: 120px;
-  padding: 10px 0;
-  position: relative;
-  cursor: pointer;
-  font-weight: bold;
-  color: #565656;
-}
-
-.menu-item::after {
-  content: "";
-  position: absolute;
-  bottom: -5px;
-  /* 밑줄이 텍스트 아래에 표시되도록 간격을 조정 */
-  left: 0;
-  width: 100%;
-  /* 밑줄을 전체 div 너비에 맞춤 */
-  height: 3px;
-  background-color: black;
-  transform: scaleX(0);
-  /* 기본적으로 밑줄을 숨김 */
-  transition: transform 0.3s ease;
-}
-
-.active-menu-item {
-  color: black;
-  /* 선택된 메뉴의 텍스트 색상을 black으로 설정 */
-}
-
-.active-menu-item::after {
-  transform: scaleX(1);
-  /* 활성화된 메뉴에만 밑줄 표시 */
-}
-
-.menu-item:hover::after {
-  transform: scaleX(1);
-  /* 마우스를 올리면 밑줄 표시 */
-}
-
-/* 티켓 안내 */
 </style>
