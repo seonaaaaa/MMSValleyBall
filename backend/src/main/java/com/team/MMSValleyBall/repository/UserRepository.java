@@ -21,7 +21,5 @@ public interface UserRepository extends JpaRepository<Users, Long> {
     // 멤버쉽별 유저리스트 [ 페이징 처리]
     Page<Users> findUsersByUserMembership(Membership userMembership, Pageable pageable);
 
-
-
     boolean existsByUserPhone(String userPhone);
 }
