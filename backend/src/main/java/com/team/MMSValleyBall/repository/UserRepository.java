@@ -11,4 +11,6 @@ public interface UserRepository extends JpaRepository<Users, Long> {
 
     // 이메일 존재 여부 확인 메서드
     boolean existsByUserEmail(String userEmail);
+
+    boolean existsByUserPhone(String userPhone);
 }
