@@ -2,9 +2,7 @@
   <header>
     <!-- 로그인, 회원가입 링크 상단 -->
     <div class="auth-links">
-      <router-link v-if="!user.isLoggedIn" to="/login" class="login">로그인</router-link>
-      <router-link v-if="!user.isLoggedIn" to="/signup" class="signup">회원가입</router-link>
-      <button v-else @click="logout" class="logout">로그아웃</button>
+     <router-link to="/login" class="login">로그인</router-link> | <router-link to="/signup" class="signup">회원가입</router-link> | <button @click="logout" class="logout">로그아웃</button>
     </div>
   
     <!-- 네비게이션 바 -->
@@ -49,12 +47,7 @@
   
   export default {
     name: 'AppHeader',
-    props: {
-      user: {
-        type: Object,
-        default: () => ({ name: '', role: 'guest', email: '', isLoggedIn: false })
-      }
-    },
+  
     data() {
       return {
         leftMenu: [
@@ -105,11 +98,11 @@
         },
         { 
           title: 'MY PAGE', 
-          path: '/myPage/reservations',
+          path: '/mypage/reservations',
           submenu: [
-            { title: '예매 내역', path: '/myPage/reservations' }, 
-            { title: '나의 멤버십', path: '/myPage/membership' }, 
-            { title: '나의 정보 수정', path: '/myPage/edit-profile' }, 
+            { title: '예매 내역', path: '/mypage/reservations' }, 
+            { title: '나의 멤버십', path: '/mypage/membership' }, 
+            { title: '나의 정보 수정', path: '/mypage/edit-profile' }, 
           ] 
         }
       ]
@@ -156,23 +149,9 @@ header {
 .auth-links a {
   color: #565656;
   margin: 0 10px;
-  font-size: 18px;
 }
 
 .auth-links a:hover {
-  color: #000000;
-}
-
-/* 로그아웃 버튼 */
-.logout{
-  background-color: #ffffff;
-  border: none; /* 테두리 없애기 */
-  outline: none; /* 포커스 시 나타나는 외곽선 없애기 (선택 사항) */
-  font-size: 18px;
-  color: #565656;
-}
-
-.logout:hover{
   color: #000000;
 }
 
@@ -268,5 +247,14 @@ header {
   color: #000000;
   background-color: #f2f2f2;
   border-radius: 5px;
+}
+
+/* 로그아웃 버튼 */
+.logout{
+  background-color: #ffffff;
+  border: none; /* 테두리 없애기 */
+  outline: none; /* 포커스 시 나타나는 외곽선 없애기 (선택 사항) */
+  font-size: 23px;
+  color: #565656;
 }
 </style>
