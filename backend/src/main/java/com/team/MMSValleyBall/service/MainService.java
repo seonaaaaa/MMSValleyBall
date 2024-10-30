@@ -6,24 +6,21 @@ import com.team.MMSValleyBall.entity.Users;
 import com.team.MMSValleyBall.enums.UserRole;
 import com.team.MMSValleyBall.enums.UserStatus;
 import com.team.MMSValleyBall.repository.UserRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import jakarta.persistence.EntityManager;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
-
 @Service
-public class SignupService {
+public class MainService {
+    private final UserRepository userRepository;
+    private final BCryptPasswordEncoder bCryptPasswordEncoder;
+    private final EntityManager em;
 
-    @Autowired
-    private UserRepository userRepository;
-
-    @Autowired
-    BCryptPasswordEncoder bCryptPasswordEncoder;
-
-    @PersistenceContext
-    private EntityManager em;
+    public MainService(UserRepository userRepository, BCryptPasswordEncoder bCryptPasswordEncoder, EntityManager em) {
+        this.userRepository = userRepository;
+        this.bCryptPasswordEncoder = bCryptPasswordEncoder;
+        this.em = em;
+    }
 
     public String checkEmail(String userEmail) {
         // 이메일 중복 확인
@@ -58,6 +55,11 @@ public class SignupService {
         data.setUserStatus(UserStatus.ACTIVE);
 
         userRepository.save(data);
+    }
+
+    public String userMembershipName(String email){
+        UserDTO userData = UserDTO.fromEntity(userRepository.findByUserEmail(email));
+        return userData.getUserMembershipName().split("-")[1];
     }
 
     public String checkPhone(String userPhone) {
