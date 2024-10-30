@@ -20,18 +20,18 @@
         <!-- 비밀번호 -->
         <div class="form-group">
           <label for="userPassword">**비밀번호</label>
-          <input type="password" id="userPassword" v-model="userPassword" required />
+          <input type="password" id="userPassword" v-model="userPassword" required placeholder="비밀번호를 입력해주세요."/>
         </div>
 
         <div class="form-group">
           <label for="userConfirmPassword">**비밀번호 확인</label>
-          <input type="password" id="userConfirmPassword" v-model="userConfirmPassword" required />
+          <input type="password" id="userConfirmPassword" v-model="userConfirmPassword" required placeholder="한 번 더 입력해주세요."/>
         </div>
 
         <!-- 이름 -->
         <div class="form-group">
           <label for="userName">**이름</label>
-          <input type="text" id="userName" v-model="userName" required />
+          <input type="text" id="userName" v-model="userName" required placeholder="이름을 입력해주세요." />
         </div>
 
         <!-- 핸드폰 번호 -->
@@ -44,8 +44,8 @@
               <option value="016">016</option>
               <option value="017">017</option>
             </select> -
-            <input type="tel" v-model="userPhonePart2" maxlength="4" /> -
-            <input type="tel" v-model="userPhonePart3" maxlength="4" />
+            <input type="tel" v-model="userPhonePart2" maxlength="4" placeholder="0000"/> -
+            <input type="tel" v-model="userPhonePart3" maxlength="4" placeholder="0000"/>
             <button type="button" @click="checkPhone" class="check-button">인증</button>
           </div>
         </div>
@@ -259,6 +259,7 @@ import LogoHeader from '../common/LogoHeader.vue';
   margin: 50px auto;
   padding: 20px;
   background-color: #f9f9f9;
+  border: 2px solid #60a191;
   border-radius: 10px;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 }
@@ -315,8 +316,10 @@ input[type="text"]:focus {
   background-color: #4f8578;
   color: white;
   border: none;
-  padding: 15px;
+  padding: 10px;
   width: 150px;
+  height: 53px;
+  margin-top: 10px;
   margin-left: 10px;
   border-radius: 5px;
   cursor: pointer;
