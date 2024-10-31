@@ -75,7 +75,7 @@
             <span class="away-team">{{ match.teamName }}</span>
           </td>
           <td>{{ formatTime(match.matchDate) }}</td>
-          <td>{{ match.teamStadium }}</td>
+          <td>{{ formatLocation(match) }}</td>
           <td>{{ match.matchRoundId }} 라운드</td>
         </tr>
       </tbody>
@@ -140,7 +140,7 @@ export default {
           params: {
             seasonId: this.selectedSeasonId,
             page: page,
-            size: 10, // 10개씩 페이징 처리
+            size: 6, // 6개씩 페이징 처리
             matchRoundId: this.matchRoundId, // 선택된 라운드
             sort: 'matchDate,asc', // matchDate를 기준으로 오름차순 정렬
           },
@@ -205,6 +205,10 @@ export default {
     formatMatchResult(match) {
       return `MMS GS   ${match.matchSetScore}:${match.matchOpponentTeamSetScore}   ${match.teamName}`;
     },
+    // 장소 포캣팅
+    formatLocation(match) {
+      return match.matchStadium === 'HOME' ? '서울하이체육관' : match.teamStadium;
+    }
   },
   mounted() {
     this.fetchMatches();  // 초기 페이지 로딩 시 데이터를 가져오도록 설정

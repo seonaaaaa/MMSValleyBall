@@ -92,8 +92,8 @@ INSERT INTO match (match_date, match_stadium, match_set_score, match_opponent_te
     ('2024-10-16 14:00:00','HOME',2,6,3,2,2),
     ('2024-10-21 19:00:00','HOME',3,2,2,2,2),
     ('2024-10-24 14:00:00','AWAY',2,1,3,2,2),
-    ('2024-10-29 19:00:00','AWAY',0,4,0,2,2),
-    ('2024-11-03 19:00:00','HOME',0,3,0,2,2),
+    ('2024-10-29 19:00:00','AWAY',3,4,1,2,2),
+    ('2024-11-03 19:00:00','HOME',3,3,1,2,2),
     ('2024-11-08 14:00:00','AWAY',0,2,0,2,3),
     ('2024-11-12 19:00:00','AWAY',0,6,0,2,3);
 INSERT INTO match (match_date, match_stadium, match_set_score, match_opponent_team_id, match_opponent_team_set_score, match_season_id, match_round_id) VALUES

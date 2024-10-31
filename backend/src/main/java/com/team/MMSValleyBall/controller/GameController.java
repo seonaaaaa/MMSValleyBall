@@ -3,6 +3,9 @@ package com.team.MMSValleyBall.controller;
 import com.team.MMSValleyBall.dto.MatchWithTeamDTO;
 import com.team.MMSValleyBall.dto.SeasonDTO;
 import com.team.MMSValleyBall.dto.TeamDTO;
+import com.team.MMSValleyBall.enums.MailStatus;
+import com.team.MMSValleyBall.enums.MatchStadium;
+import com.team.MMSValleyBall.enums.MatchStatus;
 import com.team.MMSValleyBall.service.GameService;
 
 import org.springframework.data.domain.Page;
@@ -50,13 +53,29 @@ public class GameController {
         return ResponseEntity.ok(matchPage);
     }
 
-    // ADMIN - MAIN - 전체 경기
+    // ADMIN - MAIN - (필터링 및 정렬)
     @GetMapping("/admin")
     public ResponseEntity<Page<MatchWithTeamDTO>> getAllMatches(
             @RequestParam(name = "page") int page,
-            @RequestParam(name = "size") int size) {
-        Pageable pageable = PageRequest.of(page, size, Sort.by("matchId").ascending()); // 경기 ID 오름차순 정렬
-        Page<MatchWithTeamDTO> matchList = gameService.findAllMatches(pageable);
+            @RequestParam(name = "size") int size,
+            @RequestParam(name = "seasonId", required = false) Long seasonId,
+            @RequestParam(name = "matchRoundId", required = false) Integer matchRoundId,
+            @RequestParam(name = "matchStadium", required = false) MatchStadium matchStadium,
+            @RequestParam(name = "teamId", required = false) Long teamId,
+            @RequestParam(name = "matchMailStatus", required = false) MailStatus matchMailStatus,
+            @RequestParam(name = "matchStatus", required = false) MatchStatus matchStatus,
+            // 기본 정렬 필드
+            @RequestParam(name = "sortField", defaultValue = "matchDate") String sortField,
+            // 기본 정렬 방향
+            @RequestParam(name = "sortDirection", defaultValue = "asc") String sortDirection) {
+
+        // 정렬 정보 설정
+        Sort sort = Sort.by(Sort.Direction.fromString(sortDirection), sortField);
+        Pageable pageable = PageRequest.of(page, size, sort);
+
+        Page<MatchWithTeamDTO> matchList = gameService.findAllFiltered(
+            seasonId, matchRoundId, matchStadium, teamId, matchMailStatus, matchStatus, pageable
+        );
         return ResponseEntity.ok(matchList);
     }
 

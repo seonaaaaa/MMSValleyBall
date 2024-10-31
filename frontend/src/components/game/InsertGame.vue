@@ -145,7 +145,7 @@ export default {
 
 .form-table {
     width: 100%;
-    max-width: 400px;
+    max-width: 500px;
     display: flex;
     flex-direction: column;
     align-items: flex-start;
@@ -162,6 +162,8 @@ label {
     width: 120px;
     text-align: left;
     margin-bottom: 10px;
+    margin-bottom: 10px;
+    margin-right: 50px;
 }
 
 input, select, button {
@@ -170,6 +172,12 @@ input, select, button {
   border: 1px solid #ccc;
   border-radius: 5px;
   margin-bottom: 10px;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+input:disabled {
+  pointer-events: none; /* 마우스 반응을 비활성화 */
 }
 
 .button-group {

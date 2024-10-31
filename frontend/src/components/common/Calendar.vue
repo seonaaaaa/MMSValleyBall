@@ -60,8 +60,8 @@
                 <img :src="getTeamLogo(event.teamId)" alt="Team Logo" class="team-logo" />
                 <div class="event-info">{{ formatLocationAndTime(event) }}</div>
                 <div class="result-container">
-                  <div :class="['result-circle', getResultClass(event.matchSetScore, event.matchOpponentTeamSetScore)]">
-                    <span class="result">{{ getDisplayResult(event.matchSetScore, event.matchOpponentTeamSetScore) }}</span>
+                  <div :class="['result-circle', getResultClass(event.matchSetScore, event.matchOpponentTeamSetScore, event.matchDate)]">
+                    <span class="result">{{ getDisplayResult(event.matchSetScore, event.matchOpponentTeamSetScore, event.matchDate) }}</span>
                   </div>
                   <span class="score">{{ event.matchSetScore }}:{{ event.matchOpponentTeamSetScore }}</span>
                 </div>

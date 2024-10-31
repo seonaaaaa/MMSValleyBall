@@ -7,6 +7,7 @@ import com.team.MMSValleyBall.entity.Match;
 import com.team.MMSValleyBall.entity.Ticket;
 import com.team.MMSValleyBall.entity.Users;
 import com.team.MMSValleyBall.enums.MailStatus;
+import com.team.MMSValleyBall.enums.MatchStadium;
 import com.team.MMSValleyBall.enums.MatchStatus;
 import com.team.MMSValleyBall.repository.GameRepository;
 
@@ -50,10 +51,12 @@ public class GameService {
                                 .map(entity -> MatchWithTeamDTO.fromEntity(entity));
     }
 
-    // ADMIN - MAIN - 전체 경기
-    public Page<MatchWithTeamDTO> findAllMatches(Pageable pageable) {
-        return gameRepository.findAll(pageable)
-        .map(entity -> MatchWithTeamDTO.fromEntity(entity));
+    // ADMIN - MAIN - (필터링 및 정렬)
+    public Page<MatchWithTeamDTO> findAllFiltered(
+            Long seasonId, Integer matchRoundId, MatchStadium matchStadium,
+            Long teamId, MailStatus matchMailStatus, MatchStatus matchStatus, Pageable pageable) {
+        return gameRepository.findAllFiltered(seasonId, matchRoundId, matchStadium, teamId, matchMailStatus, matchStatus, pageable)
+                            .map(entity -> MatchWithTeamDTO.fromEntity(entity));
     }
 
     // ADMIN - INSERT - 신규 경기 등록
