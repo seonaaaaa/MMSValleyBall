@@ -24,9 +24,8 @@ public class MyPageController {
 
     // 티켓 예매 탭에서 받을 티켓 예매 내역
     @GetMapping("ticket")
-    public ResponseEntity<List<TicketDTO>> userTicket(@RequestParam("email")String email){
-        UserDTO findUser = myPageService.findByEmail(email);
-        return ResponseEntity.ok(findUser.getTickets());
+    public ResponseEntity<List<Reservation>> userTicket(@RequestParam("email")String email){
+        return ResponseEntity.ok(myPageService.getReservationList(email));
     }
 
     // 나의 멤버십 탭에서 받을 사용자 멤버십 정보

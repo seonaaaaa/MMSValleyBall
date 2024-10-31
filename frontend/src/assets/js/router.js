@@ -30,7 +30,7 @@ import MembershipPurchase from '@/components/membership/MembershipPurchase.vue';
 import ReservationsView from '@/components/mypage/ReservationsView.vue';
 import MembershipView from '@/components/mypage/MembershipView.vue';
 import EditProfile from '@/components/mypage/EditProfile.vue';
-import DeleteAccount from '@/components/mypage/DeleteAccount.vue';
+import Recharge from '@/components/mypage/Recharge.vue';
 
 // login, joinpage 만들기
 import loginPage from '@/components/member/Login.vue';
@@ -136,9 +136,9 @@ const routes = [
     component: EditProfile,
   },
   {
-    path: '/myPage/delete-account',
-    name: 'DeleteAccount',
-    component: DeleteAccount,
+    path: '/myPage/recharge',
+    name: 'Recharge',
+    component: Recharge,
   },
   // 로그인, 회원가입 
   {

@@ -1,16 +1,10 @@
 package com.team.MMSValleyBall.service;
 
 import com.team.MMSValleyBall.dto.*;
-import com.team.MMSValleyBall.entity.MembershipSales;
-import com.team.MMSValleyBall.entity.Payment;
-import com.team.MMSValleyBall.entity.Ticket;
-import com.team.MMSValleyBall.entity.Users;
+import com.team.MMSValleyBall.entity.*;
 import com.team.MMSValleyBall.enums.PaymentStatus;
 import com.team.MMSValleyBall.enums.UserStatus;
-import com.team.MMSValleyBall.repository.MembershipRepository;
-import com.team.MMSValleyBall.repository.MembershipSalesRepository;
-import com.team.MMSValleyBall.repository.PaymentRepository;
-import com.team.MMSValleyBall.repository.UserRepository;
+import com.team.MMSValleyBall.repository.*;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
 
@@ -23,16 +17,42 @@ public class MyPageService {
     private final MembershipRepository membershipRepository;
     private final MembershipSalesRepository membershipSalesRepository;
     private final PaymentRepository paymentRepository;
+    private final TicketRepository ticketRepository;
+    private final SeatRepository seatRepository;
+    private final MatchRepository matchRepository;
 
-    public MyPageService(UserRepository userRepository, MembershipRepository membershipRepository, MembershipSalesRepository membershipSalesRepository, PaymentRepository paymentRepository) {
+    public MyPageService(UserRepository userRepository, MembershipRepository membershipRepository, MembershipSalesRepository membershipSalesRepository, PaymentRepository paymentRepository, TicketRepository ticketRepository, SeatRepository seatRepository, MatchRepository matchRepository) {
         this.userRepository = userRepository;
         this.membershipRepository = membershipRepository;
         this.membershipSalesRepository = membershipSalesRepository;
         this.paymentRepository = paymentRepository;
+        this.ticketRepository = ticketRepository;
+        this.seatRepository = seatRepository;
+        this.matchRepository = matchRepository;
     }
 
     public UserDTO findByEmail(String email) {
         return UserDTO.fromEntity(userRepository.findByUserEmail(email));
+    }
+
+    public List<Reservation> getReservationList(String email){
+        List<Reservation>reservationList = new ArrayList<>();
+        Users users = userRepository.findByUserEmail(email);
+        List<TicketDTO> ticketList = users.getTickets().stream()
+                .map(t->TicketDTO.fromEntity(t)).sorted(Comparator.comparing(TicketDTO::getTicketId).reversed()).toList();
+        for(TicketDTO dto: ticketList){
+            Reservation reservation = new Reservation();
+            reservation.setTicket(dto);
+            Match match = matchRepository.findById(dto.getTicketMatchId()).get();
+            reservation.setOpponentTeam(match.getMatchOpponentTeam().getTeamName());
+            reservation.setOpponentTeamStadium(match.getMatchOpponentTeam().getTeamStadium());
+            reservation.setWhere(match.getMatchStadium());
+            reservation.setMatchDate(String.valueOf(match.getMatchDate()));
+            Seat seat = seatRepository.findById(dto.getTicketDetails().get(0).getTicketDetailSeat()).get();
+            reservation.setSeatSection(seat.getSeatZone()+"-"+seat.getSeatSection());
+            reservationList.add(reservation);
+        }
+        return reservationList;
     }
 
     public MembershipDTO getUserMembership(String userMembershipName) {
