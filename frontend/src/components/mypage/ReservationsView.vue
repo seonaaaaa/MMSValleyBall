@@ -173,6 +173,9 @@ export default {
         const list = await this.$axios.get('/myPage/ticket', {
           params: {
             email: email,
+          },
+          headers: {
+            Authorization: localStorage.getItem('accessToken'), // 헤더에 토큰 추가
           }
         });
         this.reservations = list.data;
@@ -185,15 +188,20 @@ export default {
       this.activeMenu = route; // 메뉴를 클릭할 때 활성화된 메뉴 업데이트
     },
     cancelReservation(id) {
-      try {
-        this.$axios.patch('/myPage/ticket', id);
-      } catch (error) {
-        console.log("티켓 예매 취소 실패", error);
-      }
-      alert('예매가 취소되었습니다.');
-      if (this.currentPage > this.totalPages) {
-        this.currentPage = this.totalPages;
-      }
+      console.log(id);
+      this.$axios.patch('/myPage/ticket/cancel', id)
+      .then(response => {
+        console.log("예매가 성공적으로 취소되었습니다.", response);
+        alert("예매가 성공적으로 취소되었습니다.");
+        
+        // 페이지가 현재 페이지 수를 초과할 경우, 마지막 페이지로 설정
+        if (this.currentPage > this.totalPages) {
+            this.currentPage = this.totalPages;
+        }
+      }).catch(error => {
+        console.error("예매 취소에 실패했습니다.", error);
+        alert("예매 취소에 실패했습니다.");
+      });
     },
     nextPage() {
       if (this.currentPage < this.totalPages) {
@@ -217,7 +225,6 @@ export default {
     matchInfo(reservation){
       const month = reservation.matchDate.split("T")[0].split("-")[1];
       const day = reservation.matchDate.split("T")[0].split("-")[2];
-      // const hour = reservation.matchDate.split("T")[1].split(":");
       if(reservation.where=='HOME'){
         return `${parseInt(month)}월 ${parseInt(day)}일<br>MMS  vs ${reservation.opponentTeam}`;
       }
@@ -369,6 +376,12 @@ export default {
 
 .cancel-button:hover {
   background-color: #c9302c;
+}
+
+.non-refundable{
+  background-color: grey;
+  padding: 10px 20px;
+  border: none;
 }
 
 .ticket-detail-wrapper {
