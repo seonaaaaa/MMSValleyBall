@@ -6,13 +6,13 @@
       <div v-if="user.isLoggedIn">
         <div v-if="user.role == 'USER'"> 
           <span class="membership-image-container">
-        <span v-if="membershipLevel == 'GOLD'">
+        <span v-if="membershipLevel == 'gold'">
           <img :src="goldImage" alt="골드 등급" class="membershipLevel-image" />
         </span>
-         <span v-else-if="membershipLevel == 'SILVER'">
+         <span v-if="membershipLevel == 'silver'">
            <img :src="silverImage" alt="실버 등급" class="membershipLevel-image" />
         </span>
-        <span v-else>
+        <span v-if="membershipLevel == 'bronze'">
           <img :src="bronzeImage" alt="브론즈 등급" class="membershipLevel-image" />
         </span>
         <p><strong>{{ user.name }}</strong> 님</p>
@@ -21,19 +21,22 @@
         <div class="money-box">
           <p>잔액: <strong>{{ balance }}</strong>원</p><button class="btn-charge" @click="goToRecharge">충전</button>
         </div>
-          <button class="btn-myPage" @click="goToMyPage">My Page</button>&nbsp;<button class="btn-logout" @click="logout">로그아웃</button>
+        <div class="button-container">
+          <button class="btn-myPage" @click="goToMyPage">My Page</button>
+          <button class="btn-logout" @click="logout">로그아웃</button>
+        </div>
         </div>
 
 
-        <div v-else> 
+        <div v-else-if="user.role == 'ADMIN'"> 
           <p class="Admin-notice">****관리자 모드입니다****</p>
-          <p><strong>{{ user.name }}</strong> 님</p>
+          <p class="Admin-name"><strong>{{ user.name }}</strong> 님</p>
           <button class="btn-AdminPage" @click="goToAdminPage">ADMIN Page</button><br>
           <button class="btn-logout2" @click="logout">로그아웃</button>
         </div>
         </div>
       
-      <div v-else>
+      <div v-else class="login-signup-box">
         <button @click="goToLogin" class="btn-login">로그인</button><br>
         <button @click="goToSignup" class="btn-signup">회원가입</button>
       </div>
@@ -117,7 +120,7 @@ export default {
   props: {
     user: {
       type: Object,
-      default: () => ({ name: '', role: 'guest', email: '', isLoggedIn: false })
+      default: () => ({ name: '', role: 'guest', email: '', isLoggedIn: false }),
     }
   },
   async mounted(){
@@ -253,6 +256,7 @@ export default {
         })
         this.balance = userData.data.balance;
         this.membershipLevel = userData.data.membership;
+        console.log(userData.data.membership);
       } catch (error) {
         console.error("Error fetching events:", error);
       }
@@ -294,17 +298,6 @@ a {
   z-index: 100;
 }
 
-.btn-myPage, .btn-logout {
-  background-color: #60a191;
-  color: white;
-  border: none;
-  padding: 10px;
-  margin-top: 20px;
-  border-radius: 5px;
-  cursor: pointer;
-  width: 48%;
-}
-
 .user-info-box button:hover {
   background-color: #4f8578;
 }
@@ -317,14 +310,29 @@ a {
   text-decoration: underline;
 }
 
+.user-info-box .button-container {
+  display: flex;
+  justify-content: space-between; /* 버튼 사이에 공간을 균등하게 배치 */
+  margin-top: 20px;
+}
+
+.btn-myPage, .btn-logout {
+  background-color: #60a191;
+  color: white;
+  border: none;
+  padding: 10px;
+  border-radius: 5px;
+  cursor: pointer;
+  width: 48%; /* 버튼 크기를 동일하게 설정 */
+}
+
 /* 금액충전 창 */
 .money-box {
   margin-top: 15px;
-  margin-left: 10px;
   display: flex;
   align-items: center; /* 수직 정렬 */
   gap: 1px; /* 간격 조정 */
-  width: 250px;
+  width: 100%;
   height: 80px;
   border: solid color(srgb rgb(68, 68, 68) green blue);
   border-radius: 8px;
@@ -337,10 +345,13 @@ a {
 }
 
 .btn-charge {
-  margin-left: 25px; /* 오른쪽으로 버튼 밀기 */
+  position: fixed;
+  top: 705px;
+  right: 45px;
   width: 80px;
   background-color: #f0efc3;
-  border: solid color(srgb rgb(224, 224, 224) green blue);
+  border: solid color(srgb rgb(61, 59, 59) green blue);
+  color: black;
 }
 
 /* 멤버십 로고 */
@@ -359,34 +370,73 @@ a {
 }
 
 /* 로그아웃시 버튼 */
-.btn-login, .btn-signup{
+.btn-login{
+  position: fixed;
   background-color: #60a191;
   color: white;
   border: none;
   border-radius: 5px;
   cursor: pointer;
-  width: 100%;
-  height: 50px;
-  margin-top: 25px;
+  width: 260px;
+  height: 60px;
+  right: 42px;
+  top: 675px;
+}
+
+.btn-signup{
+  position: fixed;
+  background-color: #60a191;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  width: 260px;
+  height: 60px;
+  right: 42px;
+  top: 755px;
 }
 
 /* 관리자 박스 */
-.btn-AdminPage, .btn-logout2{
+.btn-AdminPage{
   background-color: #60a191;
   color: white;
   border: none;
   border-radius: 5px;
   cursor: pointer;
-  width: 100%;
-  height: 45px;
-  margin-top: 20px;
+  width: 260px;
+  height: 50px;
+  position: fixed;
+  right: 42px;
+  top: 730px;
+}
+
+.btn-logout2{
+  background-color: #60a191;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  width: 260px;
+  height: 50px;
+  position: fixed;
+  right: 42px;
+  top:800px
 }
 
 .Admin-notice{
   color: #504f4f;
   font-size: 18px;
   text-align: center;
-  padding-bottom: 20px;
+  position: fixed;
+  top: 620px;
+  right: 50px;
+}
+
+.Admin-name{
+  position: fixed;
+  top: 670px;
+  right: 47px;
+  z-index: 100;
 }
 
 /* 상단 슬라이드 배너 */
