@@ -8,14 +8,15 @@
     <table>
         <thead>
             <tr>
-                <th>ID</th>
-                <th>경기 날짜</th>
-                <th>경기장</th>
-                <th>우리 팀 세트</th>
-                <th>상대 팀 세트</th>
+                <th>No</th>
                 <th>시즌</th>
                 <th>라운드</th>
+                <th>경기 ID</th>
+                <th>경기 날짜</th>
+                <th>경기장</th>
                 <th>팀 이름</th>
+                <th>우리 팀 세트</th>
+                <th>상대 팀 세트</th>
                 <th>메일 상태</th>
                 <th>경기 상태</th>
                 <th>수정</th>
@@ -25,15 +26,16 @@
             </tr>
         </thead>
         <tbody>
-            <tr v-for="match in matchList" :key="match.matchId">
+            <tr v-for="(match, index) in matchList" :key="match.matchId">
+                <td>{{ index + 1 + currentPage * pageSize }}</td>
+                <td>{{ match.seasonName }}</td>
+                <td>{{ match.matchRoundId }}</td>
                 <td>{{ match.matchId }}</td>
                 <td>{{ match.matchDate }}</td>
                 <td>{{ match.matchStadium }}</td>
+                <td>{{ match.teamName }}</td>
                 <td>{{ match.matchSetScore }}</td>
                 <td>{{ match.matchOpponentTeamSetScore }}</td>
-                <td>{{ match.seasonName }}</td>
-                <td>{{ match.matchRoundId }}</td>
-                <td>{{ match.teamName }}</td>
                 <td>{{ match.matchMailStatus }}</td>
                 <td>{{ match.matchStatus }}</td>
                 <td>
@@ -99,7 +101,10 @@ export default {
     fetchMatches(page) {
       axios
         .get(`http://localhost:4000/game/admin`, {
-          params: { page: page, size: this.pageSize }
+          params: { 
+            page: page, 
+            size: this.pageSize, 
+            },
         })
         .then((response) => {
           const data = response.data;
@@ -130,7 +135,7 @@ export default {
 
     // 경기 삭제(비활성화)
     deactivateMatch(matchId) {
-        // 삭제 확인 창을 표시
+        // 삭제 확인 창 표시 (확인 > 삭제, 취소 > 돌아옴)
         if (confirm("삭제하시겠습니까?")) {
             axios
                 .patch(`http://localhost:4000/game/admin/delete/${matchId}`)
