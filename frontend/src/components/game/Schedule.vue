@@ -64,7 +64,7 @@ export default {
 }
 </script>
   
-<style>
+<style scoped>
 .game-schedule-page {
   padding-top: var(--header-height);
   padding-bottom: var(--footer-height);

@@ -25,7 +25,7 @@
 
  </template>
  
- <script>
+ <script scoped>
  import LogoHeader from '../common/LogoHeader.vue';
  
  export default {

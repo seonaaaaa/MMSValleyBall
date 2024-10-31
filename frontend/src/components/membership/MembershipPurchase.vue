@@ -164,7 +164,7 @@
   };
   </script>
   
-  <style>
+  <style scoped>
   .membership-purchase-page {
       padding-top: var(--header-height);
       padding-bottom: var(--footer-height);

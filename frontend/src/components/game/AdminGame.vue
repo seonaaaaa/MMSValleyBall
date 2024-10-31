@@ -1,5 +1,5 @@
 <template>
-  <div class="admin-game-page">
+<div class="admin-game-page">
 
     <!-- 상단 컨트롤 -->
     <div class="filter-controls">
@@ -97,7 +97,7 @@
                 </td>
                 <td>
                     <button @click="updateMailStatus(match.matchId)"
-                     :disabled="match.matchMailStatus !== 'REQUIRED'">
+                    :disabled="match.matchMailStatus !== 'REQUIRED'">
                         메일 상태 변경
                     </button>
                 </td>
@@ -107,7 +107,7 @@
                         메일 발송
                     </button>
                 </td>
-          </tr>
+        </tr>
         </tbody>
     </table>
 
@@ -120,10 +120,10 @@
         </div>
     </div>
 
-  </div>
+</div>
 </template>
 
-<script>
+<script scoped>
 import axios from 'axios';
 
 export default {
@@ -160,9 +160,9 @@ export default {
     },
     methods: {
     fetchMatches(page) {
-      axios
+    axios
         .get(`http://localhost:4000/game/admin`, {
-          params: { 
+        params: { 
             page: page, 
             size: this.pageSize, 
             seasonId: this.selectedSeason,
@@ -176,20 +176,20 @@ export default {
             },
         })
         .then((response) => {
-          const data = response.data;
-          this.matchList = data.content;
-          this.totalMatches = data.totalElements;
-          this.totalPages = data.totalPages;
-          this.currentPage = data.number;
+        const data = response.data;
+        this.matchList = data.content;
+        this.totalMatches = data.totalElements;
+        this.totalPages = data.totalPages;
+        this.currentPage = data.number;
         })
         .catch((error) => {
-          console.error('Error fetching match data:', error);
+        console.error('Error fetching match data:', error);
         });
     },
     changePage(page) {
-      if (page >= 0 && page < this.totalPages) {
+    if (page >= 0 && page < this.totalPages) {
         this.fetchMatches(page);
-      }
+    }
     },
 
     // 전체 버튼 클릭 시 필터 초기화하고 첫 페이지 로드
@@ -206,12 +206,12 @@ export default {
 
     // 경기 신규 페이지로 이동
     navigateToInsertPage() {
-      this.$router.push({ name: 'InsertGame' });
+    this.$router.push({ name: 'InsertGame' });
     },
 
     // 경기 수정 페이지로 이동
     navigateToEditPage(matchId) {
-      this.$router.push({ name: 'UpdateGame', params: { matchId } });
+    this.$router.push({ name: 'UpdateGame', params: { matchId } });
     },
 
     // 경기 삭제(비활성화)
@@ -271,7 +271,7 @@ export default {
             console.error("Error sending email:", error);
         });
     },
-  },
+},
 };
 </script>
 

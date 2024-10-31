@@ -151,7 +151,7 @@ export default {
 }
 </script>
 
-<style>
+<style scoped>
 .membership-view-page {
   padding-top: var(--header-height);
   padding-bottom: var(--footer-height);
