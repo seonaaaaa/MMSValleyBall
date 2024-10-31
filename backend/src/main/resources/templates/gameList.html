@@ -7,19 +7,226 @@
     <title>경기 관리</title>
 </head>
 <body>
-    <div layout:fragment="content" class="content">
-        <section>
-            <!-- Vue.js 컴포넌트가 마운트될 위치 -->
-            <div id="app">
-                <!-- Vue 템플릿에서 구현한 내용을 여기 렌더링 -->
-                <admin-game-page></admin-game-page>
+<div layout:fragment="content" class="content">
+    <section>
+        <div class="tab-menu">
+            <a href="#reservation">회원 조회</a>
+            <a href="#membership">매출 조회</a>
+            <a href="/admin/game" class="active">경기 조회</a>
+        </div>
+        <div class="container">
+            <div class="filter-controls table-header">
+                <span>총 경기 수 : <b th:text="${totalMatches}"></b>개</span>
+                <div>
+                    <a href="/game/admin/insert"><button class="add-button">+ 신규 경기</button></a>
+                    <button onclick="resetFilters()" class="btn-secondary">전체</button>
+                </div>
             </div>
 
-            <!-- Vue.js 스크립트와 컴포넌트 로드 -->
-            <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.js"></script>
-            <script src="/js/components.js"></script> <!-- 상대 경로로 설정 -->
-            <script src="/js/main.js"></script> <!-- main.js 추가 -->
-        </section>
-    </div>
+            <!-- 경기 목록 테이블 -->
+            <table class="table table-striped table-bordered">
+                <thead>
+                <tr>
+                    <th>No</th>
+                    <th>ID</th>
+                    <th>
+                        <select id="season">
+                            <option value="">시즌</option>
+                            <option th:each="season : ${seasons}" th:value="${season.seasonId}" th:text="${season.seasonName}"></option>
+                        </select>
+                    </th>
+                    <th>
+                        <select id="round">
+                            <option value="">라운드</option>
+                            <option th:each="round : ${rounds}" th:value="${round}" th:text="${round + '라운드'}"></option>
+                        </select>
+                    </th>
+                    <th>
+                        <select id="sortOrder">
+                            <option value="matchDate,asc">경기 날짜 △</option>
+                            <option value="matchDate,desc">경기 날짜 ▽</option>
+                        </select>
+                    </th>
+                    <th>
+                        <select id="stadium">
+                            <option value="">경기장</option>
+                            <option value="HOME">HOME</option>
+                            <option value="AWAY">AWAY</option>
+                        </select>
+                    </th>
+                    <th>
+                        <select id="team">
+                            <option value="">팀 이름</option>
+                            <option th:each="team : ${teams}" th:value="${team.teamId}" th:text="${team.teamName}"></option>
+                        </select>
+                    </th>
+                    <th>우리 팀</th>
+                    <th>상대 팀</th>
+                    <th>
+                        <select id="mailStatus">
+                            <option value="">메일 상태</option>
+                            <option value="DEFAULT">DEFAULT</option>
+                            <option value="REQUIRED">REQUIRED</option>
+                        </select>
+                    </th>
+                    <th>
+                        <select id="matchStatus">
+                            <option value="">경기 상태</option>
+                            <option value="DEFAULT">DEFAULT</option>
+                            <option value="DELETED">DELETED</option>
+                        </select>
+                    </th>
+                    <th>수정</th>
+                    <th>삭제</th>
+                    <th>메일 상태 변경</th>
+                    <th>메일 발송</th>
+                </tr>
+                </thead>
+                <tbody class="match-table-body">
+                <tr th:each="match, stat : ${matchList}">
+                    <td th:text="${stat.index + 1}">1</td>
+                    <td th:text="${match.matchId}">ID</td>
+                    <td th:text="${match.seasonName}">시즌</td>
+                    <td th:text="${match.matchRoundId}">라운드</td>
+                    <td th:text="${match.matchDate}">날짜</td>
+                    <td th:text="${match.matchStadium}">경기장</td>
+                    <td th:text="${match.teamName}">팀 이름</td>
+                    <td th:text="${match.matchSetScore}">우리 팀 점수</td>
+                    <td th:text="${match.matchOpponentTeamSetScore}">상대 팀 점수</td>
+                    <td th:text="${match.matchMailStatus}">메일 상태</td>
+                    <td th:text="${match.matchStatus}">경기 상태</td>
+                    <td>
+                        <a th:href="@{/admin/game/update/{matchId}(matchId=${match.matchId})}">
+                            <button>수정</button>
+                        </a>
+                    </td>
+                    <td>
+                        <button th:if="${match.matchStatus == 'DEFAULT'}"
+                                onclick="deactivateMatch([[${match.matchId}]])">삭제</button>
+                        <button th:if="${match.matchStatus == 'DELETED'}"
+                                onclick="activateMatch([[${match.matchId}]])">활성화</button>
+                    </td>
+                    <td>
+                        <button onclick="updateMailStatus([[${match.matchId}]])"
+                                th:disabled="${match.matchMailStatus != 'REQUIRED'}">메일 상태 변경</button>
+                    </td>
+                    <td>
+                        <button onclick="sendEmails([[${match.matchId}]])"
+                                th:disabled="${match.matchMailStatus != 'REQUIRED'}">메일 발송</button>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+
+            <!-- 페이지네이션 컨트롤 -->
+            <div class="pagination">
+                <div class="pages">
+                    <a href="#" th:onclick="|changePage(0)|" class="btn btn-outline-secondary" th:classappend="${currentPage == 0} ? ' disabled'" aria-label="First">&laquo;</a>
+                    <a href="#" th:onclick="|changePage(${currentPage - 1})|" class="btn btn-outline-secondary" th:classappend="${currentPage == 0} ? ' disabled'" aria-label="Previous">&lt;</a>
+
+                    <span th:each="page : ${#numbers.sequence(1, totalPages)}">
+                        <a href="#" th:text="${page}" th:onclick="|changePage(${page - 1})|"
+                           th:classappend="${page - 1 == currentPage} ? 'btn btn-primary' : 'btn btn-outline-secondary'"></a>
+                    </span>
+
+                    <a href="#" th:onclick="|changePage(${currentPage + 1})|" class="btn btn-outline-secondary" th:classappend="${currentPage == totalPages - 1} ? ' disabled'" aria-label="Next">&gt;</a>
+                    <a href="#" th:onclick="|changePage(${totalPages - 1})|" class="btn btn-outline-secondary" th:classappend="${currentPage == totalPages - 1} ? ' disabled'" aria-label="Last">&raquo;</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script th:inline="javascript">
+        $(document).ready(function() {
+            let currentPage = 0;
+            const pageSize = 10;
+
+            function fetchMatches(page) {
+                console.log('fetchMatches called with page:', page); // 호출 확인 로그
+                currentPage = page;
+
+                const selectedSeason = $('#season').val();
+                const selectedRound = $('#round').val();
+                const selectedStadium = $('#stadium').val();
+                const selectedTeam = $('#team').val();
+                const selectedMailStatus = $('#mailStatus').val();
+                const selectedMatchStatus = $('#matchStatus').val();
+                const selectedSortOrder = $('#sortOrder').val().split(',');
+
+                axios.get('/admin/game/', {
+                    params: {
+                        page: page,
+                        size: pageSize,
+                        seasonId: selectedSeason || null,
+                        matchRoundId: selectedRound || null,
+                        matchStadium: selectedStadium || null,
+                        teamId: selectedTeam || null,
+                        matchMailStatus: selectedMailStatus || null,
+                        matchStatus: selectedMatchStatus || null,
+                        sortField: selectedSortOrder[0],
+                        sortDirection: selectedSortOrder[1]
+                    }
+                })
+                .then(response => {
+                    const data = response.data.content;
+                    const totalPages = response.data.totalPages;
+                    console.log('Fetched data:', data); // 확인용 로그
+                    renderMatchTable(data);
+                    renderPagination(totalPages);
+                })
+                .catch(error => {
+                    console.error('Error fetching match data:', error);
+                });
+            }
+
+            function resetFilters() {
+                $('#season, #round, #stadium, #team, #mailStatus, #matchStatus').val('');
+                fetchMatches(0);
+            }
+
+            window.resetFilters = resetFilters;
+
+            function renderMatchTable(matches) {
+                const tableBody = $('.match-table-body');
+                tableBody.empty();
+                matches.forEach((match, index) => {
+                    const row = `
+                        <tr>
+                            <td>${index + 1}</td>
+                            <td>${match.matchId}</td>
+                            <td>${match.seasonName}</td>
+                            <td>${match.matchRoundId}</td>
+                            <td>${match.matchDate}</td>
+                            <td>${match.matchStadium}</td>
+                            <td>${match.teamName}</td>
+                            <td>${match.matchSetScore}</td>
+                            <td>${match.matchOpponentTeamSetScore}</td>
+                            <td>${match.matchMailStatus}</td>
+                            <td>${match.matchStatus}</td>
+                            <td><a href="/game/admin/update/${match.matchId}">수정</a></td>
+                            <td><button onclick="deactivateMatch(${match.matchId})">삭제</button></td>
+                            <td><button onclick="updateMailStatus(${match.matchId})">메일 상태 변경</button></td>
+                            <td><button onclick="sendEmails(${match.matchId})">메일 발송</button></td>
+                        </tr>`;
+                    tableBody.append(row);
+                });
+            }
+
+            function renderPagination(totalPages) {
+                const paginationDiv = $('.pagination .pages');
+                paginationDiv.empty();
+                for (let page = 0; page < totalPages; page++) {
+                    const button = `<a href="#" onclick="fetchMatches(${page})">${page + 1}</a>`;
+                    paginationDiv.append(button);
+                }
+            }
+
+            $('#season, #round, #sortOrder, #stadium, #team, #mailStatus, #matchStatus').change(() => fetchMatches(0));
+
+            fetchMatches(0); // 초기 데이터 로드
+        });
+    </script>
+</div>
+
 </body>
 </html>
