@@ -1,10 +1,8 @@
 package com.team.MMSValleyBall.controller;
 
-import com.team.MMSValleyBall.dto.MatchDTO;
 import com.team.MMSValleyBall.dto.MatchWithTeamDTO;
 import com.team.MMSValleyBall.dto.SeasonDTO;
 import com.team.MMSValleyBall.dto.TeamDTO;
-import com.team.MMSValleyBall.entity.Match;
 import com.team.MMSValleyBall.service.GameService;
 
 import org.springframework.data.domain.Page;
@@ -41,7 +39,7 @@ public class GameController {
         return ResponseEntity.ok(matchList);
     }
 
-    // GAME - 경기 결과
+    // GAME - RESULTS - 시즌별 경기 일정
     @GetMapping("/results")
     public ResponseEntity<Page<MatchWithTeamDTO>> getMatches(
             @RequestParam("seasonId") Long seasonId,
@@ -52,7 +50,7 @@ public class GameController {
         return ResponseEntity.ok(matchPage);
     }
 
-    // ADMIN - MAIN - 전체 경기 페이지네이션
+    // ADMIN - MAIN - 전체 경기
     @GetMapping("/admin")
     public ResponseEntity<Page<MatchWithTeamDTO>> getAllMatches(
             @RequestParam(name = "page") int page,
@@ -106,7 +104,7 @@ public class GameController {
         return ResponseEntity.ok(result);
     }
 
-    // ADMIN - 메일 발송
+    // ADMIN - 메일 발송 및 상태 변경
     @PostMapping("/admin/{matchId}/sendEmail")
     public ResponseEntity<String> sendEmailsForMatch(@PathVariable("matchId") Long matchId) {
         String result = gameService.sendEmailsForMatch(matchId);

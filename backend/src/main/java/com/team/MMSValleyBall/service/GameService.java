@@ -1,6 +1,5 @@
 package com.team.MMSValleyBall.service;
 
-import com.team.MMSValleyBall.dto.MatchDTO;
 import com.team.MMSValleyBall.dto.MatchWithTeamDTO;
 import com.team.MMSValleyBall.dto.SeasonDTO;
 import com.team.MMSValleyBall.dto.TeamDTO;
@@ -14,14 +13,11 @@ import com.team.MMSValleyBall.repository.GameRepository;
 import com.team.MMSValleyBall.repository.SeasonRepository;
 import com.team.MMSValleyBall.repository.TeamRepository;
 import com.team.MMSValleyBall.repository.TicketRepository;
-import org.apache.catalina.User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import org.springframework.util.ObjectUtils;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class GameService {
@@ -39,30 +35,22 @@ public class GameService {
         this.teamRepository = teamRepository;
     }
 
-    // MAIN - 경기 일정 (최근 한달)
-    public List<MatchDTO> findAllMatches() {
-        return gameRepository.findAll()
-                .stream()
-                .map(entity-> MatchDTO.fromEntity(entity))
-                .toList();
-    }
-
-    // GAME - SCHEDULE - 경기 일정 (전체)
+    // MAIN & GAME 공통 사용 CALENDAR - 경기 일정
     public List<MatchWithTeamDTO> findAllMatchesWithTeams() {
-        List<MatchWithTeamDTO> matchList = gameRepository.findAll()
+        List<MatchWithTeamDTO> matchList = gameRepository.findAllDefaultMatches()
                                             .stream()
                                             .map(entity -> MatchWithTeamDTO.fromEntity(entity))
                                             .toList();
         return matchList;
     }
 
-    // GAME - RESULTS - 시즌별 페이지 단위 경기 일정 조회 (Page<MatchWithTeamDTO> 반환)
+    // GAME - RESULTS - 시즌별 경기 일정
     public Page<MatchWithTeamDTO> getMatchesBySeasonAndRound(Long seasonId, Integer matchRoundId, Pageable pageable) {
-        return gameRepository.findBySeasonAndRound(seasonId, matchRoundId, pageable)
+        return gameRepository.findBySeasonAndRound(seasonId, matchRoundId, MatchStatus.DEFAULT, pageable)
                                 .map(entity -> MatchWithTeamDTO.fromEntity(entity));
     }
 
-    // ADMIN - MAIN - 전체 경기 페이지네이션
+    // ADMIN - MAIN - 전체 경기
     public Page<MatchWithTeamDTO> findAllMatches(Pageable pageable) {
         return gameRepository.findAll(pageable)
         .map(entity -> MatchWithTeamDTO.fromEntity(entity));
@@ -122,7 +110,7 @@ public class GameService {
         Match match = gameRepository.findById(matchId)
                 .orElseThrow(() -> new RuntimeException("경기를 찾을 수 없습니다."));
         match.setMatchStatus(MatchStatus.valueOf(status)); // status를 MatchStatus enum으로 변환하여 설정
-        gameRepository.save(match); // 상태 업데이트
+        gameRepository.save(match);
         return "경기 상태가 " + status + "(으)로 변경되었습니다.";
     }
 
@@ -186,10 +174,10 @@ public class GameService {
         match.setMatchMailStatus(MailStatus.DEFAULT);
         gameRepository.save(match);
 
-        return "메일 발송 완료 및 상태 업데이트 완료";
+        return "메일 발송 및 상태 업데이트를 완료했습니다.";
     }
 
-    // ADMIN - UPDATE - 경기 조회 (Edit 폼에 뿌려줄 데이터 조회)
+    // ADMIN - UPDATE - 경기 조회 (Update 페이지에 보여줄 데이터 조회)
     public MatchWithTeamDTO getMatchById(Long matchId) {
         Match match = gameRepository.findById(matchId)
                 .orElseThrow(() -> new RuntimeException("경기를 찾을 수 없습니다."));
@@ -213,6 +201,6 @@ public class GameService {
         match.setMatchRoundId(matchDTO.getMatchRoundId());
 
         gameRepository.save(match);
-        return "경기 정보 업데이트 성공";
+        return "경기 정보 업데이트에 성공했습니다.";
     }
 }

@@ -106,9 +106,8 @@ export default {
       matches: [], // 전체 경기 데이터 저장
       currentPage: 0, // 현재 페이지
       totalPages: 0, // 전체 페이지 수
-      // matchRoundId: '',  // 시작 라운드
-      matchRoundId: 1, // 시작 라운드
-      maxRound: 6, // 예시로 총 6라운드라고 가정
+      matchRoundId: 2, // 시작 라운드
+      maxRound: 6, // 총 라운드 수
     };
   },
   watch: {
@@ -142,7 +141,6 @@ export default {
             seasonId: this.selectedSeasonId,
             page: page,
             size: 10, // 10개씩 페이징 처리
-            status: 'DEFAULT', // MatchStatus가 DEFAULT인 데이터만 가져오기
             matchRoundId: this.matchRoundId, // 선택된 라운드
             sort: 'matchDate,asc', // matchDate를 기준으로 오름차순 정렬
           },
@@ -169,7 +167,6 @@ export default {
           seasonId: this.selectedSeasonId,
           page: 0,
           size: 1000, // 한 페이지에 최대한 큰 값을 설정하여 모든 데이터를 가져오기
-          status: 'DEFAULT', // MatchStatus가 DEFAULT인 데이터만 가져오기
           sort: 'matchDate,asc', // matchDate를 기준으로 오름차순 정렬
           },
         });
