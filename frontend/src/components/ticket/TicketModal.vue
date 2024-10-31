@@ -8,7 +8,7 @@
             <!-- 모달 제목 -->
             <!-- 선택한 데이터 가져와서 일정 넣어야함 -->
             <div class="modal-title" v-if="firstPage">
-                <p id="match-info"><strong>{{ formatMatchInfo(matchInfo.matchTeam, thisTeam) }}</strong></p>
+                <p class="match-info-title"><strong>{{ formatMatchInfo(matchInfo.matchTeam, thisTeam) }}</strong></p>
                 <div class="match-info">
                     <p>{{ match.matchStadium }}&nbsp;</p>
                     <p> | &nbsp;</p> 
@@ -28,62 +28,63 @@
 
             <!-- 모달 표 -->
             <div class="modal-table-container">
-                        <table class="modal-table">
-                            <thead class="table-theader">
-                                <tr>
-                                    <th>구역</th>
-                                    <th>선택</th>
-                                    <th>잔여석</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr v-for="zone in filteredAvailableSeats" :key="zone.zoneName" @click="selectZone(zone)">
-                                    <td>{{ zone.zoneName }}</td>
-                                    <td>
-                                        <input type="checkbox" v-model="zone.isChecked" />
-                                    </td>
-                                    <td>{{ zone.availableSeatAmount }}석</td>
-                                </tr>
-                            </tbody>
-                        </table>
+                <table class="modal-table">
+                    <thead class="table-theader">
+                        <tr>
+                            <th>구역</th>
+                            <!-- <th></th> -->
+                            <th>잔여석</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr v-for="zone in filteredAvailableSeats" :key="zone.zoneName">
+                            <td>
+                                <button class="select-zone-btn" @click="toggleZoneSelection(zone)">
+                                    {{ zone.zoneName }}
+                                </button>
+                            </td>
+                            <!-- <td></td> -->
+                            <td>{{ zone.availableSeatAmount }}석</td>
+                        </tr>
 
-                        <!-- 선택한 구역의 섹션 표시 -->
-                        <div v-for="zone in selectedZones" :key="zone.zoneName">
-                            <h3>{{ zone.zoneName }} 구역의 섹션</h3>
-                            <table class="modal-table">
-                                <thead class="table-theader">
-                                    <tr>
-                                        <th>섹션</th>
-                                        <th>매수 선택</th>
-                                        <th>잔여석</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr v-for="section in zone.sections" :key="section.seatId">
-                                        <td>{{ section.sectionName }}</td>
-                                        <td>
-                                            <div class="quantity-selector">
-                                                <button @click="decreaseQuantity(section.seatId)" :disabled="section.availableSeatAmount <= 0">-</button>
-                                                <input type="text" v-model="section.quantity" readonly class="quantity-box" />
-                                                <button @click="increaseQuantity(section.seatId, section.availableSeatAmount)">+</button>
-                                            </div>
-                                        </td>
-                                        <td>{{ section.availableSeatAmount }}석</td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-                <hr class="divider" />
+                        <!-- 선택한 구역의 섹션 정보 표시 -->
+                        <tr v-if="zoneSelection != null">
+                            <td colspan="2">
+                                <table class="modal-table-hide">
+                                    <tbody>
+                                        <tr v-for="section in zoneSelection.sections" :key="section.seatId">
+                                            <td>{{ section.sectionName }}</td>
+                                            <td>
+                                                <div class="quantity-selector">
+                                                    <button @click="decreaseQuantity(section)" 
+                                                            :disabled="section.quantity <= 0">-</button>
+                                                    <input type="text" v-model="section.quantity" readonly class="quantity-box" />
+                                                    <button @click="increaseQuantity(section, section.availableSeatAmount)">
+                                                        +
+                                                    </button>
+                                                </div>
+                                            </td>
+                                            <td>{{ section.availableSeatAmount }}석</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </td>
+                        </tr>
+
+                    </tbody>
+                </table>
+
+            </div>
+        </div>
+        <hr class="divider" />
 
         <div class="result-text">
             구역을 선택하면 좌석은 자동 배정됩니다.
-            <div v-for="zone in selectedZones" :key="zone.zoneName">
-                선택한 좌석 : {{ zone.zoneName }}구역 {{ zone.quantity }}매
+            <div>
+                선택한 좌석 : {{ sectionSelection ? sectionSelection.sectionName : ' ' }}구역 {{ countTicket }}매
             </div>
             <div class="result-text-all">
-                총 : {{ countTicket.count }}매
+                총 : {{ countTicket }}매
             </div>
         </div>
         <div class="first-button">
@@ -99,42 +100,39 @@
             <!-- 2번째 모달  -->
             <div v-if="secondPage" class="second-modal-content">
                 <div class="modal-body">
-
+                    <div class="left-body">
+                            <!-- 경기 정보 -->
+                    <div class="second-modal-left">
+                     <div class="modal-second-title">
+                        <p id="second-modal-match-info-title"><strong>{{ formatMatchInfo(matchInfo.matchTeam, thisTeam) }}</strong></p>
+                        <div id="second-modal-match-info">
+                            <p>{{ match.matchStadium }}&nbsp;</p>
+                            <p> | &nbsp;</p> 
+                            <p v-html="formatDate(match.matchDate)"></p>
+                        </div>
+                    </div>
                     <!-- 왼쪽 표 -->
                     <div class="left-table">
                         <div class="modal-table-container">
                             <table class="modal-table">
-                                <thead class="table-theader">
-                                    <tr>
+                                    <tr class="table-theader">
                                         <th>구역</th>
                                         <th>매수</th>
                                         <th>금액</th>
-                                        <th>멤버쉽할인</th>
+                                        <th>멤버십할인</th>
                                     </tr>
-                                </thead>
-
-                                <!-- DB 조회하여 데이터 넣는 구간 -->
-                                <tbody>
-                                    <tr v-for="zone in selectedZones" :key="zone.name">
-                                        <td> {{ zone.name }}구역 </td>
-                                        <td> {{ zone.quantity }}매</td>
-                                        <td> {{ zone.price }}원</td>
-                                        <td>골드</td>
-                                    </tr>
-                                </tbody>
-                            </table>
-
-                            <table class="modal-table">
-                                <thead class="table-theader">
                                     <tr>
-                                        <td colspan="4">총액</td>
+                                        <td> {{ seatSelection.sectionName }}구역 </td>
+                                        <td> {{ seatSelection.quantity }}매</td>
+                                        <td> {{ seatSelection.seatPrice }}원</td>
+                                        <td> {{ userMembership.membershipDiscount }} %</td>
                                     </tr>
-                                </thead>
-                                <tbody>
+                                    <tr class="table-theader">
+                                        <th colspan="4">총액</th>
+                                    </tr>
                                     <tr>
                                         <td colspan="4">{{ formattedTotal }}원</td>
                                     </tr>
-                                </tbody>
                             </table>
 
                             <div class="modal-info-box">
@@ -152,86 +150,80 @@
                                     </p>
                                 </div>
                             </div>
+                    </div>
+                     
+                        </div>
                         </div>
                     </div>
 
-                    <div class="vertical-divider"></div>
+                <div class="vertical-divider"></div>
+                    
+                <div class="right-table">
+                   
+                    <div class="ticket-info-content">
+                        <p><strong>[예매정보]</strong></p>
+                        <p>경기정보: {{ formatMatchInfo(matchInfo.matchTeam, thisTeam) }}</p>
+                        <p>경기장: {{ match.matchStadium }}</p>
+                        <p v-html="`경기일시: ${formatDate(match.matchDate)}`"></p>
+                        <p>구역: <strong>{{ seatSelection.sectionName }}</strong>구역 / <strong>{{ seatSelection.quantity }}</strong>매</p>
+                    </div>
+                    <hr class="divider" />
 
-                    <!-- 오른쪽 표 -->
-                    <div class="right-table">
-
-                        <!-- 모달 제목 -->
-                        <!-- 선택한 데이터 가져와서 일정 넣어야함 -->
-                        <div class="modal-second-title">
-                            <h2>{{ formatMatchInfo(matchInfo.matchTeam, thisTeam) }}</h2>
-                            <div class="match-info">
-                                <p>{{ matchInfo.matchStadium }}</p>
-                                <p> | </p> 
-                                <p v-html="formatDate(matchInfo.matchDate)"></p>
+                    <div>
+                        <table class="second-modal-table" id="second-modal-ticke-price">
+                            <tr>
+                                <td>티켓 금액</td>
+                                <td>
+                                    {{ formattedTotal }}원
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>멤버십 할인</td>
+                                <td>
+                                    {{ formattedMembershipType }} | {{ userMembership.membershipDiscount }} %
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>총 결제 금액</td>
+                                <td>
+                                    {{ formattedPayment.payment }}원
+                                </td>
+                            </tr>
+                        </table>
+                        <br>
+                        <div class="charge">
+                            <div class="charge-money">
+                                    <p><strong>이용가능한 충전금액 : </strong></p>
+                                    <p>{{ userBalance }} 원</p>
+                            </div>
+                            <button id="btn-charge" v-if="payment.leftMoney < 0" onclick="window.location.href='http://localhost:8080//myPage/info/recharge';">충전하기</button>
+                            <div class="membership-price">
+                                <p>결제금액</p>
+                                <p>- {{ formattedPayment.payment }} 원</p>
+                            </div>
+                            <div class="left-money">
+                                <p>잔액</p>
+                                <!-- leftMoney 값이 0보다 작으면 'negative' 클래스를 추가 -->
+                                <p :class="{ 'negative': payment.leftMoney < 0 }">{{ formattedPayment.leftMoney }} 원</p>
                             </div>
                         </div>
-                        <div>
-                            예매정보
-                        </div>
-                        <div v-for="zone in selectedZones" :key="zone.name">
-                            {{ zone.name }}구역 / {{ zone.quantity }}매
-                        </div>
-                        <hr class="divider" />
 
-                        <div>
-                            <table class="second-modal-table">
-                                <tr>
-                                    <td>티켓 금액</td>
-                                    <td>
-                                        {{ formattedTotal }}원
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>멤버십 할인</td>
-                                    <td>
-                                        골드
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>총 결제 금액</td>
-                                    <td>
-                                        {{ formattedTotal }}원
-                                    </td>
-                                </tr>
-                            </table>
-                            <br>
-                            <table class="second-modal-table">
-                                <tr>
-                                    <td>충전 금액</td>
-                                    <td>충전 금액</td>
-                                </tr>
-                                <tr>
-                                    <td> - 총 결제 금액</td>
-                                    <td>총 결제 금액</td>
-                                </tr>
-                                <tr>
-                                    <td>충전 잔액</td>
-                                    <td>충전 잔액</td>
-                                </tr>
-                            </table>
-
-                        </div>
-                        <div>
-                            <p class="p">
-                                취소기한 : 자동계산 [12시간 전]<br>
-                                <!-- 링크 -->
-                                취소수수료 : [상세보기]
-                            </p>
-                        </div>
-                        <div class="second-button">
-                            <!-- 결제 버튼 -->
-                            <button class="buy-button" @click="openThirdPage">예매 하기</button>
-                            <!-- 모달 종료버튼 -->
-                            <button class="close-button" @click="openFirstPage">취소</button>
-                        </div>
                     </div>
-
-
+                    <div>
+                        <p class="p">
+                            취소기한 : 자동계산 [12시간 전]<br>
+                            <!-- 링크 -->
+                            취소수수료 : [상세보기]
+                        </p>
+                    </div>
+                    <div class="second-button">
+                        <!-- 결제 버튼 -->
+                        <button v-if="payment.leftMoney >= 0" class="buy-button" @click="openThirdPage">예매 하기</button>
+                        <!-- 모달 종료버튼 -->
+                        <button class="close-button" @click="openFirstPage">취소</button>
+                    </div>
+                    </div>
+                
                 </div>
             </div>
         </div>
@@ -289,8 +281,18 @@ export default {
         },
 
         formattedPayment() {
-            return this.payment.toLocaleString();
+        // 변환된 결제 금액과 잔액을 반환
+            return {
+                payment: this.payment.payment.toLocaleString(),
+                leftMoney: this.payment.leftMoney.toLocaleString()
+            };
         },
+        formattedMembershipType() {
+            const membershipType = this.userMembership.membershipType;
+            // '/' 이후 세 글자와 그 이후 문자열을 추출
+            const match = membershipType.match(/\/.{3}(.+)/);
+            return match ? match[1].trim() : '';
+        }
 
     },
 
@@ -320,20 +322,30 @@ export default {
             userMembership: {},
             seatDTOList: [],
 
-            // 기타
+            // 좌석 선택 관련
+            zones: [],  // 초기값 설정
+            zoneSelection: null,
+            sectionSelection: null,
             selectedZoneImage: require('@/assets/img/stadium/stadium-main.jpg'),
-            countTicket: {
-                count: 0,
+            // 좌석 계산
+            countTicket: 0,
+            selectedZone: null,
+            seatSelection : {
+                seatId : null,
+                sectionName : '',
+                seatPrice: null,
+                quantity: 0
             },
             total: 0,
+            payment: {},
             thisTeam: "GS ITM",
-            zones: []  // 초기값 설정
         };
     },
 
     methods: {
         // API 호출
         async fetchEvents() {
+            // let data = {};
             try {
                 console.log("Sending request with:", {
                     email: this.user.email,
@@ -345,7 +357,6 @@ export default {
                         matchId: this.match.matchId
                     }
                 });
-                // 서버 응답 처리
                 this.ticketSalesDto = response.data.ticketSalesDto;
                 this.userBalance = response.data.userBalance;
                 this.matchInfo = response.data.matchInfo;
@@ -354,7 +365,8 @@ export default {
                 this.seatDTOList = response.data.seatDTOList;
                 this.initializeSectionQuantities(); // 섹션 수량 초기화
                 console.log(response.data);
-                this.dataFetched = true; // 데이터가 불러와졌다고 표시
+                console.log("response:", response);
+                // response.data = response.data;
             } catch (error) {
                 console.error("Error fetching data: ", error);
             }
@@ -386,9 +398,23 @@ export default {
 
         // 총합
         calculateTotal() {
-            for (let i = 0; i < this.selectedZones.length; i++) {
-                this.total = this.selectedZones[i].price * this.selectedZones[i].quantity + this.total;
-            }
+            this.total = this.seatSelection.seatPrice * this.seatSelection.quantity;
+        },
+        // 결제 금액
+        calculatePayment() {
+            this.payment.payment = this.total * (100 - this.userMembership.membershipDiscount) * 0.01;
+            this.payment.leftMoney = this.userBalance - this.payment.payment;
+        },
+        createSeatSelection(){
+            const matchingSeat = this.seatDTOList.find(seat => seat.seatId === this.sectionSelection.seatId);
+            const seatPrice = matchingSeat ? matchingSeat.seatPrice : 0; // 매칭된 좌석이 없을 경우 기본값 0
+
+            this.seatSelection = {
+                seatId: this.sectionSelection.seatId,
+                sectionName: this.sectionSelection.sectionName,
+                quantity: this.countTicket,
+                seatPrice: seatPrice
+            };
         },
 
         // 첫 모달창으로 이동
@@ -400,7 +426,9 @@ export default {
 
         // 두번째 모달창으로 이동
         openSecondPage() {
+            this.createSeatSelection();
             this.calculateTotal();
+            this.calculatePayment();
             if (this.total > 0) {
                 this.firstPage = false;
                 this.secondPage = true;
@@ -409,15 +437,78 @@ export default {
             }
         },
 
+        increaseQuantity(section) {
+            //수량 초기화
+            this.initializeSectionQuantities();
+            if (section.quantity < 4 && section.availableSeatAmount > section.quantity) {
+                section.quantity++;
+                this.countTicket++;
+                this.sectionSelection = section; // 선택된 섹션 정보 저장
+            }
+            // 섹션 이름에서 첫 글자 추출
+            const sectionName =section.sectionName;
+            const firstChar = sectionName.charAt(0).toUpperCase(); // 첫 글자
+            const secondChar = sectionName.split('/')[1]?.charAt(0).toUpperCase(); // '/' 다음 첫 글자
+            console.log(`선택된 구역 이름: ${firstChar}${secondChar}`);
+            // 파일 경로 생성
+            if (secondChar) {
+                this.selectedZoneImage = require(`@/assets/img/stadium/stadium-${firstChar}${secondChar}.jpg`); // 조합된 파일명
+            } else {
+                this.selectedZoneImage = require('@/assets/img/stadium/stadium-main.jpg'); // 기본 이미지
+            }
+        },
 
-        onCheckboxChange() {
+        decreaseQuantity(section) {
+            if (section.quantity > 0) {
+                section.quantity--;
+                this.countTicket--;
+            }
+            // 섹션 이름에서 첫 글자 추출
+            const sectionName =section.sectionName;
+            const firstChar = sectionName.charAt(0).toUpperCase(); // 첫 글자
+            const secondChar = sectionName.split('/')[1]?.charAt(0).toUpperCase(); // '/' 다음 첫 글자
+            console.log(`선택된 구역 이름: ${firstChar}${secondChar}`);
+            // 파일 경로 생성
+            if (secondChar) {
+                this.selectedZoneImage = require(`@/assets/img/stadium/stadium-${firstChar}${secondChar}.jpg`); // 조합된 파일명
+            } else {
+                this.selectedZoneImage = require('@/assets/img/stadium/stadium-main.jpg'); // 기본 이미지
+            }
+        },
+
+        toggleZoneSelection(zone) {
+            if (this.zoneSelection && this.zoneSelection.zoneName === zone.zoneName) {
+                // 선택 해제
+                this.zoneSelection = null;
+                this.sectionSelection = null;
+                this.countTicket = 0;
+            } else {
+                // 새로운 구역 선택
+                this.zoneSelection = zone;
+            }
+        },
+        toggleSectionQuantity(section) {
+            // 다른 섹션의 매수가 변화할 때 기존 선택된 섹션의 수량을 0으로 초기화
+            this.zoneSelection.sections.forEach(sec => {
+                if (sec !== section) {
+                    sec.quantity = 0; // 선택되지 않은 섹션의 수량 초기화
+                    this.countTicket = 0;
+                }
+            });
+            this.sectionSelection = section; // 현재 섹션을 선택
+            
+        },
+
+        onCheckboxChange(zone) {
             if (this.isChecked) {
-                this.showDetails();
+                this.showDetails(zone);
             } else {
                 this.hideDetails();
             }
         },
-        showDetails() {
+        showDetails(zone) {
+            this.zoneSelection = zone;
+            
         },
         hideDetails() {
             this.countTicket.count = 0;
@@ -426,6 +517,17 @@ export default {
             });
             this.selectedZoneImage =
                 require('@/assets/img/stadium/stadium-main.jpg'); // 이미지도 초기화
+        },
+
+        initializeSectionQuantities() {
+            //countTicket 초기화
+            this.countTicket = 0;
+            // 각 섹션의 수량을 초기화
+            this.availableSeatsList.forEach(zone => {
+                zone.sections.forEach(section => {
+                    section.quantity = 0; // 수량 초기화
+                });
+            });
         },
 
         // 모달 열기 닫기
@@ -437,55 +539,7 @@ export default {
         openModal() {
             this.isModalOpen = true;
         },
-        // 좌석 선택 관련
-        selectZone(zone) {
-            if (zone && typeof zone.isChecked !== 'undefined') {
-                // 모든 구역의 선택 상태를 해제
-                this.zones.forEach(z => {
-                    if (z.zoneName !== zone.zoneName) {
-                        z.isChecked = false; // 선택 해제
-                    }
-                });
 
-                // 선택된 구역을 체크
-                zone.isChecked = !zone.isChecked;
-
-                if (zone.isChecked) {
-                    // 선택한 구역을 selectedZones에 추가
-                    const existingZone = this.selectedZones.find(z => z.zoneName === zone.zoneName);
-                    if (!existingZone) {
-                        this.selectedZones = [{
-                            zoneName: zone.zoneName,
-                            sections: zone.sections, // 구역의 섹션 정보를 추가
-                            quantity: 0 // 수량 초기화
-                        }];
-                    }
-                } else {
-                    // 체크 해제 시 selectedZones에서 제거
-                    this.selectedZones = this.selectedZones.filter(z => z.zoneName !== zone.zoneName);
-                }
-            }
-        },
-        initializeSectionQuantities() {
-            // 각 섹션의 수량을 초기화
-            this.availableSeatsList.forEach(zone => {
-                zone.sections.forEach(section => {
-                    section.quantity = 0; // 수량 초기화
-                });
-            });
-        },
-        increaseQuantity(seatId, availableSeatAmount) {
-            const section = this.selectedZones.flatMap(zone => zone.sections).find(section => section.seatId === seatId);
-            if (section && section.quantity < availableSeatAmount) {
-                section.quantity++;
-            }
-        },
-        decreaseQuantity(seatId) {
-            const section = this.selectedZones.flatMap(zone => zone.sections).find(section => section.seatId === seatId);
-            if (section && section.quantity > 0) {
-                section.quantity--;
-            }
-        },
     },
 }
 </script>
@@ -511,7 +565,7 @@ export default {
     padding: 20px;
     border-radius: 10px;
     max-width: 2000px;
-    max-height: 1000px;
+    max-height: 1500px;
     position: relative;
 }
 
@@ -522,7 +576,12 @@ export default {
     width: 1300px;
     max-height: 1000px;
 }
-
+.left-body{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
 .modal-title {
     text-align: center;
     /* 타이틀을 가운데 정렬 */
@@ -530,20 +589,42 @@ export default {
     /* 타이틀 아래 간격 */
     font-size: 23px;
 }
-#match-info {
+.match-info-title {
     margin-bottom: 0px;
     font-size: 26px;
 }
 .modal-second-title {
-    margin-bottom: 20px;
+    margin-bottom: 0px;
     /* 타이틀 아래 간격 */
 }
-
+.modal-second-title{
+    margin: 5px;
+    font-size: 20px;
+}
+#second-modal-match-info-title {
+    margin: 0px;
+    font-size: 20px;
+    margin-bottom: -5px;
+}
+#second-modal-match-info{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 0px;
+}
 .modal-body {
     display: flex;
     /* 이미지와 표를 옆으로 나란히 배치 */
     align-items: flex-start;
     /* 이미지와 표의 상단을 맞추기 */
+}
+
+.second-modal-left {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 20px;
+    justify-content: center;
+    align-items: center;
 }
 
 /* 티켓 이미지 */
@@ -556,6 +637,8 @@ export default {
 /* 이미 잘린 이미지 부분 안으로 표가 들어가게 함 */
 .modal-table-container {
     margin-left: -10%;
+    justify-content: center;
+    align-items: center;
 }
 
 .modal-table {
@@ -570,7 +653,7 @@ export default {
     position: absolute;
     right: 38%;
     width: 1px;
-    height: 550px;
+    height: 800px;
     background-color: black;
     /* 세로 줄 색상 */
     margin: 0 20px;
@@ -582,10 +665,10 @@ export default {
 }
 
 .modal-table-hide {
-    margin-left: 10%;
+    margin-left: 5%;
     border-collapse: collapse;
     font-size: 18px;
-    width: 700px;
+    width: 90%;
     table-layout: fixed;
     /* 테이블 레이아웃을 고정(fixed)으로 설정 */
     background-color: rgb(255, 255, 255);
@@ -610,8 +693,8 @@ export default {
     /* 내부 여백 */
     margin-top: 30px;
     margin-bottom: 30px;
-    margin-left: 70px;
-    width: 90%;
+    margin-left: 80px;
+    width: 83%;
 }
 
 .icon {
@@ -649,12 +732,12 @@ export default {
 }
 
 .right-table {
-    margin-left: 6.5%;
+    margin-left: 5%;
     width: 400px;
 }
 
 .left-table {
-    margin-top: 100px;
+    margin-top: 20px;
 }
 
 .second-modal-table {
@@ -665,6 +748,14 @@ export default {
     background: white;
     border-collapse: collapse;
     table-layout: fixed;
+}
+
+.second-modal-ticket-price {
+    font-size: 20px;
+}
+.ticket-info-content {
+    text-align: left;
+    line-height: 16px;
 }
 
 .quantity-selector button {
@@ -750,5 +841,66 @@ export default {
 
 .close-button:hover {
     background-color: #583939;
+}
+
+/* 충전 관련 */
+.charge {
+  border: 1px solid #bebebe;
+  padding: 20px;
+  width: 100%; /* 전체 페이지의 50%로 설정 */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-family: Arial, sans-serif;
+  border-radius: 15px;
+  font-size: 20px;
+}
+
+.charge-money {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  align-items: center;
+  margin-bottom: 25px;
+  align-items: flex-start; /* 텍스트와 버튼이 상단에 맞춰지도록 설정 */
+}
+
+.charge-money p {
+  margin: 0;
+  font-weight: bold;
+}
+.left-money {
+  border: 1px solid #BCE067;
+  padding-left: 15px;
+  padding-right: 15px;
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  margin: 5px 0;
+  border-radius: 10px;
+}
+
+.left-money{
+background-color: #E4F7BA;
+border: none;
+}
+.negative {
+  color: red; /* 잔액이 0보다 작을 때 빨간색으로 표시 */
+  font-weight: 900;
+}
+#btn-charge {
+    border: none;
+    columns: white;
+    font-weight: bold;
+    width: 80px;
+    height: 35px;
+    font-size: 15px;
+    background-color: #FFBB00;
+    margin-bottom: 0px;
+    padding: 4px 8px;
+    margin: 10px;
+    margin-top: -15px;
+    border-radius: 10px;
+    margin-left: auto;
 }
 </style>

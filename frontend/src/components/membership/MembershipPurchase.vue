@@ -156,7 +156,7 @@ export default {
         let membershipId = 4; // 기본값 (SILVER)
         
         if (this.selectedMembershipPrice === '100000') {
-          membershipId = 5; // SILVER
+          membershipId = 4; // SILVER
         } else if (this.selectedMembershipPrice === '300000') {
           membershipId = 6; // GOLD
         } else {

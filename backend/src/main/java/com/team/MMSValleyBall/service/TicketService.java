@@ -1,6 +1,7 @@
 package com.team.MMSValleyBall.service;
 
 import com.team.MMSValleyBall.dto.AvailableSeatDTO;
+import com.team.MMSValleyBall.dto.SeatDTO;
 import com.team.MMSValleyBall.dto.SectionInfo;
 import com.team.MMSValleyBall.dto.TicketSalesDTO;
 import com.team.MMSValleyBall.entity.*;
@@ -118,5 +119,9 @@ public class TicketService {
     public int findTicketPriceBySeatId(Long seatId) {
         Seat seat = seatRepository.findById(seatId).orElseThrow(() -> new RuntimeException("Seat not found for ID : " + seatId));
         return seat.getSeatPrice();
+    }
+
+    public List<SeatDTO> findSeatAll() {
+        return seatRepository.findAll().stream().map(SeatDTO::fromEntity).toList();
     }
 }
