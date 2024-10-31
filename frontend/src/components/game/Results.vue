@@ -146,6 +146,7 @@ export default {
           },
         });
         // 테이블 인덱스 (순번) 계산
+        // 가져온 데이터의 인덱스를 기준으로 index + 1로 계산해서 순번을 1부터 시작하도록 설정
         this.matches = response.data.content.map((match, index) => ({
           ...match,
           tableIndex: index + 1 + page * 6
@@ -170,8 +171,6 @@ export default {
           sort: 'matchDate,asc', // matchDate를 기준으로 오름차순 정렬
           },
         });
-        // 가져온 데이터의 인덱스를 기준으로 index + 1로 계산해서 순번을 1부터 시작하도록 설정
-        // 화면에 표시할 때 가독성을 높이기 위해 추가하는 테이블 인덱스 (순번)
         this.matches = response.data.content.map((match, index) => ({
           ...match,
           tableIndex: index + 1,

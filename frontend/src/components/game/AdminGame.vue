@@ -8,7 +8,7 @@
     <table>
         <thead>
             <tr>
-                <th>경기 ID</th>
+                <th>ID</th>
                 <th>경기 날짜</th>
                 <th>경기장</th>
                 <th>우리 팀 세트</th>
