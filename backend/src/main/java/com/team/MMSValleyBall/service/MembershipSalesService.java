@@ -37,6 +37,7 @@ public class MembershipSalesService {
         MembershipSales newMembership = new MembershipSales();
         if (user.isPresent()) {
             newMembership.setMembershipSalesUser(user.get());
+            user.get().setUserMembership(membership.get());
         }
         if (membership.isPresent()) {
             newMembership.setMembershipSalesMembership(membership.get());
@@ -46,6 +47,7 @@ public class MembershipSalesService {
         log.info("### membership sales service - new Membership : " + newMembership);
         //3. 새로운 membershipSales 엔티티 저장
         membershipSalesRepository.save(newMembership);
+        //4. user membership 정보 업데이트
     }
 
     // 사용자의 멤버십 결제 내역

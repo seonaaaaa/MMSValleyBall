@@ -218,7 +218,7 @@
                     </div>
                     <div class="second-button">
                         <!-- 결제 버튼 -->
-                        <button v-if="payment.leftMoney >= 0" class="buy-button" @click="openThirdPage">예매 하기</button>
+                        <button v-if="payment.leftMoney >= 0" class="buy-button" @click="purchaseTicket">예매 하기</button>
                         <!-- 모달 종료버튼 -->
                         <button class="close-button" @click="openFirstPage">취소</button>
                     </div>
@@ -369,6 +369,30 @@ export default {
                 // response.data = response.data;
             } catch (error) {
                 console.error("Error fetching data: ", error);
+            }
+        },
+        // 예매하기 버튼 클릭 시 호출되는 메서드
+        async purchaseTicket(){
+            this.ticketSalesDto = {
+                userEmail: this.user.email,
+                matchId: this.matchInfo.matchId,
+                ticketDetailAmount: this.seatSelection.quantity,
+                ticketDetailSeat: this.seatSelection.seatId,
+                ticketPaidPrice: this.payment.payment,
+                tickeId: null,
+                ticketNumber: null,
+                ticketCreateAt: new Date().toISOString(), // 현재 시간으로 설정
+            };
+            // axios 요청
+            try {
+                const response = await axios.post("/ticket/purchase/completed", this.ticketSalesDto);
+                console.log(response.data);
+                alert('티켓 구매 성공');
+                this.$router.push({ path: '/myPage/reservations' }); // 마이페이지로 리다이렉트
+            } catch (error) {
+                const errorMessage = error.response ? error.response.data : error.message;
+                console.error('Error purchasing ticket:', errorMessage); // 에러 메시지 로깅
+                alert('티켓 구매 실패: ' + errorMessage); // 사용자에게 구체적인 에러 메시지 표시
             }
         },
         // 경기 정보 형식 지정 메서드

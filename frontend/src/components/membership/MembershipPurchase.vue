@@ -153,7 +153,7 @@ export default {
     },
     // 구매하기 버튼 클릭 시 호출되는 메서드
     async purchaseMembership() {
-        let membershipId = 4; // 기본값 (SILVER)
+        let membershipId = 2; // 기본값 (bronze)
         
         if (this.selectedMembershipPrice === '100000') {
           membershipId = 4; // SILVER

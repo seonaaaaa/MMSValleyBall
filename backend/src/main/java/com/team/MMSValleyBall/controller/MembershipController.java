@@ -34,7 +34,7 @@ public class MembershipController {
 
     // 멤버십 구매 페이지 정보 가져오기
     @GetMapping("/purchase")
-    public ResponseEntity<?> viewMembershipPurchase(@RequestParam String email) {
+    public ResponseEntity<?> viewMembershipPurchase(@RequestParam("email") String email) {
         try {
             // 1. 세션에서 보낸 RequestParam으로 email 받아옴.
             if (email == null || email.isEmpty()) {

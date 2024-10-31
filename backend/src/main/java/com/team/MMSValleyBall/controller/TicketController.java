@@ -8,7 +8,9 @@ import com.team.MMSValleyBall.service.TicketService;
 import com.team.MMSValleyBall.service.UserService;
 import com.team.MMSValleyBall.service.UsersBalanceService;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DataAccessException;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -73,7 +75,7 @@ public class TicketController {
     // 티켓 구매 모달창 하나로 처리
     @GetMapping("/purchase/modal")
 //    public ResponseEntity<MultiValueMap<String,Object>> viewTicketPurchaseModal(
-    public TicketPurchaseResponseDTO viewTicketPurchaseModal(
+    public ResponseEntity<?> viewTicketPurchaseModal(
             @RequestParam("email") String email,
             @RequestParam("matchId") Long matchId) {
         try {
@@ -118,23 +120,48 @@ public class TicketController {
 //            MultiValueMap<String, Object> response = new LinkedMultiValueMap<>();
 //            response.put("setTicketSalesDto", (List<Object>) dto);
 //            response.put("setAvailableSeatsList", Collections.singletonList(availableSeats));
-            TicketPurchaseResponseDTO response = new TicketPurchaseResponseDTO();
-            response.setTicketSalesDto(dto);
-            response.setMatchInfo(match);
-            response.setUserBalance(moneyDTO.getLeftMoney());
-            response.setUserMembership(userMembership);
-            response.setSeatDTOList(seatDTOList);
-            response.setAvailableSeatsList(availableSeats);
+            TicketPurchaseResponseDTO responseDTO = new TicketPurchaseResponseDTO();
+            responseDTO.setTicketSalesDto(dto);
+            responseDTO.setMatchInfo(match);
+            responseDTO.setUserBalance(moneyDTO.getLeftMoney());
+            responseDTO.setUserMembership(userMembership);
+            responseDTO.setSeatDTOList(seatDTOList);
+            responseDTO.setAvailableSeatsList(availableSeats);
 
-//            return ResponseEntity.status(HttpStatus.OK).body(response);  // 응답을 반환합니다.
-            return response;  // 응답을 반환합니다.
+//            Map<String, Object> response = new HashMap<>();
+//            response.put("response")
+
+            return ResponseEntity.status(HttpStatus.OK).body(responseDTO);  // 응답을 반환합니다.
+//            return response;  // 응답을 반환합니다.
         }
         catch (Exception e) {
             log.error("Error fetching user data", e);  // 예외 로그 추가
-//            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("error", "Error fetching user data"));
-            return null;
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("error", "Error fetching user data"));
+//            return null;
         }
     }
 
+    // 티켓 구매 완료 POST API
+    @PostMapping("/purchase/completed")
+    public ResponseEntity<?> membershipPurchase(@RequestBody TicketSalesDTO ticketSalesDTO) {
+        // ticketNumber 생성
+        ticketSalesDTO.setTicketNumber(ticketService.createTicketNumber(ticketSalesDTO));
+        try {
+            // 로그 출력
+            log.info("Match ID: {}", ticketSalesDTO.getMatchId());
+            log.info("User ID: {}", ticketSalesDTO.getUserEmail());
+
+            // 멤버십 구매 정보 저장
+            ticketService.reserveTickets(ticketSalesDTO);
+
+            return ResponseEntity.ok("Purchase completed successfully!");
+        } catch (DataAccessException dae) {
+            log.error("Data access error while completing purchase: {}", dae.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error completing purchase");
+        } catch (Exception e) {
+            log.error("Unexpected error while completing purchase: {}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error completing purchase");
+        }
+    }
 
 }

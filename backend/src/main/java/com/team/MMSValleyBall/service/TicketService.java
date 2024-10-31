@@ -6,9 +6,12 @@ import com.team.MMSValleyBall.dto.SectionInfo;
 import com.team.MMSValleyBall.dto.TicketSalesDTO;
 import com.team.MMSValleyBall.entity.*;
 import com.team.MMSValleyBall.enums.SeatSection;
+import com.team.MMSValleyBall.enums.TicketStatus;
 import com.team.MMSValleyBall.repository.*;
 import org.springframework.stereotype.Service;
+import org.springframework.util.ObjectUtils;
 
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
@@ -101,6 +104,8 @@ public class TicketService {
         newTicket.setTicketPaidPrice(dto.getTicketPaidPrice());
         newTicket.setTicketNumber(dto.getTicketNumber());
         newTicket.setTicketUser(user);
+        newTicket.setTicketStatus(TicketStatus.BOOKED);
+        newTicket.setTicketCreateAt(LocalDateTime.now());
 
         // TicketDetail 객체 생성
         TicketDetail newTicketDetail = new TicketDetail();
@@ -109,7 +114,11 @@ public class TicketService {
         newTicketDetail.setTicketDetailSeat(seat);
 
         // Ticket 저장
-        newTicket.getTicketDetails().add(newTicketDetail);
+        if (ObjectUtils.isEmpty(newTicket.getTicketDetails())) {
+            newTicket.setTicketDetails(new ArrayList<>());
+            newTicket.getTicketDetails().add(newTicketDetail);
+        }
+
         ticketRepository.save(newTicket);
 
         // TicketDetail 저장
