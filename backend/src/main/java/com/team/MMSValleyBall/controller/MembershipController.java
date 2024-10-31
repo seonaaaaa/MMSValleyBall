@@ -38,7 +38,7 @@ public class MembershipController {
 //            if (email == null) {
 //                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("User not logged in");
 //            }
-        // 1. 로그인 정보 확인 -> 로그인 안된 상태면 예외 처리
+            // 1. 로그인 정보 확인 -> 로그인 안된 상태면 예외 처리
             String email = "kimka@cbc.com"; // 추후 세션에서 유저 정보를 가져오는 방식으로 수정 필요
             // 2. 세션으로 user 정보 가져와서 user의 moneyDTO 생성
             MoneyDTO moneyDTO = usersBalanceService.getUsersBalance(email);
@@ -73,6 +73,17 @@ public class MembershipController {
             return ResponseEntity.ok("Purchase completed successfully!");
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error completing purchase");
+        }
+    }
+
+    // 멤버십 결제 취소
+    @PostMapping("/cancel")
+    public ResponseEntity<String> ticketCancel(@RequestParam("userEmail") String userEmail){
+        System.out.println(userEmail);
+        if (membershipSalesService.changeMembershipStatusByEmail(userEmail)) {
+            return ResponseEntity.ok("멤버십 결제가 성공적으로 취소되었습니다.");
+        } else {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("멤버십 취소에 실패했습니다.");
         }
     }
 }

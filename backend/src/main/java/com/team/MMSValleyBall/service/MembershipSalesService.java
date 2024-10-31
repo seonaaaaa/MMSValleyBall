@@ -5,6 +5,7 @@ import com.team.MMSValleyBall.dto.MembershipSalesDTO;
 import com.team.MMSValleyBall.entity.Membership;
 import com.team.MMSValleyBall.entity.MembershipSales;
 import com.team.MMSValleyBall.entity.Users;
+import com.team.MMSValleyBall.enums.MembershipSalesStatus;
 import com.team.MMSValleyBall.repository.MembershipRepository;
 import com.team.MMSValleyBall.repository.MembershipSalesRepository;
 import com.team.MMSValleyBall.repository.UserRepository;
@@ -42,13 +43,36 @@ public class MembershipSalesService {
     }
 
     // 사용자의 멤버십 결제 내역
-    public List<MembershipSalesDTO> myMembershipSalesList(String email){
+    public List<MembershipSalesDTO> myMembershipSalesList(String email) {
         List<MembershipSales> membershipSalesList = membershipSalesRepository.findByMembershipSalesUser(userRepository.findByUserEmail(email));
-        return membershipSalesList.stream().map(x-> MembershipSalesDTO.fromEntity(x)).toList();
+        return membershipSalesList.stream().map(x -> MembershipSalesDTO.fromEntity(x)).toList();
     }
 
     // 사용자가 가진 멤버십이름으로 멤버십의 정보 불러오기
     public MembershipDTO getUsersMembership(String userMembershipName) {
         return MembershipDTO.fromEntity(membershipRepository.findByMembershipName(userMembershipName));
     }
-}
+
+    // 멤버십 결제 취소
+    public boolean changeMembershipStatusByEmail(String userEmail) {
+            // Users 엔티티 찾기
+            Users user = userRepository.findByUserEmail(userEmail);
+            if (user == null) {
+                return false;
+            }
+
+            // user와 관련된 membershipSales 엔티티 리스트 찾기
+            List<MembershipSales> membershipSalesList = membershipSalesRepository.findByMembershipSalesUser(user);
+            if (membershipSalesList.isEmpty()) {
+                return false;
+            }
+
+            // status를 REFUNDED로 변경
+            for (MembershipSales membershipSales : membershipSalesList) {
+                membershipSales.setMembershipSalesStatus(MembershipSalesStatus.REFUNDED);
+                membershipSalesRepository.save(membershipSales);
+            }
+
+            return true;
+        }
+    }
