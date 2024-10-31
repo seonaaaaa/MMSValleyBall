@@ -148,19 +148,18 @@ public class GameService {
         String emailMessage;
         if (match.getMatchStatus() == MatchStatus.DELETED) {
             emailMessage = "안녕하세요, [GS MMS Volleyball]입니다.\n\n"
-                    + "고객님께서 예약하신 경기가 취소되어 안내드립니다.\n"
-                    + "- 경기명: " + "VS GS MMS" + match.getMatchOpponentTeam().getTeamName() + "\n"
+                    + "고객님께서 예매하신 경기가 취소되어 안내드립니다.\n\n"
+                    + "- 경기명: " + "GS MMS VS " + match.getMatchOpponentTeam().getTeamName() + "\n"
                     + "- 원래 일정: " + match.getMatchDate() + "\n\n"
                     + "불편을 드려 죄송하며, 취소된 경기의 티켓은 전액 환불됩니다.\n"
                     + "환불 절차에 대한 자세한 안내는 [고객센터 070-7544-7000]로 문의해 주시기 바랍니다.\n\n"
                     + "감사합니다.\n[GS MMS Volleyball 드림]";
         } else {
             emailMessage = "안녕하세요, [GS MMS Volleyball]입니다.\n\n"
-                    + "고객님이 예약하신 경기 일정에 변동이 있어 안내드립니다.\n\n"
-                    + "- 경기명: " + "VS GS MMS" + match.getMatchOpponentTeam().getTeamName() +"\n"
-                    + "- 변경 전 일정: [기존 날짜 및 시간]\n"
+                    + "고객님이 예매하신 경기 일정에 변동이 있어 안내드립니다.\n\n"
+                    + "- 경기명: " + "GS MMS VS " + match.getMatchOpponentTeam().getTeamName() +"\n"
                     + "- 변경 후 일정: " + match.getMatchDate() + "\n\n"
-                    + "변경된 일정에 맞춰 참석을 원치 않으실 경우 환불을 요청하실 수 있습니다.\n"
+                    + "변경된 일정에 맞춰 관람을 원치 않으실 경우 환불을 요청하실 수 있습니다.\n"
                     + "환불 절차는 [고객센터 070-7544-7000]로 문의해 주시기 바랍니다.\n\n"
                     + "감사합니다.\n[GS MMS Volleyball 드림]";
         }
@@ -174,7 +173,7 @@ public class GameService {
             if (user != null && user.getUserEmail() != null) {
                 try {
                     System.out.println("Attempting to send email to: " + user.getUserEmail());
-                    emailService.sendEmail(user.getUserEmail(), "경기 변동 안내 [GS MMS Volleyball]", emailMessage);
+                    emailService.sendEmail(user.getUserEmail(), "[GS MMS Volleyball] 경기 변동 안내", emailMessage);
                     System.out.println("Email sent successfully to: " + user.getUserEmail());
                 } catch (Exception e) {
                     System.out.println("Failed to send email to: " + user.getUserEmail());
