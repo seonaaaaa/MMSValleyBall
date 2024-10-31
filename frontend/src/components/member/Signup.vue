@@ -332,6 +332,7 @@ input[type="text"]:focus {
 .submit-button {
   margin-top: 15px;
   width: 100%;
+  height: 80px;
   padding: 15px;
   background-color: #4f8578;
   color: #ffffff;

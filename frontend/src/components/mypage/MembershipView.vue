@@ -54,7 +54,6 @@
   </div>
 </div>
 </div>
-
 </template>
 
 <script>
@@ -63,7 +62,7 @@ import LogoHeader from '../common/LogoHeader.vue';
 export default {
   name: 'MembershipView',
   components: {
-    LogoHeader
+    LogoHeader,
   },
   props: {
     user: {
