@@ -75,4 +75,15 @@ public class MembershipController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error completing purchase");
         }
     }
+
+    // 멤버십 결제 취소
+    @PostMapping("/cancel")
+    public ResponseEntity<String> ticketCancel(@RequestParam("userEmail") String userEmail){
+        System.out.println(userEmail);
+        if (membershipSalesService.changeMembershipStatusByEmail(userEmail)) {
+            return ResponseEntity.ok("멤버십 결제가 성공적으로 취소되었습니다.");
+        } else {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("예매 취소에 실패했습니다.");
+        }
+    }
 }
