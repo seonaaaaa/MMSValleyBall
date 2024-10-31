@@ -1,21 +1,17 @@
 package com.team.MMSValleyBall.service;
 
 import com.team.MMSValleyBall.dto.*;
-import com.team.MMSValleyBall.entity.MembershipSales;
-import com.team.MMSValleyBall.entity.Payment;
-import com.team.MMSValleyBall.entity.Ticket;
-import com.team.MMSValleyBall.entity.Users;
+import com.team.MMSValleyBall.entity.*;
 import com.team.MMSValleyBall.enums.PaymentStatus;
+import com.team.MMSValleyBall.enums.TicketStatus;
 import com.team.MMSValleyBall.enums.UserStatus;
-import com.team.MMSValleyBall.repository.MembershipRepository;
-import com.team.MMSValleyBall.repository.MembershipSalesRepository;
-import com.team.MMSValleyBall.repository.PaymentRepository;
-import com.team.MMSValleyBall.repository.UserRepository;
+import com.team.MMSValleyBall.repository.*;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
 
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class MyPageService {
@@ -23,12 +19,18 @@ public class MyPageService {
     private final MembershipRepository membershipRepository;
     private final MembershipSalesRepository membershipSalesRepository;
     private final PaymentRepository paymentRepository;
+    private final MatchRepository matchRepository;
+    private final SeatRepository seatRepository;
+    private final TicketRepository ticketRepository;
 
-    public MyPageService(UserRepository userRepository, MembershipRepository membershipRepository, MembershipSalesRepository membershipSalesRepository, PaymentRepository paymentRepository) {
+    public MyPageService(UserRepository userRepository, MembershipRepository membershipRepository, MembershipSalesRepository membershipSalesRepository, PaymentRepository paymentRepository, MatchRepository matchRepository, SeatRepository seatRepository, TicketRepository ticketRepository) {
         this.userRepository = userRepository;
         this.membershipRepository = membershipRepository;
         this.membershipSalesRepository = membershipSalesRepository;
         this.paymentRepository = paymentRepository;
+        this.matchRepository = matchRepository;
+        this.seatRepository = seatRepository;
+        this.ticketRepository = ticketRepository;
     }
 
     public UserDTO findByEmail(String email) {
@@ -37,6 +39,40 @@ public class MyPageService {
 
     public MembershipDTO getUserMembership(String userMembershipName) {
         return MembershipDTO.fromEntity(membershipRepository.findByMembershipName(userMembershipName));
+    }
+
+    public List<ReservationTicket> getReservations(String email) {
+        List<ReservationTicket> reservationTicketList = new ArrayList<>();
+        UserDTO userDTO = UserDTO.fromEntity(userRepository.findByUserEmail((email)));
+        // 마지막 예매를 먼저 출력해야하므로 ticketId 기준 내림차순
+        List<TicketDTO> ticketList = userDTO.getTickets().stream()
+                .sorted(Comparator.comparing(TicketDTO::getTicketId).reversed())
+                .collect(Collectors.toList());
+        // 티켓리스트를 하나에 경기정보 넣어주기
+        for (TicketDTO ticketDTO: ticketList){
+            ReservationTicket reservationTicket = new ReservationTicket();
+            reservationTicket.setTicket(ticketDTO);
+            Match match = matchRepository.getReferenceById(ticketDTO.getTicketMatchId());
+            reservationTicket.setOpponentTeam(match.getMatchOpponentTeam().getTeamName());
+            reservationTicket.setOpponentTeamStadium(match.getMatchOpponentTeam().getTeamStadium());
+            reservationTicket.setWhere(match.getMatchStadium());
+            reservationTicket.setDate(match.getMatchDate());
+            Seat seat = seatRepository.findById(ticketDTO.getTicketDetails().get(0).getTicketDetailSeat()).orElse(new Seat());
+            reservationTicket.setSeatSection(seat.getSeatZone()+"-"+seat.getSeatSection());
+            reservationTicketList.add(reservationTicket);
+        }
+        return reservationTicketList;
+    }
+
+    public boolean changeTicketStatus(Long id){
+        Optional<Ticket> changeTicket = ticketRepository.findById(id);
+        if(!ObjectUtils.isEmpty(changeTicket)){
+            Ticket ticket = changeTicket.get();
+            ticket.setTicketStatus(TicketStatus.CANCELLED);
+            ticketRepository.save(ticket);
+            return true;
+        }
+        return false;
     }
 
     public List<MembershipSalesDTO> getUserMembershipSalesList(String email) {
@@ -99,4 +135,5 @@ public class MyPageService {
         paymentRepository.save(payment);
         return "충전되었습니다.";
     }
+
 }
