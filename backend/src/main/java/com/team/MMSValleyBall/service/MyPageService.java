@@ -45,36 +45,6 @@ public class MyPageService {
         return myMembershipSalesList.stream().map(x-> MembershipSalesDTO.fromEntity(x)).toList();
     }
 
-//    public ResponseMembershipInfoDTO getUserCurrentMembership(String email) {
-//        Map<String, Object> response = new HashMap<>();
-//        // 사용자가 가진 멤버십의 정보
-//        MembershipDTO usersMembership = getUserMembership(findByEmail(email).getUserMembershipName());
-//        System.out.println(usersMembership);
-//        // 멤버십의 가격 담기
-//        response.put("price", usersMembership.getMembershipPrice());
-//        System.out.println(response);
-//        // 출력에 불필요한 정보 삭제
-//        usersMembership.setUsers(null);
-//        if (usersMembership.getMembershipPrice() != 0) {
-//            // 사용자의 멤버십 결제 정보
-//            List<MembershipSalesDTO> userMembershipSalesList = getUserMembershipSalesList(email);
-//            // 마지막 결제 정보만 담아주기
-//            List<MembershipSalesDTO> userRecentMembershipSales = new ArrayList<>();
-//            if (userMembershipSalesList.size() > 0) {
-//                userRecentMembershipSales.add(userMembershipSalesList.get(userMembershipSalesList.size() - 1));
-//            } else {
-//                userRecentMembershipSales = null;
-//            }
-//            usersMembership.setMembershipSales(userRecentMembershipSales);
-//        } else {
-//            // 멤버십이 가진 판매내역은 해당 사용자의 판매내역만 가지고 있는게 아니므로 삭제
-//            usersMembership.setMembershipSales(null);
-//        }
-//        response.put("myMembership", usersMembership);
-//        System.out.println(response);
-//        return response;
-//    }
-
     public ResponseMembershipInfoDTO getUserCurrentMembership(String email) {
         // 사용자가 가진 멤버십 정보 가져오기
         MembershipDTO usersMembership = getUserMembership(findByEmail(email).getUserMembershipName());
@@ -102,11 +72,13 @@ public class MyPageService {
                 responseDTO.setMembershipSalesStatus(String.valueOf(recentMembershipSale.getMembershipSalesStatus()));
                 responseDTO.setMembershipSalesCreateAt(recentMembershipSale.getMembershipSalesCreateAt());
             }
+
         }
 
         System.out.println(responseDTO);
         return responseDTO;
     }
+
 
 
     public String modifyUserInfo(UserDTO userDTO) {

@@ -21,7 +21,10 @@
         <div class="money-box">
           <p>잔액: <strong>{{ balance }}</strong>원</p><button class="btn-charge" @click="goToRecharge">충전</button>
         </div>
-          <button class="btn-myPage" @click="goToMyPage">My Page</button>&nbsp;<button class="btn-logout" @click="logout">로그아웃</button>
+        <div class="button-container">
+          <button class="btn-myPage" @click="goToMyPage">My Page</button>
+          <button class="btn-logout" @click="logout">로그아웃</button>
+        </div>
         </div>
 
 
@@ -300,17 +303,6 @@ a {
   z-index: 100;
 }
 
-.btn-myPage, .btn-logout {
-  background-color: #60a191;
-  color: white;
-  border: none;
-  padding: 10px;
-  margin-top: 20px;
-  border-radius: 5px;
-  cursor: pointer;
-  width: 48%;
-}
-
 .user-info-box button:hover {
   background-color: #4f8578;
 }
@@ -321,6 +313,22 @@ a {
 
 .user-info-box a:hover {
   text-decoration: underline;
+}
+
+.user-info-box .button-container {
+  display: flex;
+  justify-content: space-between; /* 버튼 사이에 공간을 균등하게 배치 */
+  margin-top: 20px;
+}
+
+.btn-myPage, .btn-logout {
+  background-color: #60a191;
+  color: white;
+  border: none;
+  padding: 10px;
+  border-radius: 5px;
+  cursor: pointer;
+  width: 48%; /* 버튼 크기를 동일하게 설정 */
 }
 
 /* 금액충전 창 */
@@ -346,7 +354,8 @@ a {
   margin-left: 25px; /* 오른쪽으로 버튼 밀기 */
   width: 80px;
   background-color: #f0efc3;
-  border: solid color(srgb rgb(224, 224, 224) green blue);
+  border: solid color(srgb rgb(61, 59, 59) green blue);
+  color: black;
 }
 
 /* 멤버십 로고 */

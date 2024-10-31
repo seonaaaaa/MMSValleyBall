@@ -10,44 +10,51 @@
       <div class="menu-item" :class="{ 'active-menu-item': activeMenu === '/mypage/edit-profile' }" @click="navigateTo('/mypage/edit-profile')">나의 정보 수정</div>
     </div>
 
-    <!-- 멤버십 내역 페이지 내용 -->
-    <div class="membership-view-content" v-if="membershipDetails">
-      <h2>이용 중인 멤버십 결제 내역</h2>
-      <div class="membership-info">
-        <div class="membership-detail">
-            <p>
-            <strong>이용 중인 멤버십 : </strong> {{ formattedMembershipName }}
-            <span class="membership-image-container">
-        <span v-if="grade == 'gold'">
-          <img :src="goldImage" alt="골드 등급" class="membershipLevel-image" />
+   <!-- 멤버십 내역 페이지 내용 -->
+<div class="membership-view-content" v-if="grade">
+  <h2>이용 중인 멤버십 결제 내역</h2>
+
+  <!-- 골드/실버 등급일 경우 -->
+  <div class="membership-info" v-if="grade !== 'bronze'">
+    <div class="membership-detail">
+      <p>
+        <strong>이용 중인 멤버십 : </strong> {{ year }} 시즌 {{ grade.toUpperCase()}} 등급
+        <span class="membership-image-container">
+          <span v-if="grade === 'gold'">
+            <img :src="goldImage" alt="골드 등급" class="membershipLevel-image" />
+          </span>
+          <span v-else-if="grade === 'silver'">
+            <img :src="silverImage" alt="실버 등급" class="membershipLevel-image" />
+          </span>
         </span>
-        <span v-else-if="grade == 'silver'">
-           <img :src="silverImage" alt="실버 등급" class="membershipLevel-image" />
-        </span>
-        <span v-else>
-          <img :src="bronzeImage" alt="브론즈 등급" class="membershipLevel-image" />
-        </span>
-      </span>
       </p>
 
-        <p><strong>회원 이름 : {{ user.name }}</strong> 님</p>
-          <p><strong>결제 금액 : </strong> {{ membershipDetails.membershipPrice }}원</p>
-          <p><strong>결제 상태 : </strong>
-            <span v-if="membershipDetails.membershipSalesStatus === 'PURCHASE'">결제 완료</span>
-            <span v-else-if="membershipDetails.membershipSalesStatus === 'CONFIRMED'">환불 불가</span>
-            <span v-else-if="membershipDetails.membershipSalesStatus === 'REFUNDED'">환불 완료</span>
-          </p>
-          <p><strong>결제 날짜 : </strong> {{ formattedPaymentDate }}</p>
-        </div>
-        <div class="cancel-button-container">
-          <button class="cancel-membership-button">결제 취소</button>
-        </div>
-      </div>
-      <p class="membership-note">
-        결제 후 콘텐츠 이용 내역이 없을 경우, 결제일로부터 7일 이내에 직접 결제 취소가 가능합니다.
+      <p><strong>회원 이름 : {{ user.name }}</strong> 님</p>
+      <p><strong>결제 금액 : </strong> {{ membershipDetails.membershipPrice }}원</p>
+      <p><strong>결제 상태 : </strong>
+        <span v-if="membershipDetails.membershipSalesStatus === 'PURCHASE'">결제 완료</span>
+        <span v-else-if="membershipDetails.membershipSalesStatus === 'CONFIRMED'">환불 불가</span>
+        <span v-else-if="membershipDetails.membershipSalesStatus === 'REFUNDED'">환불 완료</span>
       </p>
+      <p><strong>결제 날짜 : </strong> {{ formattedPaymentDate }}</p>
     </div>
+    <div class="cancel-button-container">
+      <button class="cancel-membership-button">결제 취소</button>
+    </div>
+    <p class="membership-note">
+      결제 후 콘텐츠 이용 내역이 없을 경우, 결제일로부터 7일 이내에 직접 결제 취소가 가능합니다.
+    </p>
   </div>
+
+  <!-- 브론즈 등급일 경우 -->
+  <div class="membership-info-bronze" v-else-if="grade === 'bronze'">
+    <p><strong>이용중인 멤버십이 없습니다.</strong></p>
+    <p><strong>구매 후 이용해주세요.</strong></p>
+    <button @click="goToMembershipInfo" class="btn-goToMembershipInfo">멤버십 안내</button>&nbsp;&nbsp;<button @click="goToMembershipPurchase" class="btn-goToMembershipPurchase">멤버십 구매</button>
+  </div>
+</div>
+</div>
+
 </template>
 
 <script>
@@ -75,6 +82,8 @@ export default {
       // 브론즈 등급 이미지 경로
       bronzeImage: require('@/assets/img/membershipImg/bronze.png'),
 
+      grade : '',
+      year : '',
     };
   },
   watch: {
@@ -84,28 +93,15 @@ export default {
     }
   },
   computed: {
-    // 계산된 속성으로 데이터를 가공
-    formattedMembershipName() {
-      if (!this.membershipDetails || !this.membershipDetails.membershipName) {
-        return '';
-      }
-
-      const membershipName = this.membershipDetails.membershipName;
-      // 예: "24/25-gold"를 숫자 부분과 등급 부분으로 분리
-      const [year, grade] = membershipName.split('-');
-      
-      // 필요에 따라 데이터를 가공하여 원하는 형식으로 반환
-      return `${year} 시즌 - ${grade.toUpperCase()} 등급`;
-    },
 
     formattedPaymentDate() {
-    if (!this.membershipDetails || !this.membershipDetails.membershipSalesCreateAt) {
-      return '';
+      if (!this.membershipDetails || !this.membershipDetails.membershipSalesCreateAt) {
+        return '';
+      }
+      
+      // '2024-08-10T13:58:00' 형식의 결제 날짜를 '2024-08-10 13:58:00'으로 변경
+      return this.membershipDetails.membershipSalesCreateAt.split('T').join(' ');
     }
-    
-    // '2024-08-10T13:58:00' 형식의 결제 날짜를 '2024-08-10 13:58:00'으로 변경
-    return this.membershipDetails.membershipSalesCreateAt.split('T').join(' ');
-  }
   },
   mounted() {
     this.fetchEvents(); // 컴포넌트가 로드될 때 실행
@@ -116,6 +112,14 @@ export default {
       this.activeMenu = route; // 메뉴를 클릭할 때 활성화된 메뉴 업데이트
     },
 
+    goToMembershipInfo(){
+      this.$router.push('/membership/info');
+    },
+
+    goToMembershipPurchase(){
+      this.$router.push('/membership/purchase');
+    },
+
     async fetchEvents() {
       console.log('---------------' + this.user.email);
 
@@ -124,7 +128,6 @@ export default {
 
       try {
         const response = await this.$axios.post("/myPage/membership", null, { params: params });
-        console.log(response.data);
         
         // 서버 응답 데이터를 membershipDetails에 저장
         this.membershipDetails = {
@@ -133,6 +136,14 @@ export default {
           membershipSalesStatus: response.data.membershipSalesStatus || '결제 후 상태',
           membershipSalesCreateAt: response.data.membershipSalesCreateAt || '결제 날짜'
         };
+        
+        // membershipName 가공하기
+        console.log("this.membershipDetails : " + this.membershipDetails.membershipName);
+        const [year, grade] = this.membershipDetails.membershipName.split('-');
+        console.log("=============" + grade);
+        console.log("=============" + year);
+        this.grade = grade;
+        this.year = year;
       } catch (error) {
         console.error('멤버십 정보 가져오기 오류:', error);
       }
@@ -200,17 +211,32 @@ export default {
   border: 2px solid #60a191;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
   text-align: left;
+  margin-bottom: 50px;
+}
+
+.membership-info-bronze {
+  background-color: #f9f9f9;
+  padding: 20px;
+  margin: 20px auto;
+  width: 80%;
+  max-width: 600px;
+  border-radius: 10px;
+  border: 2px solid #60a191;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  margin-bottom: 50px;
 }
 
 .membership-detail p {
   margin: 10px 0;
-  font-size: 16px;
+  font-size: 18px;
 }
 
 .cancel-button-container {
   display: flex;
   justify-content: flex-end;
-  margin-top: 20px;
+  margin-top: 0px;
+  margin-bottom: 20px;
 }
 
 .cancel-membership-button {
@@ -236,8 +262,20 @@ export default {
   width: 40px;
 }
 
+button{
+  background-color: #4f8578;
+  color: white;
+  border: none;
+  padding: 10px;
+  width: 150px;
+  height: 53px;
+  margin-top: 10px;
+  margin-left: 10px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
 .membership-detail p {
-  margin: 10px 0;
-  font-size: 18px; /* 폰트 크기 변경 */
+  font-size: 20px;
 }
 </style>
