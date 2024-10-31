@@ -429,6 +429,8 @@ export default {
             this.payment.payment = this.total * (100 - this.userMembership.membershipDiscount) * 0.01;
             this.payment.leftMoney = this.userBalance - this.payment.payment;
         },
+
+        //두 번째 모달에 전달할 좌석 정보
         createSeatSelection(){
             const matchingSeat = this.seatDTOList.find(seat => seat.seatId === this.sectionSelection.seatId);
             const seatPrice = matchingSeat ? matchingSeat.seatPrice : 0; // 매칭된 좌석이 없을 경우 기본값 0
@@ -462,8 +464,14 @@ export default {
         },
 
         increaseQuantity(section) {
-            //수량 초기화
-            this.initializeSectionQuantities();
+            // 다른 섹션의 수량 초기화
+            this.zoneSelection.sections.forEach(sec => {
+                if (sec !== section) {
+                    sec.quantity = 0; // 선택되지 않은 섹션의 수량 초기화
+                    this.countTicket = 0;
+                }
+            });
+            
             if (section.quantity < 4 && section.availableSeatAmount > section.quantity) {
                 section.quantity++;
                 this.countTicket++;
@@ -501,6 +509,8 @@ export default {
         },
 
         toggleZoneSelection(zone) {
+            //수량 초기화
+            this.initializeSectionQuantities();
             if (this.zoneSelection && this.zoneSelection.zoneName === zone.zoneName) {
                 // 선택 해제
                 this.zoneSelection = null;
@@ -512,6 +522,8 @@ export default {
             }
         },
         toggleSectionQuantity(section) {
+            //수량 초기화
+            this.initializeSectionQuantities();
             // 다른 섹션의 매수가 변화할 때 기존 선택된 섹션의 수량을 0으로 초기화
             this.zoneSelection.sections.forEach(sec => {
                 if (sec !== section) {
@@ -524,6 +536,8 @@ export default {
         },
 
         onCheckboxChange(zone) {
+            //수량 초기화
+            this.initializeSectionQuantities();
             if (this.isChecked) {
                 this.showDetails(zone);
             } else {
