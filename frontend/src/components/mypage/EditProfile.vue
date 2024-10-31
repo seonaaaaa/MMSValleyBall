@@ -7,35 +7,41 @@
     <div class="menu">
       <div class="menu-item" :class="{ 'active-menu-item': activeMenu === '/mypage/reservations' }" @click="navigateTo('/mypage/reservations')">예매 내역</div>
       <div class="menu-item" :class="{ 'active-menu-item': activeMenu === '/mypage/membership' }" @click="navigateTo('/mypage/membership')">나의 멤버십</div>
-      <div class="menu-item" :class="{ 'active-menu-item': activeMenu === '/mypage/edit-profile' }" @click="navigateTo('/mypage/edit-profile')">나의 정보 수정</div>
+      <div class="menu-item" :class="{ 'active-menu-item': activeMenu === '/mypage/edit-profile' }" @click="navigateTo('/mypage/edit-profile')">나의 정보</div>
     </div>
-  
+
     <!-- 나의 정보 수정 페이지 내용 -->
     <div class="edit-profile-content">
-      <h2 class="edit-profile-content-title">나의 정보 수정</h2>
+      <h2 class="edit-profile-content-title">나의 정보</h2>
       <form @submit.prevent="updateProfile">
         <!-- 이메일 -->
-        <div class="form-group">
-          <label for="userEmail">이메일</label>
-          <input type="email" id="userEmail" v-model="userEmail" readonly required/>
+        <div class="form-group-horizontal">
+          <label>이메일</label>
+          <p class="static-text">{{ userEmail }}</p>
         </div>
 
         <!-- 이름 -->
-        <div class="form-group">
-          <label for="userName">이름</label>
-          <input type="text" id="userName" v-model="userName" readonly required />
+        <div class="form-group-horizontal">
+          <label>이름</label>
+          <p class="static-text">{{ userName }}</p>
         </div>
 
         <!-- 비밀번호 -->
-        <div class="form-group">
+        <div class="form-group-horizontal">
           <label for="userPassword">비밀번호</label>
           <input type="password" id="userPassword" v-model="userPassword" required />
         </div>
 
+        <!-- 비밀번호 확인 -->
+        <div class="form-group-horizontal">
+          <label for="confirmPassword">비밀번호 확인</label>
+          <input type="password" id="confirmPassword" v-model="confirmPassword" required />
+        </div>
+
         <!-- 전화번호 -->
-        <div class="form-group">
+        <div class="form-group-horizontal">
           <label for="userPhone">전화번호</label>
-          <div class="phone-input-group single-line">
+          <div class="phone-input-group">
             <select v-model="userPhonePart1" required>
               <option value="010">010</option>
               <option value="011">011</option>
@@ -48,7 +54,7 @@
         </div>
 
         <!-- 주소 -->
-        <div class="form-group">
+        <div class="form-group-horizontal">
           <label for="userAddress">주소</label>
           <div class="input-with-button">
             <input type="text" id="userAddress" v-model="userAddress" readonly />
@@ -56,8 +62,20 @@
           </div>
         </div>
 
+        <!-- 나의 충전 금액 -->
+        <div class="form-group-horizontal">
+          <label>나의 충전 금액</label>
+          <div class="input-with-button">
+            <p class="static-text">{{ userBalance }}원</p>
+            <button type="button" @click="chargeBalance" class="charge-button">충전하기</button>
+          </div>
+        </div>
+
         <button type="submit" class="alter-button">수정</button>
       </form>
+
+      <!-- 회원 탈퇴 버튼 -->
+      <button @click="withdrawMembership" class="withdraw-button">회원 탈퇴</button>
     </div>
   </div>
 </template>
@@ -73,13 +91,15 @@ export default {
   data() {
     return {
       activeMenu: this.$route.path, // 현재 활성화된 경로
-      userName: '',
-      userEmail: '',
+      userName: '홍길동',
+      userEmail: 'hong@example.com',
       userPassword: '',
+      confirmPassword: '',
       userPhonePart1: '010',
       userPhonePart2: '',
       userPhonePart3: '',
-      userAddress: ''
+      userAddress: '',
+      userBalance: 50000 // 나의 충전 금액 (예시 데이터)
     };
   },
   watch: {
@@ -95,6 +115,10 @@ export default {
     },
     updateProfile() {
       // 개인정보 업데이트 로직 추가 (예: API 호출)
+      if (this.userPassword !== this.confirmPassword) {
+        alert('비밀번호와 비밀번호 확인이 일치하지 않습니다.');
+        return;
+      }
       const userPhone = `${this.userPhonePart1}-${this.userPhonePart2}-${this.userPhonePart3}`;
       console.log('전화번호:', userPhone);
       alert('개인정보가 업데이트되었습니다.');
@@ -106,6 +130,16 @@ export default {
           this.userAddress = data.address;
         }
       }).open();
+    },
+    chargeBalance() {
+      // 충전하기 버튼 클릭 시 로직 (예: 충전 페이지로 이동 또는 팝업 표시)
+      alert('충전 페이지로 이동합니다.');
+    },
+    withdrawMembership() {
+      // 회원 탈퇴 로직 추가 (예: 확인 창 후 API 호출)
+      if (confirm('정말로 회원 탈퇴를 진행하시겠습니까?')) {
+        alert('회원 탈퇴가 완료되었습니다.');
+      }
     }
   },
   mounted() {
@@ -121,7 +155,7 @@ export default {
 .edit-profile-page {
   padding-top: var(--header-height);
   padding-bottom: var(--footer-height);
-  text-align: left;
+  text-align: center;
 }
 
 /* 메뉴 */
@@ -177,72 +211,53 @@ export default {
   text-align: left;
 }
 
-.form-group {
-  margin-bottom: 30px;
+.form-group-horizontal {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
 }
 
 label {
-  display: block;
-  margin-bottom: 5px;
+  flex-basis: 20%;
+  font-weight: bold;
   color: #555;
 }
 
-.input-with-button {
-  display: flex;
-  justify-content: space-between;
-}
-
-.phone-input-group {
-  display: flex;
-  gap: 5px;
-  align-items: center;
-}
-
-select,
-input[type="tel"],
-input[type="email"],
+.static-text,
 input[type="password"],
-input[type="text"] {
-  margin-top: 10px;
+input[type="tel"],
+input[type="text"],
+select {
+  flex-basis: 75%;
   padding: 10px;
   border: 1px solid #ccc;
   border-radius: 5px;
 }
 
-.phone-input-group select {
-  width: auto;
+.phone-input-group {
+  display: flex;
+  gap: 5px;
 }
 
-.phone-input-group input[type="tel"] {
-  width: calc(33% - 10px);
+.input-with-button {
+  display: flex;
+  align-items: center;
 }
 
-input[type="email"][readonly],
-input[type="text"][readonly]:not(#userAddress) {
-  background-color: #f0f0f0;
-  color: #888;
-}
-
-input[type="email"]:focus,
-input[type="password"]:focus,
-input[type="tel"]:focus,
-input[type="text"]:focus {
-  border-color: #4f8578;
-  outline: none;
-}
-
-.check-button {
+.check-button,
+.charge-button {
   background-color: #4f8578;
   color: white;
   border: none;
-  padding: 15px;
-  width: 150px;
+  padding: 10px;
   margin-left: 10px;
   border-radius: 5px;
   cursor: pointer;
 }
 
-.check-button:hover {
+.check-button:hover,
+.charge-button:hover {
   background-color: #3f6f68;
 }
 
@@ -255,11 +270,26 @@ input[type="text"]:focus {
   border: none;
   border-radius: 5px;
   cursor: pointer;
-  font-size: 30px;
+  font-size: 20px;
 }
 
 .alter-button:hover {
   background-color: #3f6f68;
+}
+
+.withdraw-button {
+  margin-top: 30px;
+  padding: 10px 20px;
+  background-color: #d9534f;
+  color: #ffffff;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.withdraw-button:hover {
+  background-color: #c9302c;
 }
 
 .edit-profile-content-title {
