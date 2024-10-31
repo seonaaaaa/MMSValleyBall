@@ -3,6 +3,7 @@ package com.team.MMSValleyBall.controller;
 import com.team.MMSValleyBall.dto.*;
 import com.team.MMSValleyBall.service.MyPageService;
 import com.team.MMSValleyBall.service.UsersBalanceService;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -11,7 +12,6 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
-@ResponseBody
 @RequestMapping("myPage")
 public class MyPageController {
    private final MyPageService myPageService;
@@ -26,6 +26,15 @@ public class MyPageController {
     @GetMapping("ticket")
     public ResponseEntity<List<Reservation>> userTicket(@RequestParam("email")String email){
         return ResponseEntity.ok(myPageService.getReservationList(email));
+    }
+
+    @PostMapping("/ticket/cancel")
+    public ResponseEntity<String> ticketCancel(@RequestBody Long id){
+       if (myPageService.changeTicketStatusById(id)) {
+            return ResponseEntity.ok("예매가 성공적으로 취소되었습니다.");
+        } else {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("예매 취소에 실패했습니다.");
+        }
     }
 
     // 나의 멤버십 탭에서 받을 사용자 멤버십 정보

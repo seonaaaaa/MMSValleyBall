@@ -3,6 +3,7 @@ package com.team.MMSValleyBall.service;
 import com.team.MMSValleyBall.dto.*;
 import com.team.MMSValleyBall.entity.*;
 import com.team.MMSValleyBall.enums.PaymentStatus;
+import com.team.MMSValleyBall.enums.TicketStatus;
 import com.team.MMSValleyBall.enums.UserStatus;
 import com.team.MMSValleyBall.repository.*;
 import org.springframework.stereotype.Service;
@@ -37,9 +38,8 @@ public class MyPageService {
 
     public List<Reservation> getReservationList(String email){
         List<Reservation>reservationList = new ArrayList<>();
-        Users users = userRepository.findByUserEmail(email);
-        List<TicketDTO> ticketList = users.getTickets().stream()
-                .map(t->TicketDTO.fromEntity(t)).sorted(Comparator.comparing(TicketDTO::getTicketId).reversed()).toList();
+        UserDTO user = UserDTO.fromEntity(userRepository.findByUserEmail(email));
+        List<TicketDTO> ticketList = user.getTickets().stream().sorted(Comparator.comparing(TicketDTO::getTicketId).reversed()).toList();
         for(TicketDTO dto: ticketList){
             Reservation reservation = new Reservation();
             reservation.setTicket(dto);
@@ -53,6 +53,15 @@ public class MyPageService {
             reservationList.add(reservation);
         }
         return reservationList;
+    }
+    public boolean changeTicketStatusById(Long id){
+        Ticket cancelTicket = ticketRepository.findById(id).get();
+        if(ObjectUtils.isEmpty(cancelTicket)){
+            cancelTicket.setTicketStatus(TicketStatus.CANCELLED);
+            ticketRepository.save(cancelTicket);
+            return true;
+        }
+        return  false;
     }
 
     public MembershipDTO getUserMembership(String userMembershipName) {
