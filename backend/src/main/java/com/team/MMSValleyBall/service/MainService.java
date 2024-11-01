@@ -2,7 +2,6 @@ package com.team.MMSValleyBall.service;
 
 import com.team.MMSValleyBall.dto.UserDTO;
 import com.team.MMSValleyBall.entity.Membership;
-import com.team.MMSValleyBall.entity.Season;
 import com.team.MMSValleyBall.entity.Users;
 import com.team.MMSValleyBall.enums.UserRole;
 import com.team.MMSValleyBall.enums.UserStatus;

@@ -1,15 +1,10 @@
 package com.team.MMSValleyBall.service;
 
-import com.team.MMSValleyBall.dto.MoneyDTO;
 import com.team.MMSValleyBall.dto.UserDTO;
 import com.team.MMSValleyBall.entity.*;
-import com.team.MMSValleyBall.enums.MembershipSalesStatus;
-import com.team.MMSValleyBall.enums.PaymentStatus;
-import com.team.MMSValleyBall.enums.TicketStatus;
 import com.team.MMSValleyBall.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.util.ObjectUtils;
 
 import java.util.HashMap;
 import java.util.Map;
