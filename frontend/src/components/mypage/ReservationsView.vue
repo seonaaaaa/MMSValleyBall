@@ -113,7 +113,7 @@
   }
   </script>
   
-  <style>
+  <style scoped>
   .reservations-view-page {
       padding-top: var(--header-height);
       padding-bottom: var(--footer-height);

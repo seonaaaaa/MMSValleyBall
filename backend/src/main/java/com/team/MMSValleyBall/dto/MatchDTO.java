@@ -22,6 +22,7 @@ public class MatchDTO {
     private Long matchOpponentTeamId;
     private int matchOpponentTeamSetScore;
     private Long matchSeasonId;
+    private int matchRoundId;
     private List<TicketDTO> tickets;
 
     @Override
@@ -53,6 +54,7 @@ public class MatchDTO {
                 match.getMatchOpponentTeam().getTeamId(),
                 match.getMatchOpponentTeamSetScore(),
                 match.getMatchSeason().getSeasonId(),
+                match.getMatchRoundId(),
                 ticketDTOList
         );
     }

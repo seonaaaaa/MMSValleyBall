@@ -47,7 +47,7 @@
   }
   </script>
   
-  <style>
+  <style scoped>
   .delete-account-page {
       padding-top: var(--header-height);
       padding-bottom: var(--footer-height);

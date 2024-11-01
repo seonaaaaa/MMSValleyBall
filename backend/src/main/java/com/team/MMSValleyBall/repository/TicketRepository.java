@@ -50,4 +50,7 @@ public interface TicketRepository extends JpaRepository<Ticket, Long> {
             "ORDER BY month ASC")
     List<Object[]> findMonthlySalesNative();
 
+
+    // ticket_match_id (Match ID)를 사용하여 모든 티켓 조회
+    List<Ticket> findByTicketMatch_MatchId(Long matchId);
 }
