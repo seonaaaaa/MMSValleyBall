@@ -75,8 +75,11 @@ public class AdminController {
         Map<String, Map<String, Integer>> totalPayments = adminService.getTotalPaymentAmount();
         // 경기별 매출 조회
         Map<String, List<MatchPaymentDTO>> matchPayments = adminService.getPaymentsByMatchId();
-        // 월별 매출 조회
-        Map<String, Map<String, Long>> monthlySales = adminService.getMonthlySales();
+        // 월별 매출 조회(1) 충전금액
+        Map<String, Map<String, Long>> monthlyPaymentSales = adminService.getMonthlyPaymentSales();
+
+        // 월별 매출 조회(2) 티켓
+        Map<String, Map<String, Long>> monthlyTicketSales = adminService.getMonthlyTicketSales();
 //        System.out.println("경기별 매출 조회: " + matchPayments);
 //        System.out.println("월별 매출 조회: " + monthlySales);
         // 시즌 정보
@@ -85,8 +88,10 @@ public class AdminController {
 
         model.addAttribute("totalPayments", totalPayments);
         model.addAttribute("matchPayments", matchPayments);
-        model.addAttribute("monthlySales", monthlySales);
+        model.addAttribute("monthlyTicketSales", monthlyTicketSales);
+        model.addAttribute("monthlyPaymentSales", monthlyPaymentSales);
         model.addAttribute("seasons", seasons);
+
         return "sales";
     }
 }
