@@ -82,20 +82,6 @@ public class GameAdminController {
         return "gameList";
     }
 
-//    // 시즌 데이터 조회 API
-//    @GetMapping("/game/seasons")
-//    public ResponseEntity<List<SeasonDTO>> getSeasons() {
-//        List<SeasonDTO> seasons = gameAdminService.getAllSeasons();
-//        return ResponseEntity.ok(seasons);
-//    }
-//
-//    // 팀 데이터 조회 API
-//    @GetMapping("/game/teams")
-//    public ResponseEntity<List<TeamDTO>> getTeams() {
-//        List<TeamDTO> teams = gameAdminService.getAllTeams();
-//        return ResponseEntity.ok(teams);
-//    }
-
     // 신규 경기 등록 페이지
     @GetMapping("/insert")
     public String insertGameForm(Model model) {

@@ -1,22 +1,14 @@
 package com.team.MMSValleyBall.controller;
 
 import com.team.MMSValleyBall.dto.MatchWithTeamDTO;
-import com.team.MMSValleyBall.dto.SeasonDTO;
-import com.team.MMSValleyBall.dto.TeamDTO;
-import com.team.MMSValleyBall.enums.MailStatus;
-import com.team.MMSValleyBall.enums.MatchStadium;
-import com.team.MMSValleyBall.enums.MatchStatus;
 import com.team.MMSValleyBall.service.GameService;
 
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/game")
@@ -52,95 +44,4 @@ public class GameController {
         Page<MatchWithTeamDTO> matchPage = gameService.getMatchesBySeasonAndRound(seasonId, matchRoundId, pageable);
         return ResponseEntity.ok(matchPage);
     }
-
-//    // ADMIN - MAIN - (필터링 및 정렬)
-//    @GetMapping("/admin")
-//    public ResponseEntity<Page<MatchWithTeamDTO>> getAllMatches(
-//            @RequestParam(name = "page") int page,
-//            @RequestParam(name = "size") int size,
-//            @RequestParam(name = "seasonId", required = false) Long seasonId,
-//            @RequestParam(name = "matchRoundId", required = false) Integer matchRoundId,
-//            @RequestParam(name = "matchStadium", required = false) MatchStadium matchStadium,
-//            @RequestParam(name = "teamId", required = false) Long teamId,
-//            @RequestParam(name = "matchMailStatus", required = false) MailStatus matchMailStatus,
-//            @RequestParam(name = "matchStatus", required = false) MatchStatus matchStatus,
-//            // 기본 정렬 필드
-//            @RequestParam(name = "sortField", defaultValue = "matchDate") String sortField,
-//            // 기본 정렬 방향
-//            @RequestParam(name = "sortDirection", defaultValue = "asc") String sortDirection) {
-//
-//        // 정렬 정보 설정
-//        Sort sort = Sort.by(Sort.Direction.fromString(sortDirection), sortField);
-//        Pageable pageable = PageRequest.of(page, size, sort);
-//
-//        Page<MatchWithTeamDTO> matchList = gameService.findAllFiltered(
-//            seasonId, matchRoundId, matchStadium, teamId, matchMailStatus, matchStatus, pageable
-//        );
-//        return ResponseEntity.ok(matchList);
-//    }
-//
-//    // ADMIN - INSERT - 신규 경기 등록
-//    @PostMapping("/admin/insert")
-//    public ResponseEntity<String> insertMatch(@RequestBody MatchWithTeamDTO matchDTO) {
-//        String result = gameService.insertMatch(matchDTO);
-//        return ResponseEntity.ok(result);
-//    }
-//
-//    // ADMIN - 시즌 정보 가져오기 (셀렉트 박스에 사용)
-//    @GetMapping("/admin/seasons")
-//    public ResponseEntity<List<SeasonDTO>> getAllSeasons() {
-//        List<SeasonDTO> seasons = gameService.getAllSeasons();
-//        return ResponseEntity.ok(seasons);
-//    }
-//
-//    // ADMIN - 팀 정보 가져오기 (셀렉트 박스에 사용)
-//    @GetMapping("/admin/teams")
-//    public ResponseEntity<List<TeamDTO>> getAllTeams() {
-//        List<TeamDTO> teams = gameService.getAllTeams();
-//        return ResponseEntity.ok(teams);
-//    }
-//
-//    // ADMIN - 경기 논리적 삭제 (match_status, mail_status 변경)
-//    @PatchMapping("/admin/delete/{matchId}")
-//    public ResponseEntity<String> deleteMatch(@PathVariable("matchId") Long matchId) {
-//        String result = gameService.deactiveMatch(matchId);
-//        return ResponseEntity.ok(result);
-//    }
-//
-//    // ADMIN - 경기 상태 업데이트 (match_status 변경)
-//    @PatchMapping("/admin/update-status/{matchId}")
-//    public ResponseEntity<String> updateMatchStatus(@PathVariable("matchId") Long matchId, @RequestBody Map<String, String> body) {
-//        String status = body.get("status");
-//        String result = gameService.updateMatchStatus(matchId, status);
-//        return ResponseEntity.ok(result);
-//    }
-//
-//    // ADMIN - 메일 상태 변경 (mail_status 변경)
-//    @PatchMapping("/admin/update-mail-status/{matchId}")
-//    public ResponseEntity<String> updateMailStatus(@PathVariable("matchId") Long matchId, @RequestBody Map<String, String> body) {
-//        String mailStatus = body.get("mailStatus");
-//        String result = gameService.updateMailStatus(matchId, mailStatus);
-//        return ResponseEntity.ok(result);
-//    }
-//
-//    // ADMIN - 메일 발송 및 상태 변경
-//    @PostMapping("/admin/{matchId}/sendEmail")
-//    public ResponseEntity<String> sendEmailsForMatch(@PathVariable("matchId") Long matchId) {
-//        String result = gameService.sendEmailsForMatch(matchId);
-//        return ResponseEntity.ok(result);
-//    }
-//
-//    // ADMIN - UPDATE - 경기 조회 (Update 페이지에 보여줄 데이터 조회)
-//    @GetMapping("/admin/{matchId}")
-//    public ResponseEntity<MatchWithTeamDTO> getMatchById(@PathVariable("matchId") Long matchId) {
-//        MatchWithTeamDTO matchDTO = gameService.getMatchById(matchId);
-//        return ResponseEntity.ok(matchDTO);
-//    }
-//
-//    // ADMIN - UPDATE - 경기 수정
-//    @PutMapping("/admin/update/{matchId}")
-//    public ResponseEntity<String> updateMatch(@PathVariable("matchId") Long matchId, @RequestBody MatchWithTeamDTO matchDTO) {
-//        String result = gameService.updateMatch(matchId, matchDTO);
-//        return ResponseEntity.ok(result);
-//    }
 }
