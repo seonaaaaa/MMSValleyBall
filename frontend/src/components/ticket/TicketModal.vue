@@ -144,13 +144,14 @@
                                 </div>
                                 <div class="info-content">
                                     <h4>예매 마감안내</h4>
-                                    <ul>
+                                    <ul class="notice">
                                         <li> - 당일 경기 시작 전 1시간 까지 가능</li>
                                         <li> - 취소 시간 이후 구매한 티켓은 취소 및 좌석 변경이 되지 않습니다.</li>
                                     </ul>
                                     <h4>예매 취소안내</h4>
-                                    <p class="p">당일 경기 시작 12시간 전까지 가능
-                                    </p>
+                                    <ul class="notice">
+                                        <li> - 당일 경기 시작 12시간 전까지 가능</li>
+                                    </ul>
                                 </div>
                             </div>
                     </div>
@@ -217,9 +218,10 @@
                     </div>
                     <div>
                         <p class="p">
-                            취소기한 : 자동계산 [12시간 전]<br>
+                            취소기한 : {{ calculateCancellationDeadline(match.matchDate) }}<br>
                             <!-- 링크 -->
-                            취소수수료 : [상세보기]
+                            취소수수료 : 
+                            <router-link to="/ticket/info">[상세보기]</router-link>
                         </p>
                     </div>
                     <div class="second-button">
@@ -607,6 +609,19 @@ export default {
             }
         },
 
+        //취소기한 자동 계산
+        calculateCancellationDeadline(date) {
+        const dateObj = new Date(date);
+        dateObj.setHours(0, 0, 0, 0); // 당일 오전 12시로 설정
+        return dateObj.toLocaleString('ko-KR', {
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit',
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+    },
+
     },
 }
 </script>
@@ -748,10 +763,13 @@ export default {
 }
 
 .select-zone-btn {
-    margin-top: 0;
-    cursor: pointer;
+    display: inline-block;
+    margin: 5px;
+    padding: 10px 15px;
+    text-align: center;
     font-size: 20px;
     font-weight: bold;
+    cursor: pointer;
 }
 
 .modal-info-box {
@@ -834,13 +852,22 @@ export default {
     line-height: 16px;
 }
 
+/* 모달페이지 안의 버튼 정렬 */
+
 .quantity-selector {
-    align-content: center;
+    display: flex;
+    justify-content: center;
     align-items: center;
+    align-content: center;
     vertical-align: middle;
 }
 
 .quantity-selector button {
+    display: flex; /* 플렉스 레이아웃 사용 */
+    justify-content: center; /* 가로 중앙 정렬 */
+    align-items: center; /* 세로 중앙 정렬 */
+    margin-top: 0px;
+    margin-left: 0px;
     width: 30px;
     height: 30px;
     font-size: 16px;
@@ -985,5 +1012,10 @@ border: none;
     margin-top: -15px;
     border-radius: 10px;
     margin-left: auto;
+}
+
+.notice{
+    padding-left: 20px;
+    padding-bottom: 10px;
 }
 </style>
