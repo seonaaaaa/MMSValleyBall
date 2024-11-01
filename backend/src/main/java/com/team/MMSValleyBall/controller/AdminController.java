@@ -29,11 +29,6 @@ public class AdminController {
         this.paginationService = paginationService;
     }
 
-    @GetMapping
-    public String Test(){
-        return "";
-    }
-
     //유저 선택 조회
     @GetMapping("/userDetail/{userId}")
     public String showUserById(@PathVariable("userId") Long userId, Model model) {
