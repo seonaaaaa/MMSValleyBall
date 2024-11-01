@@ -4,50 +4,16 @@
       layout:decorate="~{layout/layout}">
 <head>
     <meta charset="UTF-8">
-
+    <script th:src="@{js/jQuery.js}"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <style>
         section{
             height: 100%;
-            margin: 0;
+            margin: 20px;
             font-family: Arial, sans-serif;
             background-color: #f0f0f0;
-            display: flex;
             align-items: center;
             justify-content: center;
-        }
-
-        .content-container {
-            width: 100%;
-            max-width: 1200px;
-            padding: 20px;
-            box-sizing: border-box;
-        }
-
-        .tables-section {
-            display: flex;
-            justify-content: space-between;
-            gap: 20px;
-        }
-
-        .allTotal {
-            flex: 1;
-            padding: 20px;
-            border: 1px solid #ccc;
-            border-radius: 10px;
-            background-color: #ffffff;
-            text-align: center;
-        }
-
-        table {
-            width: 100%;
-            margin-top: 20px;
-            border-collapse: collapse;
-        }
-
-        table th, table td {
-            padding: 10px;
-            border: 1px solid #ddd;
-            text-align: center;
         }
 
         h1 {
@@ -65,6 +31,53 @@
          .button:hover {
              background-color: #0056b3;
          }
+        .section {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .title {
+        margin-bottom: 20px; /* title과 reports 사이의 간격 조정 */
+    }
+
+    .reports {
+        display: flex; /* 가로 배치 */
+        flex-direction: row;
+        justify-content: space-between; /* 여백 균등 배분 */
+        margin-bottom: 20px; /* reports와 아래 요소 사이의 간격 조정 */
+        width: 100%;
+        margin: 20px;
+    }
+
+    .total-sales, .sales-by-month, .sales-top-match {
+        margin-right: 20px; /* 오른쪽 div와 간격 */
+        width: 30%;
+    }
+    .sales-top-match{
+        width: 40%;
+    }
+
+    /* total-payment 및 그 하위 div 스타일 */
+    .total-payment,
+    .total-ticket-sales,
+    .total-membership-sales {
+        background: #FFFFFF; /* 배경 색상 */
+        border: 1px solid #EFF0F6; /* 테두리 색상 */
+        border-radius: 18px; /* 테두리 반경 */
+        padding: 20px; /* 내부 여백 */
+        text-align: left; /* 텍스트 가운데 정렬 */
+        margin: 20px;
+    }
+
+    .sales-by-match {
+        width: 100%; /* 전체 너비 사용 */
+        margin: 20px; /* 위쪽 요소와의 간격 */
+        margin-left: 40px;
+    }
+    table {
+        width: 100%;
+        text-align: center;
+    }
     </style>
 </head>
 <body>
@@ -76,61 +89,190 @@
         <a href="membership" class="active">멤버쉽 조회</a>
     </div>
 
-    <section>
-        <div class="allTotal">
-            <h1> 총 매출 </h1>
-            <table class="allTotal">
-                <thead>
-                <tr>
-                    <th>총 매출</th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr>
-                    <td th:text="${totalPayments}+ '원'"></td>
-                </tr>
-                </tbody>
-            </table>
+    <!--   매출 조회 페이지     -->
+    <section class="section">
+        <div class="title">
+            <p>Sales Reports</p>
+            <div class="season-select-box">
+                <select id="season-select">
+                    <option th:each="season : ${seasons.entrySet()}"
+                            th:value="${season.value}"
+                            th:text="${season.value}">시즌 선택</option>
+                </select>
+            </div>
         </div>
-        <div class="allTotal">
-            <h1> 경기별 매출 </h1>
-            <table>
-                <thead>
-                <tr>
-                    <th>경기 이름</th>
-                    <th>매출 금액</th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr th:each="match : ${matchPayments}">
-                    <td th:text="${match.value} ">경기 이름</td>
-                    <td th:text="${match.key}+ '원'">매출 금액</td>
-                </tr>
-                </tbody>
-            </table>
+        <div class="reports">
+            <div class="total-sales">
+                <div class="total-payment">
+                    <p>총 매출</p>
+                    <p id="totalPayment"><span>원</span></p>
+                </div>
+                <div class="total-ticket-sales">
+                    <p>총 경기 매출</p>
+                    <p id="totalTicketSales"><span>원</span></p>
+                </div>
+                <div class="total-membership-sales">
+                    <p>총 멤버십 매출</p>
+                    <p id="totalMembershipSales"><span>원</span></p>
+                </div>
+            </div>
+            <div class="sales-top-match">
+                <p>경기별 매출 Top5</p>
+                <table class="top5-match-table">
+                    <thead>
+                        <th>경기정보</th>
+                        <th>총 판매액</th>
+                        <th>순위</th>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="top5-match-info"></td>
+                            <td class="top5-ticket-total-sales-price"></td>
+                            <td class="top5-ticket-sales-order"></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="sales-by-month">
+                <p>월별 매출</p>
+            </div>
         </div>
-        <div class="allTotal">
-            <h1> 월별 매출 </h1>
-            <table>
-                <thead>
-                <tr>
-                    <th>월</th>
-                    <th>매출 금액</th>
-                </tr>
-                </thead>
-                <tbody th:if="${monthlySales != null}">
-                <tr th:each="entry : ${monthlySales}">
-                    <td th:text="${entry.key}">월 이름</td>
-                    <td th:text="${entry.value} + '원'">매출 금액</td>
-                </tr>
-                </tbody>
-            </table>
-        </div>
+            <div class="sales-by-match">
+                <p>경기별 매출</p>
+                <table class="match-table">
+                    <thead>
+                        <th>경기 ID</th>
+                        <th>경기정보</th>
+                        <th>총 판매액</th>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td id="match-id"></td>
+                            <td id="match-info"></td>
+                            <td id="ticket-total-sales-price"></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
     </section>
     <div>
         <a th:href="@{/admin/userList}" class="button">돌아가기</a>
     </div>
+
+    <script th:inline="javascript">
+        $(document).ready(function() {
+            // 컨트롤러에서 받아온 데이터 저장하기
+            const totalPayments = /*[[${totalPayments}]]*/ {};
+            const matchPayments = /*[[${matchPayments}]]*/ {};
+            const monthlySales = /*[[${monthlySales}]]*/ {};
+
+            // 초기 선택된 시즌 값
+            let selectedSeason = $('#season-select').val();
+            let totalPaymentData = totalPayments[selectedSeason];
+            let matchPaymentData = matchPayments[selectedSeason];
+            console.log("match data: ", matchPaymentData);
+
+            // 초기 로드 시 매치 데이터 테이블 업데이트
+            if (matchPaymentData && matchPaymentData.length > 0) {
+                // matchId에 따라 오름차순 정렬
+                matchPaymentData.sort((a, b) => a.matchId - b.matchId);
+
+                // .match-table에 추가
+                matchPaymentData.forEach(function(payment) {
+                    const newRow = `
+                        <tr>
+                            <td>${payment.matchId}</td>
+                            <td>${payment.matchInfo}</td>
+                            <td>${payment.totalAmount}</td>
+                        </tr>
+                    `;
+                    $('.match-table tbody').append(newRow);
+                });
+
+                // totalAmount에 따라 내림차순 정렬
+                matchPaymentData.sort((a, b) => b.totalAmount - a.totalAmount);
+
+                // 상위 5개 매치만 가져오기
+                const top5Matches = matchPaymentData.slice(0, 5);
+
+                // .top5-match-table에 추가
+                top5Matches.forEach(function(payment, index) {
+                    const newRow = `
+                        <tr>
+                            <td>${payment.matchInfo}</td>
+                            <td>${payment.totalAmount}</td>
+                            <td>${index + 1}</td> <!-- 순위를 추가 -->
+                        </tr>
+                    `;
+                    $('.top5-match-table tbody').append(newRow);
+                });
+            }
+
+            if (totalPaymentData) {
+                // 초기 로드 시 시즌별 매출 정보 표시
+                $('#totalPayment').text(totalPaymentData.payment);
+                $('#totalTicketSales').text(totalPaymentData.ticketSales);
+                $('#totalMembershipSales').text(totalPaymentData.membershipSales);
+            }
+
+            $('#season-select').on("change", function() {
+                // 선택된 시즌 값
+                selectedSeason = $(this).val();
+                totalPaymentData = totalPayments[selectedSeason];
+                matchPaymentData = matchPayments[selectedSeason];
+
+                // 테이블 초기화
+                $('.match-table tbody').empty(); // 기존 데이터 초기화
+                $('.top5-match-table tbody').empty(); // 기존 데이터 초기화
+
+                if (matchPaymentData && matchPaymentData.length > 0) {
+                    // matchId에 따라 오름차순 정렬
+                    matchPaymentData.sort((a, b) => a.matchId - b.matchId);
+
+                    // .match-table에 추가
+                    matchPaymentData.forEach(function(payment) {
+                        const newRow = `
+                            <tr>
+                                <td>${payment.matchId}</td>
+                                <td>${payment.matchInfo}</td>
+                                <td>${payment.totalAmount}</td>
+                            </tr>
+                        `;
+                        $('.match-table tbody').append(newRow);
+                    });
+
+                    // totalAmount에 따라 내림차순 정렬
+                    matchPaymentData.sort((a, b) => b.totalAmount - a.totalAmount);
+
+                    // 상위 5개 매치만 가져오기
+                    const top5Matches = matchPaymentData.slice(0, 5);
+
+                    // .top5-match-table에 추가
+                    top5Matches.forEach(function(payment, index) {
+                        const newRow = `
+                            <tr>
+                                <td>${payment.matchInfo}</td>
+                                <td>${payment.totalAmount}</td>
+                                <td>${index + 1}</td> <!-- 순위를 추가 -->
+                            </tr>
+                        `;
+                        $('.top5-match-table tbody').append(newRow);
+                    });
+                }
+
+                if (totalPaymentData) {
+                    // 시즌별 매출 정보 갱신
+                    $('#totalPayment').text(totalPaymentData.payment);
+                    $('#totalTicketSales').text(totalPaymentData.ticketSales);
+                    $('#totalMembershipSales').text(totalPaymentData.membershipSales);
+                }
+            });
+        });
+
+
+    </script>
+
 </div>
-<script src="/static/js/jQuery.js"></script>
 </body>
 </html>

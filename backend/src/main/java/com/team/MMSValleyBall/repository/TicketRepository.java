@@ -33,18 +33,18 @@ public interface TicketRepository extends JpaRepository<Ticket, Long> {
     List<Object[]> findAvailableSeatsByMatch(@Param("matchId") Long matchId);
 
     // 경기별 매출 조회
-    @Query("SELECT SUM(t.ticketPaidPrice), te.teamName " +
+    @Query("SELECT SUM(t.ticketPaidPrice), te.teamName, m.matchSeason, m.matchId, m.matchDate " +
             "FROM Ticket t " +
             "JOIN t.ticketMatch m " +
             "JOIN m.matchOpponentTeam te " +
-            "WHERE t.ticketStatus = 'BOOKED' " +  // 구매된 티켓만 포함
-            "GROUP BY te.teamName")
+            "WHERE t.ticketStatus <> 'CANCELED' " +  // 구매된 티켓만 포함
+            "GROUP BY te.teamName, m.matchSeason, m.matchId")
     List<Object[]> findTotalPaidPriceByMatch();
 
     // 월별 매출 조회
     @Query("SELECT EXTRACT(MONTH FROM t.ticketCreateAt) AS month, SUM(t.ticketPaidPrice) AS totalSales " +
             "FROM Ticket t " +
-            "WHERE t.ticketStatus = 'BOOKED' " +  // 구매된 티켓만 포함
+            "WHERE t.ticketStatus <> 'CANCELED' " +  // 구매된 티켓만 포함
             "GROUP BY EXTRACT(MONTH FROM t.ticketCreateAt) " +
             "ORDER BY month ASC")
     List<Object[]> findMonthlySalesNative();
