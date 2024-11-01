@@ -14,6 +14,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
 
@@ -70,25 +71,30 @@ public class AdminService {
 
         // 시즌별 매출을 저장할 맵
         Map<String, Map<String, Integer>> seasonTotalMap = new HashMap<>();
-        //시즌별 매출 계산
+        // 시즌별 매출 계산
         for (Season season : seasons) {
+            // 시즌 시작일을 해당 월의 첫째 날로 조정
+            LocalDate startDate = season.getSeasonStartDate().withDayOfMonth(1);
+            // 시즌 종료일을 해당 월의 마지막 날로 조정
+            LocalDate endDate = season.getSeasonEndDate().withDayOfMonth(season.getSeasonEndDate().lengthOfMonth());
+
             int totalPaymentAmount = paymentList.stream()
-                    .filter(payment -> !payment.getPaymentCreateAt().isBefore(season.getSeasonStartDate().atStartOfDay()) &&
-                            !payment.getPaymentCreateAt().isAfter(season.getSeasonEndDate().atStartOfDay())) // 날짜 필터링
+                    .filter(payment -> !payment.getPaymentCreateAt().toLocalDate().isBefore(startDate) &&
+                            !payment.getPaymentCreateAt().toLocalDate().isAfter(endDate)) // 날짜 필터링
                     .filter(payment -> !payment.getPaymentStatus().equals(PaymentStatus.REFUNDED))
                     .mapToInt(Payment::getPaymentAmount)
                     .sum();
 
             int totalMembershipSales = membershipSalesList.stream()
-                    .filter(sales -> !sales.getMembershipSalesCreateAt().isBefore(season.getSeasonStartDate().atStartOfDay()) && // 시작일 포함
-                            !sales.getMembershipSalesCreateAt().isAfter(season.getSeasonEndDate().atStartOfDay())) // 종료일 포함
+                    .filter(sales -> !sales.getMembershipSalesCreateAt().toLocalDate().isBefore(startDate) && // 시작일 포함
+                            !sales.getMembershipSalesCreateAt().toLocalDate().isAfter(endDate)) // 종료일 포함
                     .filter(x -> !x.getMembershipSalesStatus().equals(MembershipSalesStatus.REFUNDED))
                     .mapToInt(x -> x.getMembershipSalesMembership().getMembershipPrice()) // 가격을 가져오는 메서드
                     .sum();
 
             int totalTicketSales = ticketList.stream()
-                    .filter(ticket -> !ticket.getTicketCreateAt().isBefore(season.getSeasonStartDate().atStartOfDay()) && // 시작일 포함
-                            !ticket.getTicketCreateAt().isAfter(season.getSeasonEndDate().atStartOfDay())) // 종료일 포함
+                    .filter(ticket -> !ticket.getTicketCreateAt().toLocalDate().isBefore(startDate) && // 시작일 포함
+                            !ticket.getTicketCreateAt().toLocalDate().isAfter(endDate)) // 종료일 포함
                     .filter(x -> !x.getTicketStatus().equals(TicketStatus.CANCELLED))
                     .mapToInt(x -> x.getTicketPaidPrice()) // 가격을 가져오는 메서드
                     .sum();
@@ -101,9 +107,9 @@ public class AdminService {
 
             // 시즌과 해당 시즌의 총합을 맵에 추가
             seasonTotalMap.put(season.getSeasonName(), totalAmount);
-
         }
-//        System.out.println("시즌별 총 매출:"+seasonTotalMap);
+
+        // System.out.println("시즌별 총 매출: " + seasonTotalMap);
         return seasonTotalMap;
     }
 
@@ -136,9 +142,8 @@ public class AdminService {
 
 
     // 월별 매출 조회
-    public Map<String, Map<String, Long>> getMonthlySales() {
+    public Map<String, Map<String, Long>> getMonthlyTicketSales() {
         List<Object[]> results = ticketRepository.findMonthlySalesNative();
-        System.out.println("월별 매출 조회: " + results);
 
         // 시즌별 월별 매출을 저장할 Map
         Map<String, Map<String, Long>> monthlySalesBySeason = new HashMap<>();
@@ -153,6 +158,53 @@ public class AdminService {
                     .computeIfAbsent(seasonName, k -> new HashMap<>()) // 시즌 이름이 없으면 새 Map 생성
                     .put(getMonthName(month), totalSales); // 월 이름과 매출 합계를 시즌별 Map에 저장
         }
+
+        return monthlySalesBySeason;
+    }
+
+    public Map<String, Map<String, Long>> getMonthlyPaymentSales() {
+        // 시즌 정보 찾기
+        List<Season> seasons = seasonRepository.findAll();
+
+        List<Object[]> results = paymentRepository.findMonthlySalesNative();
+
+        System.out.println("월별 매출 조회: " + results);
+
+        // 시즌별 월별 매출을 저장할 Map
+        Map<String, Map<String, Long>> monthlySalesBySeason = new HashMap<>();
+
+        for (Object[] result : results) {
+            LocalDateTime paymentDate = (LocalDateTime) result[0]; // paymentCreateAt
+            Integer month = ((Number) result[1]).intValue(); // 월
+            Long totalSales = ((Number) result[2]).longValue(); // 총 매출
+
+            // LocalDate로 변환
+            LocalDate date = paymentDate.toLocalDate();
+
+            // 시즌을 찾아서 해당 시즌에 매출 추가
+            for (Season season : seasons) {
+                LocalDate startDate = season.getSeasonStartDate(); // 시즌 시작일
+                LocalDate endDate = season.getSeasonEndDate();     // 시즌 종료일
+
+                // 시즌 시작일을 해당 월의 첫째 날로 조정
+                LocalDate seasonStartMonthFirstDay = startDate.withDayOfMonth(1);
+                LocalDate seasonEndMonthLastDay = endDate.withDayOfMonth(endDate.lengthOfMonth()); // 시즌 종료일의 해당 월 마지막 날
+
+                // 날짜가 시즌 범위 내에 있는 경우
+                if (!date.isBefore(seasonStartMonthFirstDay) && !date.isAfter(seasonEndMonthLastDay)) {
+                    String seasonName = season.getSeasonName(); // 시즌 이름
+
+                    // 시즌별 매출 Map을 가져오거나 새로 생성
+                    monthlySalesBySeason
+                            .computeIfAbsent(seasonName, k -> new HashMap<>()) // 시즌 이름이 없으면 새 Map 생성
+                            .put(getMonthName(month), totalSales); // 월 이름과 매출 합계를 시즌별 Map에 저장
+
+                    // 시즌 범위에 추가된 경우 한 번만 추가하고 나가도록 break
+                    break;
+                }
+            }
+        }
+        System.out.println("월별 충전금액: " + monthlySalesBySeason);
 
         return monthlySalesBySeason;
     }

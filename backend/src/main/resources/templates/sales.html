@@ -263,13 +263,15 @@
             // 컨트롤러에서 받아온 데이터 저장하기
             const totalPayments = /*[[${totalPayments}]]*/ {};
             const matchPayments = /*[[${matchPayments}]]*/ {};
-            const monthlySales = /*[[${monthlySales}]]*/ {};
+            const monthlyTicketSales = /*[[${monthlyTicketSales}]]*/ {};
+            const monthlyPaymentSales = /*[[${monthlyPaymentSales}]]*/ {};
 
             // 초기 선택된 시즌 값
             let selectedSeason = $('#season-select').val();
             let totalPaymentData = totalPayments[selectedSeason];
             let matchPaymentData = matchPayments[selectedSeason];
-            let monthlySalesData = monthlySales[selectedSeason];
+            let monthlyTicketSalesData = monthlyTicketSales[selectedSeason];
+            let monthlyPaymentSalesData = monthlyPaymentSales[selectedSeason];
 
             // 월별 매출을 위한 기본 배열 생성 (8월 ~ 7월)
             const months = [
@@ -279,23 +281,34 @@
             ];
 
             // 월별 매출 데이터 초기화
-            const monthlySalesMap = {};
+            const monthlyPaymentSalesMap = {};
+            const monthlyTicketSalesMap = {};
 
             // 기본 매출을 0으로 설정
             months.forEach(month => {
-                monthlySalesMap[month] = 0; // 기본 매출액 0으로 설정
+                monthlyPaymentSalesMap[month] = 0; // 기본 매출액 0으로 설정
+                monthlyTicketSalesMap[month] = 0; // 기본 매출액 0으로 설정
             });
 
-            // 받은 monthlySalesData에서 매출을 설정
-            if (monthlySalesData) {
-                for (const month in monthlySalesData) {
-                    if (monthlySalesMap.hasOwnProperty(month)) {
-                        monthlySalesMap[month] = monthlySalesData[month]; // 해당 월의 매출 설정
+            // 받은 monthlyPaymentSalesData에서 매출을 설정
+            if (monthlyPaymentSalesData) {
+                for (const month in monthlyPaymentSalesData) {
+                    if (monthlyPaymentSalesMap.hasOwnProperty(month)) {
+                        monthlyPaymentSalesMap[month] = monthlyPaymentSalesData[month]; // 해당 월의 매출 설정
                     }
                 }
             }
 
-            console.log("월별 매출 데이터: ", monthlySalesMap);
+            // 받은 monthlyTicketSalesData에서 매출을 설정
+            if (monthlyTicketSalesData) {
+                for (const month in monthlyTicketSalesData) {
+                    if (monthlyTicketSalesMap.hasOwnProperty(month)) {
+                        monthlyTicketSalesMap[month] = monthlyTicketSalesData[month]; // 해당 월의 매출 설정
+                    }
+                }
+            }
+
+            console.log("월별 매출 데이터: ", monthlyTicketSalesMap);
 
             // Chart.js를 사용하여 그래프 그리기
             const ctx = document.getElementById('monthlySalesChart').getContext('2d');
@@ -303,13 +316,22 @@
                 type: 'bar', // 막대 그래프
                 data: {
                     labels: months, // x축 라벨
-                    datasets: [{
-                        label: '월별 매출',
-                        data: months.map(month => monthlySalesMap[month]), // 각 월의 매출 데이터
-                        backgroundColor: 'rgba(75, 192, 192, 0.2)',
-                        borderColor: 'rgba(75, 192, 192, 1)',
-                        borderWidth: 1
-                    }]
+                    datasets: [
+                        {
+                            label: 'payment',
+                            data: months.map(month => monthlyPaymentSalesMap[month]), // 각 월의 결제 매출 데이터
+                            backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                            borderColor: 'rgba(75, 192, 192, 1)',
+                            borderWidth: 1
+                        },
+                        {
+                            label: 'ticket',
+                            data: months.map(month => monthlyTicketSalesMap[month]), // 각 월의 티켓 매출 데이터
+                            backgroundColor: 'rgba(153, 102, 255, 0.2)', // 다른 색상으로 설정
+                            borderColor: 'rgba(153, 102, 255, 1)',
+                            borderWidth: 1
+                        }
+                    ]
                 },
                 options: {
                     scales: {
@@ -416,10 +438,12 @@
                 }
 
                 // 월별 매출 그래프 데이터 갱신
-                monthlySalesChart.data.datasets[0].data = salesByMonth.map(sales => sales.totalSales); // 새 데이터 할당
+                monthlySalesChart.data.datasets[0].data = months.map(month => monthlyPaymentSalesMap[month]); // 결제 매출 데이터 업데이트
+                monthlySalesChart.data.datasets[1].data = months.map(month => monthlyTicketSalesMap[month]); // 티켓 매출 데이터 업데이트
                 monthlySalesChart.update(); // 차트 업데이트
             });
         });
+
 
     </script>
 

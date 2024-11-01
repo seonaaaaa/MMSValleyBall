@@ -4,6 +4,10 @@
 
         <!-- 모달 내용 -->
         <div class="first-modal-content">
+            <!-- 로딩 표시 -->
+            <div v-if="loading" class="loading-spinner">
+                데이터 로딩 중입니다...
+            </div>
 
             <!-- 모달 제목 -->
             <!-- 선택한 데이터 가져와서 일정 넣어야함 -->
@@ -89,6 +93,7 @@
             </div>
         </div>
         <div class="first-button">
+            <button class="hiden-button" ref="autoClickButton" @click="handleClick"></button>
             <!-- 결제 버튼 -->
             <button class="buy-button" @click="openSecondPage">다음</button>
 
@@ -262,10 +267,6 @@ export default {
         },
         
     },
-    async mounted() {
-        console.log("Mounted with user:", this.user); // 유저 정보 출력
-        await this.fetchEvents(); // 데이터 fetch
-    },
 
     computed: {
         selectedZones() {
@@ -317,11 +318,22 @@ export default {
                 }
             },
             deep: true
+        },
+        autoClick: {
+            immediate: true, // 컴포넌트가 로드되면 즉시 실행
+            handler(newValue) {
+                if (newValue) {
+                this.handleClick(); // 자동으로 버튼 클릭 메서드 호출
+                this.autoClick = false; // 이후에는 자동 클릭이 재발하지 않도록 설정
+                }
+            }
         }
     },
 
     data() {
         return {
+            loading: true,
+            autoClick: true, // 버튼 자동 클릭을 제어할 변수
             // 두번째 모달창으로 이동
             firstPage: true,
             secondPage: false,
@@ -355,10 +367,16 @@ export default {
     },
 
     methods: {
+        async handleClick() {
+            console.log("버튼이 눌렸습니다!");
+            // 버튼 클릭 시 실행할 로직을 여기에 추가하세요
+            await this.fetchEvents(); // 데이터 fetch
+        },
         // API 호출
         async fetchEvents() {
             // let data = {};
             try {
+                this.loading = true; // 데이터 로드 시작 시 로딩 활성화
                 console.log("Sending request with:", {
                     email: this.user.email,
                     matchId: this.match.matchId
@@ -381,6 +399,8 @@ export default {
                 // response.data = response.data;
             } catch (error) {
                 console.error("Error fetching data: ", error);
+            } finally {
+                this.loading = false; // 데이터 로드 완료 시 로딩 비활성화
             }
         },
         // 예매하기 버튼 클릭 시 호출되는 메서드
@@ -915,6 +935,13 @@ export default {
     position: absolute;
     right: 1%;
     bottom: 1%;
+}
+
+.loading-spinner {
+    text-align: center;
+    padding: 20px;
+    font-size: 18px;
+    color: #555;
 }
 
 /* 다음 버튼 */
