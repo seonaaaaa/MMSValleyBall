@@ -1,0 +1,54 @@
+.game-update-page {
+    padding-top: var(--header-height);
+    padding-bottom: var(--footer-height);
+    margin-bottom: 70px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.form-table {
+    width: 100%;
+    max-width: 500px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.form-row {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    margin-bottom: 10px;
+}
+
+label {
+    width: 120px;
+    text-align: left;
+    margin-bottom: 10px;
+    margin-right: 50px;
+}
+
+input, select, button {
+  flex: 1;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  margin-bottom: 10px;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+input:disabled {
+  cursor: not-allowed;
+  /* background-color: #f0f0f0; */
+}
+
+.button-group {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  width: 100%;
+  margin-top: 20px;
+}

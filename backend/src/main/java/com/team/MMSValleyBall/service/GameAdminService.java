@@ -16,6 +16,7 @@ import com.team.MMSValleyBall.repository.TicketRepository;
 import com.team.MMSValleyBall.service.EmailService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -180,7 +181,7 @@ public class GameAdminService {
         }
     }
 
-    // 경기 조회
+    // 경기 조회 (수정 페이지)
     public MatchWithTeamDTO getMatchById(Long matchId) {
         Match match = gameRepository.findById(matchId)
                 .orElseThrow(() -> new NoSuchElementException("경기를 찾을 수 없습니다."));
@@ -205,6 +206,8 @@ public class GameAdminService {
                 .orElseThrow(() -> new NoSuchElementException("팀을 찾을 수 없습니다.")));
 
         match.setMatchRoundId(matchDTO.getMatchRoundId());
+
+        match.setMatchMailStatus(MailStatus.REQUIRED);
 
         gameRepository.save(match);
         return "경기 정보 업데이트에 성공했습니다.";

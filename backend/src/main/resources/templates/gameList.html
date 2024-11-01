@@ -3,9 +3,10 @@
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       layout:decorate="~{layout/layout}">
 <head>
-    <meta charset="UTF-8">
-    <title>경기 관리</title>
+    <!-- 개별 페이지 전용 CSS 파일 -->
+    <link rel="stylesheet" th:href="@{/css/game-list.css}">
 </head>
+<meta charset="UTF-8">
 <body>
 <div layout:fragment="content" class="content">
     <section>
@@ -14,12 +15,13 @@
             <a href="#membership">매출 조회</a>
             <a href="/admin/game" class="active">경기 조회</a>
         </div>
-        <div class="container">
-            <div class="filter-controls table-header">
+
+        <div class="container admin-game-page">
+            <div class="filter-controls">
                 <span>총 경기 수 : <b th:text="${totalMatches}"></b>개</span>
                 <div>
-                    <a href="/game/admin/insert"><button class="add-button">+ 신규 경기</button></a>
-                    <button onclick="resetFilters()" class="btn-secondary">전체</button>
+                    <a href="/admin/game/insert"><button>+ 신규 경기</button></a>
+                    <button onclick="resetFilters()">전체</button>
                 </div>
             </div>
 
@@ -83,54 +85,53 @@
                 </tr>
                 </thead>
                 <tbody class="match-table-body">
-                <tr th:each="match, stat : ${matchList}">
-                    <td th:text="${stat.index + 1}">1</td>
-                    <td th:text="${match.matchId}">ID</td>
-                    <td th:text="${match.seasonName}">시즌</td>
-                    <td th:text="${match.matchRoundId}">라운드</td>
-                    <td th:text="${match.matchDate}">날짜</td>
-                    <td th:text="${match.matchStadium}">경기장</td>
-                    <td th:text="${match.teamName}">팀 이름</td>
-                    <td th:text="${match.matchSetScore}">우리 팀 점수</td>
-                    <td th:text="${match.matchOpponentTeamSetScore}">상대 팀 점수</td>
-                    <td th:text="${match.matchMailStatus}">메일 상태</td>
-                    <td th:text="${match.matchStatus}">경기 상태</td>
-                    <td>
-                        <a th:href="@{/admin/game/update/{matchId}(matchId=${match.matchId})}">
-                            <button>수정</button>
-                        </a>
-                    </td>
-                    <td>
-                        <button th:if="${match.matchStatus == 'DEFAULT'}"
-                                onclick="deactivateMatch([[${match.matchId}]])">삭제</button>
-                        <button th:if="${match.matchStatus == 'DELETED'}"
-                                onclick="activateMatch([[${match.matchId}]])">활성화</button>
-                    </td>
-                    <td>
-                        <button onclick="updateMailStatus([[${match.matchId}]])"
-                                th:disabled="${match.matchMailStatus != 'REQUIRED'}">메일 상태 변경</button>
-                    </td>
-                    <td>
-                        <button onclick="sendEmails([[${match.matchId}]])"
-                                th:disabled="${match.matchMailStatus != 'REQUIRED'}">메일 발송</button>
-                    </td>
-                </tr>
+                    <tr th:each="match, stat : ${matchList}">
+                        <td th:text="${(currentPage * pageSize) + stat.index + 1}">1</td>
+                        <td th:text="${match.matchId}">ID</td>
+                        <td th:text="${match.seasonName}">시즌</td>
+                        <td th:text="${match.matchRoundId}">라운드</td>
+                        <td th:text="${match.matchDate}">날짜</td>
+                        <td th:text="${match.matchStadium}">경기장</td>
+                        <td th:text="${match.teamName}">팀 이름</td>
+                        <td th:text="${match.matchSetScore}">우리 팀 점수</td>
+                        <td th:text="${match.matchOpponentTeamSetScore}">상대 팀 점수</td>
+                        <td th:text="${match.matchMailStatus}">메일 상태</td>
+                        <td th:text="${match.matchStatus}">경기 상태</td>
+                        <td>
+                            <a th:href="@{/admin/game/update/{matchId}(matchId=${match.matchId})}">
+                                <button>수정</button>
+                            </a>
+                        </td>
+                        <td>
+                            <button class="delete-btn"
+                                    th:data-match-id="${match.matchId}"
+                                    th:data-match-status="${match.matchStatus}"
+                                    th:if="${match.matchStatus.name() != 'DELETED'}">삭제</button>
+                            <button class="activate-btn"
+                                    th:data-match-id="${match.matchId}"
+                                    th:data-match-status="${match.matchStatus}"
+                                    th:if="${match.matchStatus.name() == 'DELETED'}">활성화</button>
+                        </td>
+                        <td>
+                            <button onclick="updateMailStatus([[${match.matchId}]])"
+                                    th:disabled="${match.matchMailStatus.name() != 'REQUIRED'}">메일 상태 변경</button>
+                        </td>
+                        <td>
+                            <button onclick="sendEmails([[${match.matchId}]])"
+                                    th:disabled="${match.matchMailStatus.name() != 'REQUIRED'}">메일 발송</button>
+                        </td>
+                    </tr>
                 </tbody>
             </table>
 
             <!-- 페이지네이션 컨트롤 -->
-            <div class="pagination">
+            <div class="pagination" id="paginationControls">
                 <div class="pages">
-                    <a href="#" th:onclick="|changePage(0)|" class="btn btn-outline-secondary" th:classappend="${currentPage == 0} ? ' disabled'" aria-label="First">&laquo;</a>
-                    <a href="#" th:onclick="|changePage(${currentPage - 1})|" class="btn btn-outline-secondary" th:classappend="${currentPage == 0} ? ' disabled'" aria-label="Previous">&lt;</a>
-
-                    <span th:each="page : ${#numbers.sequence(1, totalPages)}">
-                        <a href="#" th:text="${page}" th:onclick="|changePage(${page - 1})|"
-                           th:classappend="${page - 1 == currentPage} ? 'btn btn-primary' : 'btn btn-outline-secondary'"></a>
-                    </span>
-
-                    <a href="#" th:onclick="|changePage(${currentPage + 1})|" class="btn btn-outline-secondary" th:classappend="${currentPage == totalPages - 1} ? ' disabled'" aria-label="Next">&gt;</a>
-                    <a href="#" th:onclick="|changePage(${totalPages - 1})|" class="btn btn-outline-secondary" th:classappend="${currentPage == totalPages - 1} ? ' disabled'" aria-label="Last">&raquo;</a>
+                <span th:each="page : ${#numbers.sequence(0, totalPages - 1)}">
+                    <a href="#" th:text="${page + 1}"
+                       th:classappend="${page == currentPage} ? 'active'"
+                       th:href="@{/admin/game(page=${page})}"></a>
+                </span>
                 </div>
             </div>
         </div>
@@ -138,93 +139,55 @@
 
     <script th:inline="javascript">
         $(document).ready(function() {
-            let currentPage = 0;
-            const pageSize = 10;
 
-            function fetchMatches(page) {
-                console.log('fetchMatches called with page:', page); // 호출 확인 로그
-                currentPage = page;
-
-                const selectedSeason = $('#season').val();
-                const selectedRound = $('#round').val();
-                const selectedStadium = $('#stadium').val();
-                const selectedTeam = $('#team').val();
-                const selectedMailStatus = $('#mailStatus').val();
-                const selectedMatchStatus = $('#matchStatus').val();
-                const selectedSortOrder = $('#sortOrder').val().split(',');
-
-                axios.get('/admin/game/', {
-                    params: {
-                        page: page,
-                        size: pageSize,
-                        seasonId: selectedSeason || null,
-                        matchRoundId: selectedRound || null,
-                        matchStadium: selectedStadium || null,
-                        teamId: selectedTeam || null,
-                        matchMailStatus: selectedMailStatus || null,
-                        matchStatus: selectedMatchStatus || null,
-                        sortField: selectedSortOrder[0],
-                        sortDirection: selectedSortOrder[1]
+            // 논리적 삭제 처리 함수
+            function deactivateMatch(matchId) {
+                $.ajax({
+                    url: `/admin/game/delete/${matchId}`,
+                    type: 'PATCH',
+                    success: function(response) {
+                        alert(response); // 서버로부터의 성공 메시지 출력
+                        location.reload(); // 페이지 새로고침하여 변경 사항 반영
+                    },
+                    error: function(xhr, status, error) {
+                        console.error("경기 삭제 오류:", error);
+                        alert("경기 삭제 중 오류가 발생했습니다.");
                     }
-                })
-                .then(response => {
-                    const data = response.data.content;
-                    const totalPages = response.data.totalPages;
-                    console.log('Fetched data:', data); // 확인용 로그
-                    renderMatchTable(data);
-                    renderPagination(totalPages);
-                })
-                .catch(error => {
-                    console.error('Error fetching match data:', error);
                 });
             }
 
-            function resetFilters() {
-                $('#season, #round, #stadium, #team, #mailStatus, #matchStatus').val('');
-                fetchMatches(0);
-            }
-
-            window.resetFilters = resetFilters;
-
-            function renderMatchTable(matches) {
-                const tableBody = $('.match-table-body');
-                tableBody.empty();
-                matches.forEach((match, index) => {
-                    const row = `
-                        <tr>
-                            <td>${index + 1}</td>
-                            <td>${match.matchId}</td>
-                            <td>${match.seasonName}</td>
-                            <td>${match.matchRoundId}</td>
-                            <td>${match.matchDate}</td>
-                            <td>${match.matchStadium}</td>
-                            <td>${match.teamName}</td>
-                            <td>${match.matchSetScore}</td>
-                            <td>${match.matchOpponentTeamSetScore}</td>
-                            <td>${match.matchMailStatus}</td>
-                            <td>${match.matchStatus}</td>
-                            <td><a href="/game/admin/update/${match.matchId}">수정</a></td>
-                            <td><button onclick="deactivateMatch(${match.matchId})">삭제</button></td>
-                            <td><button onclick="updateMailStatus(${match.matchId})">메일 상태 변경</button></td>
-                            <td><button onclick="sendEmails(${match.matchId})">메일 발송</button></td>
-                        </tr>`;
-                    tableBody.append(row);
+            // 경기 상태 활성화 처리 함수
+            function activateMatch(matchId) {
+                $.ajax({
+                    url: `/admin/game/update-match-status/${matchId}`,
+                    type: 'PATCH',
+                    contentType: "application/json",
+                    data: JSON.stringify("DEFAULT"),
+                    success: function(response) {
+                        alert(response); // 서버로부터의 성공 메시지 출력
+                        location.reload(); // 페이지 새로고침하여 변경 사항 반영
+                    },
+                    error: function(xhr, status, error) {
+                        console.error("경기 상태 활성화 오류:", error);
+                        alert("경기 활성화 중 오류가 발생했습니다.");
+                    }
                 });
             }
 
-            function renderPagination(totalPages) {
-                const paginationDiv = $('.pagination .pages');
-                paginationDiv.empty();
-                for (let page = 0; page < totalPages; page++) {
-                    const button = `<a href="#" onclick="fetchMatches(${page})">${page + 1}</a>`;
-                    paginationDiv.append(button);
-                }
-            }
+            // 삭제 버튼 클릭 이벤트
+            $('.match-table-body').on('click', 'button.delete-btn', function() {
+                const matchId = $(this).data('match-id');
+                deactivateMatch(matchId);
+            });
 
-            $('#season, #round, #sortOrder, #stadium, #team, #mailStatus, #matchStatus').change(() => fetchMatches(0));
+            // 활성화 버튼 클릭 이벤트
+            $('.match-table-body').on('click', 'button.activate-btn', function() {
+                const matchId = $(this).data('match-id');
+                activateMatch(matchId);
+            });
 
-            fetchMatches(0); // 초기 데이터 로드
         });
+
     </script>
 </div>
 
