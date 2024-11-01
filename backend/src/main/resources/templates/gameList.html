@@ -1,9 +1,8 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-      layout:decorate="~{layout/layout}">
+      layout:decorate="~{layout/layoutReal}">
 <head>
-    <meta charset="UTF-8">
     <!-- 개별 페이지 전용 CSS 파일 -->
     <link rel="stylesheet" th:href="@{/css/game-list.css}">
 </head>
@@ -11,17 +10,16 @@
 <div layout:fragment="content" class="content">
     <section>
         <div class="tab-menu">
-            <a href="#reservation">회원 조회</a>
-            <a href="#membership">매출 조회</a>
-            <a href="/admin/game" class="active">경기 조회</a>
+            <a href="userList" class="active">회원 조회</a>
+            <a href="sales" class="active">매출 조회</a>
+            <a href="game" class="active">멤버쉽 조회</a>
         </div>
 
         <div class="container admin-game-page">
             <div class="filter-controls">
-                <span>총 경기 수 : <b th:text="${totalMatches}"></b>개</span>
                 <div>
-                    <a href="/admin/game/insert"><button>+ 신규 경기</button></a>
-                    <button id="resetFiltersBtn">전체</button>
+                    <a href="/admin/game/insert"><button class="btn-plusMath">+ 신규 경기</button></a>
+                    <button class="btn-allMath" id="resetFiltersBtn">전체</button>
                 </div>
             </div>
 
@@ -99,7 +97,7 @@
                         <td th:text="${match.matchStatus}">경기 상태</td>
                         <td>
                             <a th:href="@{/admin/game/update/{matchId}(matchId=${match.matchId})}">
-                                <button>수정</button>
+                                <button class="btn-alter">수정</button>
                             </a>
                         </td>
                         <td>
@@ -136,6 +134,7 @@
                 </span>
                 </div>
             </div>
+            <span class="AllText">총 경기 수 : <b th:text="${totalMatches}"></b>개</span>
         </div>
     </section>
 
