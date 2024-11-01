@@ -59,3 +59,41 @@ tbody tr:hover {
     background-color: #ddd;
     cursor: not-allowed;
 }
+
+.btn-plusMath{
+    border: none;
+    border-radius: 8px;
+    color: white;
+    background-color: #60a191;
+    width: 130px;
+    font-size: 20px;
+    height: 50px;
+}
+
+.btn-allMath{
+     border: none;
+     border-radius: 8px;
+     color: #555;
+     background-color: #f0efc3;
+     width: 70px;
+     font-size: 20px;
+     height: 50px;
+}
+
+.filter-controls {
+    margin-bottom: 20px; /* 원하는 여유 공간 크기로 설정 */
+}
+
+.delete-btn{
+        border: none;
+        border-radius: 8px;
+        color: white;
+        background-color: #ff1d1d;
+}
+
+.btn-alter{
+      border: none;
+      border-radius: 8px;
+      color: white;
+      background-color: #60a191;
+}
