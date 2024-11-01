@@ -51,8 +51,8 @@ public class MembershipController {
             Map<String, Object> response = new HashMap<>();
             response.put("userMoney", moneyDTO.getLeftMoney());
             response.put("newMembership", membershipSalesDTO);
-            log.info("### user Money : "+response.get("userMoney"));
-            log.info("### new Membership : "+response.get("newMembership"));
+            log.info("### user Money : " + response.get("userMoney"));
+            log.info("### new Membership : " + response.get("newMembership"));
 
             return ResponseEntity.ok(response); // JSON으로 반환
         } catch (Exception e) {
@@ -87,4 +87,14 @@ public class MembershipController {
         }
     }
 
+    // 멤버십 결제 취소
+    @PostMapping("/cancel")
+    public ResponseEntity<String> ticketCancel(@RequestParam("userEmail") String userEmail) {
+        System.out.println(userEmail);
+        if (membershipSalesService.changeMembershipStatusByEmail(userEmail)) {
+            return ResponseEntity.ok("멤버십 결제가 성공적으로 취소되었습니다.");
+        } else {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("예매 취소에 실패했습니다.");
+        }
+    }
 }
