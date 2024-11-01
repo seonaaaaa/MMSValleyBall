@@ -5,6 +5,7 @@ import com.team.MMSValleyBall.entity.*;
 import com.team.MMSValleyBall.enums.MembershipSalesStatus;
 import com.team.MMSValleyBall.enums.PaymentStatus;
 import com.team.MMSValleyBall.enums.TicketStatus;
+import com.team.MMSValleyBall.enums.UserStatus;
 import com.team.MMSValleyBall.repository.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,23 +41,6 @@ public class AdminService {
         this.membershipSalesRepository = membershipSalesRepository;
     }
 
-    // 유저 전체 조회
-    public Page<Users> findAllUsers(Pageable pageable) {
-        Page<Users> usersList = userRepository.findAll(pageable);
-        return usersList;
-    }
-
-    // 특정 유저  조회
-    public UserDTO findUserById(Long userId) {
-        return userRepository.findById(userId)
-                .map(UserDTO::fromEntity)  // Users 엔티티를 UserDTO로 변환하는 매핑 메서드
-                .orElseThrow(() -> new IllegalArgumentException("해당 유저가 없습니다. userId: " + userId));
-    }
-
-    // 전체 유저 수 계산
-    public long getTotalUserCount() {
-        return userRepository.count();
-    }
 
     // 시즌별 총 매출 조회
     public Map<String, Map<String, Integer>> getTotalPaymentAmount() {
@@ -227,6 +211,60 @@ public class AdminService {
         }
         return seasons;
     }
+
+    // 특정 유저  조회
+    public UserDTO findUserById(Long userId) {
+        return userRepository.findById(userId)
+                .map(UserDTO::fromEntity)  // Users 엔티티를 UserDTO로 변환하는 매핑 메서드
+                .orElseThrow(() -> new IllegalArgumentException("해당 유저가 없습니다. userId: " + userId));
+    }
+
+
+    // 전체 유저수
+    public long countUsers() {
+        return userRepository.count();
+    }
+
+
+    // 유저 검색 / 조회 모든것
+    public Page<UserDTO> searchUsers(String searchCriteria, String keyword, Pageable pageable) {
+        if (searchCriteria == null || keyword == null || keyword.trim().isEmpty()) {
+            // 검색 기준이나 키워드가 없을 경우 전체 조회
+            return userRepository.findAll(pageable).map(UserDTO::fromEntity);
+        }
+
+        switch (searchCriteria) {
+            case "name":
+                return userRepository.findByUserNameContainingOrderByUserIdAsc(keyword, pageable).map(UserDTO::fromEntity);
+            case "email":
+                return userRepository.findByUserEmailContainingOrderByUserIdAsc(keyword, pageable).map(UserDTO::fromEntity);
+            case "membership":
+                return userRepository.findByUserMembership_MembershipNameContainingIgnoreCaseOrderByUserIdAsc(keyword, pageable).map(UserDTO::fromEntity);
+            default:
+                return userRepository.findAll(pageable).map(UserDTO::fromEntity);
+        }
+    }
+
+    public void toggleUserStatus(Long userId) {
+        Users user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("Invalid user ID"));
+
+        if (user.getUserStatus() == UserStatus.ACTIVE) {
+            user.setUserStatus(UserStatus.INACTIVE);
+        } else {
+            user.setUserStatus(UserStatus.ACTIVE);
+        }
+        userRepository.save(user);
+    }
+
+    public Page<UserDTO> findAllUsers(Pageable pageable) {
+        return userRepository.findAll(pageable).map(UserDTO::fromEntity);
+    }
+
+    public Page<UserDTO> findUsersByMembership(String membership, Pageable pageable) {
+        return userRepository.findByUserMembership_MembershipNameContainingIgnoreCaseOrderByUserIdAsc(membership, pageable).map(UserDTO::fromEntity);
+    }
+
 
 }
 

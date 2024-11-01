@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html xmlns:th="www.thymeleaf.org"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-      layout:decorate="~{layout/layout}">
+      layout:decorate="~{layout/layoutReal}">
 <head>
     <meta charset="UTF-8">
 </head>
@@ -11,21 +11,25 @@
         <div class="tab-menu">
             <a href="userList" class="active">회원 조회</a>
             <a href="sales" class="active">매출 조회</a>
-            <a href="game" class="active">멤버쉽 조회</a>
+            <a href="game" class="active">경기 조회</a>
         </div>
 
         <div class="container">
             <div class="table-header">
-                <div class="search-bar">
-                    <span class="filter-icon">🔍</span>
-                    <select id="searchCriteria" class="search-criteria">
-                        <option value="name">이름</option>
-                        <option value="email">이메일</option>
-                        <option value="membership">멤버십</option>
-                    </select>
-                    <input type="text" id="searchInput" placeholder="Search...">
-                    <button id="searchButton">검색</button>
-                </div>
+
+                <form action="/admin/userList" method="get">
+                    <div class="search-bar">
+                        <span class="filter-icon">🔍</span>
+                        <select name="searchCriteria" id="searchCriteria" class="search-criteria">
+                            <option value="name">이름</option>
+                            <option value="email">이메일</option>
+                            <option value="membership">멤버십</option>
+                        </select>
+                        <input name="keyword" type="text" id="keyword" placeholder="Search...">
+                        <button type="submit" id="searchButton">검색</button>
+                    </div>
+                </form>
+
                 <a href="createAdmin" class="add-button">+ 신규 관리자</a>
             </div>
 
@@ -35,13 +39,23 @@
                     <th>#</th>
                     <th>이름</th>
                     <th>이메일</th>
-                    <th>멤버십</th>
+                    <th>
+                        <form action="/admin/userList" method="get">
+                            <label for="membershipFilter">멤버십</label>
+                            <select id="membershipFilter" name="membership" onchange="this.form.submit()">
+                                <option value="">모두 보기</option>
+                                <option value="BRONZE">BRONZE</option>
+                                <option value="SILVER">SILVER</option>
+                                <option value="GOLD">GOLD</option>
+                            </select>
+                        </form>
+                    </th>
                     <th>충전 잔액</th>
                     <th>회원 상태</th>
                 </tr>
                 </thead>
-                <tbody th:each="user : ${userPage}">
-                <tr>
+                <tbody>
+                <tr th:each="user : ${userPage}">
                     <td th:text="${user.userId}">1</td>
                     <td>
                         <a th:text="${user.userName}"
@@ -49,13 +63,12 @@
                     </td>
                     <td th:text="${user.userEmail}">seon04520@gmail.com</td>
                     <td>
-                        <span th:each="membership : ${user.userMembership}">
-                            <span th:text="${membership.membershipName}">BRONZE</span>
-                        </span>
+                        <span th:text="${user.userMembershipName != null ? user.userMembershipName : 'BRONZE'}">BRONZE</span>
                     </td>
                     <td>
                         <span th:each="payment : ${user.payments}">
-                        <span th:text="${payment.paymentAmount != null ? payment.paymentAmount : 0}"></span>원
+                        <span th:with="amount=${payment.paymentAmount}"
+                              th:text="${#numbers.formatInteger(amount, 0, 'COMMA') + '원'}"></span>
                         </span>
                         <span th:if="${#lists.isEmpty(user.payments)}">0원</span>
                     </td>
@@ -74,7 +87,7 @@
             <div class="pagination">
                 <!-- 이전 페이지 버튼 -->
                 <span th:if="${userPage != null}" th:classappend="${userPage.number <= 0} ? 'disabled'">
-                    <a th:href="${userPage.number > 0} ? @{/admin/userList(page=${userPage.number - 1}, size=${userPage.size})} : '#'">
+                    <a th:href="${userPage.number > 0} ? @{/admin/userList(page=${userPage.number - 1}, size=${userPage.size}, searchCriteria=${searchCriteria}, keyword=${keyword}, membership=${membership})} : '#'">
                         &laquo; 이전
                     </a>
                 </span>
@@ -82,22 +95,113 @@
                 <!-- 페이지 번호 링크 -->
                 <span th:if="${userPage != null}" th:each="pageNumber : ${pageBars}">
                     <a class="page-link"
-                       th:href="@{/admin/userList(page=${pageNumber}, size=${userPage.size})}"
+                       th:href="@{/admin/userList(page=${pageNumber}, size=${userPage.size}, searchCriteria=${searchCriteria}, keyword=${keyword}, membership=${membership})}"
                        th:text="${pageNumber + 1}">1</a>
                 </span>
 
                 <!-- 다음 페이지 버튼 -->
                 <span th:if="${userPage != null}"
                       th:classappend="${userPage.number + 1 == userPage.totalPages} ? 'disabled'">
-                    <a th:href="${userPage.number + 1 < userPage.totalPages} ? @{/admin/userList(page=${userPage.number + 1}, size=${userPage.size})} : '#'">
+                    <a th:href="${userPage.number + 1 < userPage.totalPages} ? @{/admin/userList(page=${userPage.number + 1}, size=${userPage.size}, searchCriteria=${searchCriteria}, keyword=${keyword}, membership=${membership})} : '#'">
                         다음 &raquo;
                     </a>
                 </span>
             </div>
         </div>
         <!-- 총 회원 수 표시 -->
-        <span th:text="'총 회원 수 : ' + ${totalUsers} + '명'" class="AllText"></span>
+        <span th:text="'총 회원 수 : ' + ${totalUsers} + '명'"></span>
     </section>
+    <!--    <section>-->
+    <!--        <div class="tab-menu">-->
+    <!--            <a href="userList" class="active">회원 조회</a>-->
+    <!--            <a href="sales" class="active">매출 조회</a>-->
+    <!--            <a href="game" class="active">멤버쉽 조회</a>-->
+    <!--        </div>-->
+
+    <!--        <div class="container">-->
+    <!--            <div class="table-header">-->
+    <!--                <div class="search-bar">-->
+    <!--                    <span class="filter-icon">🔍</span>-->
+    <!--                    <select id="searchCriteria" class="search-criteria">-->
+    <!--                        <option value="name">이름</option>-->
+    <!--                        <option value="email">이메일</option>-->
+    <!--                        <option value="membership">멤버십</option>-->
+    <!--                    </select>-->
+    <!--                    <input type="text" id="searchInput" placeholder="Search...">-->
+    <!--                    <button id="searchButton">검색</button>-->
+    <!--                </div>-->
+    <!--                <a href="createAdmin" class="add-button">+ 신규 관리자</a>-->
+    <!--            </div>-->
+
+    <!--            <table class="table">-->
+    <!--                <thead>-->
+    <!--                <tr>-->
+    <!--                    <th>#</th>-->
+    <!--                    <th>이름</th>-->
+    <!--                    <th>이메일</th>-->
+    <!--                    <th>멤버십</th>-->
+    <!--                    <th>충전 잔액</th>-->
+    <!--                    <th>회원 상태</th>-->
+    <!--                </tr>-->
+    <!--                </thead>-->
+    <!--                <tbody th:each="user : ${userPage}">-->
+    <!--                <tr>-->
+    <!--                    <td th:text="${user.userId}">1</td>-->
+    <!--                    <td>-->
+    <!--                        <a th:text="${user.userName}"-->
+    <!--                           th:href="@{/admin/userDetail/{userId}(userId = ${user.userId})}">박선아</a>-->
+    <!--                    </td>-->
+    <!--                    <td th:text="${user.userEmail}">seon04520@gmail.com</td>-->
+    <!--                    <td>-->
+    <!--                        <span th:each="membership : ${user.userMembership}">-->
+    <!--                            <span th:text="${membership.membershipName}">BRONZE</span>-->
+    <!--                        </span>-->
+    <!--                    </td>-->
+    <!--                    <td>-->
+    <!--                        <span th:each="payment : ${user.payments}">-->
+    <!--                        <span th:text="${payment.paymentAmount != null ? payment.paymentAmount : 0}"></span>원-->
+    <!--                        </span>-->
+    <!--                        <span th:if="${#lists.isEmpty(user.payments)}">0원</span>-->
+    <!--                    </td>-->
+    <!--                    <td>-->
+    <!--                        <span th:if="${user.userStatus == T(com.team.MMSValleyBall.enums.UserStatus).ACTIVE}"-->
+    <!--                              class="status ACTIVE" th:text="${user.userStatus}">ACTIVE-->
+    <!--                        </span>-->
+    <!--                        <span th:if="${user.userStatus == T(com.team.MMSValleyBall.enums.UserStatus).INACTIVE}"-->
+    <!--                              class="status INACTIVE" th:text="${user.userStatus}">INACTIVE-->
+    <!--                        </span>-->
+    <!--                    </td>-->
+    <!--                </tr>-->
+    <!--                </tbody>-->
+    <!--            </table>-->
+
+    <!--            <div class="pagination">-->
+    <!--                &lt;!&ndash; 이전 페이지 버튼 &ndash;&gt;-->
+    <!--                <span th:if="${userPage != null}" th:classappend="${userPage.number <= 0} ? 'disabled'">-->
+    <!--                    <a th:href="${userPage.number > 0} ? @{/admin/userList(page=${userPage.number - 1}, size=${userPage.size})} : '#'">-->
+    <!--                        &laquo; 이전-->
+    <!--                    </a>-->
+    <!--                </span>-->
+
+    <!--                &lt;!&ndash; 페이지 번호 링크 &ndash;&gt;-->
+    <!--                <span th:if="${userPage != null}" th:each="pageNumber : ${pageBars}">-->
+    <!--                    <a class="page-link"-->
+    <!--                       th:href="@{/admin/userList(page=${pageNumber}, size=${userPage.size})}"-->
+    <!--                       th:text="${pageNumber + 1}">1</a>-->
+    <!--                </span>-->
+
+    <!--                &lt;!&ndash; 다음 페이지 버튼 &ndash;&gt;-->
+    <!--                <span th:if="${userPage != null}"-->
+    <!--                      th:classappend="${userPage.number + 1 == userPage.totalPages} ? 'disabled'">-->
+    <!--                    <a th:href="${userPage.number + 1 < userPage.totalPages} ? @{/admin/userList(page=${userPage.number + 1}, size=${userPage.size})} : '#'">-->
+    <!--                        다음 &raquo;-->
+    <!--                    </a>-->
+    <!--                </span>-->
+    <!--            </div>-->
+    <!--        </div>-->
+    <!--        &lt;!&ndash; 총 회원 수 표시 &ndash;&gt;-->
+    <!--        <span th:text="'총 회원 수 : ' + ${totalUsers} + '명'" class="AllText"></span>-->
+    <!--    </section>-->
 </div>
 
 <script src="/static/js/jQuery.js"></script>

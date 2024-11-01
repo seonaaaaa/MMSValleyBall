@@ -38,16 +38,31 @@ public class AdminController {
         return "userDetail";
     }
 
-    // 유저 조회
     @GetMapping("/userList")
     public String getUsers(
+            @RequestParam(name = "searchCriteria", required = false) String searchCriteria,
+            @RequestParam(name = "keyword", required = false) String keyword,
+            @RequestParam(value = "membership", required = false) String membership,
             @PageableDefault(page = 0, size = 5, sort = "userId", direction = Sort.Direction.ASC) Pageable pageable,
             Model model) {
 
-        // 유저 전체 조회
-        Page<Users> userPage = adminService.findAllUsers(pageable);
+        Page<UserDTO> userPage;
 
-        model.addAttribute("userPage", userPage); // 페이징된 유저 목록을 전달
+        if (membership != null && !membership.isEmpty()) {
+            userPage = adminService.findUsersByMembership(membership, pageable);
+        } else if (searchCriteria != null && keyword != null && !keyword.trim().isEmpty()) {
+            // 유저 검색 요청
+            userPage = adminService.searchUsers(searchCriteria, keyword, pageable);
+        } else {
+            userPage = adminService.findAllUsers(pageable);
+        }
+
+        model.addAttribute("userPage", userPage);
+
+        // 검색 조건과 키워드를 모델에 추가하여 페이지 이동 시에도 값 유지
+        model.addAttribute("searchCriteria", searchCriteria);
+        model.addAttribute("keyword", keyword);
+        model.addAttribute("membership", membership);
 
         // 페이지 블럭 처리
         int totalPage = userPage.getTotalPages();
@@ -57,15 +72,21 @@ public class AdminController {
         model.addAttribute("pageBars", barNumbers);
 
         // 유저 수 합계
-        long totalUsers = userPage.getTotalElements();
+        long totalUsers = adminService.countUsers();
         model.addAttribute("totalUsers", totalUsers);
+
+        // 필터링된 상태를 유지하기 위해 파라미터를 URL에 추가
+        model.addAttribute("pageableParams", "&membership=" + (membership != null ? membership : "") +
+                "&searchCriteria=" + (searchCriteria != null ? searchCriteria : "") +
+                "&keyword=" + (keyword != null ? keyword : ""));
 
         return "userList";
     }
 
-    @GetMapping("/createAdmin")
-    public String createAdmin() {
-        return "createAdmin";
+    @PostMapping("/userDetail/{userId}")
+    public String changeStatus(@PathVariable("userId") Long userId) {
+        adminService.toggleUserStatus(userId);
+        return "redirect:/admin/userDetail/" + userId; // 상태 업데이트 후 해당 사용자 상세 페이지로 리다이렉트
     }
 
     // 매출 조회 (총매출, 경기별 매출, 월별 매출)
@@ -93,5 +114,17 @@ public class AdminController {
         model.addAttribute("seasons", seasons);
 
         return "sales";
+    }
+
+    // 신규 관리자
+    @GetMapping("/createAdmin")
+    public String createAdmin(Model model) {
+        return "createAdmin";
+    }
+
+    // 관리자
+    @PostMapping("/createAdmin")
+    public String updateAdmin(){
+        return "createAdmin";
     }
 }

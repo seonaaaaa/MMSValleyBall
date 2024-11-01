@@ -1,7 +1,10 @@
 package com.team.MMSValleyBall.repository;
 
 import com.team.MMSValleyBall.entity.Users;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.repository.query.Param;
 
 public interface UserRepository extends JpaRepository<Users, Long> {
 
@@ -12,4 +15,11 @@ public interface UserRepository extends JpaRepository<Users, Long> {
     boolean existsByUserEmail(String userEmail);
 
     boolean existsByUserPhone(String userPhone);
+
+    Page<Users> findByUserNameContainingOrderByUserIdAsc(@Param("keyword") String keyword, Pageable pageable);
+
+    Page<Users> findByUserEmailContainingOrderByUserIdAsc(@Param("keyword") String keyword, Pageable pageable);
+
+    Page<Users> findByUserMembership_MembershipNameContainingIgnoreCaseOrderByUserIdAsc(@Param("keyword") String keyword, Pageable pageable);
+
 }

@@ -1,25 +1,28 @@
 <!DOCTYPE html>
 <html xmlns:th="www.thymeleaf.org"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-      layout:decorate="~{layout/layout}">
+      layout:decorate="~{layout/layoutReal}">
 <head>
     <meta charset="UTF-8">
     <script src="/static/js/jQuery.js"></script>
     <style>
         .userInfo {
-             margin: 0 auto;
+             margin: 40px auto;
              text-align: center;
-             width: 50%;
-             padding: 20px;
-             border: 1px solid #ccc;
+             height: 300px;
+             width: 70%;
+             padding-top: 50px;
+             padding-left: 510px;
+             border: 2px solid #60a191;
              border-radius: 10px;
              background-color: #f9f9f9;
          }
          .button {
              display: inline-block;
              margin-top: 20px;
+             margin-left: 855px;
              padding: 10px 20px;
-             background-color: #007bff;
+             background-color: #60a191;
              color: white;
              text-decoration: none;
              border-radius: 5px;
@@ -27,17 +30,29 @@
          .button:hover {
              background-color: #0056b3;
          }
+
+      .userInfo p {
+            display: flex;
+            justify-content: flex-start; /* 왼쪽으로 정렬 */
+            align-items: center; /* 수직으로 가운데 정렬 */
+            gap: 10px; /* 라벨과 값 사이에 간격 */
+            margin-top: 7px;
+        }
     </style>
     <title></title>
 </head>
 <body>
 <div layout:fragment="content" class="content">
     <div class="userInfo">
-        <h1 th:text="'유저 명 : ' + ${user.userName}">User Details</h1>
-        <p><strong>유저 번호:</strong> <span th:text="${user.userId}">1</span></p>
-        <p><strong>Email:</strong> <span th:text="${user.userEmail}">john.doe@example.com</span></p>
-        <p><strong>멤버쉽:</strong> <span th:text="${user.userMembershipName}">GOLD</span></p>
-        <p><strong>계정 상태:</strong> <span th:text="${user.userStatus}">ACTIVE</span></p>
+        <p><strong>🏐 회원 번호 :</strong> <span th:text="${user.userId}">1</span></p>
+        <p><strong>🏐 회원 이름 : </strong><span th:text="${user.userName}">User Details</span></p>
+        <p><strong>🏐 Email : </strong> <span th:text="${user.userEmail}">john.doe@example.com</span></p>
+        <p><strong>🏐 멤버십 등급 : </strong> <span th:text="${user.userMembershipName}">GOLD</span></p>
+        <p><strong>🏐 계정 상태 : </strong> <span th:text="${user.userStatus}">ACTIVE</span></p>
+
+        <form th:action="@{/admin/userDetail/{userId}(userId=${user.userId})}" method="post">
+            <button type="submit"> 상태변경</button>
+        </form>
     </div>
     <div>
         <a th:href="@{/admin/userList}" class="button">돌아가기</a>
