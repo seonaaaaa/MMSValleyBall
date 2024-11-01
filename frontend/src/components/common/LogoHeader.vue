@@ -21,7 +21,7 @@ export default {
         return 'GAME';
         } else if (path.includes('/ticket')) {
         return 'TICKET';
-        } else if (path.includes('/mypage')) {
+        } else if (path.includes('/myPage')) {
         return 'MY PAGE';
         } else if (path.includes('/membership')) {
         return 'MEMBERSHIP';
