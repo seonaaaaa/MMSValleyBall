@@ -86,6 +86,11 @@ public class TicketService {
             }
         }
 
+        // 각 zone의 sections 리스트를 seatId 기준으로 정렬
+        for (AvailableSeatDTO zoneDto : dtoList) {
+            zoneDto.getSections().sort(Comparator.comparing(SectionInfo::getSeatId));
+        }
+
         System.out.println("ticket service - available seats : " + dtoList);
         return dtoList;
     }
