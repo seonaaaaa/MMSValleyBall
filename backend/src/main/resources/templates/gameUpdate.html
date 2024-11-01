@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-      layout:decorate="~{layout/layout}">
+      layout:decorate="~{layout/layoutReal}">
 <head>
   <!-- 개별 페이지 전용 CSS 파일 -->
   <link rel="stylesheet" th:href="@{/css/game-update.css}">
@@ -11,27 +11,27 @@
 <div layout:fragment="content" class="content">
   <section>
     <div class="game-update-page">
-      <h2>경기 정보 수정</h2>
+      <div class="menu-title">경기 정보 수정</div>
 
       <!-- 신규 수정 폼 -->
       <form id="gameUpdateForm" class="form-table">
 
         <!-- 경기 ID -->
         <div class="form-row">
-          <label for="matchId">경기 ID</label>
+          <label for="matchId">🏐 경기 ID</label>
           <input type="text" id="matchId" th:value="${match.matchId}" readonly />
         </div>
 
         <!-- 경기 날짜 및 시간 -->
         <div class="form-row">
-          <label for="matchDate">경기 날짜</label>
+          <label for="matchDate">🏐 경기 날짜</label>
           <input type="date" id="matchDate" th:value="${matchDatePart}" required />
           <input type="time" id="matchTime" th:value="${matchTimePart}" required />
         </div>
 
         <!-- 경기장 선택 -->
         <div class="form-row">
-          <label for="matchStadium">경기장</label>
+          <label for="matchStadium">🏐 경기장</label>
           <select id="matchStadium" required>
             <option value="HOME" th:selected="${match.matchStadium == 'HOME'}">HOME</option>
             <option value="AWAY" th:selected="${match.matchStadium == 'AWAY'}">AWAY</option>
@@ -40,17 +40,17 @@
 
         <!-- 점수 입력 -->
         <div class="form-row">
-          <label for="matchSetScore">우리 팀 세트 수</label>
+          <label for="matchSetScore">🏐 우리 팀 세트 수</label>
           <input type="number" id="matchSetScore" name="matchSetScore" th:value="${match.matchSetScore}" required min="0" max="5" />
         </div>
         <div class="form-row">
-          <label for="matchOpponentTeamSetScore">상대 팀 세트 수</label>
+          <label for="matchOpponentTeamSetScore">🏐 상대 팀 세트 수</label>
           <input type="number" id="matchOpponentTeamSetScore" name="matchOpponentTeamSetScore" th:value="${match.matchOpponentTeamSetScore}" required min="0" max="5" />
         </div>
 
         <!-- 시즌 선택 -->
         <div class="form-row">
-          <label for="seasonId">시즌</label>
+          <label for="seasonId">🏐 시즌</label>
           <select id="seasonId" required>
             <option th:each="season : ${seasons}" th:value="${season.seasonId}" th:text="${season.seasonName}" th:selected="${season.seasonId == match.seasonId}"></option>
           </select>
@@ -58,7 +58,7 @@
 
         <!-- 라운드 선택 -->
         <div class="form-row">
-          <label for="matchRoundId">라운드</label>
+          <label for="matchRoundId">🏐 라운드</label>
           <select id="matchRoundId" name="matchRoundId" required>
             <option th:each="round : ${rounds}"
                     th:value="${round}"
@@ -69,7 +69,7 @@
 
         <!-- 팀 이름 선택 -->
         <div class="form-row">
-          <label for="teamId">팀 이름</label>
+          <label for="teamId">🏐 팀 이름</label>
           <select id="teamId" name="teamId" required>
             <option th:each="team : ${teams}" th:value="${team.teamId}" th:text="${team.teamName}" th:selected="${team.teamId == match.teamId}"></option>
           </select>
@@ -77,9 +77,9 @@
 
         <!-- 버튼 -->
         <div class="button-group">
-          <button type="submit">저장</button>
+          <button type="submit" class="btn-submit">저장</button>
 <!--          <a href="/admin/game"><button type="button">돌아가기</button></a>-->
-          <button type="button" onclick="window.location.href='/admin/game'">돌아가기</button>
+          <button type="button" onclick="window.location.href='/admin/game'" class="btn-back">돌아가기</button>
         </div>
       </form>
     </div>
