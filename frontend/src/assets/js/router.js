@@ -17,10 +17,6 @@ import AppStadium from '@/components/team/Stadium.vue';
 // GAME 메뉴
 import AppSchedule from '@/components/game/Schedule.vue';
 import AppResults from '@/components/game/Results.vue';
-// GAME 관리자 페이지
-import AdminGame from '@/components/game/AdminGame.vue';
-import InsertGame from '@/components/game/InsertGame.vue';
-import UpdateGame from '@/components/game/UpdateGame.vue';
 
 // TICKET 메뉴
 import TicketInfo from '@/components/ticket/TicketInfo.vue';
@@ -100,22 +96,6 @@ const routes = [
     path: '/game/results',
     name: 'Results',
     component: AppResults,
-  },
-  {
-    path: '/game/admin', // GAME 관리자
-    name: 'AdminGame',
-    component: AdminGame,
-  },
-  {
-    path: '/game/admin/update/:matchId',
-    name: 'UpdateGame',
-    component: UpdateGame,
-    props: true, // matchId를 props로 전달하기 위해 설정
-  },
-  {
-    path: '/game/admin/insert',
-    name: 'InsertGame',
-    component: InsertGame,
   },
   // TICKET 메뉴
   {
