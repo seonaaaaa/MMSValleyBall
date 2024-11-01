@@ -9,12 +9,15 @@ import com.team.MMSValleyBall.enums.MembershipSalesStatus;
 import com.team.MMSValleyBall.repository.MembershipRepository;
 import com.team.MMSValleyBall.repository.MembershipSalesRepository;
 import com.team.MMSValleyBall.repository.UserRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
 @Service
+@Slf4j
 public class MembershipSalesService {
     private final MembershipSalesRepository membershipSalesRepository;
     private final MembershipRepository membershipRepository;
@@ -34,12 +37,17 @@ public class MembershipSalesService {
         MembershipSales newMembership = new MembershipSales();
         if (user.isPresent()) {
             newMembership.setMembershipSalesUser(user.get());
+            user.get().setUserMembership(membership.get());
         }
         if (membership.isPresent()) {
             newMembership.setMembershipSalesMembership(membership.get());
         }
+        newMembership.setMembershipSalesStatus(MembershipSalesStatus.PURCHASE);
+        newMembership.setMembershipSalesCreateAt(LocalDateTime.now());
+        log.info("### membership sales service - new Membership : " + newMembership);
         //3. 새로운 membershipSales 엔티티 저장
         membershipSalesRepository.save(newMembership);
+        //4. user membership 정보 업데이트
     }
 
     // 사용자의 멤버십 결제 내역
