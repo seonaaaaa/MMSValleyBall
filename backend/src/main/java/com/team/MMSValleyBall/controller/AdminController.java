@@ -76,7 +76,7 @@ public class AdminController {
         // 경기별 매출 조회
         Map<String, List<MatchPaymentDTO>> matchPayments = adminService.getPaymentsByMatchId();
         // 월별 매출 조회
-        Map<String, Long> monthlySales = adminService.getMonthlySales();
+        Map<String, Map<String, Long>> monthlySales = adminService.getMonthlySales();
 //        System.out.println("경기별 매출 조회: " + matchPayments);
 //        System.out.println("월별 매출 조회: " + monthlySales);
         // 시즌 정보

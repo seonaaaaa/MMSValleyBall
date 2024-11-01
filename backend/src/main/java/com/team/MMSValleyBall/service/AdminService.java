@@ -136,18 +136,27 @@ public class AdminService {
 
 
     // 월별 매출 조회
-    public Map<String, Long> getMonthlySales() {
+    public Map<String, Map<String, Long>> getMonthlySales() {
         List<Object[]> results = ticketRepository.findMonthlySalesNative();
-        System.out.println("월별 매출 조회: "+ results);
+        System.out.println("월별 매출 조회: " + results);
 
-        Map<String, Long> monthlySales = new HashMap<>();
+        // 시즌별 월별 매출을 저장할 Map
+        Map<String, Map<String, Long>> monthlySalesBySeason = new HashMap<>();
+
         for (Object[] result : results) {
-            Integer month = ((Number) result[0]).intValue();  // 월을 Integer로 변환
-            Long totalSales = (Long) result[1];               // 매출 합계를 Long으로 받기
-            monthlySales.put(getMonthName(month), totalSales);  // 월 이름과 매출 합계를 Map에 저장
+            String seasonName = ((Season) result[2]).getSeasonName(); // 시즌 이름
+            Integer month = ((Number) result[0]).intValue();         // 월을 Integer로 변환
+            Long totalSales = (Long) result[1];                      // 매출 합계를 Long으로 받기
+
+            // 시즌별 매출 Map을 가져오거나 새로 생성
+            monthlySalesBySeason
+                    .computeIfAbsent(seasonName, k -> new HashMap<>()) // 시즌 이름이 없으면 새 Map 생성
+                    .put(getMonthName(month), totalSales); // 월 이름과 매출 합계를 시즌별 Map에 저장
         }
-        return monthlySales;
+
+        return monthlySalesBySeason;
     }
+
 
     private String getMonthName(int month) {
         String[] monthNames = {
