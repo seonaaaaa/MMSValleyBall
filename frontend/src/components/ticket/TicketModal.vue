@@ -39,7 +39,8 @@
                     <tbody>
                         <tr v-for="zone in filteredAvailableSeats" :key="zone.zoneName">
                             <td>
-                                <button class="select-zone-btn" @click="toggleZoneSelection(zone)">
+                                <button class="select-zone-btn" @click="toggleZoneSelection(zone)"
+                                :style="{ backgroundColor: getButtonColor(zone.zoneName) }">
                                     {{ zone.zoneName }}
                                 </button>
                             </td>
@@ -115,24 +116,26 @@
                     <div class="left-table">
                         <div class="modal-table-container">
                             <table class="modal-table">
-                                    <tr class="table-theader">
-                                        <th>구역</th>
-                                        <th>매수</th>
-                                        <th>금액</th>
-                                        <th>멤버십할인</th>
-                                    </tr>
-                                    <tr>
-                                        <td> {{ seatSelection.sectionName }}구역 </td>
-                                        <td> {{ seatSelection.quantity }}매</td>
-                                        <td> {{ seatSelection.seatPrice }}원</td>
-                                        <td> {{ userMembership.membershipDiscount }} %</td>
-                                    </tr>
-                                    <tr class="table-theader">
-                                        <th colspan="4">총액</th>
-                                    </tr>
-                                    <tr>
-                                        <td colspan="4">{{ formattedTotal }}원</td>
-                                    </tr>
+                                    <tbody>
+                                        <tr class="table-theader">
+                                            <th>구역</th>
+                                            <th>매수</th>
+                                            <th>금액</th>
+                                            <th>멤버십할인</th>
+                                        </tr>
+                                        <tr>
+                                            <td> {{ seatSelection.sectionName }}구역 </td>
+                                            <td> {{ seatSelection.quantity }}매</td>
+                                            <td> {{ seatSelection.seatPrice }}원</td>
+                                            <td> {{ userMembership.membershipDiscount }} %</td>
+                                        </tr>
+                                        <tr class="table-theader">
+                                            <th colspan="4">총액</th>
+                                        </tr>
+                                        <tr>
+                                            <td colspan="4">{{ formattedTotal }}원</td>
+                                        </tr>
+                                    </tbody>
                             </table>
 
                             <div class="modal-info-box">
@@ -171,24 +174,27 @@
 
                     <div>
                         <table class="second-modal-table" id="second-modal-ticke-price">
-                            <tr>
-                                <td>티켓 금액</td>
-                                <td>
-                                    {{ formattedTotal }}원
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>멤버십 할인</td>
-                                <td>
-                                    {{ formattedMembershipType }} | {{ userMembership.membershipDiscount }} %
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>총 결제 금액</td>
-                                <td>
-                                    {{ formattedPayment.payment }}원
-                                </td>
-                            </tr>
+                            <tbody>
+                                <tr>
+                                    <td>티켓 금액</td>
+                                    <td>
+                                        {{ formattedTotal }}원
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>멤버십 할인</td>
+                                    <td>
+                                        {{ formattedMembershipType }} | {{ userMembership.membershipDiscount }} %
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>총 결제 금액</td>
+                                    <td>
+                                        {{ formattedPayment.payment }}원
+                                    </td>
+                                </tr>
+                            </tbody>
+                            
                         </table>
                         <br>
                         <div class="charge">
@@ -272,7 +278,11 @@ export default {
                 }));
         },
         filteredAvailableSeats() {
-            return this.availableSeatsList.filter(zone => zone.availableSeatAmount > 0);
+            // userMembership.membershipType이 GOLD인 경우 GOLD 구역을 포함하고, 그렇지 않으면 GOLD 구역을 제외
+            return this.availableSeatsList.filter(zone => 
+                this.userMembership.membershipType === 'GOLD' || 
+                (zone.availableSeatAmount > 0 && zone.zoneName !== 'GOLD')
+            );
         },
 
         formattedTotal() {
@@ -581,6 +591,22 @@ export default {
             this.isModalOpen = true;
         },
 
+        // 버튼 색깔을 반환하는 메서드
+        getButtonColor(zoneName) {
+            switch (zoneName) {
+                case 'GOLD':
+                    return '#FFE400';
+                case 'BLUE':
+                    return '#3162C7';
+                case 'AWAY':
+                    return '#8C8C8C';
+                case 'EAST':
+                    return '#993800';
+                default:
+                    return '#47C83E'; // 나머지 구역
+            }
+        },
+
     },
 }
 </script>
@@ -715,8 +741,17 @@ export default {
     background-color: rgb(255, 255, 255);
 }
 
+.modal-table-hide td {
+    vertical-align: middle; /* 세로 가운데 정렬 */
+    text-align: center; /* 가로 가운데 정렬 */
+    padding: 8px; /* 셀의 패딩 조정 (필요시) */
+}
+
 .select-zone-btn {
+    margin-top: 0;
     cursor: pointer;
+    font-size: 20px;
+    font-weight: bold;
 }
 
 .modal-info-box {
@@ -799,6 +834,12 @@ export default {
     line-height: 16px;
 }
 
+.quantity-selector {
+    align-content: center;
+    align-items: center;
+    vertical-align: middle;
+}
+
 .quantity-selector button {
     width: 30px;
     height: 30px;
@@ -807,6 +848,7 @@ export default {
     border: 1px solid #ccc;
     background-color: #f0f0f0;
     cursor: pointer;
+    color: black;
 }
 
 .quantity-selector button:disabled {
