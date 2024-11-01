@@ -1,88 +1,93 @@
 <template>
+  <!-- main & game 페이지에서 Calendar 공통 사용 -->
   <div class="calendar-main">
-    <!-- 달력 위 컨테이너 -->
-    <div class="header-container">
-      <!-- 홈경기/원정경기 라벨 -->
-      <div class="legend">    
+    <!-- 상단 타이틀 및 공통 라벨 영역 -->
+    <div class="header-title">
+      <div class="legend">
         <div class="circle home-circle"></div>
         <span class="legend-text">홈 경기</span>
         <div class="circle away-circle"></div>
         <span class="legend-text">원정 경기</span>
       </div>
-      <!-- 셀렉트 박스 및 이전/다음 달 버튼 -->
-      <div class="header-controls">
-        <img src="@/assets/img/game/nav-icon-previous.png" alt="이전달" 
-          class="nav-button" @click="prevMonth" />
+      
+      <!-- Main 모드와 Total 모드의 타이틀 차이점 반영 -->
+      <h2 v-if="calendarMode === 'main'" class="current-month">
+        ({{ selectedYear }}년 {{ selectedMonth }}월)
+      </h2>
+
+      <div v-if="calendarMode === 'total'" class="header-controls">
+        <img src="@/assets/img/game/nav-icon-previous.png" alt="이전달" class="nav-button" @click="prevMonth" />
         <select v-model="selectedYear">
           <option v-for="year in years" :key="year" :value="year">{{ year }}년</option>
         </select>
         <select v-model="selectedMonth">
           <option v-for="(month, index) in months" :key="index" :value="index + 1">{{ month }}월</option>
         </select>
-      <img src="@/assets/img/game/nav-icon-next.png" alt="다음달" 
-          class="nav-button" @click="nextMonth" />
+        <img src="@/assets/img/game/nav-icon-next.png" alt="다음달" 
+            class="nav-button" @click="nextMonth" />
       </div>
-      <!-- 티켓 예매하기 버튼 -->
-      <router-link to="/ticket/purchase">
+
+      <!-- Main 모드에만 표시되는 전체 일정 보러가기 버튼 -->
+      <router-link v-if="calendarMode === 'main'" to="/game/schedule">
+        <button class="view-all-btn">전체 일정 보러가기</button>
+      </router-link>
+      
+      <!-- Total 모드에만 표시되는 티켓 예매하기 버튼 -->
+      <router-link v-if="calendarMode === 'total'" to="/ticket/purchase">
         <button class="ticket-purchase-btn">티켓 예매하기</button>
       </router-link>
     </div>
 
-  <!-- 달력 테이블 -->
-  <table class="calendar-table">
-    <thead>
-      <tr>
-      <th>일</th>
-      <th>월</th>
-      <th>화</th>
-      <th>수</th>
-      <th>목</th>
-      <th>금</th>
-      <th>토</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr v-for="week in calendarWeeks" :key="week[0].date">
-        <td v-for="day in week" :key="day.date" :class="{ 'home-game': day.events.length && day.events[0].matchStadium === 'HOME', 'away-game': day.events.length && day.events[0].matchStadium === 'AWAY' }">
-          <div class="day-number">{{ day.date }}</div>
-          <div v-if="day.events.length">
-            <div v-for="event in day.events" :key="event.matchId" class="event">
-              <!-- 팀 이름에 따른 로고 이미지 출력 -->
-              <img :src="getTeamLogo(event.teamId)" alt="Team Logo" class="team-logo" />
-              <!-- 장소 및 시간 -->
-              <div class="event-info">
-                {{ formatLocationAndTime(event) }}
-              </div>
-              <!-- 결과 및 점수 (원 안에 승/패/예 출력, 경기 예정인 경우 '예') -->
-              <div class="result-container">
-                <div :class="['result-circle', getResultClass(event.matchSetScore, event.matchOpponentTeamSetScore, event.matchDate)]">
-                  <span class="result">{{ getDisplayResult(event.matchSetScore, event.matchOpponentTeamSetScore, event.matchDate) }}</span>
+    <!-- 달력 테이블 -->
+    <table class="calendar-table">
+      <thead>
+        <tr>
+          <th>일</th>
+          <th>월</th>
+          <th>화</th>
+          <th>수</th>
+          <th>목</th>
+          <th>금</th>
+          <th>토</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr v-for="week in calendarWeeks" :key="week[0].date">
+          <td v-for="day in week" :key="day.date" :class="{ 'home-game': day.events.length && day.events[0].matchStadium === 'HOME', 'away-game': day.events.length && day.events[0].matchStadium === 'AWAY' }">
+            <div class="day-number">{{ day.date }}</div>
+            <div v-if="day.events.length">
+              <div v-for="event in day.events" :key="event.matchId" class="event">
+                <img :src="getTeamLogo(event.teamId)" alt="Team Logo" class="team-logo" />
+                <div class="event-info">{{ formatLocationAndTime(event) }}</div>
+                <div class="result-container">
+                  <div :class="['result-circle', getResultClass(event.matchSetScore, event.matchOpponentTeamSetScore, event.matchDate)]">
+                    <span class="result">{{ getDisplayResult(event.matchSetScore, event.matchOpponentTeamSetScore, event.matchDate) }}</span>
+                  </div>
+                  <span class="score">{{ event.matchSetScore }}:{{ event.matchOpponentTeamSetScore }}</span>
                 </div>
-                <span class="score">{{ event.matchSetScore }}:{{ event.matchOpponentTeamSetScore }}</span>
+                <router-link v-show="isReservationVisible(event)" to="/ticket/purchase">
+                  <button :disabled="!isReservationEnabled(event)" class="reservation-button">예매하기</button>
+                </router-link>
               </div>
-              <!-- 예매하기 버튼 (예약 가능 여부에 따라 표시 및 활성화) -->
-              <router-link v-show="isReservationVisible(event)" to="/ticket/purchase">
-                <button :disabled="!isReservationEnabled(event)" :class="{ hidden: !isReservationVisible(event) }" class="reservation-button">
-                  예매하기
-                </button>
-              </router-link>
             </div>
-          </div>
-        </td>
-      </tr>
-    </tbody>
-  </table>
-</div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
 </template>
 
-<script>
+<script scoped>
 export default {
-  name: 'CalendarTotal',
+  name: 'CalendarComponent',
   props: {
-    // 이벤트 목록을 부모로부터 전달받음
     events: {
       type: Array,
       default: () => []
+    },
+    calendarMode: {
+      type: String,
+      default: 'total'
     }
   },
   data() {
@@ -95,7 +100,6 @@ export default {
     };
   },
   methods: {
-    // 팀 로고 표시
     getTeamLogo(teamId) {
       switch (teamId) {
         case 1:
@@ -155,22 +159,22 @@ export default {
       if (eventDate > currentDate) return '예'; // 경기 예정 표시
       return matchSetScore > matchOpponentTeamSetScore ? '승' : '패';
     },
-    // 이전 달 출력 함수
+    // 이전 달 출력
     prevMonth() {
-    if (this.selectedMonth === 1) {
-      this.selectedMonth = 12;
-      this.selectedYear--;
+      if (this.selectedMonth === 1) {
+        this.selectedMonth = 12;
+        this.selectedYear--;
       } else {
-          this.selectedMonth--;
+        this.selectedMonth--;
       }
     },
-    // 다음 달 출력 함수
+    // 다음 달 출력
     nextMonth() {
       if (this.selectedMonth === 12) {
-          this.selectedMonth = 1;
-          this.selectedYear++;
+        this.selectedMonth = 1;
+        this.selectedYear++;
       } else {
-      this.selectedMonth++;
+        this.selectedMonth++;
       }
     },
     // 예매하기 버튼 보이기
@@ -190,10 +194,6 @@ export default {
       const isInNextMonth = 
         (currentMonth === 12 && eventMonth === 1 && eventYear === currentYear + 1) || 
         (eventMonth === currentMonth + 1 && eventYear === currentYear);
-
-      // test
-      console.log(`Checking visibility for Event Date: ${eventDate}`);
-      console.log(`isInCurrentMonth: ${isInCurrentMonth}, isInNextMonth: ${isInNextMonth}`);
       
       // 현재 달 또는 다음 달일 때만 true 반환
       return isInCurrentMonth || isInNextMonth;
@@ -239,7 +239,7 @@ export default {
         }
       }
 
-      // 마지막 주 빈 칸 채우기
+      // 마지막 주에 빈 칸 채우기
       if (days.length > 0) {
         while (days.length < 7) days.push({ date: '', events: [] });
         weeks.push(days);
@@ -251,49 +251,78 @@ export default {
 </script>
 
 <style scoped>
-/* 부모 컨테이너 */
-.header-container {
-position: relative;
-display: flex;
-justify-content: center;
-align-items: center;
-width: 100%;
-max-width: 1200px;
-margin: 0 auto 20px;
-padding-bottom: 10px;
+/* Calendar 상단 공통 */
+.header-title {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 60px;
+  max-width: 1200px;
+  margin: 0 auto 30px;
+  padding-bottom: 10px;
+  font-weight: bold;
 }
 
 /* 홈, 원정 경기 라벨 스타일 */
 .legend {
-position: absolute;
-left: 20px;
-bottom: 10px;
-display: flex;
-align-items: center;
+  position: absolute;
+  left: 20px;
+  bottom: 13px;
+  display: flex;
+  align-items: center;
 }
 
 .circle {
-width: 15px;
-height: 15px;
-border-radius: 50%;
-margin-right: 10px;
-box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
+  width: 15px;
+  height: 15px;
+  border-radius: 50%;
+  margin-right: 10px;
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
 }
 
-.home-circle {
-background-color: #acc8c1;
+.home-circle { 
+  background-color: #acc8c1;
 }
 
-.away-circle {
-background-color: #d9d9d9;
+.away-circle { 
+  background-color: #d9d9d9;
 }
 
 .legend-text {
-margin-right: 20px;
-font-size: 16px;
-color: #565656;
+  font-size: 16px;
+  color: #565656;
+  margin-right: 20px;
 }
 
+/* Main 모드 스타일 */
+.current-month {
+  color: gray;
+  text-align: center;
+  flex: 1;
+}
+
+.view-all-btn {
+  background-color: #f8f9fa;
+  border: 1px solid #ddd;
+  border: none;
+  box-shadow: 0 2px 4px rgba(50, 50, 50, 0.2);
+  padding: 10px;
+  border-radius: 5px;
+  font-size: 16px;
+  font-weight: bold;
+  color: #333;
+  margin-left: 20px;
+  transition: border-color 0.3s ease;
+  cursor: pointer;
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+/* Total 모드 스타일 */
 /* 셀렉트 박스 및 이전, 다음 달 네비게이션 버튼 */
 .header-controls {
 display: flex;
@@ -363,6 +392,7 @@ select {
   color: #222;
 }
 
+/* Calendar Table 스타일 공통 */
 /* 달력 테이블 */
 .calendar-table {
   width: 100%;

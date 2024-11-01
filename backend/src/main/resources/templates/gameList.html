@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/layout}">
+<head>
+    <!-- 개별 페이지 전용 CSS 파일 -->
+    <link rel="stylesheet" th:href="@{/css/game-list.css}">
+</head>
+<meta charset="UTF-8">
+<body>
+<div layout:fragment="content" class="content">
+    <section>
+        <div class="tab-menu">
+            <a href="#reservation">회원 조회</a>
+            <a href="#membership">매출 조회</a>
+            <a href="/admin/game" class="active">경기 조회</a>
+        </div>
+
+        <div class="container admin-game-page">
+            <div class="filter-controls">
+                <span>총 경기 수 : <b th:text="${totalMatches}"></b>개</span>
+                <div>
+                    <a href="/admin/game/insert"><button>+ 신규 경기</button></a>
+                    <button onclick="resetFilters()">전체</button>
+                </div>
+            </div>
+
+            <!-- 경기 목록 테이블 -->
+            <table class="table table-striped table-bordered">
+                <thead>
+                <tr>
+                    <th>No</th>
+                    <th>ID</th>
+                    <th>
+                        <select id="season">
+                            <option value="">시즌</option>
+                            <option th:each="season : ${seasons}" th:value="${season.seasonId}" th:text="${season.seasonName}"></option>
+                        </select>
+                    </th>
+                    <th>
+                        <select id="round">
+                            <option value="">라운드</option>
+                            <option th:each="round : ${rounds}" th:value="${round}" th:text="${round + '라운드'}"></option>
+                        </select>
+                    </th>
+                    <th>
+                        <select id="sortOrder">
+                            <option value="matchDate,asc">경기 날짜 △</option>
+                            <option value="matchDate,desc">경기 날짜 ▽</option>
+                        </select>
+                    </th>
+                    <th>
+                        <select id="stadium">
+                            <option value="">경기장</option>
+                            <option value="HOME">HOME</option>
+                            <option value="AWAY">AWAY</option>
+                        </select>
+                    </th>
+                    <th>
+                        <select id="team">
+                            <option value="">팀 이름</option>
+                            <option th:each="team : ${teams}" th:value="${team.teamId}" th:text="${team.teamName}"></option>
+                        </select>
+                    </th>
+                    <th>우리 팀</th>
+                    <th>상대 팀</th>
+                    <th>
+                        <select id="mailStatus">
+                            <option value="">메일 상태</option>
+                            <option value="DEFAULT">DEFAULT</option>
+                            <option value="REQUIRED">REQUIRED</option>
+                        </select>
+                    </th>
+                    <th>
+                        <select id="matchStatus">
+                            <option value="">경기 상태</option>
+                            <option value="DEFAULT">DEFAULT</option>
+                            <option value="DELETED">DELETED</option>
+                        </select>
+                    </th>
+                    <th>수정</th>
+                    <th>삭제</th>
+                    <th>메일 상태 변경</th>
+                    <th>메일 발송</th>
+                </tr>
+                </thead>
+                <tbody class="match-table-body">
+                    <tr th:each="match, stat : ${matchList}">
+                        <td th:text="${(currentPage * pageSize) + stat.index + 1}">1</td>
+                        <td th:text="${match.matchId}">ID</td>
+                        <td th:text="${match.seasonName}">시즌</td>
+                        <td th:text="${match.matchRoundId}">라운드</td>
+                        <td th:text="${match.matchDate}">날짜</td>
+                        <td th:text="${match.matchStadium}">경기장</td>
+                        <td th:text="${match.teamName}">팀 이름</td>
+                        <td th:text="${match.matchSetScore}">우리 팀 점수</td>
+                        <td th:text="${match.matchOpponentTeamSetScore}">상대 팀 점수</td>
+                        <td th:text="${match.matchMailStatus}">메일 상태</td>
+                        <td th:text="${match.matchStatus}">경기 상태</td>
+                        <td>
+                            <a th:href="@{/admin/game/update/{matchId}(matchId=${match.matchId})}">
+                                <button>수정</button>
+                            </a>
+                        </td>
+                        <td>
+                            <button class="delete-btn"
+                                    th:data-match-id="${match.matchId}"
+                                    th:data-match-status="${match.matchStatus}"
+                                    th:if="${match.matchStatus.name() != 'DELETED'}">삭제</button>
+                            <button class="activate-btn"
+                                    th:data-match-id="${match.matchId}"
+                                    th:data-match-status="${match.matchStatus}"
+                                    th:if="${match.matchStatus.name() == 'DELETED'}">활성화</button>
+                        </td>
+                        <td>
+                            <button onclick="updateMailStatus([[${match.matchId}]])"
+                                    th:disabled="${match.matchMailStatus.name() != 'REQUIRED'}">메일 상태 변경</button>
+                        </td>
+                        <td>
+                            <button onclick="sendEmails([[${match.matchId}]])"
+                                    th:disabled="${match.matchMailStatus.name() != 'REQUIRED'}">메일 발송</button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <!-- 페이지네이션 컨트롤 -->
+            <div class="pagination" id="paginationControls">
+                <div class="pages">
+                <span th:each="page : ${#numbers.sequence(0, totalPages - 1)}">
+                    <a href="#" th:text="${page + 1}"
+                       th:classappend="${page == currentPage} ? 'active'"
+                       th:href="@{/admin/game(page=${page})}"></a>
+                </span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script th:inline="javascript">
+        $(document).ready(function() {
+
+            // 논리적 삭제 처리 함수
+            function deactivateMatch(matchId) {
+                $.ajax({
+                    url: `/admin/game/delete/${matchId}`,
+                    type: 'PATCH',
+                    success: function(response) {
+                        alert(response); // 서버로부터의 성공 메시지 출력
+                        location.reload(); // 페이지 새로고침하여 변경 사항 반영
+                    },
+                    error: function(xhr, status, error) {
+                        console.error("경기 삭제 오류:", error);
+                        alert("경기 삭제 중 오류가 발생했습니다.");
+                    }
+                });
+            }
+
+            // 경기 상태 활성화 처리 함수
+            function activateMatch(matchId) {
+                $.ajax({
+                    url: `/admin/game/update-match-status/${matchId}`,
+                    type: 'PATCH',
+                    contentType: "application/json",
+                    data: JSON.stringify("DEFAULT"),
+                    success: function(response) {
+                        alert(response); // 서버로부터의 성공 메시지 출력
+                        location.reload(); // 페이지 새로고침하여 변경 사항 반영
+                    },
+                    error: function(xhr, status, error) {
+                        console.error("경기 상태 활성화 오류:", error);
+                        alert("경기 활성화 중 오류가 발생했습니다.");
+                    }
+                });
+            }
+
+            // 삭제 버튼 클릭 이벤트
+            $('.match-table-body').on('click', 'button.delete-btn', function() {
+                const matchId = $(this).data('match-id');
+                deactivateMatch(matchId);
+            });
+
+            // 활성화 버튼 클릭 이벤트
+            $('.match-table-body').on('click', 'button.activate-btn', function() {
+                const matchId = $(this).data('match-id');
+                activateMatch(matchId);
+            });
+
+        });
+
+    </script>
+</div>
+
+</body>
+</html>
