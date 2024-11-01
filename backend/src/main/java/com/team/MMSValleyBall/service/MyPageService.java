@@ -3,7 +3,6 @@ package com.team.MMSValleyBall.service;
 import com.team.MMSValleyBall.dto.*;
 import com.team.MMSValleyBall.entity.MembershipSales;
 import com.team.MMSValleyBall.entity.Payment;
-import com.team.MMSValleyBall.entity.Ticket;
 import com.team.MMSValleyBall.entity.Users;
 import com.team.MMSValleyBall.enums.PaymentStatus;
 import com.team.MMSValleyBall.enums.UserStatus;
@@ -13,7 +12,6 @@ import com.team.MMSValleyBall.repository.PaymentRepository;
 import com.team.MMSValleyBall.repository.UserRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
-import org.springframework.util.StreamUtils;
 
 import java.time.LocalDateTime;
 import java.util.*;

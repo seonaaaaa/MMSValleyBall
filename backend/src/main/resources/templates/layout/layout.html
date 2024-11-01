@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html xmlns:th="www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin</title>
+    <script src="/static/js/jQuery.js"></script>
+    <style>
+        * {
+            font-family: 'Noto Sans KR', sans-serif;
+            margin: 0;
+            box-sizing: border-box; /* 패딩과 마진이 width에 포함되도록 설정 */
+        }
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #f8f9fa;
+            padding: 10px 20px;
+            border-bottom: 1px solid #e5e5e5;
+        }
+        .navbar .brand {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #333;
+        }
+        .navbar .nav-links {
+            display: flex;
+            gap: 20px;
+        }
+        .navbar .nav-links a{
+            color: #808080;
+            font-size: 1em;
+            transition: color 0.3s;
+        }
+        header {
+            text-align: center;
+        }
+        .title{
+            font-weight: 400;
+            background-color: #4f8578;
+            color: #ffffff;
+            width: 100%;
+            height: 120px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5em;
+        }
+        .tab-menu {
+            height: 50px;
+            display: flex;
+            justify-content: center;
+            gap: 60px;
+            padding: 10px 0;
+            background-color: #ffffff;
+            border-bottom: 2px solid #e5e7eb;
+        }
+        .tab-menu a {
+            text-decoration: none;
+            color: #6b7280;
+            font-size: 1.1em;
+            font-weight: 500;
+        }
+        .tab-menu a.active {
+            color: #000;
+            font-weight: bold;
+            border-bottom: 2px solid #000;
+        }
+        .container {
+            width: 100%; /* 화면 전체 너비로 변경 */
+            margin: 0;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            padding: 5px 20px 20px 20px;
+        }
+        .table-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0px;
+        }
+        .search-bar {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background-color: #f1f5f9;
+            padding: 0;
+            border-radius: 8px;
+        }
+        .search-bar input {
+            border: none;
+            outline: none;
+            background: transparent;
+            padding: 8px;
+            width: 200px;
+        }
+        .search-bar .filter-icon {
+            cursor: pointer;
+        }
+        .add-button {
+            padding: 10px 20px;
+            background-color: #3b82f6;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+            border: 1.5px solid #e5e7eb;
+        }
+        .table th, .table td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        .table th {
+            font-weight: bold;
+            color: #6b7280;
+        }
+        .status {
+            padding: 5px 10px;
+            border-radius: 12px;
+            font-size: 0.9em;
+            font-weight: bold;
+        }
+        .status.ACTIVE {
+            background-color: #fef9c3; /* 노란색 계열 */
+            color: #d97706; /* 진한 노란색 텍스트 */
+        }
+        .status.INACTIVE {
+            background-color: #e5e7eb; /* 회색 계열 */
+            color: #374151; /* 어두운 회색 텍스트 */
+        }
+        .balance.negative { color: #dc2626; }
+        .balance.positive { color: #16a34a; }
+        .pagination {
+            display: flex;
+            justify-content: space-between;
+            justify-content: center;
+            align-items: center;
+            margin-top: 20px;
+        }
+        .pagination .pages {
+            display: flex;
+            gap: 5px;
+        }
+        .pagination a {
+            padding: 8px 12px;
+            color: #374151;
+            text-decoration: none;
+            border: 1px solid #d1d5db;
+            border-radius: 4px;
+        }
+        .pagination a.active, .pagination a:hover {
+            background-color: #3b82f6;
+            color: white;
+            border: 1px solid #3b82f6;
+        }
+    </style>
+</head>
+<body>
+<th:block th:replace="~{fragment/header :: header}"></th:block>
+<th:block layout:fragment="content"></th:block>
+</body>
+</html>
+
+$(document).ready(function(){
+$.ajax({
+url: "/admin/user-list",
+type: "get",
+success: function(data) {
+// data는 admin에서 조회하는 리스트
+console.log("admin fetched: ", data);
+
+// 받아온 데이터 저장
+var selectUser = data.selectUser;
+var membershipUsers = data.membershipUsers;
+var allUsers = data.allUsers;
+var totalPayments = data.totalPayments;
+var matchPayments = data.matchPayments;
+var monthlySales = data.monthlySales;
+var userStatus = data.userStatus;
+
+// 유저 정보 저장 및 변환 (selectUser가 있는 경우)
+if (selectUser) {
+var userId = selectUser.userId;
+var userEmail = selectUser.userEmail;
+var userName = selectUser.userName;
+var payments = selectUser.payments;
+var userMembership = selectUser.userMembership;
+
+console.log("Selected User Info:", {
+userId: userId,
+userEmail: userEmail,
+userName: userName,
+payments: payments,
+userMembership: userMembership
+});
+}
+
+// membershipUsers, allUsers도 마찬가지로 활용 가능
+if (membershipUsers) {
+console.log("Membership Users:", membershipUsers);
+}
+
+if (allUsers) {
+console.log("All Users:", allUsers);
+}
+},
+error: function(xhr, status, error) {
+console.error('Error fetching user list:', error);
+}
+});
+});
