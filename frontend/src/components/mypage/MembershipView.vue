@@ -144,6 +144,9 @@ export default {
     this.$axios.post("/membership/cancel", null, { params: params })
     .then((response)=>{
       console.log(response);
+      alert('결제가 성공적으로 완료되었습니다.');
+      window.location.reload();
+      
     })
   }
 }
