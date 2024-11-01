@@ -1,31 +1,48 @@
 <template>
   <div class="content">
     <!-- 유저 정보 박스 -->
-    <div class="user-info-box">
+     <div class="control-box">
+      <div class="user-info-box">
       <div v-if="user.isLoggedIn">
-        <span class="membership-image-container">
-        <span v-if="membershipLevel == 'GOLD'">
+        <div v-if="user.role == 'USER'"> 
+          <span class="membership-image-container">
+        <span v-if="membershipLevel == 'gold'">
           <img :src="goldImage" alt="골드 등급" class="membershipLevel-image" />
         </span>
-         <span v-else-if="membershipLevel == 'SILVER'">
+         <span v-if="membershipLevel == 'silver'">
            <img :src="silverImage" alt="실버 등급" class="membershipLevel-image" />
         </span>
-        <span v-else>
+        <span v-if="membershipLevel == 'bronze'">
           <img :src="bronzeImage" alt="브론즈 등급" class="membershipLevel-image" />
         </span>
         <p><strong>{{ user.name }}</strong> 님</p>
         </span>
 
         <div class="money-box">
-          <p>내 잔액: <strong>{{ balance }}</strong>원</p><button class="btn-charge" @click="goToRecharge">충전하기</button>
+          <p>잔액: <strong>{{ balance }}</strong>원</p><button class="btn-charge" @click="goToRecharge">충전</button>
         </div>
-          <button class="btn-myPage" @click="goToMyPage">My Page</button>&nbsp;<button class="btn-logout" @click="logout">로그아웃</button>
-      </div>
-      <div v-else>
+        <div class="button-container">
+          <button class="btn-myPage" @click="goToMyPage">My Page</button>
+          <button class="btn-logout" @click="logout">로그아웃</button>
+        </div>
+        </div>
+
+
+        <div v-else-if="user.role == 'ADMIN'"> 
+          <p class="Admin-notice">****관리자 모드입니다****</p>
+          <p class="Admin-name"><strong>{{ user.name }}</strong> 님</p>
+          <button class="btn-AdminPage" @click="goToAdminPage">ADMIN Page</button><br>
+          <button class="btn-logout2" @click="logout">로그아웃</button>
+        </div>
+        </div>
+      
+      <div v-else class="login-signup-box">
         <button @click="goToLogin" class="btn-login">로그인</button><br>
         <button @click="goToSignup" class="btn-signup">회원가입</button>
       </div>
+      </div>
     </div>
+  
 
     <!-- 본문 내용 -->
     <div class="main-content">
@@ -103,12 +120,13 @@ export default {
   props: {
     user: {
       type: Object,
-      default: () => ({ name: '', role: 'guest', email: '', isLoggedIn: false })
+      default: () => ({ name: '', role: 'guest', email: '', isLoggedIn: false }),
     }
   },
   async mounted(){
     this.fetchEvents(); // 컴포넌트가 로드될 때 데이터를 가져옴
   },
+
   data() {
     return {
       // 유저 정보 저장할 곳
@@ -158,6 +176,10 @@ export default {
       this.$router.push('/signup');
     },
 
+    goToAdminPage(){
+      this.$router.push('admin/user-list');
+    },
+
     // 로그아웃
     logout() {
     // localStorage에서 토큰 삭제
@@ -167,6 +189,7 @@ export default {
     const token = localStorage.getItem('accessToken');
     if (token === null) {
       console.log('토큰이 성공적으로 삭제되었습니다.');
+      alert("로그아웃이 되었습니다.");
     } else {
       console.log('토큰 삭제에 실패했습니다.', token);
     }
@@ -221,10 +244,11 @@ export default {
         // 데이터 확인
         // Vue 개발 모드에서 컴포넌트 초기화를 두 번 함 -> 초기 메인 페이지 띄울 때 console.log 2번 뜨니 참고
         // Vue 배포 모드에서는 자동으로 한 번만 렌더링하도록 동작하므로 별도의 설정 넣지 않음
-        console.log(response.data); 
+        // console.log(response.data); 
         this.events = response.data; // 응답 데이터 설정
 
         // 이메일 정보 보내서 유저정보 받아오기
+        console.log(this.user);
         const userData = await axios.post('/main', null, {
           params: {
               email: this.user.email
@@ -235,6 +259,7 @@ export default {
         })
         this.balance = userData.data.balance;
         this.membershipLevel = userData.data.membership;
+        console.log(userData.data.membership);
       } catch (error) {
         console.error("Error fetching events:", error);
       }
@@ -262,32 +287,21 @@ a {
 
 /* 유저 정보 박스 */
 .user-info-box {
-  position: absolute;
-  top: 680px;
-  right: 100px;
+  position: fixed;
+  top: 595px;
+  right: 22px;
   background-color: #f8f9fa;
-  width: 400px;
-  height: 250px;
-  padding: 3px 15px;
-  border: 1px solid #ddd;
-  border-radius: 8px;
+  width: 300px;
+  height: 300px;
+  padding: 0px 15px;
+  border: 2px solid #60a191;
+  border-radius: 20px;
   text-align: right;
   box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
   display: flex;
   flex-direction: column;
   justify-content: center;
   z-index: 100;
-}
-
-.btn-myPage, .btn-logout {
-  background-color: #60a191;
-  color: white;
-  border: none;
-  padding: 10px;
-  margin-top: 20px;
-  border-radius: 5px;
-  cursor: pointer;
-  width: 48%;
 }
 
 .user-info-box button:hover {
@@ -302,14 +316,29 @@ a {
   text-decoration: underline;
 }
 
+.user-info-box .button-container {
+  display: flex;
+  justify-content: space-between; /* 버튼 사이에 공간을 균등하게 배치 */
+  margin-top: 20px;
+}
+
+.btn-myPage, .btn-logout {
+  background-color: #60a191;
+  color: white;
+  border: none;
+  padding: 10px;
+  border-radius: 5px;
+  cursor: pointer;
+  width: 48%; /* 버튼 크기를 동일하게 설정 */
+}
+
 /* 금액충전 창 */
 .money-box {
   margin-top: 15px;
-  margin-left: 19px;
   display: flex;
   align-items: center; /* 수직 정렬 */
   gap: 1px; /* 간격 조정 */
-  width: 330px;
+  width: 100%;
   height: 80px;
   border: solid color(srgb rgb(68, 68, 68) green blue);
   border-radius: 8px;
@@ -322,10 +351,13 @@ a {
 }
 
 .btn-charge {
-  margin-left: 2px; /* 오른쪽으로 버튼 밀기 */
-  width: 100px;
+  position: fixed;
+  top: 705px;
+  right: 45px;
+  width: 80px;
   background-color: #f0efc3;
-  border: solid color(srgb rgb(224, 224, 224) green blue);
+  border: solid color(srgb rgb(61, 59, 59) green blue);
+  color: black;
 }
 
 /* 멤버십 로고 */
@@ -335,26 +367,82 @@ a {
   gap: 2px; /* 이미지와 텍스트 간격 조절 */
 }
 
-/* 로그아웃시 버튼 */
-.btn-login, .btn-signup{
-  background-color: #60a191;
-  color: white;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  width: 100%;
-  height: 50px;
-  margin-top: 25px;
-
-}
-
-
 .membershipLevel-image {
   width: 50px;
   /* 아이콘 크기 */
   height: 50px;
   /* 아이콘 크기 */
   margin-left: 10px;
+}
+
+/* 로그아웃시 버튼 */
+.btn-login{
+  position: fixed;
+  background-color: #60a191;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  width: 260px;
+  height: 60px;
+  right: 42px;
+  top: 675px;
+}
+
+.btn-signup{
+  position: fixed;
+  background-color: #60a191;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  width: 260px;
+  height: 60px;
+  right: 42px;
+  top: 755px;
+}
+
+/* 관리자 박스 */
+.btn-AdminPage{
+  background-color: #60a191;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  width: 260px;
+  height: 50px;
+  position: fixed;
+  right: 42px;
+  top: 730px;
+}
+
+.btn-logout2{
+  background-color: #60a191;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  width: 260px;
+  height: 50px;
+  position: fixed;
+  right: 42px;
+  top:800px
+}
+
+.Admin-notice{
+  color: #504f4f;
+  font-size: 18px;
+  text-align: center;
+  position: fixed;
+  top: 620px;
+  right: 50px;
+}
+
+.Admin-name{
+  position: fixed;
+  top: 670px;
+  right: 47px;
+  z-index: 100;
 }
 
 
@@ -432,7 +520,7 @@ a {
 /* 경기 하이라이트 슬라이드 배너 */
 .highlight-slider-container {
   position: relative;
-  width: 500px;
+  width: 1200px;
   height: auto;
   margin: 0 auto;
   overflow: hidden;

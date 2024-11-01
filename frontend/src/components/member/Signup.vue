@@ -20,32 +20,33 @@
         <!-- 비밀번호 -->
         <div class="form-group">
           <label for="userPassword">**비밀번호</label>
-          <input type="password" id="userPassword" v-model="userPassword" required />
+          <input type="password" id="userPassword" v-model="userPassword" required placeholder="비밀번호를 입력해주세요."/>
         </div>
 
         <div class="form-group">
           <label for="userConfirmPassword">**비밀번호 확인</label>
-          <input type="password" id="userConfirmPassword" v-model="userConfirmPassword" required />
+          <input type="password" id="userConfirmPassword" v-model="userConfirmPassword" required placeholder="한 번 더 입력해주세요."/>
         </div>
 
         <!-- 이름 -->
         <div class="form-group">
           <label for="userName">**이름</label>
-          <input type="text" id="userName" v-model="userName" required />
+          <input type="text" id="userName" v-model="userName" required placeholder="이름을 입력해주세요." />
         </div>
 
         <!-- 핸드폰 번호 -->
         <div class="form-group">
-          <label for="userPhone">전화번호</label>
+          <label for="userPhone">**전화번호</label>
           <div class="phone-input-group single-line">
-            <select v-model="userPhonePart1" required>
+            <select v-model="userPhonePart1">
               <option value="010">010</option>
               <option value="011">011</option>
               <option value="016">016</option>
               <option value="017">017</option>
             </select> -
-            <input type="tel" v-model="userPhonePart2" maxlength="4" required /> -
-            <input type="tel" v-model="userPhonePart3" maxlength="4" required />
+            <input type="tel" v-model="userPhonePart2" maxlength="4" placeholder="0000"/> -
+            <input type="tel" v-model="userPhonePart3" maxlength="4" placeholder="0000"/>
+            <button type="button" @click="checkPhone" class="check-button">인증</button>
           </div>
         </div>
 
@@ -57,7 +58,7 @@
             <button type="button" @click="findAddress" class="check-button">주소 찾기</button>
           </div>
         </div>
-        <button type="submit" class="submit-button" :class="{ disabled: !isEmailChecked }" :disabled="!isEmailChecked">회원가입</button>
+        <button type="submit" class="submit-button" :class="{ disabled: isSignupDisabled }" :disabled="isSignupDisabled"> 회원가입 </button>
       </form>
     </div>
   </div>
@@ -66,7 +67,7 @@
 <script>
 import LogoHeader from '../common/LogoHeader.vue';
 
-export default {
+  export default {
   name: 'SignupPage',
   components: {
     LogoHeader,
@@ -82,6 +83,7 @@ export default {
       userPhonePart3: '',
       userAddress: '',
       isEmailChecked: false,
+      isPhoneChecked: false,
     };
   },
 
@@ -91,104 +93,157 @@ export default {
       if (newVal !== oldVal) {
         this.isEmailChecked = false;
       }
+    },
+
+    userPhonePart1(newVal, oldVal) {
+    if (newVal !== oldVal) {
+      this.isPhoneChecked = false;
+    }
+  },
+  userPhonePart2(newVal, oldVal) {
+    if (newVal !== oldVal) {
+      this.isPhoneChecked = false;
+    }
+  },
+  userPhonePart3(newVal, oldVal) {
+    if (newVal !== oldVal) {
+      this.isPhoneChecked = false;
+    }
+  }
+  },
+
+  computed: {
+    isSignupDisabled() {
+      // 모든 필수 항목이 입력되었는지 검사
+      return !(
+        this.userEmail &&
+        this.userPassword &&
+        this.userConfirmPassword &&
+        this.userName &&
+        this.isEmailChecked &&
+        this.isPhoneChecked
+      );
     }
   },
 
   methods: {
     // 이메일 중복 확인
-  checkEmail() {
-    const params = new URLSearchParams();
-    params.append('userEmail', this.userEmail);
+    checkEmail() {
+      const params = new URLSearchParams();
+      params.append('userEmail', this.userEmail);
 
-    this.$axios.post("/signup/check/email", null, { params: params })
+      this.$axios.post("/signup/check/email", null, { params: params })
+        .then((response) => {
+          console.log(response);
+          if (response.data === "True") {
+            alert("사용가능한 이메일입니다.");
+            this.isEmailChecked = true;
+          } else if (response.data === "False") {
+            alert("이미 사용 중인 이메일입니다.");
+            this.isEmailChecked = false;
+          } else {
+            alert("이메일을 입력해주세요.");
+            this.isEmailChecked = false;
+          }
+        })
+        .catch((error) => {
+          alert(error);
+        });
+    },
+
+    // 핸드폰 중복확인
+    checkPhone() {
+      const params = new URLSearchParams();
+      params.append('userPhone',`${this.userPhonePart1}-${this.userPhonePart2}-${this.userPhonePart3}`);
+
+      this.$axios.post("/signup/check/phone", null, { params: params })
+        .then((response) => {
+          console.log(response);
+          if (response.data === "True") {
+            alert("인증이 완료 되었습니다.");
+            this.isPhoneChecked = true;
+          } else if (response.data === "False") {
+            alert("다른 번호를 사용해주세요");
+            this.isPhoneChecked = false;
+          } else {
+            alert("번호를 입력해주세요.");
+            this.isPhoneChecked = false;
+          }
+        })
+        .catch((error) => {
+          alert(error);
+        });
+    },
+
+    async handleSignup() {
+      // 비밀번호 확인
+      if (this.userPassword !== this.userConfirmPassword) {
+        alert('비밀번호가 일치하지 않습니다. 다시 확인해주세요.');
+        return;
+      }
+
+      // 전화번호 합쳐서 보내기
+      const users = {
+        userEmail: this.userEmail,
+        userPassword: this.userPassword,
+        userName: this.userName,
+        userPhone:  `${this.userPhonePart1}-${this.userPhonePart2}-${this.userPhonePart3}`,
+        userAddress: this.userAddress,
+      };
+
+      console.log(users);
+
+      // 회원가입 요청 보내기
+      this.$axios({
+        method: "post",
+        url: "/signup",
+        data: users,
+        headers: {
+          "Content-Type": "application/json",
+        },
+      })
       .then((response) => {
         console.log(response);
-        if (response.data === "True") {
-          alert("사용가능한 이메일입니다.");
-          this.isEmailChecked = true;
-        } else if (response.data === "False") {
-          alert("이미 사용 중인 이메일입니다.");
-          this.isEmailChecked = false;
-        } else {
-          alert("이메일을 입력해주세요.");
-          this.isEmailChecked = false;
-        }
+        alert("회원가입 성공");
+        this.$router.replace("/");
       })
       .catch((error) => {
-        alert(error);
+        console.error('회원가입 중 오류 발생:', error);
+        alert('회원가입 중 오류가 발생했습니다. 다시 시도해주세요.');
       });
+    },
+
+    findAddress() {
+      // 카카오 주소 API 팝업 열기
+      if (!window.daum || !window.daum.Postcode) {
+        console.error('카카오 주소 API가 로드되지 않았습니다.');
+        alert('주소 찾기 기능을 사용할 수 없습니다. 페이지를 새로고침하거나 나중에 다시 시도해주세요.');
+        return;
+      }
+
+      new window.daum.Postcode({
+        oncomplete: (data) => {
+          // 팝업에서 검색결과 선택 시 호출되는 콜백 함수
+          this.userAddress = data.address; // 사용자가 선택한 주소를 userAddress에 저장
+        },
+      }).open();
+    },
   },
 
-  async handleSignup() {
-    // 비밀번호 확인
-    if (this.userPassword !== this.userConfirmPassword) {
-      alert('비밀번호가 일치하지 않습니다. 다시 확인해주세요.');
-      return;
-    }
-
-    // 전화번호 합쳐서 보내기
-    const users = {
-      userEmail: this.userEmail,
-      userPassword: this.userPassword,
-      userName: this.userName,
-      userPhone:  `${this.userPhonePart1}-${this.userPhonePart2}-${this.userPhonePart3}`,
-      userAddress: this.userAddress,
+  mounted() {
+    // 카카오 주소 API 스크립트 로드
+    const script = document.createElement('script');
+    script.src = 'https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js';
+    script.onload = () => {
+      console.log('카카오 주소 API 스크립트가 성공적으로 로드되었습니다.');
     };
-
-    console.log(users);
-    console.log(users.userPhone.length);
-
-    // 회원가입 요청 보내기
-    this.$axios({
-      method: "post",
-      url: "/signup",
-      data: users,
-      headers: {
-        "Content-Type": "application/json",
-      },
-    })
-    .then((response) => {
-      console.log(response);
-      alert("회원가입 성공");
-      this.$router.replace("/");
-    })
-    .catch((error) => {
-      console.error('회원가입 중 오류 발생:', error);
-      alert('회원가입 중 오류가 발생했습니다. 다시 시도해주세요.');
-    });
+    script.onerror = () => {
+      console.error('카카오 주소 API 스크립트 로드 중 오류 발생');
+    };
+    document.head.appendChild(script);
   },
-
-  findAddress() {
-    // 카카오 주소 API 팝업 열기
-    if (!window.daum || !window.daum.Postcode) {
-      console.error('카카오 주소 API가 로드되지 않았습니다.');
-      alert('주소 찾기 기능을 사용할 수 없습니다. 페이지를 새로고침하거나 나중에 다시 시도해주세요.');
-      return;
-    }
-
-    new window.daum.Postcode({
-      oncomplete: (data) => {
-        // 팝업에서 검색결과 선택 시 호출되는 콜백 함수
-        this.userAddress = data.address; // 사용자가 선택한 주소를 userAddress에 저장
-      },
-    }).open();
-  },
-},
-
-mounted() {
-  // 카카오 주소 API 스크립트 로드
-  const script = document.createElement('script');
-  script.src = 'https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js';
-  script.onload = () => {
-    console.log('카카오 주소 API 스크립트가 성공적으로 로드되었습니다.');
-  };
-  script.onerror = () => {
-    console.error('카카오 주소 API 스크립트 로드 중 오류 발생');
-  };
-  document.head.appendChild(script);
 }
 
-}
 
 </script>
 
@@ -204,6 +259,7 @@ mounted() {
   margin: 50px auto;
   padding: 20px;
   background-color: #f9f9f9;
+  border: 2px solid #60a191;
   border-radius: 10px;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 }
@@ -232,10 +288,17 @@ label {
 
 input[type="email"],
 input[type="password"],
-input[type="tel"],
 input[type="text"] {
   margin-top: 10px;
   width: 100%;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+input[type="tel"]{
+  margin-top: 10px;
+  width: 50%;
   padding: 10px;
   border: 1px solid #ccc;
   border-radius: 5px;
@@ -253,8 +316,10 @@ input[type="text"]:focus {
   background-color: #4f8578;
   color: white;
   border: none;
-  padding: 15px;
+  padding: 10px;
   width: 150px;
+  height: 53px;
+  margin-top: 10px;
   margin-left: 10px;
   border-radius: 5px;
   cursor: pointer;
@@ -267,6 +332,7 @@ input[type="text"]:focus {
 .submit-button {
   margin-top: 15px;
   width: 100%;
+  height: 80px;
   padding: 15px;
   background-color: #4f8578;
   color: #ffffff;

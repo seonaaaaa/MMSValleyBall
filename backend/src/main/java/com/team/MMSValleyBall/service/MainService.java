@@ -2,6 +2,7 @@ package com.team.MMSValleyBall.service;
 
 import com.team.MMSValleyBall.dto.UserDTO;
 import com.team.MMSValleyBall.entity.Membership;
+import com.team.MMSValleyBall.entity.Season;
 import com.team.MMSValleyBall.entity.Users;
 import com.team.MMSValleyBall.enums.UserRole;
 import com.team.MMSValleyBall.enums.UserStatus;
@@ -24,22 +25,34 @@ public class MainService {
 
     public String checkEmail(String userEmail) {
         // 이메일 중복 확인
-        Boolean isUser = userRepository.existsByUserEmail(userEmail);
-        if(userEmail == ""){
+        if (userEmail.isEmpty()) {
             return "null";
         }
 
-        if (isUser) {
-            return "False";
+        Boolean isUser = userRepository.existsByUserEmail(userEmail);
+        return isUser ? "False" : "True";
+    }
+
+    public String checkPhone(String userPhone) {
+        // 전화번호 중복 확인
+        if (userPhone.equals("010--")) {
+            return "null";
         }
-        return "True";
+
+        Boolean isUser = userRepository.existsByUserPhone(userPhone);
+        return isUser ? "False" : "True";
     }
 
     public void signupProcess(UserDTO userDTO) {
-        // 이번 시즌의 브론즈 멤버십 가져오기
-        Long bronzeMembershipId = 2L;
-        Membership bronzeMembership = em.find(Membership.class, bronzeMembershipId);
+        String jpql = "SELECT m FROM Membership m " +
+                "JOIN m.membershipSeason s " +
+                "WHERE s.id = (SELECT MAX(s2.id) FROM Season s2) AND m.membershipPrice = 0";
 
+        Membership bronzeMembership = em.createQuery(jpql, Membership.class)
+                .setMaxResults(1)  // 가장 최근 데이터 1개만 가져오기
+                .getSingleResult();
+
+        System.out.println(bronzeMembership);
 
         // 없으면 회원가입
         Users data = new Users();
@@ -57,7 +70,7 @@ public class MainService {
         userRepository.save(data);
     }
 
-    public String userMembershipName(String email){
+    public String userMembershipName(String email) {
         UserDTO userData = UserDTO.fromEntity(userRepository.findByUserEmail(email));
         return userData.getUserMembershipName().split("-")[1];
     }
