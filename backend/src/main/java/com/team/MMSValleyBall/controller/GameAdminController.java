@@ -5,6 +5,7 @@ import com.team.MMSValleyBall.dto.SeasonDTO;
 import com.team.MMSValleyBall.dto.TeamDTO;
 import com.team.MMSValleyBall.entity.Match;
 import com.team.MMSValleyBall.enums.MailStatus;
+import com.team.MMSValleyBall.enums.MatchStadium;
 import com.team.MMSValleyBall.enums.MatchStatus;
 import com.team.MMSValleyBall.repository.SeasonRepository;
 import com.team.MMSValleyBall.repository.TeamRepository;
@@ -46,11 +47,20 @@ public class GameAdminController {
             @RequestParam(name = "size", defaultValue = "10") int size,
             @RequestParam(name = "sortField", defaultValue = "matchDate") String sortField,
             @RequestParam(name = "sortDirection", defaultValue = "asc") String sortDirection,
+            @RequestParam(name = "seasonId", required = false) Long seasonId,
+            @RequestParam(name = "matchRoundId", required = false) Integer matchRoundId,
+            @RequestParam(name = "matchStadium", required = false) MatchStadium matchStadium,
+            @RequestParam(name = "teamId", required = false) Long teamId,
+            @RequestParam(name = "matchMailStatus", required = false) MailStatus matchMailStatus,
+            @RequestParam(name = "matchStatus", required = false) MatchStatus matchStatus,
             Model model) {
 
+        // Sort 객체 설정
         Sort sort = Sort.by(Sort.Direction.fromString(sortDirection), sortField);
         Pageable pageable = PageRequest.of(page, size, sort);
-        Page<MatchWithTeamDTO> matchPage = gameAdminService.findAllFiltered(null, null, null, null, null, null, pageable);
+
+        // 필터링 및 정렬된 경기 데이터 조회
+        Page<MatchWithTeamDTO> matchPage = gameAdminService.findAllFiltered(seasonId, matchRoundId, matchStadium, teamId, matchMailStatus, matchStatus, pageable);
 
         // 라운드 데이터 설정
         List<Integer> rounds = Arrays.asList(1, 2, 3, 4, 5, 6);
@@ -72,20 +82,6 @@ public class GameAdminController {
         return "gameList";
     }
 
-//    // 시즌 데이터 조회 API
-//    @GetMapping("/game/seasons")
-//    public ResponseEntity<List<SeasonDTO>> getSeasons() {
-//        List<SeasonDTO> seasons = gameAdminService.getAllSeasons();
-//        return ResponseEntity.ok(seasons);
-//    }
-//
-//    // 팀 데이터 조회 API
-//    @GetMapping("/game/teams")
-//    public ResponseEntity<List<TeamDTO>> getTeams() {
-//        List<TeamDTO> teams = gameAdminService.getAllTeams();
-//        return ResponseEntity.ok(teams);
-//    }
-
     // 신규 경기 등록 페이지
     @GetMapping("/insert")
     public String insertGameForm(Model model) {
@@ -101,7 +97,7 @@ public class GameAdminController {
         return "gameInsert";
     }
 
-    // 신규 경기 등록 처리
+    // 신규 경기 등록
     @PostMapping("/insert")
     public ResponseEntity<String> insertGame(@RequestBody MatchWithTeamDTO matchDTO) {
         String result = String.valueOf(gameAdminService.insertMatch(matchDTO));
@@ -133,7 +129,7 @@ public class GameAdminController {
         return "gameUpdate";
     }
 
-    // 경기 수정 처리
+    // 경기 수정
     @PostMapping("/update/{matchId}")
     public ResponseEntity<String> updateGame(@PathVariable("matchId") Long matchId, @RequestBody MatchWithTeamDTO matchDTO) {
         String result = gameAdminService.updateMatch(matchId, matchDTO);
@@ -147,11 +143,11 @@ public class GameAdminController {
         return gameAdminService.deactivateMatch(matchId);
     }
 
-    // 경기 상태 업데이트
-    @PatchMapping("/update-match-status/{matchId}")
+    // 경기 상태 업데이트 (활성화)
+    @PatchMapping("/activate/{matchId}")
     @ResponseBody
-    public String updateMatchStatus(@PathVariable("matchId") Long matchId, @RequestBody String status) {
-        return gameAdminService.updateMatchStatus(matchId, status);
+    public String activateMatch(@PathVariable("matchId") Long matchId) {
+        return gameAdminService.activateMatch(matchId);
     }
 
     // 메일 상태 변경

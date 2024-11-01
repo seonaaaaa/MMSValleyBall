@@ -6,7 +6,6 @@
     <!-- 개별 페이지 전용 CSS 파일 -->
     <link rel="stylesheet" th:href="@{/css/game-list.css}">
 </head>
-<meta charset="UTF-8">
 <body>
 <div layout:fragment="content" class="content">
     <section>
@@ -20,7 +19,7 @@
             <div class="filter-controls">
                 <div>
                     <a href="/admin/game/insert"><button class="btn-plusMath">+ 신규 경기</button></a>
-                    <button class="btn-allMath" onclick="resetFilters()">전체</button>
+                    <button class="btn-allMath" id="resetFiltersBtn">전체</button>
                 </div>
             </div>
 
@@ -112,11 +111,13 @@
                                     th:if="${match.matchStatus.name() == 'DELETED'}">활성화</button>
                         </td>
                         <td>
-                            <button onclick="updateMailStatus([[${match.matchId}]])"
-                                    th:disabled="${match.matchMailStatus.name() != 'REQUIRED'}">메일 상태 변경</button>
+                        <button class="update-mail-status-btn"
+                                th:data-match-id="${match.matchId}"
+                                th:disabled="${match.matchMailStatus.name() != 'REQUIRED'}">메일 상태 변경</button>
                         </td>
                         <td>
-                            <button onclick="sendEmails([[${match.matchId}]])"
+                            <button class="send-email-btn"
+                                    th:data-match-id="${match.matchId}"
                                     th:disabled="${match.matchMailStatus.name() != 'REQUIRED'}">메일 발송</button>
                         </td>
                     </tr>
@@ -137,53 +138,153 @@
         </div>
     </section>
 
+
     <script th:inline="javascript">
         $(document).ready(function() {
 
-            // 논리적 삭제 처리 함수
+            // [전체] 버튼 클릭 시 전체 데이터 URL로 이동
+            $('#resetFiltersBtn').on('click', function() {
+                window.location.href = "/admin/game"; // 전체 데이터를 표시하는 기본 URL로 이동
+            });
+
+            // 필터 변경 시 Ajax 요청
+            $('#season, #round, #sortOrder, #stadium, #team, #mailStatus, #matchStatus').on('change', function() {
+                applyFilters();
+            });
+
+            // 필터 초기화 및 전체 데이터 가져오기
+            function resetFilters() {
+                // 필터 값을 초기화
+                $('#season, #round, #sortOrder, #stadium, #team, #mailStatus, #matchStatus').val('');
+                applyFilters(); // 초기화된 상태로 필터를 적용하여 전체 데이터 로드
+            }
+
+            // 필터링 적용
+            function applyFilters() {
+                const seasonId = $('#season').val();
+                const matchRoundId = $('#round').val();
+                const sortField = $('#sortOrder').val().split(',')[0];
+                const sortDirection = $('#sortOrder').val().split(',')[1];
+                const matchStadium = $('#stadium').val();
+                const teamId = $('#team').val();
+                const matchMailStatus = $('#mailStatus').val();
+                const matchStatus = $('#matchStatus').val();
+
+                $.ajax({
+                    url: "/admin/game",
+                    type: "GET",
+                    data: {
+                        page: 0, // 필터 적용 시 항상 첫 페이지로
+                        seasonId: seasonId,
+                        matchRoundId: matchRoundId,
+                        sortField: sortField,
+                        sortDirection: sortDirection,
+                        matchStadium: matchStadium,
+                        teamId: teamId,
+                        matchMailStatus: matchMailStatus,
+                        matchStatus: matchStatus
+                    },
+                    success: function(response) {
+                        // 성공 시 테이블 본문과 페이지네이션 갱신
+                        $('.match-table-body').html($(response).find('.match-table-body').html());
+                        $('#paginationControls').html($(response).find('#paginationControls').html());
+                    },
+                    error: function() {
+                        alert("필터링된 데이터를 불러오는 중 오류가 발생했습니다.");
+                    }
+                });
+            }
+
+            // 논리적 삭제
             function deactivateMatch(matchId) {
-                $.ajax({
-                    url: `/admin/game/delete/${matchId}`,
-                    type: 'PATCH',
-                    success: function(response) {
-                        alert(response); // 서버로부터의 성공 메시지 출력
-                        location.reload(); // 페이지 새로고침하여 변경 사항 반영
-                    },
-                    error: function(xhr, status, error) {
-                        console.error("경기 삭제 오류:", error);
-                        alert("경기 삭제 중 오류가 발생했습니다.");
-                    }
-                });
+                if (confirm("삭제하시겠습니까?")) {
+                    $.ajax({
+                        url: `/admin/game/delete/${matchId}`,
+                        type: 'PATCH',
+                        success: function(response) {
+                            alert(response); // 서버로부터의 성공 메시지 출력
+                            alert("메일 상태가 변경되었습니다.\n필요 시 고객에게 메일을 발송해 주세요.");
+                            location.reload(); // 페이지 새로고침하여 변경 사항 반영
+                        },
+                        error: function(xhr, status, error) {
+                            console.error("경기 삭제 오류:", error);
+                            alert("경기 삭제 중 오류가 발생했습니다.");
+                        }
+                    });
+                }
             }
 
-            // 경기 상태 활성화 처리 함수
+            // 경기 상태 활성화
             function activateMatch(matchId) {
+                if (confirm("경기 상태를 활성화하시겠습니까?")) {
                 $.ajax({
-                    url: `/admin/game/update-match-status/${matchId}`,
+                        url: `/admin/game/activate/${matchId}`,
+                        type: 'PATCH',
+                        success: function(response) {
+                            alert(response); // 서버로부터의 성공 메시지 출력
+                            location.reload(); // 페이지 새로고침하여 변경 사항 반영
+                        },
+                        error: function(xhr, status, error) {
+                            console.error("경기 상태 활성화 오류:", error);
+                            alert("경기 활성화 중 오류가 발생했습니다.");
+                        }
+                    });
+                }
+            }
+
+            // 메일 상태 변경
+            function updateMailStatus(matchId) {
+                $.ajax({
+                    url: `/admin/game/update-mail-status/${matchId}`,
                     type: 'PATCH',
-                    contentType: "application/json",
-                    data: JSON.stringify("DEFAULT"),
                     success: function(response) {
                         alert(response); // 서버로부터의 성공 메시지 출력
                         location.reload(); // 페이지 새로고침하여 변경 사항 반영
                     },
                     error: function(xhr, status, error) {
-                        console.error("경기 상태 활성화 오류:", error);
-                        alert("경기 활성화 중 오류가 발생했습니다.");
+                        console.error("메일 상태 변경 오류:", error);
+                        alert("메일 상태 변경 중 오류가 발생했습니다.");
                     }
                 });
             }
 
-            // 삭제 버튼 클릭 이벤트
+            // 메일 발송
+            function sendEmails(matchId) {
+                if (confirm("해당 경기를 예매한 고객에게 메일이 발송됩니다.\n발송하시겠습니까?")) {
+                    $.ajax({
+                        url: `/admin/game/${matchId}/sendEmail`,
+                        type: 'POST',
+                        success: function(response) {
+                            alert(response); // 서버로부터의 성공 메시지 출력
+                            location.reload(); // 페이지 새로고침하여 변경 사항 반영
+                        },
+                        error: function(xhr, status, error) {
+                            console.error("메일 발송 오류:", error);
+                            alert("메일 발송 중 오류가 발생했습니다.");
+                        }
+                    });
+                }
+            }
+
+            // 이벤트 바인딩
             $('.match-table-body').on('click', 'button.delete-btn', function() {
                 const matchId = $(this).data('match-id');
                 deactivateMatch(matchId);
             });
 
-            // 활성화 버튼 클릭 이벤트
             $('.match-table-body').on('click', 'button.activate-btn', function() {
                 const matchId = $(this).data('match-id');
                 activateMatch(matchId);
+            });
+
+            $('.match-table-body').on('click', 'button.update-mail-status-btn', function() {
+                const matchId = $(this).data('match-id');
+                updateMailStatus(matchId);
+            });
+
+            $('.match-table-body').on('click', 'button.send-email-btn', function() {
+                const matchId = $(this).data('match-id');
+                sendEmails(matchId);
             });
 
         });

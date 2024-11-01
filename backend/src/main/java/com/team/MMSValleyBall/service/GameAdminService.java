@@ -104,18 +104,14 @@ public class GameAdminService {
     }
 
     // 경기 상태 업데이트
-    public String updateMatchStatus(Long matchId, String status) {
+    public String activateMatch(Long matchId) {
         Match match = gameRepository.findById(matchId)
                 .orElseThrow(() -> new NoSuchElementException("경기를 찾을 수 없습니다."));
 
-        try {
-            match.setMatchStatus(MatchStatus.valueOf(status));
-        } catch (IllegalArgumentException e) {
-            throw new IllegalArgumentException("잘못된 경기 상태입니다.");
-        }
-
+        match.setMatchStatus(MatchStatus.DEFAULT);  // 상태를 DEFAULT로 변경
         gameRepository.save(match);
-        return "경기 상태가 " + status + "(으)로 변경되었습니다.";
+
+        return "경기 상태가 DEFAULT로 변경되었습니다.";
     }
 
     // 메일 상태 업데이트
@@ -160,6 +156,7 @@ public class GameAdminService {
         return "메일 발송 및 상태 업데이트를 완료했습니다.";
     }
 
+    // 메일 내용 작성
     private String createEmailMessage(Match match) {
         String teamName = match.getMatchOpponentTeam().getTeamName();
         String date = match.getMatchDate().toString();
@@ -170,14 +167,14 @@ public class GameAdminService {
                     + "- 경기명: GS MMS VS " + teamName + "\n"
                     + "- 원래 일정: " + date + "\n\n"
                     + "불편을 드려 죄송하며, 취소된 경기의 티켓은 전액 환불됩니다.\n"
-                    + "감사합니다.\n[GS MMS Volleyball 드림]";
+                    + "감사합니다.\n\n[GS MMS Volleyball 드림]";
         } else {
             return "안녕하세요, [GS MMS Volleyball]입니다.\n\n"
                     + "고객님이 예매하신 경기 일정에 변동이 있어 안내드립니다.\n\n"
                     + "- 경기명: GS MMS VS " + teamName + "\n"
                     + "- 변경 후 일정: " + date + "\n\n"
                     + "변경된 일정에 맞춰 관람을 원치 않으실 경우 환불을 요청하실 수 있습니다.\n"
-                    + "감사합니다.\n[GS MMS Volleyball 드림]";
+                    + "감사합니다.\n\n[GS MMS Volleyball 드림]";
         }
     }
 

@@ -33,7 +33,7 @@
       </router-link>
       
       <!-- Total 모드에만 표시되는 티켓 예매하기 버튼 -->
-      <router-link v-if="calendarMode === 'total'" to="/ticket/purchase">
+      <router-link v-if="calendarMode === 'total'" to="/ticket/info">
         <button class="ticket-purchase-btn">티켓 예매하기</button>
       </router-link>
     </div>
@@ -65,7 +65,7 @@
                   </div>
                   <span class="score">{{ event.matchSetScore }}:{{ event.matchOpponentTeamSetScore }}</span>
                 </div>
-                <router-link v-show="isReservationVisible(event)" to="/ticket/purchase">
+                <router-link v-show="isReservationVisible(event)" to="/ticket/info">
                   <button :disabled="!isReservationEnabled(event)" class="reservation-button">예매하기</button>
                 </router-link>
               </div>
