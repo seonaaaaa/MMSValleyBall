@@ -112,7 +112,7 @@
   }
   </script>
   
-  <style>
+  <style scoped>
   .membership-info-page {
       padding-top: var(--header-height);
       padding-bottom: var(--footer-height);
