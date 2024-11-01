@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html xmlns:th="www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/layout}">
+<head>
+    <meta charset="UTF-8">
+    <script src="/static/js/jQuery.js"></script>
+    <style>
+        .userInfo {
+             margin: 0 auto;
+             text-align: center;
+             width: 50%;
+             padding: 20px;
+             border: 1px solid #ccc;
+             border-radius: 10px;
+             background-color: #f9f9f9;
+         }
+         .button {
+             display: inline-block;
+             margin-top: 20px;
+             padding: 10px 20px;
+             background-color: #007bff;
+             color: white;
+             text-decoration: none;
+             border-radius: 5px;
+         }
+         .button:hover {
+             background-color: #0056b3;
+         }
+    </style>
+    <title></title>
+</head>
+<body>
+<div layout:fragment="content" class="content">
+    <div class="userInfo">
+        <h1 th:text="'유저 명 : ' + ${user.userName}">User Details</h1>
+        <p><strong>유저 번호:</strong> <span th:text="${user.userId}">1</span></p>
+        <p><strong>Email:</strong> <span th:text="${user.userEmail}">john.doe@example.com</span></p>
+        <p><strong>멤버쉽:</strong> <span th:text="${user.userMembershipName}">GOLD</span></p>
+        <p><strong>계정 상태:</strong> <span th:text="${user.userStatus}">ACTIVE</span></p>
+    </div>
+    <div>
+        <a th:href="@{/admin/userList}" class="button">돌아가기</a>
+    </div>
+</div>
+</body>
+</html>

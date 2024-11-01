@@ -3,15 +3,18 @@ package com.team.MMSValleyBall.service;
 import com.team.MMSValleyBall.dto.*;
 import com.team.MMSValleyBall.entity.*;
 import com.team.MMSValleyBall.repository.*;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Service
+@Transactional
+@Slf4j
 public class AdminService {
 
     private final UserRepository userRepository;
@@ -19,6 +22,7 @@ public class AdminService {
     private final TicketRepository ticketRepository;
     private final MatchRepository matchRepository;
 
+    @Autowired
     public AdminService(UserRepository userRepository, PaymentRepository paymentRepository, TicketRepository ticketRepository, MatchRepository matchRepository) {
         this.userRepository = userRepository;
         this.paymentRepository = paymentRepository;
@@ -26,22 +30,22 @@ public class AdminService {
         this.matchRepository = matchRepository;
     }
 
-    // 유저 전체 조회 [ 페이징 ]
-    public Page<UserDTO> findAllUsers(Pageable pageable) {
-        return userRepository.findAll(pageable).map(UserDTO::fromEntity);
+    // 유저 전체 조회
+    public Page<Users> findAllUsers(Pageable pageable) {
+        Page<Users> usersList = userRepository.findAll(pageable);
+        return usersList;
     }
 
-    // 멤버쉽별 유저 조회 [ 페이징 ]
-    public Page<UserDTO> findUsersByUserMembership(Membership userMembership, Pageable pageable) {
-        return userRepository.findUsersByUserMembership(userMembership, pageable)
-                .map(UserDTO::fromEntity);
-    }
-
-    // 특정 유저 디테일 조회
+    // 특정 유저  조회
     public UserDTO findUserById(Long userId) {
         return userRepository.findById(userId)
-                .map(UserDTO::fromEntity)
-                .orElse(null);
+                .map(UserDTO::fromEntity)  // Users 엔티티를 UserDTO로 변환하는 매핑 메서드
+                .orElseThrow(() -> new IllegalArgumentException("해당 유저가 없습니다. userId: " + userId));
+    }
+
+    // 전체 유저 수 계산
+    public long getTotalUserCount() {
+        return userRepository.count();
     }
 
     // 총 매출 조회
@@ -81,12 +85,13 @@ public class AdminService {
 
     private String getMonthName(int month) {
         String[] monthNames = {
-                "January", "February", "March", "April", "May", "June",
-                "July", "August", "September", "October", "November", "December"
+                "1월", "2월", "3월", "4월", "5월", "6월",
+                "7월", "8월", "9월", "10월", "11월", "12월"
         };
         return monthNames[month - 1];
     }
 }
+
 
 
 

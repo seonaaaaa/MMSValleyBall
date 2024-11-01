@@ -3,19 +3,15 @@ package com.team.MMSValleyBall.controller;
 import com.team.MMSValleyBall.dto.CustomUserDetails;
 import com.team.MMSValleyBall.dto.ResponseDto;
 import com.team.MMSValleyBall.dto.UserDTO;
-import com.team.MMSValleyBall.repository.UserRepository;
 import com.team.MMSValleyBall.service.MainService;
 import com.team.MMSValleyBall.service.UsersBalanceService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Collection;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 
 @RestController
