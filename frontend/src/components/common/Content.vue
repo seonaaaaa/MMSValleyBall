@@ -4,6 +4,13 @@
      <div class="control-box">
       <div class="user-info-box">
       <div v-if="user.isLoggedIn">
+        <div v-if="user.role == 'ADMIN'"> 
+          <p class="Admin-notice">****관리자 모드입니다****</p>
+          <p class="Admin-name"><strong>{{ user.name }}</strong> 님</p>
+          <button class="btn-AdminPage" @click="goToAdminPage">ADMIN Page</button><br>
+          <button class="btn-logout2" @click="logout">로그아웃</button>
+        </div>
+
         <div v-if="user.role == 'USER'"> 
           <span class="membership-image-container">
         <span v-if="membershipLevel == 'gold'">
@@ -28,13 +35,13 @@
         </div>
 
 
-        <div v-else-if="user.role == 'ADMIN'"> 
+        <!-- <div v-else-if="user.role == 'ADMIN'"> 
           <p class="Admin-notice">****관리자 모드입니다****</p>
           <p class="Admin-name"><strong>{{ user.name }}</strong> 님</p>
           <button class="btn-AdminPage" @click="goToAdminPage">ADMIN Page</button><br>
           <button class="btn-logout2" @click="logout">로그아웃</button>
-        </div>
-        </div>
+        </div> -->
+      </div>
       
       <div v-else class="login-signup-box">
         <button @click="goToLogin" class="btn-login">로그인</button><br>
