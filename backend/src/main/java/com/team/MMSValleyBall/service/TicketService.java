@@ -46,6 +46,9 @@ public class TicketService {
         // section별 잔여좌석 조회
         List<Object[]> resultList = ticketRepository.findAvailableSeatsByMatch(matchId);
 
+        // seatId 기준으로 resultList 정렬
+        resultList.sort(Comparator.comparing(result -> (Long) result[0]));
+
         // zone별 잔여 좌석 수를 저장할 맵
         Map<String, Long> zoneSeatMap = new HashMap<>();
 
@@ -86,10 +89,10 @@ public class TicketService {
             }
         }
 
-        // 각 zone의 sections 리스트를 seatId 기준으로 정렬
-        for (AvailableSeatDTO zoneDto : dtoList) {
-            zoneDto.getSections().sort(Comparator.comparing(SectionInfo::getSeatId));
-        }
+        // zoneName 순서에 따라 dtoList 정렬
+        List<String> zoneOrder = Arrays.asList("GOLD", "BLUE", "AWAY", "NORTH", "WEST", "SOUTH", "EAST");
+        dtoList.sort(Comparator.comparingInt(zoneDto -> zoneOrder.indexOf(zoneDto.getZoneName())));
+
 
         System.out.println("ticket service - available seats : " + dtoList);
         return dtoList;
