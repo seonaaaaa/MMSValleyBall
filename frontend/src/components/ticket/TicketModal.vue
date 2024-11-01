@@ -549,12 +549,11 @@ export default {
             
         },
         hideDetails() {
-            this.countTicket.count = 0;
+            this.countTicket = 0; // 숫자 값으로 초기화
             this.zones.forEach(zone => {
-                zone.quantity = 0; // 모든 구역의 수량을 0으로 설정                
+                zone.quantity = 0; // 모든 구역의 수량을 0으로 설정
             });
-            this.selectedZoneImage =
-                require('@/assets/img/stadium/stadium-main.jpg'); // 이미지도 초기화
+            this.selectedZoneImage = require('@/assets/img/stadium/stadium-main.jpg'); // 이미지도 초기화
         },
 
         initializeSectionQuantities() {
@@ -572,8 +571,12 @@ export default {
         closeModal() {
             this.hideDetails();
             this.isChecked = false;
-            this.$emit('close');
+            this.isModalOpen = false;
+            this.firstPage = true;
+            this.secondPage = false;
+            this.$emit('close'); // 모달 종료 이벤트 발생
         },
+
         openModal() {
             this.isModalOpen = true;
         },
