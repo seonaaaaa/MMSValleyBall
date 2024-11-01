@@ -1,6 +1,8 @@
 package com.team.MMSValleyBall.controller;
 
+import com.team.MMSValleyBall.dto.MatchPaymentDTO;
 import com.team.MMSValleyBall.dto.UserDTO;
+import com.team.MMSValleyBall.entity.Season;
 import com.team.MMSValleyBall.entity.Users;
 import com.team.MMSValleyBall.service.AdminService;
 import com.team.MMSValleyBall.service.PaginationService;
@@ -70,15 +72,21 @@ public class AdminController {
     @GetMapping("/sales")
     public String getSales(Model model) {
         // 총매출 조회
-        int totalPayments = adminService.getTotalPaymentAmount();
+        Map<String, Map<String, Integer>> totalPayments = adminService.getTotalPaymentAmount();
         // 경기별 매출 조회
-        Map<Integer, String> matchPayments = adminService.getPaymentsByMatchId();
+        Map<String, List<MatchPaymentDTO>> matchPayments = adminService.getPaymentsByMatchId();
         // 월별 매출 조회
-        Map<String, Long> monthlySales = adminService.getMonthlySales();
+        Map<String, Map<String, Long>> monthlySales = adminService.getMonthlySales();
+//        System.out.println("경기별 매출 조회: " + matchPayments);
+//        System.out.println("월별 매출 조회: " + monthlySales);
+        // 시즌 정보
+        Map<Long, String> seasons = adminService.getSeasonList();
+//        System.out.println("시즌 정보:"+seasons);
 
         model.addAttribute("totalPayments", totalPayments);
         model.addAttribute("matchPayments", matchPayments);
         model.addAttribute("monthlySales", monthlySales);
+        model.addAttribute("seasons", seasons);
         return "sales";
     }
 }
