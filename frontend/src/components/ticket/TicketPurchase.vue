@@ -1,9 +1,8 @@
 <template>
   <div class="ticket-purchase-page">
-    <!-- 상단 1차 메뉴 텍스트가 들어간 배경 박스 -->
     <LogoHeader />
-
-    <!-- 티켓 안내, 티켓 구매 메뉴 -->
+    <div class="ticket-purchase-page-detail">
+      <!-- 티켓 안내, 티켓 구매 메뉴 -->
     <div class="menu">
       <div class="menu-item" :class="{ 'active-menu-item': activeMenu === '/ticket/info' }"
         @click="navigateTo('/ticket/info')">티켓 안내</div>
@@ -13,62 +12,64 @@
 
     <!-- 티켓 안내 페이지 내용 -->
     <div class="ticket-purchase-content">
-      <div  class="ticket-purchase-layout">
-      <div class="info-box">
-        <div class="icon">
-          <img src="@/assets/img/anyImg/bell-icon.png" alt="alert" />
+      <div class="ticket-purchase-layout">
+        <div class="info-box">
+          <div class="icon">
+            <img src="@/assets/img/anyImg/bell-icon.png" alt="alert" />
+          </div>
+          <div class="info-content">
+            <h4>예매 전 반드시 확인해 주세요!</h4>
+            <ul>
+              <li> - 경기 일반예매는 경기일 7일 전 13시에 오픈됩니다. (※GS MMS: 경기일 7일 전 13시)</li>
+              <li> - 경기 선예매는 혜택이 포함된 멤버십 상품 구매 회원에 한해 제공되며, 해당 계정에 자동으로 선예매 권한이 부여되어 선예매 기간 내 예매 페이지 접속이 가능합니다.</li>
+              <li> - PC에서 티켓 예매가 가능합니다.</li>
+              <li> - 1인 최대 4매 예매 가능합니다.</li>
+            </ul>
+            <p>&nbsp; ※ 반드시 [TICKET] - [티켓안내] 내 안내사항을 확인하신 후 예매를 진행하시기 바랍니다.
+            </p>
+          </div>
         </div>
-        <div class="info-content">
-          <h4>예매 전 반드시 확인해 주세요!</h4>
-          <ul>
-            <li> - 경기 일반예매는 경기일 7일 전 13시에 오픈됩니다. (※GS MMS: 경기일 7일 전 13시)</li>
-            <li> - 경기 선예매는 혜택이 포함된 멤버십 상품 구매 회원에 한해 제공되며, 해당 계정에 자동으로 선예매 권한이 부여되어 선예매 기간 내 예매 페이지 접속이 가능합니다.</li>
-            <li> - PC에서 티켓 예매가 가능합니다.</li>
-            <li> - 1인 최대 4매 예매 가능합니다.</li>
-          </ul>
-          <p>※ 반드시 [TICKET] - [티켓안내] 내 안내사항을 확인하신 후 예매를 진행하시기 바랍니다.
-          </p>
-        </div>
-      </div>
 
-      <!-- 티켓 예약표  -->
-      <div class="table-container">
-        <table class="ticket-purchase">
-          <thead>
-            <tr>
-              <th>경기 일시</th>
-              <th>경기 정보</th>
-              <th>경기장</th>
-              <th>예매 일정</th>
-              <th>티켓 예매</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="match in upcomingMatches" :key="match.matchId">
-              <td v-html="formatDate(match.matchDate)"></td>
-              <td> {{ formatMatchInfo(match.matchTeam, thisTeam) }}</td>
-              <td> {{ match.matchStadium }}</td>
-              <td>
-                <p>[선예매]</p>
-                <p v-html="formatDatePreBook(match.matchDate)"></p>
-                <p>[일반예매]</p>
-                <p v-html="formatDateBook(match.matchDate)"></p>
-              </td>
-              <!-- 티켓 예매 버튼 클릭 시 모달 열기 -->
-              <td>
-                  <button class="ticket-Modal" 
-                          @click="handleButtonClick(match)">
-                    예매하기
-                  </button>
-                <!-- 모달 컴포넌트 -->
-                <Modal v-if="isModalVisible" :visible="isModalVisible" :user="user" :match="selectedMatch" @close="closeModal" />
-              </td>
-            </tr>
-          </tbody>
-        </table>
+        <!-- 티켓 예약표  -->
+        <div class="table-container">
+          <table class="ticket-purchase">
+            <thead>
+              <tr>
+                <th>경기 일시</th>
+                <th>경기 정보</th>
+                <th>경기장</th>
+                <th>예매 일정</th>
+                <th>티켓 예매</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="match in upcomingMatches" :key="match.matchId">
+                <td v-html="formatDate(match.matchDate)"></td>
+                <td> {{ formatMatchInfo(match.matchTeam, thisTeam) }}</td>
+                <td> {{ match.matchStadium }}</td>
+                <td>
+                  <p>[선예매]</p>
+                  <p v-html="formatDatePreBook(match.matchDate)"></p>
+                  <p>[일반예매]</p>
+                  <p v-html="formatDateBook(match.matchDate)"></p>
+                </td>
+                <!-- 티켓 예매 버튼 클릭 시 모달 열기 -->
+                <td>
+                    <button class="ticket-Modal" 
+                            @click="handleButtonClick(match)">
+                      예매하기
+                    </button>
+                  <!-- 모달 컴포넌트 -->
+                  <Modal v-if="isModalVisible" :visible="isModalVisible" :user="user" :match="selectedMatch" @close="closeModal" />
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
-    </div>
+  </div>
+    
   </div>
 </template>
 
@@ -255,8 +256,17 @@ export default {
 </script>
 
 <style scoped>
+/* ticket-purchase-page 중앙 정렬 설정 */
+.ticket-purchase-page-detail {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  width: 100%;
+}
 
-/* 메뉴 */
+/* 메뉴 중앙 정렬 설정 */
 .menu {
   display: flex;
   justify-content: center;
@@ -303,7 +313,7 @@ export default {
   /* 마우스를 올리면 밑줄 표시 */
 }
 
-/* 티켓 안내 */
+/* 티켓 안내 레이아웃 중앙 정렬 설정 */
 .ticket-purchase-layout {
   display: flex;
   flex-direction: column;
@@ -313,6 +323,7 @@ export default {
   max-width: 1400px;
 }
 
+/* 테이블 컨테이너 중앙 정렬 설정 */
 .table-container {
   display: flex;
   justify-content: center;
@@ -396,7 +407,7 @@ th {
   /* 마우스를 올렸을 때 배경색 변경 */
 }
 
-
+/* info-box 중앙 정렬 설정 */
 .info-box {
   display: flex;
   /* 아이콘과 텍스트를 나란히 배치 */
@@ -409,13 +420,11 @@ th {
   border-radius: 10px;
   /* 모서리를 둥글게 설정 */
   padding: 20px;
-  /* 내부 여백 */
-  margin-left: 300px;
-  margin-right: 300px;
   margin-bottom: 30px;
-  width: 70%;
+  width: 100%;
+  max-width: 1000px; /* 최대 너비 설정으로 반응형 지원 */
+  justify-content: center;
 }
-
 
 .icon {
   margin-right: 20px;
@@ -456,5 +465,4 @@ th {
   padding-bottom: var(--footer-height);
   text-align: center;
 }
-
 </style>
