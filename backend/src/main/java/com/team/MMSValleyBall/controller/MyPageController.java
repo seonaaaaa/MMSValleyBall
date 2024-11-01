@@ -30,9 +30,13 @@ public class MyPageController {
     }
 
     // 나의 멤버십 탭에서 받을 사용자 멤버십 정보
-    @GetMapping("membership")
-    public ResponseEntity<Map<String, Object>> userMembership(@RequestParam("email")String email){
-        return ResponseEntity.ok(myPageService.getUserCurrentMembership(email));
+    @PostMapping("membership")
+    public ResponseEntity<ResponseMembershipInfoDTO> userMembership(@RequestParam("email")String email){
+        System.out.println(email);
+        ResponseMembershipInfoDTO users = myPageService.getUserCurrentMembership(email);
+//        Map<String, Object> users = myPageService.getUserCurrentMembership(email);
+        System.out.println(users);
+        return ResponseEntity.ok(users);
     }
 
     // 나의 정보 탭에서 받을 사용자 정보

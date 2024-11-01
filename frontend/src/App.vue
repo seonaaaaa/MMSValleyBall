@@ -45,6 +45,7 @@ export default {
           this.user.role = response.data.role;
           this.user.name = response.data.name;
           this.user.email = response.data.email;
+          console.log(this.user);
         } catch (error) {
           console.error('사용자 권한을 가져오는 중 오류 발생:', error);
         }

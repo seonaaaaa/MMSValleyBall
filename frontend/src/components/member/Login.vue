@@ -9,11 +9,11 @@
              <form @submit.prevent="login">
                  <div class="form-group">
                      <label for="userEmail">사용자 이메일</label>
-                     <input type="email" id="userEmail" v-model="userEmail" required />
+                     <input type="email" id="userEmail" v-model="userEmail" required placeholder="ex) abc@aaa.com"/>
                  </div>
                  <div class="form-group">
                      <label for="userPassword">비밀번호</label>
-                     <input type="Password" id="userPassword" v-model="userPassword" required />
+                     <input type="Password" id="userPassword" v-model="userPassword" required placeholder="비밀번호를 입력해주세요" />
                  </div>
                  <button type="submit" class="submit-button">로그인</button>
              </form>
@@ -74,7 +74,7 @@
                 this.$axios.defaults.headers.common[
                     "Authorization"
                 ] = `Bearer ${accessToken}`;
-                alert("로그인 성공");
+                alert("로그인이 되었습니다");
                 this.$router.replace("/");
                 }
             })
@@ -99,7 +99,8 @@
      padding: 20px; 
      background-color: #f9f9f9; 
      border-radius: 10px;
-     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); 
+     border: 2px solid #60a191;
+     box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1); 
  }
  
  .login-form h2 {

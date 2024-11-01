@@ -5,6 +5,7 @@
       <router-link v-if="!user.isLoggedIn" to="/login" class="login">로그인</router-link>
       <router-link v-if="!user.isLoggedIn" to="/signup" class="signup">회원가입</router-link>
       <button v-else @click="logout" class="logout">로그아웃</button>
+      <router-link v-if="user.role == 'ADMIN'" to="/admin/user-list" class="admin">관리자 페이지</router-link>
     </div>
   
     <!-- 네비게이션 바 -->
@@ -125,12 +126,12 @@
     const token = localStorage.getItem('accessToken');
     if (token === null) {
       console.log('토큰이 성공적으로 삭제되었습니다.');
+      alert("로그아웃이 되었습니다.");
     } else {
       console.log('토큰 삭제에 실패했습니다.', token);
     }
-    
-    // 메인 페이지로 이동
-    this.$router.push('/');
+     // 메인 페이지로 이동
+     this.$router.push('/');
   }
 }
   }
