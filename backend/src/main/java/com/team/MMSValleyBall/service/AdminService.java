@@ -2,16 +2,16 @@ package com.team.MMSValleyBall.service;
 
 import com.team.MMSValleyBall.dto.*;
 import com.team.MMSValleyBall.entity.*;
-import com.team.MMSValleyBall.enums.MembershipSalesStatus;
-import com.team.MMSValleyBall.enums.PaymentStatus;
-import com.team.MMSValleyBall.enums.TicketStatus;
-import com.team.MMSValleyBall.enums.UserStatus;
+import com.team.MMSValleyBall.enums.*;
 import com.team.MMSValleyBall.repository.*;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,15 +30,21 @@ public class AdminService {
     private final MatchRepository matchRepository;
     private final SeasonRepository seasonRepository;
     private final MembershipSalesRepository membershipSalesRepository;
+    private final BCryptPasswordEncoder bCryptPasswordEncoder;
+    private final EntityManager em;
+    private final MembershipRepository membershipRepository;
 
     @Autowired
-    public AdminService(UserRepository userRepository, PaymentRepository paymentRepository, TicketRepository ticketRepository, MatchRepository matchRepository, SeasonRepository seasonRepository, MembershipSalesRepository membershipSalesRepository) {
+    public AdminService(UserRepository userRepository, PaymentRepository paymentRepository, TicketRepository ticketRepository, MatchRepository matchRepository, SeasonRepository seasonRepository, MembershipSalesRepository membershipSalesRepository, BCryptPasswordEncoder bCryptPasswordEncoder, EntityManager em, MembershipRepository membershipRepository) {
         this.userRepository = userRepository;
         this.paymentRepository = paymentRepository;
         this.ticketRepository = ticketRepository;
         this.matchRepository = matchRepository;
         this.seasonRepository = seasonRepository;
         this.membershipSalesRepository = membershipSalesRepository;
+        this.bCryptPasswordEncoder = bCryptPasswordEncoder;
+        this.em = em;
+        this.membershipRepository = membershipRepository;
     }
 
 
@@ -221,8 +227,8 @@ public class AdminService {
 
 
     // 전체 유저수
-    public long countUsers() {
-        return userRepository.count();
+    public long countUsersByRole(UserRole userRole) {
+        return userRepository.countByUserRole(userRole);
     }
 
 
@@ -265,9 +271,45 @@ public class AdminService {
         return userRepository.findByUserMembership_MembershipNameContainingIgnoreCaseOrderByUserIdAsc(membership, pageable).map(UserDTO::fromEntity);
     }
 
+    // 관리자 추가
+    // 이메일 중복 확인[ 완료 ]
+    public boolean isEmailDuplicate(String userEmail) {
+        return userRepository.existsByUserEmail(userEmail);
+    }
+
+    public boolean isPhoneDuplicate(String userPhone) {
+        return userRepository.existsByUserPhone(userPhone);
+    }
+
+    // 관리자 생성
+    public void createAdmin(UserDTO adminDTO) {
+        Users adminUser = new Users();
+        adminUser.setUserEmail(adminDTO.getUserEmail());
+        adminUser.setUserPassword(bCryptPasswordEncoder.encode(adminDTO.getUserPassword())); // 비밀번호 암호화
+        adminUser.setUserName(adminDTO.getUserName());
+        adminUser.setUserPhone(adminDTO.getUserPhone());
+        adminUser.setUserAddress(adminDTO.getUserAddress());
+        adminUser.setUserRole(UserRole.ADMIN);
+        adminUser.setUserStatus(UserStatus.ACTIVE);
+        adminUser.setUserCreateAt(LocalDateTime.now());
+
+        // 기본 멤버십 설정
+        Membership defaultMembership = membershipRepository.findByMembershipName("24/25-bronze");
+        adminUser.setUserMembership(defaultMembership);
+
+        userRepository.save(adminUser); // 사용자 저장
+    }
+
+    // 관리자 삭제
+    public void deleteAdmin(Long userId) {
+        Users user = userRepository.findById(userId)
+                .orElseThrow(() -> new EntityNotFoundException("사용자를 찾을 수 없습니다."));
+
+        userRepository.delete(user);
+    }
+
 
 }
-
 
 
 

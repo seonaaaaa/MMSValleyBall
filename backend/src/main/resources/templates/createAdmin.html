@@ -1,76 +1,314 @@
 <!DOCTYPE html>
-<html xmlns:th="www.thymeleaf.org"
+<html xmlns:th="http://www.thymeleaf.org"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       layout:decorate="~{layout/layoutReal}">
 <head>
     <meta charset="UTF-8">
+    <title>관리자 추가</title>
+    <style>
+        /* 관리자 추가 페이지 스타일 */
+
+        body {
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(to right, #ece9e6, #ffffff);
+            margin: 0;
+            padding: 0;
+        }
+
+        .content {
+            max-width: 600px;
+            margin: 40px auto;
+            padding: 20px;
+            background-color: #fdfdfd;
+            border-radius: 15px;
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        h2 {
+            color: #2c3e50;
+            text-align: center;
+            font-size: 26px;
+            margin-bottom: 5px;
+        }
+
+        h3 {
+            color: #95a5a6;
+            text-align: center;
+            font-size: 14px;
+            margin-bottom: 20px;
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        label {
+            font-weight: bold;
+            color: #34495e;
+            margin-bottom: 3px;
+        }
+
+        input[type="text"],
+        input[type="email"],
+        input[type="password"] {
+            width: 100%;
+            padding: 14px;
+            border: 1px solid #bdc3c7;
+            border-radius: 8px;
+            box-sizing: border-box;
+            transition: all 0.3s ease;
+        }
+
+        input[type="text"]:focus,
+        input[type="email"]:focus,
+        input[type="password"]:focus {
+            border-color: #3498db;
+            box-shadow: 0 0 5px rgba(52, 152, 219, 0.5);
+        }
+
+        input[readonly] {
+            background-color: #f0f0f0;
+        }
+
+        button {
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 15px;
+            transition: background-color 0.3s, box-shadow 0.2s;
+        }
+
+        button[type="button"] {
+            background-color: #8e44ad;
+            color: #ffffff;
+        }
+
+        button[type="button"]:hover {
+            background-color: #732d91;
+            box-shadow: 0 4px 10px rgba(142, 68, 173, 0.3);
+        }
+
+        button[type="submit"] {
+            background-color: #27ae60;
+            color: #ffffff;
+        }
+
+        button[type="submit"]:hover {
+            background-color: #1e8449;
+            box-shadow: 0 4px 10px rgba(39, 174, 96, 0.3);
+        }
+
+        button:disabled {
+            background-color: #bdc3c7;
+            cursor: not-allowed;
+        }
+
+        #emailResult,
+        #phoneResult {
+            margin-top: 5px;
+            font-size: 13px;
+            color: #e74c3c;
+        }
+
+        #passwordError {
+            font-size: 13px;
+            color: #e74c3c;
+        }
+
+        #searchAddressButton {
+            background-color: #f39c12;
+            color: #ffffff;
+            margin-top: 5px;
+        }
+
+        #searchAddressButton:hover {
+            background-color: #e67e22;
+            box-shadow: 0 4px 10px rgba(243, 156, 18, 0.3);
+        }
+
+        a[type="button"] {
+            display: inline-block;
+            padding: 12px;
+            background-color: #7f8c8d;
+            color: #ffffff;
+            text-align: center;
+            text-decoration: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        a[type="button"]:hover {
+            background-color: #5f6a6a;
+        }
+
+        /* 관리자 추가 및 뒤로가기 버튼을 한 줄에 배치 */
+        .button-group {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+            margin-top: 10px;
+        }
+
+    </style>
 </head>
 <body>
 <div layout:fragment="content" class="content">
+    <section>
+        <h2>관리자 추가</h2>
+        <h3> ** 필수 입력 항목입니다.</h3>
+        <hr>
 
-    <h1>관리자 추가</h1>
-
-    <div>
-        <form th:action="@{/admin/userList}">
-            <form th:action="@{/admin/createAdmin" method="post">
-                <input type="email" id="adminEmail" name="adminEmail" placeholder="이메일을 입력하세요" required>
-                <button type="submit">중복 확인</button>
-            </form>
-
-            <!-- 이메일 중복 결과 메시지 출력 -->
-            <div th:if="${emailCheckMessage}">
-                <p th:text="${emailCheckMessage}" style="color: red;"></p>
-            </div>
-
-            <!-- 비밀번호 -->
-            <div>**비밀번호
-                <input type="password" id="adminPassword" name="adminPassword" required placeholder="비밀번호를 입력해주세요."/>
-            </div>
-
-            <!-- 비밀번호 확인 -->
-            <div> **비밀번호 확인
-                <input type="password" id="adminConfirmPassword" name="adminConfirmPassword" required
-                       placeholder="한 번 더 입력해주세요."/>
-            </div>
-
-            <!-- 이름 -->
-            <div> **이름
-                <input type="text" id="adminName" name="adminName" required placeholder="이름을 입력해주세요."/>
-            </div>
-
-            <!-- 핸드폰 번호 -->
-            <div class="form-group">
-                <label for="userPhone">**전화번호</label>
-                <div class="phone-input-group single-line">
-                    <select id="userPhonePart1" name="userPhonePart1" required>
-                        <option value="010">010</option>
-                        <option value="011">011</option>
-                        <option value="016">016</option>
-                        <option value="017">017</option>
-                    </select> -
-                    <input type="tel" id="userPhonePart2" name="userPhonePart2" maxlength="4" required placeholder="0000" /> -
-                    <input type="tel" id="userPhonePart3" name="userPhonePart3" maxlength="4" required placeholder="0000" />
+        <!-- 관리자 추가 폼 -->
+        <form th:action="@{/admin/createAdmin}" method="post" name="createAdminForm">
+            <!-- 이메일 중복 확인 폼 -->
+            <div>
+                <label for="email">**이메일:</label>
+                <div>
+                    <input type="email" id="email" name="email" th:value="${email}" placeholder="이메일을 입력하세요" required>
+                    <button type="button" name="action" value="checkEmail" id="checkEmailButton">이메일 중복 확인</button>
+                    <div id="emailResult"></div>
                 </div>
             </div>
 
-            <!-- 주소 검색 폼  [ 카카오 ]-->
-            <form action="/search-address" method="post">
-                <label for="query">**주소 검색</label>
-                <input type="text" id="query" name="query" required placeholder="주소를 입력하세요." />
-                <button type="submit">검색</button>
-            </form>
+            <label for="name">**이름:</label>
+            <input type="text" id="name" name="name" placeholder="이름을 입력하세요" required>
+            <br>
 
-            <!-- 주소 결과 표시 -->
-            <div th:if="${addressResult}">
-                <p th:text="${addressResult}">검색 결과가 여기에 표시됩니다.</p>
-            </div>
+            <label for="password">**비밀번호:</label>
+            <input type="password" id="password" name="password" placeholder="비밀번호를 입력하세요" required>
+            <br>
 
+            <label for="confirmPassword">**비밀번호 확인:</label>
+            <input type="password" id="confirmPassword" name="confirmPassword" placeholder="한 번 더 입력하세요" required>
+            <span id="passwordError" style="color: red;"></span>
+            <br>
 
-            <!--      users role = admin 고정    주소 = 주소 [카카오]  createAt -->
-            <button type="submit">관리자 추가</button>
+            <label for="phone">**전화번호:</label>
+            <input type="text" id="phone" name="phone" placeholder="XXX-XXXX-XXXX" required>
+            <div id="phoneResult" style="color: red;"></div>
+            <br>
+
+            <label for="address">주소:</label>
+            <input type="text" id="address" name="address" readonly placeholder="주소를 입력하세요" required>
+            <button type="button" id="searchAddressButton">주소 찾기</button>
+            <br>
+
+            <button type="submit" name="action" value="createAdmin" id="createAdminButton" disabled>관리자 추가</button>
+            <a type="button" href="userList" th:text="돌아가기"></a>
         </form>
-        <a th:href="@{/admin/userList}" class="button">돌아가기</a>
-    </div>
+
+        <!-- 카카오 주소 검색 API -->
+        <script src="https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
+
+        <script th:inline="javascript">
+            document.addEventListener("DOMContentLoaded", function () {
+                const emailInput = document.getElementById("email");
+                const checkEmailButton = document.getElementById("checkEmailButton");
+                const passwordInput = document.getElementById("password");
+                const confirmPasswordInput = document.getElementById("confirmPassword");
+                const phoneInput = document.getElementById("phone");
+                const passwordError = document.getElementById("passwordError");
+                const emailResultDiv = document.getElementById("emailResult");
+                const phoneResultDiv = document.getElementById("phoneResult");
+                const createAdminButton = document.getElementById("createAdminButton");
+                const addressInput = document.getElementById("address");
+                const searchAddressButton = document.getElementById("searchAddressButton");
+
+                // 이메일 중복 확인 버튼 클릭 시 AJAX 요청
+                checkEmailButton.addEventListener("click", function (event) {
+                    event.preventDefault();
+                    const email = emailInput.value;
+
+                    if (!email) {
+                        emailResultDiv.textContent = "이메일을 입력해주세요.";
+                        emailResultDiv.style.color = "red";
+                        createAdminButton.disabled = true;
+                        return;
+                    }
+
+                    fetch(`/admin/createAdmin/checkEmail?email=${email}`)
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data) {
+                                emailResultDiv.textContent = "이미 사용 중인 이메일입니다.";
+                                emailResultDiv.style.color = "red";
+                                createAdminButton.disabled = true;
+                            } else {
+                                emailResultDiv.textContent = "사용 가능한 이메일입니다.";
+                                emailResultDiv.style.color = "green";
+                                createAdminButton.disabled = false;
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                            emailResultDiv.textContent = "오류가 발생했습니다. 다시 시도해주세요.";
+                            emailResultDiv.style.color = "red";
+                        });
+                });
+
+                // 이메일 입력 시 이메일 중복 확인 상태 초기화
+                emailInput.addEventListener("input", function () {
+                    emailResultDiv.textContent = "";
+                    createAdminButton.disabled = true;
+                });
+
+                // 비밀번호와 비밀번호 확인 일치 여부 확인
+                function checkPasswords() {
+                    if (passwordInput.value !== confirmPasswordInput.value) {
+                        passwordError.textContent = "비밀번호가 일치하지 않습니다.";
+                        createAdminButton.disabled = true;
+                    } else {
+                        passwordError.textContent = "";
+                        createAdminButton.disabled = false;
+                    }
+                }
+
+                passwordInput.addEventListener("input", checkPasswords);
+                confirmPasswordInput.addEventListener("input", checkPasswords);
+
+                // 전화번호 중복 확인 - 실시간 확인
+                phoneInput.addEventListener("input", function () {
+                    const phone = phoneInput.value;
+
+                    if (!phone) {
+                        phoneResultDiv.textContent = "전화번호를 입력해주세요.";
+                        createAdminButton.disabled = true;
+                        return;
+                    }
+
+                    fetch(`/admin/createAdmin/checkPhone?phone=${phone}`)
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data) {
+                                phoneResultDiv.textContent = "이미 사용 중인 전화번호입니다.";
+                                createAdminButton.disabled = true;
+                            } else {
+                                phoneResultDiv.textContent = "";
+                                createAdminButton.disabled = false;
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                            phoneResultDiv.textContent = "오류가 발생했습니다. 다시 시도해주세요.";
+                            createAdminButton.disabled = true;
+                        });
+                });
+
+                // 카카오 주소 찾기 API 사용
+                searchAddressButton.addEventListener("click", function () {
+                    new daum.Postcode({
+                        oncomplete: function (data) {
+                            addressInput.value = data.address;
+                        }
+                    }).open();
+                });
+            });
+        </script>
+    </section>
 
 </div>
 </body>

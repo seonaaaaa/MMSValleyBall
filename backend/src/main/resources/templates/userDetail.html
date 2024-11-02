@@ -12,21 +12,24 @@
              height: 300px;
              width: 70%;
              padding-top: 50px;
-             padding-left: 510px;
+             padding-left: 30%;
              border: 2px solid #60a191;
              border-radius: 10px;
              background-color: #f9f9f9;
          }
-         .button {
-             display: inline-block;
-             margin-top: 20px;
-             margin-left: 855px;
-             padding: 10px 20px;
-             background-color: #60a191;
-             color: white;
-             text-decoration: none;
-             border-radius: 5px;
+         .button-line{
+         display: flex;
+          justify-content: center; /* 수평 중앙 정렬 */
          }
+
+         .button {
+            padding: 10px 20px;
+            background-color: #60a191;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            text-align: center;
+        }
          .button:hover {
              background-color: #0056b3;
          }
@@ -49,13 +52,12 @@
         <p><strong>🏐 Email : </strong> <span th:text="${user.userEmail}">john.doe@example.com</span></p>
         <p><strong>🏐 멤버십 등급 : </strong> <span th:text="${user.userMembershipName}">GOLD</span></p>
         <p><strong>🏐 계정 상태 : </strong> <span th:text="${user.userStatus}">ACTIVE</span></p>
-
-        <form th:action="@{/admin/userDetail/{userId}(userId=${user.userId})}" method="post">
-            <button type="submit"> 상태변경</button>
-        </form>
     </div>
-    <div>
-        <a th:href="@{/admin/userList}" class="button">돌아가기</a>
+    <div class="button-line">
+        <form th:action="@{/admin/userDetail/{userId}(userId=${user.userId})}" method="post">
+            <button type="submit" class="button"> 상태변경</button>
+        </form>
+        <button class="button" onclick="location.href='/admin/userList'">돌아가기</button>
     </div>
 </div>
 </body>

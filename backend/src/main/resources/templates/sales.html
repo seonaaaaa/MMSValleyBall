@@ -7,7 +7,8 @@
     <script th:src="@{js/jQuery.js}"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;700&display=swap" rel="stylesheet"> <!-- Noto Sans 추가 -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;700&display=swap" rel="stylesheet">
+    <!-- Noto Sans 추가 -->
     <style>
         section {
             height: 100%;
@@ -29,6 +30,7 @@
              color: white;
              text-decoration: none;
              border-radius: 5px;
+
          }
          .button:hover {
              background-color: #0056b3;
@@ -183,7 +185,7 @@
     <div class="tab-menu">
         <a href="userList" class="active">회원 조회</a>
         <a href="sales" class="active">매출 조회</a>
-        <a href="game" class="active">멤버쉽 조회</a>
+        <a href="game" class="active">경기 조회</a>
     </div>
 
     <!--   매출 조회 페이지     -->
@@ -194,7 +196,8 @@
                 <select id="season-select">
                     <option th:each="season : ${seasons.entrySet()}"
                             th:value="${season.value}"
-                            th:text="${season.value}">시즌 선택</option>
+                            th:text="${season.value}">시즌 선택
+                    </option>
                 </select>
             </div>
         </div>
@@ -217,16 +220,16 @@
                 <p class="div-title">경기별 매출 Top5</p>
                 <table class="top5-match-table">
                     <thead>
-                        <th>경기정보</th>
-                        <th>총 판매액</th>
-                        <th>순위</th>
+                    <th>경기정보</th>
+                    <th>총 판매액</th>
+                    <th>순위</th>
                     </thead>
                     <tbody>
-                        <tr>
-                            <td class="top5-match-info"></td>
-                            <td class="top5-ticket-total-sales-price"></td>
-                            <td class="top5-ticket-sales-order"></td>
-                        </tr>
+                    <tr>
+                        <td class="top5-match-info"></td>
+                        <td class="top5-ticket-total-sales-price"></td>
+                        <td class="top5-ticket-sales-order"></td>
+                    </tr>
                     </tbody>
                 </table>
             </div>
@@ -235,23 +238,23 @@
                 <canvas id="monthlySalesChart" width="400" height="200"></canvas>
             </div>
         </div>
-            <div class="sales-by-match">
-                <p class="div-title">경기별 매출</p>
-                <table class="match-table">
-                    <thead>
-                        <th>경기 ID</th>
-                        <th>경기정보</th>
-                        <th>총 판매액</th>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td id="match-id"></td>
-                            <td id="match-info"></td>
-                            <td id="ticket-total-sales-price"></td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
+        <div class="sales-by-match">
+            <p class="div-title">경기별 매출</p>
+            <table class="match-table">
+                <thead>
+                <th>경기 ID</th>
+                <th>경기정보</th>
+                <th>총 판매액</th>
+                </thead>
+                <tbody>
+                <tr>
+                    <td id="match-id"></td>
+                    <td id="match-info"></td>
+                    <td id="ticket-total-sales-price"></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
 
     </section>
     <div>

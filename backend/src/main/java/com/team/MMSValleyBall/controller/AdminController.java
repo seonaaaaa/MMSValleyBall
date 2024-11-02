@@ -1,19 +1,38 @@
 package com.team.MMSValleyBall.controller;
 
+import com.team.MMSValleyBall.dto.CustomUserDetails;
 import com.team.MMSValleyBall.dto.MatchPaymentDTO;
+import com.team.MMSValleyBall.dto.ResponseDto;
 import com.team.MMSValleyBall.dto.UserDTO;
+import com.team.MMSValleyBall.entity.Membership;
 import com.team.MMSValleyBall.entity.Season;
 import com.team.MMSValleyBall.entity.Users;
+import com.team.MMSValleyBall.enums.UserRole;
+import com.team.MMSValleyBall.enums.UserStatus;
+import com.team.MMSValleyBall.repository.MembershipRepository;
+import com.team.MMSValleyBall.repository.UserRepository;
 import com.team.MMSValleyBall.service.AdminService;
+import com.team.MMSValleyBall.service.MainService;
 import com.team.MMSValleyBall.service.PaginationService;
+import com.team.MMSValleyBall.service.UsersBalanceService;
+import jakarta.persistence.EntityNotFoundException;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import java.security.Principal;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -21,13 +40,23 @@ import java.util.Map;
 @RequestMapping("/admin")
 @CrossOrigin(origins = "http://localhost:8080") // 클라이언트 주소를 명시
 public class AdminController {
+    private final BCryptPasswordEncoder bCryptPasswordEncoder;
     private final AdminService adminService;
     private final PaginationService paginationService;
+    private final UsersBalanceService usersBalanceService;
+    private MainService mainService;
+    private final UserRepository userRepository;
 
-    public AdminController(AdminService adminService, PaginationService paginationService) {
+
+
+    public AdminController(BCryptPasswordEncoder bCryptPasswordEncoder, AdminService adminService, PaginationService paginationService, MainService mainService, UsersBalanceService usersBalanceService, UserRepository userRepository) {
+        this.bCryptPasswordEncoder = bCryptPasswordEncoder;
         this.adminService = adminService;
         this.paginationService = paginationService;
-    }
+        this.mainService = mainService;
+        this.usersBalanceService = usersBalanceService;
+        this.userRepository = userRepository;
+       }
 
     //유저 선택 조회
     @GetMapping("/userDetail/{userId}")
@@ -72,7 +101,7 @@ public class AdminController {
         model.addAttribute("pageBars", barNumbers);
 
         // 유저 수 합계
-        long totalUsers = adminService.countUsers();
+        long totalUsers = adminService.countUsersByRole(UserRole.USER);
         model.addAttribute("totalUsers", totalUsers);
 
         // 필터링된 상태를 유지하기 위해 파라미터를 URL에 추가
@@ -118,13 +147,62 @@ public class AdminController {
 
     // 신규 관리자
     @GetMapping("/createAdmin")
-    public String createAdmin(Model model) {
+    public String createAdmin() {
         return "createAdmin";
     }
 
-    // 관리자
+    // 이메일 중복체크 [ 완료 ]
+    @GetMapping("/createAdmin/checkEmail")
+    @ResponseBody
+    public boolean checkEmailDuplicate(@RequestParam("email") String userEmail) {
+        return adminService.isEmailDuplicate(userEmail);
+    }
+
+    // 전화번호 중복 확인
+    @GetMapping("/createAdmin/checkPhone")
+    @ResponseBody
+    public boolean checkPhoneDuplicate(@RequestParam("phone") String userPhone) {
+        return adminService.isPhoneDuplicate(userPhone);
+    }
+
+    // 관리자 생성
     @PostMapping("/createAdmin")
-    public String updateAdmin(){
-        return "createAdmin";
+    public String createAdmin(@RequestParam("email") String userEmail,
+                              @RequestParam("password") String userPassword,
+                              @RequestParam("name") String userName,
+                              @RequestParam("phone") String userPhone,
+                              @RequestParam("address") String userAddress,
+                              Model model) {
+
+        UserDTO adminDTO = new UserDTO();
+        adminDTO.setUserEmail(userEmail);
+        adminDTO.setUserPassword(userPassword);
+        adminDTO.setUserName(userName);
+        adminDTO.setUserPhone(userPhone);
+        adminDTO.setUserAddress(userAddress);
+        adminDTO.setUserRole(UserRole.ADMIN);
+
+
+        adminService.createAdmin(adminDTO);
+        return "redirect:/admin/userList"; // 성공적으로 생성되면 첫 페이지로 리다이렉트
+    }
+
+
+    // 관리자 삭제페이지
+    @GetMapping("/deleteAdmin")
+    public String deleteAdminPage(Model model) {
+        List<Users> adminUsers = userRepository.findByUserRole(UserRole.ADMIN);
+        model.addAttribute("users", adminUsers);
+        return "deleteAdmin"; // deleteAdmin 페이지로 이동
+    }
+
+    // 관리자 삭제
+    @DeleteMapping("/deleteAdmin/{userId}")
+    public ResponseEntity<Void> deleteAdmin(@PathVariable("userId") Long userId) {
+        userRepository.findById(userId).ifPresent(userRepository::delete);
+        return ResponseEntity.ok().build();
     }
 }
+
+
+
