@@ -56,8 +56,11 @@ public class MyPageService {
     }
     public boolean changeTicketStatusById(Long id){
         Ticket cancelTicket = ticketRepository.findById(id).get();
-        if(ObjectUtils.isEmpty(cancelTicket)){
+        if(!ObjectUtils.isEmpty(cancelTicket)){
             cancelTicket.setTicketStatus(TicketStatus.CANCELLED);
+            System.out.println(cancelTicket);
+            cancelTicket.setTicketUpdateAt(LocalDateTime.now());
+            System.out.println(cancelTicket);
             ticketRepository.save(cancelTicket);
             return true;
         }
@@ -119,11 +122,11 @@ public class MyPageService {
         return "회원 탈퇴 성공";
     }
 
-    public String topUp(Map<String, String> data) {
+    public String topUp(Recharge recharge) {
         Payment payment = new Payment();
-        payment.setPaymentUser(userRepository.findByUserEmail(data.get("email")));
+        payment.setPaymentUser(userRepository.findByUserEmail(recharge.getEmail()));
         payment.setPaymentCreateAt(LocalDateTime.now());
-        payment.setPaymentAmount(Integer.parseInt(data.get("amount")));
+        payment.setPaymentAmount(recharge.getAmount());
         payment.setPaymentStatus(PaymentStatus.COMPLETED);
         paymentRepository.save(payment);
         return "충전되었습니다.";

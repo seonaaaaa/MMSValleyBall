@@ -1,89 +1,135 @@
 <template>
-  <!-- 회원 탈퇴 페이지 내용 -->
-  <div class="delete-account-content">
-    <div v-if="showModal" class="modal-overlay">
-      <div class="modal-content">
-        <p>정말로 탈퇴하시겠습니까?</p>
-        <div class="modal-actions">
-          <button @click="cancelDelete" class="cancel-button">취소</button>
-          <button @click="confirmDelete" class="confirm-button">탈퇴하기</button>
-        </div>
-      </div>
+  <div class="payment-container">
+    <h2 class="payment-title">나의 금액 충전하기</h2>
+    <div class="howMany">
+      <label for="amountSelect" class="amountSelect">금액 선택:</label>
+      <select id="amountSelect" v-model.number="amount">
+        <option value="0" disabled>충전하실 금액을 선택해주세요.</option>
+        <option value="10000">10000원</option>
+        <option value="20000">20000원</option>
+        <option value="30000">30000원</option>
+        <option value="40000">40000원</option>
+        <option value="50000">50000원</option>
+        <option value="100000">100000원</option>
+        <option value="200000">200000원</option>
+        <option value="300000">300000원</option>
+      </select>
+      <h3 class="balance">
+        현재 잔액: {{ balance }}원 + {{ amount }}원 = 충전 후 {{balance+amount}}원
+      </h3>
+    </div>
+    <div class="button-group">
+      <button class="pay-button confirm" @click="recharge()">충전하기</button>
+      <button class="pay-button cancel" @click="cancel">취소</button>
     </div>
   </div>
 </template>
-  
-  <script>
-  
-  export default {
-    name: 'DeleteAccount',
-      components: {
-    },    
-    data() {
-      return {
-      };
+
+<script>
+
+export default {
+  name: 'RechargeView',
+  data() {
+    return {
+      amount: 0,
+      balance: 0,
+    };
+  },
+  mounted() {
+    const queryString = window.location.search;
+    const urlParams = new URLSearchParams(queryString);
+
+    // 쿼리 파라미터로부터 데이터 추출
+    this.balance = Number(urlParams.get('balance'));
+  },
+  methods: {
+    recharge(){
+      this.$emit('userbalance', this.balance+this.amount);
+      if(this.amount==0){
+        alert('충전하실 금액을 선택해주세요.');
+        return;
+      }
+      console.log("충전 함수 실행")
+      this.$axios.post('/myPage/info/recharge',{
+          email: sessionStorage.getItem('email'),
+          amount: this.amount
+        },{
+        headers: {
+          Authorization : sessionStorage.getItem('token')
+        }
+      }).then((response) => {
+        console.log(response.data);
+        alert(`${this.amount}원 충전되셨습니다.`);
+        window.close();
+      }).catch((error) => {
+        console.error('충전 실패:', error);
+      });
     },
-    watch: {
-      
+    membershipImage(userMembership){
+      return  require(`@/assets/img/membershipImg/${userMembership}.png`);
     },
-    methods: {
-     
+    cancel() {
+      window.close();
+      alert('취소하셨습니다.');
     }
   }
-  </script>
-  
-  <style>
-  /* 회원 탈퇴 */
-  .delete-account-content {
-    text-align: center;
-    margin-top: 20px;
-  }
+};
+</script>
 
-  .delete-button {
-    background-color: #e74c3c;
-    color: white;
-    border: none;
-    padding: 10px 20px;
-    cursor: pointer;
-  }
+<style scoped>
+.payment-title{
+  margin-top: 0;
+  margin-bottom: 10px;
+}
+.payment-container {
+  width: 100%;
+  max-width: 600px;
+  height: 100vh;
+  margin: 0;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  box-sizing: border-box;
+}
+.balance{
+  margin-bottom: 10px;
+}
 
-  .modal-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-color: rgba(0, 0, 0, 0.5);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .modal-content {
-    background-color: white;
-    padding: 20px;
-    border-radius: 8px;
-    width: 300px;
-    text-align: center;
-  }
-
-  .modal-actions {
-    margin-top: 20px;
-  }
-
-  .cancel-button,
-  .confirm-button {
-    padding: 10px;
-    margin: 0 10px;
-    cursor: pointer;
-  }
-
-  .cancel-button {
-    background-color: #ccc;
-  }
-
-  .confirm-button {
-    background-color: #e74c3c;
-    color: white;
-  }
+.howMany {
+  margin-bottom: 20px;
+}
+#amountSelect {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+.button-group {
+  display: flex;
+  justify-content: space-between;
+}
+.pay-button {
+  width: 48%;
+  padding: 10px;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+.pay-button.confirm {
+  background-color: #28a745;
+}
+.pay-button.confirm:hover {
+  background-color: #218838;
+}
+.pay-button.cancel {
+  background-color: #dc3545;
+}
+.pay-button.cancel:hover {
+  background-color: #c82333;
+}
 </style>

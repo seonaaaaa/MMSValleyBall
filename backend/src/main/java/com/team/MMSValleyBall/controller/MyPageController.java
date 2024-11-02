@@ -29,7 +29,7 @@ public class MyPageController {
     }
 
     @PostMapping("/ticket/cancel")
-    public ResponseEntity<String> ticketCancel(@RequestBody Long id){
+    public ResponseEntity<String> ticketCancel(@RequestParam("id") Long id){
        if (myPageService.changeTicketStatusById(id)) {
             return ResponseEntity.ok("예매가 성공적으로 취소되었습니다.");
         } else {
@@ -71,16 +71,9 @@ public class MyPageController {
         return ResponseEntity.ok(myPageService.deactivateUser(userDTO.getUserId()));
     }
 
-    // 사용자의 충전 잔액
-    @GetMapping("info/recharge")
-    public ResponseEntity<Integer> balance(@RequestParam("email")String email){
-        return ResponseEntity.ok(usersBalanceService.getUsersBalance(email).getLeftMoney());
-    }
-
     // 잔액 충전
     @PostMapping("info/recharge")
-    public ResponseEntity<String> topUp(@RequestBody Map<String, String> data){
-
-        return ResponseEntity.ok(myPageService.topUp(data));
+    public ResponseEntity<String> topUp(@RequestBody Recharge recharge){
+        return ResponseEntity.ok(myPageService.topUp(recharge));
     }
 }

@@ -3,8 +3,8 @@
     <!-- 유저 정보 박스 -->
      <div class="control-box">
       <div class="user-info-box">
-      <div v-if="user.isLoggedIn">
-        <div v-if="user.role == 'USER'"> 
+      <div v-if="isLoggedIn">
+        <div v-if="role == 'USER'"> 
           <span class="membership-image-container">
         <span v-if="membershipLevel == 'GOLD'">
           <img :src="goldImage" alt="골드 등급" class="membershipLevel-image" />
@@ -15,11 +15,11 @@
         <span v-else>
           <img :src="bronzeImage" alt="브론즈 등급" class="membershipLevel-image" />
         </span>
-        <p><strong>{{ user.name }}</strong> 님</p>
+        <p><strong>{{ name }}</strong> 님</p>
         </span>
 
         <div class="money-box">
-          <p>잔액: <strong>{{ balance }}</strong>원</p><button class="btn-charge" @click="goToRecharge">충전</button>
+          <p>잔액: <strong>{{ balance }}</strong>원</p><button class="btn-charge" @click="openRechargeWindow">충전</button>
         </div>
           <button class="btn-myPage" @click="goToMyPage">My Page</button>&nbsp;<button class="btn-logout" @click="logout">로그아웃</button>
         </div>
@@ -27,13 +27,13 @@
 
         <div v-else> 
           <p class="Admin-notice">****관리자 모드입니다****</p>
-          <p><strong>{{ user.name }}</strong> 님</p>
+          <p><strong>{{ name }}</strong> 님</p>
           <button class="btn-AdminPage" @click="goToAdminPage">ADMIN Page</button><br>
           <button class="btn-logout2" @click="logout">로그아웃</button>
         </div>
         </div>
       
-      <div v-else>
+      <div v-if="!isLoggedIn">
         <button @click="goToLogin" class="btn-login">로그인</button><br>
         <button @click="goToSignup" class="btn-signup">회원가입</button>
       </div>
@@ -114,16 +114,36 @@ export default {
   components: {
     CalendarMain,
   },
-  props: {
-    user: Object
+  props:{
+    isLoggedIn: Boolean,
   },
   async mounted(){
-    console.log("mounted 엑시오스 호출 이전");
+    const token = sessionStorage.getItem('token');
+    if(token!=null){
+      this.role = sessionStorage.getItem('role');
+      this.name = sessionStorage.getItem('name');
+      try{
+        const userData = await axios.post('/main', null, {
+          params: {
+              email: sessionStorage.getItem('email')
+          },
+          headers: {
+              "Content-Type": "application/json",
+              Authorization: token
+          }
+        })
+        this.balance = userData.data.balance;
+        this.membershipLevel = userData.data.membership;
+      }catch(error){
+        console.error("email: " + sessionStorage.getItem('email'), error);
+      }
+    }
     await this.fetchEvents();
-    console.log("mounted 엑시오스 호출 다음");
   },
   data() {
     return {
+      role: 'guest',
+      name: null,
       balance: 0,
       membershipLevel: 'GOLD',
       // 골드 등급 이미지 경로
@@ -156,37 +176,33 @@ export default {
     goToMyPage() {
       this.$router.push('/mypage/reservations');
     },
-
     goToRecharge(){
       this.$router.push('/myPage/info/recharge');
     },
-
     goToLogin(){
       this.$router.push('/login');
     },
-
     goToSignup(){
       this.$router.push('/signup');
     },
-
     goToAdminPage(){
       this.$router.push('admin/user-list');
     },
-
     // 로그아웃
     logout() {
-      // localStorage에서 토큰 삭제
-      localStorage.removeItem('accessToken');
-
-      // 삭제 여부 확인을 위한 로그 출력
-      const token = localStorage.getItem('accessToken');
+      // 로컬스토리지에 저장된 토큰과 사용자 정보 삭제
+      sessionStorage.removeItem('token');
+      sessionStorage.removeItem('name');
+      sessionStorage.removeItem('email');
+      sessionStorage.removeItem('role');
+      const token = sessionStorage.getItem('token'); 
       if (token === null) {
+      this.$emit('logoutFromContent', false);
         console.log('토큰이 성공적으로 삭제되었습니다.');
         alert("로그아웃이 되었습니다.");
       } else {
-        console.log('토큰 삭제에 실패했습니다.', token);
+        console.log('Content에서 토큰 삭제에 실패했습니다.', token);
       }
-      // 메인 페이지로 이동
       this.$router.push('/');
     },
 
@@ -232,30 +248,18 @@ export default {
     },
     async fetchEvents() {
       try {
-        const response = await axios.get('/game/schedule/main');
+        const response = await axios.get('/game/schedule/main',{
+          headers: {
+            Authorization: sessionStorage.getItem('token')
+          }
+        });
         this.events = response.data; 
       } catch (error) {
         console.error("Error fetching events:", error);
       }
     },
-    async getUserfromServer(){
-      try{
-        console.log("함수 안 엑시오스 호출 직전");
-        const userData = await axios.post('/main', null, {
-          params: {
-              email: this.user.email
-          },
-          headers: {
-              "Content-Type": "application/json"
-          }
-        })
-        console.log("함수 안 엑시오스 호출 이후");
-        this.balance = userData.data.balance;
-        this.membershipLevel = userData.data.membership;
-        return true;
-      }catch(error){
-        console.error("email:" + this.user.email, error);
-      }
+    openRechargeWindow() {
+      window.open('/myPage/recharge', '충전하기', 'width=350,height=180,toolbar=no,menubar=no,scrollbars=no,resizable=no');
     }
   },
 };

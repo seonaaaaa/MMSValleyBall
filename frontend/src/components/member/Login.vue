@@ -48,11 +48,31 @@
          }
      },
      methods: {
-         navigateTo(route) {
-             this.$router.push(route);
-             this.activeMenu = route; // 메뉴를 클릭할 때 활성화된 메뉴 업데이트
-         },
-         login() {
+        navigateTo(route) {
+            this.$router.push(route);
+            this.activeMenu = route; // 메뉴를 클릭할 때 활성화된 메뉴 업데이트
+        },
+        saveUserInfo(token) {
+            let payload = null;
+            try {
+            const base64Payload = token.split('.')[1]; // 토큰의 두 번째 부분 (Payload)
+            const base64 = base64Payload.replace(/-/g, '+').replace(/_/g, '/'); // Base64 형식을 표준으로 맞춤
+            const decodedPayload = decodeURIComponent(
+                atob(base64)
+                .split('')
+                .map((c) => `%${('00' + c.charCodeAt(0).toString(16)).slice(-2)}`)
+                .join('')
+            );
+            payload = JSON.parse(decodedPayload); // JSON 파싱하여 객체로 반환
+            } catch (error) {
+                console.error('토큰 파싱 실패', error);
+            }
+            // 유저 정보를 로컬스토리지에 저장
+            sessionStorage.setItem('email', payload.username);
+            sessionStorage.setItem('name', payload.name);
+            sessionStorage.setItem('role', payload.role);
+        },
+        login(){
             const user = {
                 email: this.userEmail,
                 password: this.userPassword,
@@ -70,18 +90,19 @@
                 alert("이메일 혹은 패스워드가 잘못 입력되었습니다.");
                 } else {
                 let accessToken = response.headers.authorization;  // 응답헤더에서 토큰 받기
-                localStorage.setItem("accessToken", accessToken); // 토큰 localStorage에 저장
+                sessionStorage.setItem("token", accessToken); // 토큰 sessionStorage에 저장
+                this.saveUserInfo(accessToken); 
+                this.$emit('login',true);
                 this.$axios.defaults.headers.common[
                     "Authorization"
                 ] = `Bearer ${accessToken}`;
                 alert("로그인이 되었습니다");
                 this.$router.replace("/");
                 }
-            })
-            .catch(() => {
+            }).catch(() => {
                 alert("로그인 실패!!");
-                });
-            },
+            });
+        },
      }
  }
  </script>

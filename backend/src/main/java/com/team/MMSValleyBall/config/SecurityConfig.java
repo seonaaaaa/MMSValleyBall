@@ -53,7 +53,7 @@ public class SecurityConfig{
                 "favicon.ico",
                 "/css/**",
                 "/js/**",
-                "/images/**"
+                "/img/**"
         );
     }
 
@@ -65,12 +65,9 @@ public class SecurityConfig{
             public CorsConfiguration getCorsConfiguration(HttpServletRequest request) {
                 CorsConfiguration configuration = new CorsConfiguration();
                 configuration.setAllowedOrigins(Collections.singletonList("http://localhost:8080"));
-//                        configuration.setAllowedMethods(Collections.singletonList("*"));
                 configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
                 configuration.setAllowCredentials(true);
-//                        configuration.setAllowedHeaders(Collections.singletonList("*"));
                 configuration.setMaxAge(3600L);
-//                        configuration.setExposedHeaders(Collections.singletonList("Authorization")
                 configuration.setExposedHeaders(List.of("accessToken","Authorization","Content-Type", "Accept"));
                         configuration.setAllowedHeaders(List.of("accessToken","Authorization","Content-Type", "Accept"));
                 return  configuration;
@@ -84,10 +81,8 @@ public class SecurityConfig{
         //http basic 인증 방식 disable
         http.httpBasic((auth) -> auth.disable());
         //경로별 인가 작업
-        http.authorizeHttpRequests((auth) -> auth.requestMatchers("/main", "/login", "/signup/**", "/game/**","/myPage/**").permitAll()
-//                        .requestMatchers(PathRequest.toStaticResources().atCommonLocations()).permitAll()
+        http.authorizeHttpRequests((auth) -> auth.requestMatchers("/", "/main", "/login", "/signup/**", "/game/**","/myPage/**").permitAll()
 //                .requestMatchers("/admin").hasRole("ADMIN")
-//                .requestMatchers("/myPage/**").hasRole("USER")
                 .anyRequest().authenticated());
         // JwtFilter 등록
         http.addFilterBefore(new JwtFilter(jwtUtil), LoginFilter.class);

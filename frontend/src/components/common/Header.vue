@@ -2,10 +2,10 @@
   <header>
     <!-- 로그인, 회원가입 링크 상단 -->
     <div class="auth-links">
-      <router-link v-if="!user.isLoggedIn" to="/login" class="login">로그인</router-link>
-      <router-link v-if="!user.isLoggedIn" to="/signup" class="signup">회원가입</router-link>
-      <button v-else @click="logout" class="logout">로그아웃</button>
-      <router-link v-if="user.role == 'ADMIN'" to="/admin/user-list" class="admin">관리자 페이지</router-link>
+      <router-link v-if="!isLoggedIn" to="/login" class="login">로그인</router-link>
+      <router-link v-if="!isLoggedIn" to="/signup" class="signup">회원가입</router-link>
+      <router-link v-if="role == 'ADMIN'&& isLoggedIn" to="/admin/user-list" class="admin">관리자 페이지</router-link>
+      <button v-if="isLoggedIn" @click="logout" class="logout">로그아웃</button>
     </div>
   
     <!-- 네비게이션 바 -->
@@ -44,21 +44,17 @@
       </div>
     </nav>
   </header>
-  </template>
+</template>
   
-  <script>
-  
-  export default {
-    name: 'AppHeader',
-    props: {
-      user: {
-        type: Object,
-        default: () => ({ name: '', role: 'guest', email: '', isLoggedIn: false })
-      }
-    },
-    data() {
-      return {
-        leftMenu: [
+<script>
+export default {
+  name: 'AppHeader',
+  props:{
+    isLoggedIn : Boolean,
+  },
+  data() {
+    return {
+      leftMenu: [
         { 
           title: 'MMS', 
           path: '/mms/greeting',  // 첫 번째 서브메뉴의 경로
@@ -113,28 +109,37 @@
             { title: '나의 정보 수정', path: '/myPage/edit-profile' }, 
           ] 
         }
-      ]
+      ],
+      role: 'guest',
+      name: null,
     };
   },
-
+  mounted(){
+    const token = sessionStorage.getItem('token');
+    if(token!=null){
+      this.role = sessionStorage.getItem('role');
+      this.name = sessionStorage.getItem('name');
+    }
+  },
   methods: {
     logout() {
-    // localStorage에서 토큰 삭제
-    localStorage.removeItem('accessToken');
-    
-    // 삭제 여부 확인을 위한 로그 출력
-    const token = localStorage.getItem('accessToken');
+    // 로컬스토리지에 저장된 토큰과 사용자 정보 삭제
+    sessionStorage.removeItem('token');
+    sessionStorage.removeItem('name');
+    sessionStorage.removeItem('email');
+    sessionStorage.removeItem('role');
+    const token = sessionStorage.getItem('token'); 
     if (token === null) {
       console.log('토큰이 성공적으로 삭제되었습니다.');
+      this.$emit('logoutFromHeader',false);
       alert("로그아웃이 되었습니다.");
     } else {
-      console.log('토큰 삭제에 실패했습니다.', token);
+      console.log('Header에서 토큰 삭제에 실패했습니다.', token);
     }
-     // 메인 페이지로 이동
-     this.$router.push('/');
+      this.$router.push('/'); // 메인으로
+    }
   }
 }
-  }
 </script>
 
 <style scoped>

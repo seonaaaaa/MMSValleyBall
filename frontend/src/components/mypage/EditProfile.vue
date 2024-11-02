@@ -11,71 +11,69 @@
     </div>
 
     <!-- 나의 정보 수정 페이지 내용 -->
-    <div class="edit-profile-content">
-      <h2 class="edit-profile-content-title">나의 정보</h2>
-      <form @submit.prevent="updateProfile">
-        <!-- 이메일 -->
-        <div class="form-group-horizontal">
-          <label>이메일</label>
-          <p class="static-text">{{ userEmail }}</p>
+    <div class="profile-container">
+      <div class="profile-header">
+        <div class="profile-picture">
+          <img :src="membershipImage(userMembership)" alt="멤버십 등급 이미지" />
+        </div>
+        <div>
+          <span class="header-name"><strong>{{ userName }}</strong> 님</span>
+        </div>
+        <div class="balance-info">
+          <span class="header-balance">잔액 : <strong>{{ balance }}</strong>원</span>
+        </div>
+        <button class="recharge-button" @click="openRechargeWindow">충전하기</button>
+      </div>
+
+      <div class="profile-form">
+        <div class="form-row"> 
+          <div class="form-group">
+            <label for="userName">이름</label>
+            <input type="text" id="userName" v-model="userName" />
+          </div>
+          <div class="form-group">
+            <label for="userEmail">이메일</label>
+            <input type="text" id="userEmail" v-model="userEmail" />
+          </div>
         </div>
 
-        <!-- 이름 -->
-        <div class="form-group-horizontal">
-          <label>이름</label>
-          <p class="static-text">{{ userName }}</p>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="userPassword">비밀번호</label>
+            <input type="text" id="userPassword" v-model="userPassword" />
+          </div>
+          <div class="form-group">
+            <label for="confirmPassword">비밀번호 확인</label>
+            <input type="text" id="confirmPassword" v-model="confirmPassword" />
+          </div>
         </div>
-
-        <!-- 비밀번호 -->
-        <div class="form-group-horizontal">
-          <label for="userPassword">비밀번호</label>
-          <input type="password" id="userPassword" v-model="userPassword" required />
-        </div>
-
-        <!-- 비밀번호 확인 -->
-        <div class="form-group-horizontal">
-          <label for="confirmPassword">비밀번호 확인</label>
-          <input type="password" id="confirmPassword" v-model="confirmPassword" required />
-        </div>
-
-        <!-- 전화번호 -->
-        <div class="form-group-horizontal">
+        <div class="form-row" id="userPhone">
           <label for="userPhone">전화번호</label>
-          <div class="phone-input-group">
-            <select v-model="userPhonePart1" required>
+          <div class="form-group">
+            <select id="userPhone1" v-model="userPhonePart1">
               <option value="010">010</option>
               <option value="011">011</option>
               <option value="016">016</option>
               <option value="017">017</option>
-            </select> -
-            <input type="tel" v-model="userPhonePart2" maxlength="4" required /> -
-            <input type="tel" v-model="userPhonePart3" maxlength="4" required />
+            </select>
+          </div><strong>-</strong>
+          <div class="form-group">
+            <input type="number" id="userPhone2" v-model="userPhonePart2" />
+          </div><strong>-</strong>
+          <div class="form-group">
+            <input type="number" id="userPhone3" v-model="userPhonePart3" />
           </div>
         </div>
-
-        <!-- 주소 -->
-        <div class="form-group-horizontal">
-          <label for="userAddress">주소</label>
-          <div class="input-with-button">
-            <input type="text" id="userAddress" v-model="userAddress" readonly />
-            <button type="button" @click="findAddress" class="check-button">주소 찾기</button>
+        <div class="form-row" id="address">
+          <label for="address">주소</label>
+          <div class="form-group">
+            <input type="text" id="address" v-model="userAddress" @click="findAddress" readonly/>
           </div>
         </div>
-
-        <!-- 나의 충전 금액 -->
-        <div class="form-group-horizontal">
-          <label>나의 충전 금액</label>
-          <div class="input-with-button">
-            <p class="static-text">{{ userBalance }}원</p>
-            <button type="button" @click="chargeBalance" class="charge-button">충전하기</button>
-          </div>
-        </div>
-
-        <button type="submit" class="alter-button">수정</button>
-      </form>
-
-      <!-- 회원 탈퇴 버튼 -->
-      <button @click="withdrawMembership" class="withdraw-button">회원 탈퇴</button>
+        <button class="edit-profile-button">
+          <i class="fas fa-pen"></i> 정보 수정하기
+        </button>
+      </div>
     </div>
   </div>
 </template>
@@ -88,6 +86,9 @@ export default {
   components: {
     LogoHeader
   },
+  props:{
+    balance : Number,
+  },
   data() {
     return {
       activeMenu: this.$route.path, // 현재 활성화된 경로
@@ -99,7 +100,9 @@ export default {
       userPhonePart2: '',
       userPhonePart3: '',
       userAddress: '',
-      userBalance: 50000 // 나의 충전 금액 (예시 데이터)
+      userMembership: 'bronze',
+      passwordVisible: false,
+      userId: 0,
     };
   },
   watch: {
@@ -131,15 +134,42 @@ export default {
         }
       }).open();
     },
-    chargeBalance() {
-      // 충전하기 버튼 클릭 시 로직 (예: 충전 페이지로 이동 또는 팝업 표시)
-      alert('충전 페이지로 이동합니다.');
+    openRechargeWindow() {
+      window.open(`/myPage/recharge?balance=${this.balance}`, '충전하기', 'width=500,height=250,toolbar=no,menubar=no,scrollbars=no,resizable=no');
     },
     withdrawMembership() {
       // 회원 탈퇴 로직 추가 (예: 확인 창 후 API 호출)
       if (confirm('정말로 회원 탈퇴를 진행하시겠습니까?')) {
         alert('회원 탈퇴가 완료되었습니다.');
       }
+    },
+    setInfo(response){
+      this.userName = response.user.userName;
+      this.userEmail = response.user.userEmail;
+      this.userAddress = response.user.userAddress;
+      this.$emit("userbalance", response.balance);
+      this.userPhonePart1 = response.user.userPhone.split('-')[0];
+      this.userPhonePart2 = response.user.userPhone.split('-')[1];
+      this.userPhonePart3 = response.user.userPhone.split('-')[2];
+      this.userMembership = response.user.userMembership.split('-')[1];
+      this.userId = response.user.userId;
+    },
+    getUserInfo(){
+      this.$axios.get(`/myPage/info`, {
+        params: {
+          email: sessionStorage.getItem('email')
+        },
+        headers: {
+          Authorization : sessionStorage.getItem('token')
+        }
+      }).then((response) => {
+        this.setInfo(response.data);
+      }).catch((error) => {
+        console.error('사용자 정보를 가져오는 중 오류 발생:', error);
+      });
+    },
+    membershipImage(userMembership){
+      return  require(`@/assets/img/membershipImg/${userMembership}.png`);
     }
   },
   mounted() {
@@ -147,6 +177,7 @@ export default {
     const script = document.createElement('script');
     script.src = 'https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js';
     document.head.appendChild(script);
+    this.getUserInfo();
   }
 }
 </script>
@@ -201,99 +232,106 @@ export default {
 }
 
 /* 개인정보 수정 */
-.edit-profile-content {
-  max-width: 500px;
-  margin: 50px auto;
-  padding: 20px;
-  background-color: #f9f9f9;
+.profile-container {
+  border: 1px solid#565656;
   border-radius: 10px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-  text-align: left;
-}
-
-.form-group-horizontal {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 20px;
-}
-
-label {
-  flex-basis: 20%;
-  font-weight: bold;
-  color: #555;
-}
-
-.static-text,
-input[type="password"],
-input[type="tel"],
-input[type="text"],
-select {
-  flex-basis: 75%;
-  padding: 10px;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-}
-
-.phone-input-group {
-  display: flex;
-  gap: 5px;
-}
-
-.input-with-button {
-  display: flex;
-  align-items: center;
-}
-
-.check-button,
-.charge-button {
-  background-color: #4f8578;
-  color: white;
-  border: none;
-  padding: 10px;
-  margin-left: 10px;
-  border-radius: 5px;
-  cursor: pointer;
-}
-
-.check-button:hover,
-.charge-button:hover {
-  background-color: #3f6f68;
-}
-
-.alter-button {
-  margin-top: 15px;
-  width: 100%;
-  padding: 15px;
-  background-color: #4f8578;
-  color: #ffffff;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  font-size: 20px;
-}
-
-.alter-button:hover {
-  background-color: #3f6f68;
-}
-
-.withdraw-button {
-  margin-top: 30px;
-  padding: 10px 20px;
-  background-color: #d9534f;
-  color: #ffffff;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  font-size: 16px;
-}
-
-.withdraw-button:hover {
-  background-color: #c9302c;
-}
-
-.edit-profile-content-title {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+  box-sizing: border-box;
   margin-bottom: 50px;
+  background-color: #efeae33e;
+}
+.profile-header {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding-bottom: 10px;
+  margin-bottom: 20px;
+  font-size: 25px;
+  border-bottom: 1px solid #8b8686;
+}
+.profile-picture {
+  display: flex;
+  align-items: center;
+}
+.profile-picture img {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.balance-info{
+  margin-left: auto;
   text-align: center;
+  justify-content: center;
+}
+.header-balance {
+  font-size: 20px;
+  margin-bottom: 10px; /* 잔액과 버튼 간의 간격 추가 */
+}
+.recharge-button{
+  padding: 5px 18px;
+  background-color: #e0a825;
+
+}
+.recharge-button,
+.edit-profile-button {
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+.edit-profile-button{
+  margin-left: auto;
+  padding: 10px 20px;
+  width: 18%;
+  background-color: #000;
+}
+.profile-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+.form-row {
+  align-items: center;
+  display: flex;
+  gap: 20px;
+}
+.form-group {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+label {
+  text-align: left;
+  justify-content: center;
+  margin-bottom: 5px;
+  font-weight: bold
+}
+
+label[for="address"],
+label[for="userPhone"]{
+  width: 10%;
+}
+
+input {
+  padding: 10px;
+  border: 1px solid #000;
+  border-radius: 5px;
+}
+#userPhone1{
+  padding: 10px;
+  border: 1px solid #000;
+  border-radius: 5px;
+}
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+#address, #userPhone{
+  margin-top: 10px;
 }
 </style>

@@ -13,7 +13,7 @@ app.use(router);
 router.beforeEach((to, from, next) => {
   // 인증이 필요한 페이지에 접근할 때
   if (to.matched.some(record => record.meta.requiresAuth)) {
-    const token = localStorage.getItem('accessToken'); // 토큰을 로컬스토리지에서 가져옴
+    const token = sessionStorage.getItem('token'); // 토큰을 로컬스토리지에서 가져옴
     if (token!=null) {
       next(); // 토큰이 있다면 페이지로 이동
     } else {

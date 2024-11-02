@@ -1,14 +1,20 @@
 <template>
   <div id="app">
-    <AppHeader :user="user"/>
-    <router-view :user="user"/>
-    <AppFooter />
+    <AppHeader  v-if="showHeaderFooter" :isLoggedIn="isLoggedIn" @logoutFromHeader="isLoggedIn=$event"/>
+    <router-view :isLoggedIn="isLoggedIn" :balance="balance"
+    @logoutFromContent="isLoggedIn=$event" 
+    @login="isLoggedIn=$event"
+    @userbalance="balance=$event"/>
+    <h1>{{ balance }}</h1>
+    <AppFooter  v-if="showHeaderFooter"/>
   </div>
 </template>
 
 <script>
 import AppHeader from './components/common/Header.vue'
 import AppFooter from './components/common/Footer.vue'
+import { computed } from 'vue';
+import { useRoute } from 'vue-router';
 
 export default {
   name: 'App',
@@ -18,48 +24,20 @@ export default {
   },
   data() {
     return {
-      user: { name: '', role: 'guest', email: '', isLoggedIn: false},
-    };
+      isLoggedIn : false,
+      balance : 0,
+    }
   },
   mounted() {
-    this.$router.beforeEach((to, from, next) => {
-       if(this.existsToken()){
-         next();
-       }
-    });
+    
   },
-  methods: {
-    async existsToken() {
-      const token = localStorage.getItem('accessToken');
-      if (token!=null) {
-        let payload = null;
-        try {
-          const base64Payload = token.split('.')[1]; // 토큰의 두 번째 부분 (Payload)
-          const base64 = base64Payload.replace(/-/g, '+').replace(/_/g, '/'); // Base64 형식을 표준으로 맞춤
-          const decodedPayload = decodeURIComponent(
-            atob(base64)
-              .split('')
-              .map((c) => `%${('00' + c.charCodeAt(0).toString(16)).slice(-2)}`)
-              .join('')
-          );
-          payload = JSON.parse(decodedPayload); // JSON 파싱하여 객체로 반환
-        } catch (error) {
-          console.error('토큰 파싱 실패', error);
-          return null;
-        }
-        console.log(payload);
-        this.user.role =payload.role;
-        this.user.name = payload.name;
-        this.user.email = payload.username;
-        this.user.isLoggedIn= true;
-        return true;
-      } else {
-        // 토큰이 없으면 로그아웃 상태
-        this.user = { name: '', role: 'guest', email: '', isLoggedIn: false};
-        return true;
-      }
-    },
-  },
+  setup() {
+    const route = useRoute();
+    const showHeaderFooter = computed(() => route.path !== '/myPage/recharge');
+    return {
+      showHeaderFooter
+    };
+  } 
 }
 </script>
 

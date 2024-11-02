@@ -30,6 +30,8 @@ import MembershipPurchase from '@/components/membership/MembershipPurchase.vue';
 import ReservationsView from '@/components/mypage/ReservationsView.vue';
 import MembershipView from '@/components/mypage/MembershipView.vue';
 import EditProfile from '@/components/mypage/EditProfile.vue';
+import Recharge from '@/components/mypage/Recharge.vue';
+
 
 // login, joinpage 만들기
 import loginPage from '@/components/member/Login.vue';
@@ -150,6 +152,12 @@ const routes = [
     path: '/myPage/edit-profile',
     name: 'EditProfile',
     component: EditProfile,
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/myPage/recharge',
+    name: 'Recharge',
+    component: Recharge,
     meta: { requiresAuth: true }
   },
   // 로그인, 회원가입 
