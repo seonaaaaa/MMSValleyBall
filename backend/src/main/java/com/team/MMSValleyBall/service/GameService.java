@@ -1,9 +1,19 @@
 package com.team.MMSValleyBall.service;
 
-import com.team.MMSValleyBall.dto.MatchDTO;
 import com.team.MMSValleyBall.dto.MatchWithTeamDTO;
+import com.team.MMSValleyBall.dto.SeasonDTO;
+import com.team.MMSValleyBall.dto.TeamDTO;
+import com.team.MMSValleyBall.entity.Match;
+import com.team.MMSValleyBall.entity.Ticket;
+import com.team.MMSValleyBall.entity.Users;
+import com.team.MMSValleyBall.enums.MailStatus;
+import com.team.MMSValleyBall.enums.MatchStadium;
+import com.team.MMSValleyBall.enums.MatchStatus;
 import com.team.MMSValleyBall.repository.GameRepository;
 
+import com.team.MMSValleyBall.repository.SeasonRepository;
+import com.team.MMSValleyBall.repository.TeamRepository;
+import com.team.MMSValleyBall.repository.TicketRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -13,55 +23,31 @@ import java.util.List;
 @Service
 public class GameService {
     private final GameRepository gameRepository;
+    private final TicketRepository ticketRepository;
+    private final EmailService emailService;
+    private final SeasonRepository seasonRepository;
+    private final TeamRepository teamRepository;
 
-    public GameService(GameRepository gameRepository) {
+    public GameService(GameRepository gameRepository, TicketRepository ticketRepository, EmailService emailService, SeasonRepository seasonRepository, TeamRepository teamRepository) {
         this.gameRepository = gameRepository;
+        this.ticketRepository = ticketRepository;
+        this.emailService = emailService;
+        this.seasonRepository = seasonRepository;
+        this.teamRepository = teamRepository;
     }
 
-    // MAIN 페이지 경기 일정 조회 (MatchDTO 반환)
-    public List<MatchDTO> findAllMatches() {
-        // 출력 TEST
-//        List<Match> matchList = gameRepository.findAll();
-//        System.out.println("matchList.size : " + matchList.size());
-//        return gameRepository.findAll()
-//                .stream()
-//                .map(entity-> MatchDTO.fromEntity(entity)).toList();
-        return gameRepository.findAll()
-                .stream()
-                .map(entity-> MatchDTO.fromEntity(entity))
-                .toList();
-    }
-
-    // 전체 경기 일정 조회 (MatchWithTeamDTO 반환)
+    // MAIN & GAME 공통 사용 CALENDAR - 경기 일정
     public List<MatchWithTeamDTO> findAllMatchesWithTeams() {
-        // Match 엔티티 리스트를 가져온 후, 이를 MatchWithTeamDTO로 변환하여 반환
-        List<MatchWithTeamDTO> matchList = gameRepository.findAll()
+        List<MatchWithTeamDTO> matchList = gameRepository.findAllDefaultMatches()
                                             .stream()
                                             .map(entity -> MatchWithTeamDTO.fromEntity(entity))
                                             .toList();
-        // 리스트 크기 출력
-        // System.out.println("matchList.size() : " + matchList.size());
         return matchList;
     }
 
-    // 기존 코드 ***** 새로 만든 코드 잘되면 지우기
-    // 시즌별 페이지 단위 경기 일정 조회 (Page<MatchWithTeamDTO> 반환)
-    public Page<MatchWithTeamDTO> findPagedMatchesBySeason(Long seasonId, Pageable pageable) {
-        Page<MatchWithTeamDTO> matchPages = gameRepository.findByMatchSeason_SeasonId(seasonId, pageable)
-                                                          .map(entity -> MatchWithTeamDTO.fromEntity(entity));
-    
-        // 가져온 전체 경기의 수
-        // System.out.println("Total elements in matchPages: " + matchPages.getTotalElements());
-        // 현재 페이지의 요소 수
-        // System.out.println("Number of elements in current page: " + matchPages.getNumberOfElements());
-        // 총 페이지 수
-        // System.out.println("Total pages: " + matchPages.getTotalPages());
-        
-        return matchPages;
-    }
-    // 신규 작성 코드 *****
+    // GAME - RESULTS - 시즌별 경기 일정
     public Page<MatchWithTeamDTO> getMatchesBySeasonAndRound(Long seasonId, Integer matchRoundId, Pageable pageable) {
-        return gameRepository.findBySeasonAndRound(seasonId, matchRoundId, pageable)
+        return gameRepository.findBySeasonAndRound(seasonId, matchRoundId, MatchStatus.DEFAULT, pageable)
                                 .map(entity -> MatchWithTeamDTO.fromEntity(entity));
     }
 }

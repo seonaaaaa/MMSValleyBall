@@ -1,18 +1,12 @@
 package com.team.MMSValleyBall.controller;
 
-import com.team.MMSValleyBall.dto.MatchDTO;
 import com.team.MMSValleyBall.dto.MatchWithTeamDTO;
 import com.team.MMSValleyBall.service.GameService;
 
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -26,28 +20,21 @@ public class GameController {
         this.gameService = gameService;
     }
 
-    // MAIN - 경기 일정 (최근 한달) API
+    // MAIN - 경기 일정
     @GetMapping("/schedule/main")
-    public ResponseEntity<List<MatchDTO>> getGameScheduleMain() {
-        List<MatchDTO> matchList = gameService.findAllMatches();
+    public ResponseEntity<List<MatchWithTeamDTO>> getGameScheduleMain() {
+        List<MatchWithTeamDTO> matchList = gameService.findAllMatchesWithTeams();
         return ResponseEntity.ok(matchList);
     }
 
-    // GAME - 경기 일정 (전체) API
+    // GAME - 경기 일정
     @GetMapping("/schedule/total")
     public ResponseEntity<List<MatchWithTeamDTO>> getGameScheduleTotal() {
         List<MatchWithTeamDTO> matchList = gameService.findAllMatchesWithTeams();
         return ResponseEntity.ok(matchList);
     }
 
-    // GAME - 경기 결과 API
-    // @GetMapping("/results")
-    // public ResponseEntity<Page<MatchWithTeamDTO>> getPagedGameData(
-    //         @RequestParam("seasonId") Long seasonId, Pageable pageable) {
-    //     Page<MatchWithTeamDTO> matchData = gameService.findPagedMatchesBySeason(seasonId, pageable);
-    //     return ResponseEntity.ok(matchData);
-    // }
-    // GAME - 경기 결과 API
+    // GAME - RESULTS - 시즌별 경기 일정
     @GetMapping("/results")
     public ResponseEntity<Page<MatchWithTeamDTO>> getMatches(
             @RequestParam("seasonId") Long seasonId,

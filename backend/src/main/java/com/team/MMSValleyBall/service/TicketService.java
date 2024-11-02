@@ -1,13 +1,17 @@
 package com.team.MMSValleyBall.service;
 
 import com.team.MMSValleyBall.dto.AvailableSeatDTO;
+import com.team.MMSValleyBall.dto.SeatDTO;
 import com.team.MMSValleyBall.dto.SectionInfo;
 import com.team.MMSValleyBall.dto.TicketSalesDTO;
 import com.team.MMSValleyBall.entity.*;
 import com.team.MMSValleyBall.enums.SeatSection;
+import com.team.MMSValleyBall.enums.TicketStatus;
 import com.team.MMSValleyBall.repository.*;
 import org.springframework.stereotype.Service;
+import org.springframework.util.ObjectUtils;
 
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
@@ -41,6 +45,9 @@ public class TicketService {
     public List<AvailableSeatDTO> getAvailableSeatsByMatch(Long matchId) {
         // section별 잔여좌석 조회
         List<Object[]> resultList = ticketRepository.findAvailableSeatsByMatch(matchId);
+
+        // seatId 기준으로 resultList 정렬
+        resultList.sort(Comparator.comparing(result -> (Long) result[0]));
 
         // zone별 잔여 좌석 수를 저장할 맵
         Map<String, Long> zoneSeatMap = new HashMap<>();
@@ -82,6 +89,11 @@ public class TicketService {
             }
         }
 
+        // zoneName 순서에 따라 dtoList 정렬
+        List<String> zoneOrder = Arrays.asList("GOLD", "BLUE", "AWAY", "NORTH", "WEST", "SOUTH", "EAST");
+        dtoList.sort(Comparator.comparingInt(zoneDto -> zoneOrder.indexOf(zoneDto.getZoneName())));
+
+
         System.out.println("ticket service - available seats : " + dtoList);
         return dtoList;
     }
@@ -100,6 +112,8 @@ public class TicketService {
         newTicket.setTicketPaidPrice(dto.getTicketPaidPrice());
         newTicket.setTicketNumber(dto.getTicketNumber());
         newTicket.setTicketUser(user);
+        newTicket.setTicketStatus(TicketStatus.BOOKED);
+        newTicket.setTicketCreateAt(LocalDateTime.now());
 
         // TicketDetail 객체 생성
         TicketDetail newTicketDetail = new TicketDetail();
@@ -108,7 +122,11 @@ public class TicketService {
         newTicketDetail.setTicketDetailSeat(seat);
 
         // Ticket 저장
-        newTicket.getTicketDetails().add(newTicketDetail);
+        if (ObjectUtils.isEmpty(newTicket.getTicketDetails())) {
+            newTicket.setTicketDetails(new ArrayList<>());
+            newTicket.getTicketDetails().add(newTicketDetail);
+        }
+
         ticketRepository.save(newTicket);
 
         // TicketDetail 저장
@@ -118,5 +136,9 @@ public class TicketService {
     public int findTicketPriceBySeatId(Long seatId) {
         Seat seat = seatRepository.findById(seatId).orElseThrow(() -> new RuntimeException("Seat not found for ID : " + seatId));
         return seat.getSeatPrice();
+    }
+
+    public List<SeatDTO> findSeatAll() {
+        return seatRepository.findAll().stream().map(SeatDTO::fromEntity).toList();
     }
 }

@@ -1,9 +1,8 @@
 <template>
   <div class="ticket-purchase-page">
-    <!-- 상단 1차 메뉴 텍스트가 들어간 배경 박스 -->
     <LogoHeader />
-
-    <!-- 티켓 안내, 티켓 구매 메뉴 -->
+    <div class="ticket-purchase-page-detail">
+      <!-- 티켓 안내, 티켓 구매 메뉴 -->
     <div class="menu">
       <div class="menu-item" :class="{ 'active-menu-item': activeMenu === '/ticket/info' }"
         @click="navigateTo('/ticket/info')">티켓 안내</div>
@@ -13,68 +12,69 @@
 
     <!-- 티켓 안내 페이지 내용 -->
     <div class="ticket-purchase-content">
-
-      <div class="info-box">
-        <div class="icon">
-          <img src="@/assets/img/anyImg/bell-icon.png" alt="alert" />
+      <div class="ticket-purchase-layout">
+        <div class="info-box">
+          <div class="icon">
+            <img src="@/assets/img/anyImg/bell-icon.png" alt="alert" />
+          </div>
+          <div class="info-content">
+            <h4>예매 전 반드시 확인해 주세요!</h4>
+            <ul>
+              <li> - 경기 일반예매는 경기일 7일 전 13시에 오픈됩니다. (※GS MMS: 경기일 7일 전 13시)</li>
+              <li> - 경기 선예매는 혜택이 포함된 멤버십 상품 구매 회원에 한해 제공되며, 해당 계정에 자동으로 선예매 권한이 부여되어 선예매 기간 내 예매 페이지 접속이 가능합니다.</li>
+              <li> - PC에서 티켓 예매가 가능합니다.</li>
+              <li> - 1인 최대 4매 예매 가능합니다.</li>
+            </ul>
+            <p>&nbsp; ※ 반드시 [TICKET] - [티켓안내] 내 안내사항을 확인하신 후 예매를 진행하시기 바랍니다.
+            </p>
+          </div>
         </div>
-        <div class="info-content">
-          <h4>예매 전 반드시 확인해 주세요!</h4>
-          <ul>
-            <li> - 경기 일반예매는 경기일 7일 전 13시에 오픈됩니다. (※GS MMS: 경기일 7일 전 13시)</li>
-            <li> - 경기 선예매는 혜택이 포함된 멤버십 상품 구매 회원에 한해 제공되며, 해당 계정에 자동으로 선예매 권한이 부여되어 선예매 기간 내 예매 페이지 접속이 가능합니다.</li>
-            <li> - PC에서 티켓 예매가 가능합니다.</li>
-            <li> - 1인 최대 4매 예매 가능합니다.</li>
-          </ul>
-          <p>※ 반드시 [TICKET] - [티켓안내] 내 안내사항을 확인하신 후 예매를 진행하시기 바랍니다.
-          </p>
-        </div>
-      </div>
 
-      <!-- 티켓 예약표  -->
-      <div>
-        <table class="ticket-purchase">
-          <thead>
-            <tr>
-              <th>경기 일시</th>
-              <th>경기 정보</th>
-              <th>경기장</th>
-              <th>예매 일정</th>
-              <th>티켓 예매</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>
-                2024.10.24(목)<br>
-                19:00
-              </td>
-              <td>GS MMS VS 한국전력</td>
-              <td>서울 하이체육관</td>
-              <td>
-                [멤버쉽 선예매]<br>
-                2024.10.14(월)<br>
-                13:00<br>
-                <br>
-                [일반 예매]<br>
-                2024.10.17(목)<br>
-                13:00
-              </td>
-              <!-- 티켓 예매 버튼 클릭 시 모달 열기 -->
-              <td>
-                <button class="ticket-Modal" @click="openModal">예매하기</button>
-                <!-- 모달 컴포넌트 -->
-                <Modal :visible="isModalVisible" @close="closeModal" />
-              </td>
-            </tr>
-          </tbody>
-        </table>
+        <!-- 티켓 예약표  -->
+        <div class="table-container">
+          <table class="ticket-purchase">
+            <thead>
+              <tr>
+                <th>경기 일시</th>
+                <th>경기 정보</th>
+                <th>경기장</th>
+                <th>예매 일정</th>
+                <th>티켓 예매</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="match in upcomingMatches" :key="match.matchId">
+                <td v-html="formatDate(match.matchDate)"></td>
+                <td> {{ formatMatchInfo(match.matchTeam, thisTeam) }}</td>
+                <td> {{ match.matchStadium }}</td>
+                <td>
+                  <p>[선예매]</p>
+                  <p v-html="formatDatePreBook(match.matchDate)"></p>
+                  <p>[일반예매]</p>
+                  <p v-html="formatDateBook(match.matchDate)"></p>
+                </td>
+                <!-- 티켓 예매 버튼 클릭 시 모달 열기 -->
+                <td>
+                    <button class="ticket-Modal" 
+                            @click="handleButtonClick(match)">
+                      예매하기
+                    </button>
+                  <!-- 모달 컴포넌트 -->
+                  <Modal v-if="isModalVisible" :visible="isModalVisible" :user="user" :match="selectedMatch" @close="closeModal" />
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
+  </div>
+    
   </div>
 </template>
 
 <script>
+import axios from 'axios';
 import LogoHeader from '../common/LogoHeader.vue';
 import Modal from './TicketModal.vue';
 
@@ -84,10 +84,25 @@ export default {
     LogoHeader,
     Modal,
   },
+  props: {
+    user : {
+      type: Object,
+      default: () => ({ name: '', role: 'guest', email: '', isLoggedIn: false})
+    },
+  },
+  async mounted(){
+    this.fetchEvents();
+  },
   data() {
     return {
       activeMenu: this.$route.path, // 현재 활성화된 경로
-      isModalVisible: false // 모달 표시 여부
+      thisTeam : "GS ITM",
+      isModalVisible: false, // 모달 표시 여부
+      //ticket modal에 전달할 경기 아이디
+      selectedMatch : null,
+      //서버에서 가져온 경기 정보 배열
+      matches : [], 
+      userMembership : {},
     };
   },
   watch: {
@@ -96,161 +111,162 @@ export default {
       this.activeMenu = to.path;
     }
   },
+  computed: {
+    upcomingMatches(){
+      const today = new Date();
+      return this.matches.filter(match => new Date(match.matchDate) >= today);
+    }
+  },
   methods: {
     navigateTo(route) {
       this.$router.push(route);
       this.activeMenu = route; // 메뉴를 클릭할 때 활성화된 메뉴 업데이트
     },
+    // 매치 데이터를 가져오는 메서드
+    async fetchEvents() {
+      try {
+        const response = await axios.get('/ticket/purchase', {
+          params: {
+            "email": this.user.email
+          }
+        });
+        console.log(response.data);
+        // matches가 배열인지 확인하고 할당
+        this.matches = Array.isArray(response.data.matches) ? response.data.matches : [];
+        this.userMembership = response.data.userMembership;
+        console.log("Matches fetched: ", this.matches);
+      } catch (error) {
+        console.log("Error fetching matches:", error);
+        // 에러 발생 시 matches를 빈 배열로 초기화
+        this.matches = [];
+      }
+    },
 
-    // 모달 열기 닫기
-    openModal() {
+
+    // 경기 정보 형식 지정 메서드
+    formatMatchInfo(matchTeam, thisTeam) {
+      return matchTeam === "서울하이체육관" ? `${thisTeam} VS ${matchTeam}` : `${matchTeam} VS ${thisTeam}`;
+    },
+    // 날짜 포맷팅 메서드
+    formatDate(date) {
+        const options = { year: 'numeric', month: '2-digit', day: '2-digit' };
+        const dateObj = new Date(date);
+        
+        // 날짜 포맷
+        const formattedDate = dateObj.toLocaleDateString('ko-KR', options);
+        
+        // 요일 가져오기
+        const days = ['일', '월', '화', '수', '목', '금', '토'];
+        const dayName = days[dateObj.getDay()];
+
+        // 시간 포맷
+        const formattedTime = dateObj.toLocaleTimeString('ko-KR', {
+          hour: '2-digit',
+          minute: '2-digit'
+        });
+
+        return `${formattedDate} (${dayName})<br>${formattedTime}`;
+      },
+      // 7일 전 오전 11시 날짜 포맷팅 메서드
+      formatDatePreBook(date) {
+        const dateObj = new Date(date);
+        dateObj.setDate(dateObj.getDate() - 7); // 7일 전
+        dateObj.setHours(11, 0, 0, 0); // 시간 설정: 11시 0분 0초
+        
+        const options = { year: 'numeric', month: '2-digit', day: '2-digit' };
+        
+        // 날짜 포맷
+        const formattedDate = dateObj.toLocaleDateString('ko-KR', options);
+        
+        // 요일 가져오기
+        const days = ['일', '월', '화', '수', '목', '금', '토'];
+        const dayName = days[dateObj.getDay()];
+
+        // 시간 포맷
+        const formattedTime = dateObj.toLocaleTimeString('ko-KR', {
+          hour: '2-digit',
+          minute: '2-digit'
+        });
+
+        return `${formattedDate} (${dayName})<br>${formattedTime}`;
+      },
+
+      // 5일 전 오전 11시 날짜 포맷팅 메서드
+      formatDateBook(date) {
+        const dateObj = new Date(date);
+        dateObj.setDate(dateObj.getDate() - 5); // 5일 전
+        dateObj.setHours(11, 0, 0, 0); // 시간 설정: 11시 0분 0초
+
+        const options = { year: 'numeric', month: '2-digit', day: '2-digit' };
+        
+        // 날짜 포맷
+        const formattedDate = dateObj.toLocaleDateString('ko-KR', options);
+        
+        // 요일 가져오기
+        const days = ['일', '월', '화', '수', '목', '금', '토'];
+        const dayName = days[dateObj.getDay()];
+
+        // 시간 포맷
+        const formattedTime = dateObj.toLocaleTimeString('ko-KR', {
+          hour: '2-digit',
+          minute: '2-digit'
+        });
+
+        return `${formattedDate} (${dayName})<br>${formattedTime}`;
+      },
+      // 모달 열기 닫기
+    openModal(match) {
       this.isModalVisible = true;
+      //TicketModal로 이동할 때 matchId를 가져가도록
+      this.selectedMatch= match;
     },
     closeModal() {
       this.isModalVisible = false;
+      this.selectedMatch= null;
     },
-  }
+    handleButtonClick(match) {
+      const today = new Date();
+      const matchDate = new Date(match.matchDate);
+      const preBookStartDate = new Date(match.matchDate);
+      preBookStartDate.setDate(preBookStartDate.getDate() - 7);
+      preBookStartDate.setHours(11, 0, 0, 0);
+      const generalBookStartDate = new Date(match.matchDate);
+      generalBookStartDate.setDate(generalBookStartDate.getDate() - 5);
+      generalBookStartDate.setHours(11, 0, 0, 0);
+      const userMembership = this.user.role; // 유저의 멤버십 정보
+
+      if (generalBookStartDate <= today && today < matchDate) {
+        // 오늘 날짜가 일반 예매 시작일과 경기일 사이
+        this.openModal(match);
+      } else if ( preBookStartDate < today && today < generalBookStartDate) {
+        // 오늘 날짜가 일반 예매 시작일과 경기일 사이
+        if (userMembership && userMembership.endsWith('Bronze')) {
+          this.openModal(match);
+        } else {
+          alert('브론즈 회원님은 선예매가 불가능합니다.');
+        }
+      } else {
+        // 오늘 날짜가 선예매 시작일 이후
+        alert(`아직 예매 일정이 아닙니다. 예매 일정은 다음과 같습니다:\n${this.formatDatePreBook(match.matchDate)}`);
+      }
+    },
+  },
+    
 }
 </script>
 
 <style scoped>
-.ticket-purchase {
-  width: 62%;
-  /* 표 전체 너비 설정 */
-  border-collapse: collapse;
-  /* 경계선 합치기 */
-  font-size: 20px;
-  /* 폰트 크기 설정 */
-  background-color: #f9f9f9;
-  /* 표의 배경색 설정 */
-  justify-content: center;
-  /* 가로 방향 중앙 정렬 */
-  align-items: center;
-  /* 세로 방향 중앙 정렬 */
-  margin-left: auto;
-  margin-right: auto;
-  margin-bottom: 40px;
-}
-
-th,
-td {
-  border: 1px solid #ddd;
-  /* 셀의 경계선 설정 */
-  text-align: center;
-  /* 텍스트 가운데 정렬 */
-  padding: 12px 5px;
-  /* 위, 아래는 12px / 좌, 우는 5px */
-}
-
-th {
-  background-color: #f2f2f2;
-  /* 머리글의 배경색 설정 */
-  color: #333;
-  /* 머리글 텍스트 색상 */
-  font-weight: bold;
-  /* 머리글 텍스트 굵게 */
-}
-
-
-.ticket-Modal {
-  background-color: #4CAF50;
-  /* 버튼 배경색 (녹색) */
-
-  border: 1px;
-  border-color: #000000;
-
-  color: white;
-  /* 글자 색 (흰색) */
-  padding: 12px 24px;
-  /* 버튼 내부 여백 (위아래 12px, 좌우 24px) */
-  text-align: center;
-  /* 글자 가운데 정렬 */
-  text-decoration: none;
-  /* 밑줄 없음 */
-  display: inline-block;
-  /* 기본 인라인 블록 설정 */
-  font-size: 20px;
-  /* 글자 크기 */
-  border-radius: 8px;
-  /* 모서리를 둥글게 */
-  cursor: pointer;
-  /* 마우스를 올렸을 때 포인터 모양 */
-  transition: background-color 0.3s;
-  /* 배경색이 바뀌는 효과 추가 */
-  margin: 20px;
-  width: 150px;
-  /* 버튼의 너비 */
-  height: 80px;
-  /* 버튼의 높이 */
-}
-
-.ticket-buy:hover {
-  background-color: #45a049;
-  /* 마우스를 올렸을 때 배경색 변경 */
-}
-
-
-.info-box {
+/* ticket-purchase-page 중앙 정렬 설정 */
+.ticket-purchase-page-detail {
   display: flex;
-  /* 아이콘과 텍스트를 나란히 배치 */
+  flex-direction: column;
   align-items: center;
-  /* 아이템들을 수직으로 가운데 정렬 */
-  background-color: #f7f7f7;
-  /* 배경색 설정 */
-  border: 1px solid #ccc;
-  /* 경계선 설정 */
-  border-radius: 10px;
-  /* 모서리를 둥글게 설정 */
-  padding: 20px;
-  /* 내부 여백 */
-  margin-left: 300px;
-  margin-right: 300px;
-  margin-bottom: 30px;
-  width: 70%;
-}
-
-
-.icon {
-  margin-right: 20px;
-  /* 아이콘과 텍스트 사이의 간격 */
-}
-
-.icon img {
-  width: 120px;
-  /* 아이콘 크기 */
-  height: 120px;
-  /* 아이콘 크기 */
-}
-
-.info-content {
-  text-align: left;
-  /* 글자 왼쪽 정렬 */
-  color: #000000;
-  /* 글자 색상 */
-  font-size: 16px;
-  /* 일반 문단 글자 크기 */
-  list-style-type: disc;
-  /* 목록 스타일 */
-  padding-left: 20px;
-  /* 목록 왼쪽 여백 */
-}
-
-.info-content p {
-  font-size: 13px;
-  /* 일반 문단 글자 크기 */
-  color: #1a1a1a;
-  /* 부드러운 색상 */
-  margin-top: 10px;
-  /* 위쪽 여백 */
-}
-
-.ticket-purchase-page {
-  padding-top: var(--header-height);
-  padding-bottom: var(--footer-height);
+  justify-content: center;
   text-align: center;
+  width: 100%;
 }
 
-/* 메뉴 */
+/* 메뉴 중앙 정렬 설정 */
 .menu {
   display: flex;
   justify-content: center;
@@ -297,5 +313,156 @@ th {
   /* 마우스를 올리면 밑줄 표시 */
 }
 
-/* 티켓 안내 */
+/* 티켓 안내 레이아웃 중앙 정렬 설정 */
+.ticket-purchase-layout {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  max-width: 1400px;
+}
+
+/* 테이블 컨테이너 중앙 정렬 설정 */
+.table-container {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+}
+
+.ticket-purchase {
+  width: 100%;
+  /* 표 전체 너비 설정 */
+  border-collapse: collapse;
+  /* 경계선 합치기 */
+  font-size: 20px;
+  /* 폰트 크기 설정 */
+  background-color: #f9f9f9;
+  /* 표의 배경색 설정 */
+  justify-content: center;
+  /* 가로 방향 중앙 정렬 */
+  align-items: center;
+  /* 세로 방향 중앙 정렬 */
+  margin-left: auto;
+  margin-right: auto;
+  margin-bottom: 40px;
+}
+
+th, td {
+  border: 1px solid #ddd;
+  /* 셀의 경계선 설정 */
+  text-align: center;
+  /* 텍스트 가운데 정렬 */
+  padding: 12px 5px;
+  /* 위, 아래는 12px / 좌, 우는 5px */
+}
+
+th {
+  background-color: #f2f2f2;
+  /* 머리글의 배경색 설정 */
+  color: #333;
+  /* 머리글 텍스트 색상 */
+  font-weight: bold;
+  /* 머리글 텍스트 굵게 */
+}
+
+.ticket-purchase p {
+  margin: 5px;
+  text-align: left;
+  margin-left: 20px;
+}
+
+.ticket-Modal {
+  background-color: #4CAF50;
+  /* 버튼 배경색 (녹색) */
+  border: 1px;
+  border-color: #000000;
+  color: white;
+  /* 글자 색 (흰색) */
+  padding: 7px 14px;
+  /* 버튼 내부 여백 (위아래 12px, 좌우 24px) */
+  text-align: center;
+  /* 글자 가운데 정렬 */
+  text-decoration: none;
+  /* 밑줄 없음 */
+  display: inline-block;
+  /* 기본 인라인 블록 설정 */
+  font-size: 20px;
+  /* 글자 크기 */
+  border-radius: 15px;
+  /* 모서리를 둥글게 */
+  cursor: pointer;
+  /* 마우스를 올렸을 때 포인터 모양 */
+  transition: background-color 0.3s;
+  /* 배경색이 바뀌는 효과 추가 */
+  margin: 15px;
+  width: 140px;
+  /* 버튼의 너비 */
+  height: 70px;
+  /* 버튼의 높이 */
+}
+
+.ticket-buy:hover {
+  background-color: #45a049;
+  /* 마우스를 올렸을 때 배경색 변경 */
+}
+
+/* info-box 중앙 정렬 설정 */
+.info-box {
+  display: flex;
+  /* 아이콘과 텍스트를 나란히 배치 */
+  align-items: center;
+  /* 아이템들을 수직으로 가운데 정렬 */
+  background-color: #f7f7f7;
+  /* 배경색 설정 */
+  border: 1px solid #ccc;
+  /* 경계선 설정 */
+  border-radius: 10px;
+  /* 모서리를 둥글게 설정 */
+  padding: 20px;
+  margin-bottom: 30px;
+  width: 100%;
+  max-width: 1000px; /* 최대 너비 설정으로 반응형 지원 */
+  justify-content: center;
+}
+
+.icon {
+  margin-right: 20px;
+  /* 아이콘과 텍스트 사이의 간격 */
+}
+
+.icon img {
+  width: 120px;
+  /* 아이콘 크기 */
+  height: 120px;
+  /* 아이콘 크기 */
+}
+
+.info-content {
+  text-align: left;
+  /* 글자 왼쪽 정렬 */
+  color: #000000;
+  /* 글자 색상 */
+  font-size: 16px;
+  /* 일반 문단 글자 크기 */
+  list-style-type: disc;
+  /* 목록 스타일 */
+  padding-left: 20px;
+  /* 목록 왼쪽 여백 */
+}
+
+.info-content p {
+  font-size: 13px;
+  /* 일반 문단 글자 크기 */
+  color: #1a1a1a;
+  /* 부드러운 색상 */
+  margin-top: 10px;
+  /* 위쪽 여백 */
+}
+
+.ticket-purchase-page {
+  padding-top: var(--header-height);
+  padding-bottom: var(--footer-height);
+  text-align: center;
+}
 </style>

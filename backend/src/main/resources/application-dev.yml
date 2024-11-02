@@ -13,15 +13,28 @@ spring:
 
   sql:
     init:
-      mode: never
+      mode: always
 
   jpa:
     defer-datasource-initialization: true
     hibernate:
-      ddl-auto: validate
+      ddl-auto: create
     properties:
       format_sql: true
       show-sql: true
 
   jwt:
     secret: ${SECRET}
+
+  mail:
+    host: smtp.gmail.com           # 이메일 서버 호스트 (Gmail - SMTP 서버)
+    port: 587                      # SMTP 서버 포트
+    username: ${mail.username}     # 발신자 이메일 주소
+    password: ${mail.password}     # 발신자 이메일의 비밀번호
+    properties:
+      mail:
+        smtp:
+          auth: true
+          timeout: 5000               # SMTP 연결 타임아웃 (밀리초)
+          starttls:
+            enable: true

@@ -80,7 +80,7 @@
   }
 </script>
     
-<style>
+<style scoped>
   .staff-page {
     padding-top: var(--header-height);
     padding-bottom: var(--footer-height);
