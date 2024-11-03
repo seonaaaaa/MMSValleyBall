@@ -36,10 +36,15 @@ public class TicketService {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
         String formattedDate = ticketSalesDTO.getTicketCreateAt().format(formatter);
         Long userId = userRepository.findByUserEmail(ticketSalesDTO.getUserEmail()).getUserId();
+
+        // userId와 matchId를 포맷팅하여 한 자리수일 경우 0을 붙임
+        String formattedUserId = String.format("%02d", userId);
+        String formattedMatchId = String.format("%02d", ticketSalesDTO.getMatchId());
+
         return "T" + formattedDate
-                + ticketSalesDTO.getMatchId()
+                + formattedMatchId
                 + ticketSalesDTO.getTicketDetailAmount()
-                + userId;
+                + formattedUserId;
     }
 
     public List<AvailableSeatDTO> getAvailableSeatsByMatch(Long matchId) {
