@@ -1,40 +1,24 @@
 package com.team.MMSValleyBall.controller;
 
-import com.team.MMSValleyBall.dto.CustomUserDetails;
 import com.team.MMSValleyBall.dto.MatchPaymentDTO;
-import com.team.MMSValleyBall.dto.ResponseDto;
 import com.team.MMSValleyBall.dto.UserDTO;
-import com.team.MMSValleyBall.entity.Membership;
-import com.team.MMSValleyBall.entity.Season;
 import com.team.MMSValleyBall.entity.Users;
 import com.team.MMSValleyBall.enums.UserRole;
-import com.team.MMSValleyBall.enums.UserStatus;
-import com.team.MMSValleyBall.repository.MembershipRepository;
 import com.team.MMSValleyBall.repository.UserRepository;
 import com.team.MMSValleyBall.service.AdminService;
 import com.team.MMSValleyBall.service.MainService;
 import com.team.MMSValleyBall.service.PaginationService;
 import com.team.MMSValleyBall.service.UsersBalanceService;
-import jakarta.persistence.EntityNotFoundException;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 
-import java.security.Principal;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -155,6 +139,7 @@ public class AdminController {
     // 이메일 중복체크 [ 완료 ]
     @GetMapping("/createAdmin/checkEmail")
     @ResponseBody
+
     public boolean checkEmailDuplicate(@RequestParam("email") String userEmail) {
         return adminService.isEmailDuplicate(userEmail);
     }
