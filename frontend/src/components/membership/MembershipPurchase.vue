@@ -43,38 +43,38 @@
           </tbody>
         </table>
       </div>
-      
+      <div v-if="membership=='bronze'" class="membership-purchase-box">
         <!-- 멤버십 선택 -->
         <div class="membership-selection">
           <p class="sub-title">멤버십 선택</p>
-          <select class="select-form" v-model="selectedMembershipPrice" @change="updatePrices">
+          <select class="select-form" v-model="selectedMembership">
             <option value="">선택</option>
-            <option value="100000">SILVER</option>
-            <option value="300000">GOLD</option>
+            <option value="silver-100000">SILVER</option>
+            <option value="gold-300000">GOLD</option>
           </select>
         </div>
-
-      <div class="charge">
-          <div class="charge-money">
-                <p><strong>충전금액으로 결제</strong></p>
-                <p>이용가능 : </p>
-                <p>{{ formattedPayment }} 원</p>
-          </div>
-          <button class="btn" id="btn-charge" v-if="leftMoney < 0" onclick="window.location.href='http://localhost:8080//myPage/info/recharge';">충전하기</button>
-          <div class="membership-price">
+        <div class="charge">
+            <div class="charge-money">
+              <p>충전금액 : </p>
+              <p>{{ new Intl.NumberFormat('ko-KR').format(balance) }} 원</p>
+            </div>
+            <button class="btn" id="btn-charge" v-if="leftMoney < 0">충전하기</button>
+            <div class="membership-price">
               <p>결제금액</p>
-              <p>- {{ formattedMembershipPrice }} 원</p>
-          </div>
-          <div class="left-money">
-              <p>잔액</p>
-              <!-- leftMoney 값이 0보다 작으면 'negative' 클래스를 추가 -->
-              <p :class="{ 'negative': leftMoney < 0 }">{{ formattedLeftMoney }} 원</p>
-          </div>
+              <p>- {{ paymenet }} 원</p>
+            </div>
+            <div class="left-money">
+                <p>결제 후 잔액</p>
+                <!-- leftMoney 값이 0보다 작으면 'negative' 클래스를 추가 -->
+                <p :class="{ 'negative': leftMoney < 0 }">{{ formattedLeftMoney }} 원</p>
+            </div>
+        </div>
+        <div class="buttons">
+          <button class="btn" id="btn-purchase" @click="purchaseMembership" v-if="leftMoney >= 0">구매하기</button>
+        </div>
       </div>
-
-      <div class="buttons">
-        <button class="btn" id="btn-purchase" @click="purchaseMembership" v-if="leftMoney >= 0">구매하기</button>
-        <button class="btn" id="btn-cancel" v-if="leftMoney >= 0"  onclick="window.location.href='http://localhost:8080/membership/info';">취소</button>
+      <div v-else>
+        이미 이용중인 멤버십이 있습니다.
       </div>
     </div>
   </div>
@@ -84,26 +84,25 @@
 import LogoHeader from '../common/LogoHeader.vue';
 import axios from 'axios';
 export default {
-    name: 'MembershipPurchase',
-    components: {
-      LogoHeader
-    },    
-    props: {
-      user : {
-        type : Object,
-        default : () => ({name : '', role : 'guest', email : '', isLoggedIn: false})
-      }
+  name: 'MembershipPurchase',
+  components: {
+    LogoHeader
+  },    
+  props: {
+    balance: {
+      type: Number,
+      required: true
     },
-    async mounted(){
-      this.fetchEvents();
+    membership: {
+      type: String,
+      required: true
     },
+  },
   data() {
     return {
       activeMenu: this.$route.path, // 현재 활성화된 경로
       // 서버에서 데이터 받아오기
-      selectedMembershipPrice: '',   // 선택된 멤버십 가격
-      payment: 0,                   // 현재 충전 금액
-      membershipData: {},           // API에서 가져온 멤버십 데이터
+      selectedMembership: '',   // 선택된 멤버십 가격
     };
   },
   watch: {
@@ -113,72 +112,37 @@ export default {
     }
   },
   computed: {
-    formattedPayment() {
-      return this.payment.toLocaleString();
-    },
-    formattedMembershipPrice() {
-      return this.selectedMembershipPrice.toLocaleString();
+    paymenet(){
+      if(this.selectedMembership!=''){
+        return Number(this.selectedMembership.split('-')[1]).toLocaleString('ko-KR');
+      }
+      return 0;
     },
     leftMoney() {
-      return this.payment - this.selectedMembershipPrice;
+      return this.balance - Number(this.selectedMembership.split('-')[1]);
     },
-    formattedLeftMoney() {
-      return this.leftMoney.toLocaleString();
-    },
+    formattedLeftMoney(){
+      if(this.selectedMembership!=''){
+        return this.leftMoney.toLocaleString('ko-KR');
+      }
+      return this.balance.toLocaleString('ko-KR');
+    }
   },
   methods: {
     navigateTo(route) {
       this.$router.push(route);
       this.activeMenu = route; // 메뉴를 클릭할 때 활성화된 메뉴 업데이트
     },
-    // 초기 API 호출로 충전 금액 가져오기
-    async fetchEvents() {
-      try {
-        const response = await axios.get('/membership/purchase', {
-          params: {
-            "email": this.user.email
-          }
-        });
-        this.payment = response.data.userMoney;
-        this.membershipData = response.data.newMembership;
-        this.updatePrices();
-        console.log(response.data);
-      } catch (error) {
-        console.log("Error fetching data: ", error);
-      }
-    },
-    // 멤버십 금액 및 남은 금액 업데이트
-    updatePrices() {
-      // leftMoney가 변하면, computed에서 자동으로 갱신됨
-    },
     // 구매하기 버튼 클릭 시 호출되는 메서드
     async purchaseMembership() {
-        let membershipId = 2; // 기본값 (bronze)
-        
-        if (this.selectedMembershipPrice === '100000') {
-          membershipId = 4; // SILVER
-        } else if (this.selectedMembershipPrice === '300000') {
-          membershipId = 6; // GOLD
-        } else {
-          alert('멤버십을 선택해 주세요.');
-          return; // 멤버십이 선택되지 않았을 때 함수 종료
+        let purchaseInfo ={
+          email: sessionStorage.getItem('email'),
+          membership: this.selectedMembership.split('-')[0]
         }
-
-        this.membershipData = {
-          membershipSalesId: null,
-          membershipSalesUserId: this.membershipData.membershipSalesUserId,
-          membershipSalesMembershipId: membershipId,
-          membershipSalesStatus: 'PURCHASE',
-          membershipSalesCreateAt: new Date().toISOString(), // 현재 시간으로 설정
-          membershipSalesUpdateAt: null
-        };
-
-        console.log("Request data:", JSON.stringify(this.membershipData));
-
-        // axios 요청
         try {
-            const response = await axios.post("/membership/purchase/completed", this.membershipData);
-            console.log(response.data);
+            await axios.post("/membership/purchase", purchaseInfo);
+            this.$emit('getMembership', this.selectedMembership.split('-')[0]);
+            this.$emit('getBalance', this.leftMoney);
             alert('멤버십 구매 성공');
             this.$router.push({ path: '/myPage/membership' }); // 마이페이지로 리다이렉트
         } catch (error) {
@@ -256,7 +220,6 @@ flex-direction: column;
 align-items: center;
 justify-content: center;
 width: 100%;
-max-width: 90%; /* 최대 너비를 설정 */
 margin: 0 auto;
 }
 
@@ -266,13 +229,8 @@ margin-bottom: 30px; /* 아래 여백 추가 */
 }
 
 .membership-info-table {
-width: 100%; /* 테이블을 가로 전체에 맞추기 */
-margin: 0 auto; /* 가운데 정렬 */
-padding: auto;
 font-size: 21;
-}
-.membership-info-table {
-width: 100%;
+width: 70%;
 text-align: center;
 margin: auto;
 padding: 0;
@@ -293,30 +251,35 @@ color: rgb(7, 7, 7);
 .membership-info-table td {
 background-color: #eef1ee;
 }
+.membership-purchase-box{
+  width: 70%;
+}
 .membership-selection {
 display: flex;
 margin-top: 0px;
 margin-bottom: 30px;
 gap: 30px;
 text-align: center;
-width: 60%;
+width: 40%;
 margin-left: 0px;
 justify-content: center;
 align-items: center;
 }
 
 .select-form {
-width: 70%;
+width: 20%;
 text-align: center;
 font-size: 16px;
+padding: 10px;
+border-radius: 10px;
 }
 
 .charge {
   border: 1.5px solid #999999;
   padding: 30px;
-  width: 60%; /* 전체 페이지의 50%로 설정 */
+  width: 50%; /* 전체 페이지의 50%로 설정 */
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   align-items: center;
   font-family: Arial, sans-serif;
   border-radius: 15px;
@@ -345,6 +308,9 @@ font-size: 16px;
   justify-content: space-between;
   margin: 5px 0;
   border-radius: 10px;
+}
+.membership-price{
+  margin-right: 20px;
 }
 
 .left-money{

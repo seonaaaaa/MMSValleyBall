@@ -19,6 +19,8 @@ public interface UserRepository extends JpaRepository<Users, Long> {
 
     boolean existsByUserPhone(String userPhone);
 
+    Users findByUserPhone(String userPassword);
+
     Page<Users> findByUserNameContainingOrderByUserIdAsc(@Param("keyword") String keyword, Pageable pageable);
 
     Page<Users> findByUserEmailContainingOrderByUserIdAsc(@Param("keyword") String keyword, Pageable pageable);

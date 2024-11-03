@@ -3,6 +3,7 @@ package com.team.MMSValleyBall.controller;
 import com.team.MMSValleyBall.dto.*;
 import com.team.MMSValleyBall.service.MyPageService;
 import com.team.MMSValleyBall.service.UsersBalanceService;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -11,7 +12,6 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
-@ResponseBody
 @RequestMapping("myPage")
 public class MyPageController {
    private final MyPageService myPageService;
@@ -24,9 +24,17 @@ public class MyPageController {
 
     // 티켓 예매 탭에서 받을 티켓 예매 내역
     @GetMapping("ticket")
-    public ResponseEntity<List<TicketDTO>> userTicket(@RequestParam("email")String email){
-        UserDTO findUser = myPageService.findByEmail(email);
-        return ResponseEntity.ok(findUser.getTickets());
+    public ResponseEntity<?> userTicket(@RequestParam("email")String email){
+        return ResponseEntity.ok(myPageService.getReservationList(email));
+    }
+
+    @PostMapping("/ticket/cancel")
+    public ResponseEntity<String> ticketCancel(@RequestParam("id") Long id){
+       if (myPageService.changeTicketStatusById(id)) {
+            return ResponseEntity.ok("예매가 성공적으로 취소되었습니다.");
+        } else {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("예매 취소에 실패했습니다.");
+        }
     }
 
     // 나의 멤버십 탭에서 받을 사용자 멤버십 정보
@@ -56,9 +64,15 @@ public class MyPageController {
     }
 
     // 사용자 정보 수정 요청처리
-    @PatchMapping("info/modify")
+    @PostMapping("info/modify")
     public ResponseEntity<String> modifyUserInfo(@RequestBody UserDTO userDTO){
         return ResponseEntity.ok(myPageService.modifyUserInfo(userDTO));
+    }
+
+    // 휴대전화 유니크인증
+    @PostMapping("info/phone")
+    public ResponseEntity<Boolean> isPhoneValid(@RequestBody UserDTO userDTO){
+        return ResponseEntity.ok(myPageService.isPhoneValid(userDTO));
     }
 
     // 회원 탈퇴
@@ -67,16 +81,9 @@ public class MyPageController {
         return ResponseEntity.ok(myPageService.deactivateUser(userDTO.getUserId()));
     }
 
-    // 사용자의 충전 잔액
-    @GetMapping("info/recharge")
-    public ResponseEntity<Integer> balance(@RequestParam("email")String email){
-        return ResponseEntity.ok(usersBalanceService.getUsersBalance(email).getLeftMoney());
-    }
-
     // 잔액 충전
     @PostMapping("info/recharge")
-    public ResponseEntity<String> topUp(@RequestBody Map<String, String> data){
-
-        return ResponseEntity.ok(myPageService.topUp(data));
+    public ResponseEntity<String> topUp(@RequestBody Recharge recharge){
+        return ResponseEntity.ok(myPageService.topUp(recharge));
     }
 }

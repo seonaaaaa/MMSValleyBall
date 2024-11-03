@@ -1,62 +1,83 @@
 <template>
   <div id="app">
-    <AppHeader :user="user"/>
-    <!-- 메타 데이터에서 hideContent가 true인 경우 AppContent를 숨김 -->
-    <!-- 경로 없을 때 기본적으로 AppContent 표시 -->
-    <!-- <AppContent v-if="!$route.meta.hideContent && loaded " :user="user"/> -->
-    <router-view :user="user"/>
-    <AppFooter />
+    <AppHeader v-if="showHeaderFooter" @logoutSuccess="handleLogoutSuccess" :isLoggedIn="isLoggedIn"/>
+    <router-view :isLoggedIn="isLoggedIn" :balance="Number(balance)" :membership="membership"
+    @loginSuccess="handleLoginSuccess" @logoutSuccess="handleLogoutSuccess" 
+    @getBalance="updateBalance" @getMembership="updateMembership"/>
+    <AppFooter v-if="showHeaderFooter"/>
   </div>
 </template>
 
 <script>
 import AppHeader from './components/common/Header.vue'
-// import AppContent from './components/common/Content.vue'
 import AppFooter from './components/common/Footer.vue'
+import { computed, onMounted, ref } from 'vue';
+import { useRoute } from 'vue-router';
 
 export default {
   name: 'App',
   components: {
     AppHeader,
-    // AppContent,
     AppFooter
   },
-  data() {
-    return {
-      user: { name: '', role: 'guest', email: '', isLoggedIn: false},
-      loaded: false,
+  setup() {
+    const route = useRoute();
+    const showHeaderFooter = computed(() => route.path !== '/myPage/recharge');
+    let isLoggedIn = ref(false); 
+    let balance = ref(0); 
+    let membership = ref('bronze');
+
+    // 로그인 성공 처리 함수
+    const handleLoginSuccess = () => {
+      isLoggedIn.value = true;
+      sessionStorage.setItem('isLoggedIn', 'true');
     };
-  },
-  async mounted() {
-    await this.checkLogin();
-  },
-  methods: {
-    async checkLogin() {
-      const token = localStorage.getItem('accessToken');
-      if (token!=null) {
-        // 토큰이 있으면 로그인 상태로 설정하고 사용자 역할을 가져옴
-        this.user.isLoggedIn = true;
-        try {
-          const response = await this.$axios.get('/main', {
-            headers: {
-              Authorization: token, // Bearer 접두사 추가
-            },
-          });
-          this.user.role = response.data.role;
-          this.user.name = response.data.name;
-          this.user.email = response.data.email;
-          console.log(this.user);
-        } catch (error) {
-          console.error('사용자 권한을 가져오는 중 오류 발생:', error);
+
+    // 로그아웃 처리 함수
+    const handleLogoutSuccess = () => {
+      isLoggedIn.value = false;
+      balance.value = 0;
+      membership.value = 'bronze';
+      sessionStorage.removeItem('isLoggedIn');
+      sessionStorage.removeItem('balance');
+      sessionStorage.removeItem('membership');
+    };
+
+    const updateBalance = (getBalance) => {
+      balance.value = getBalance;
+      sessionStorage.setItem('balance', String(getBalance));
+    };
+
+    const updateMembership = (getMembership) => {
+      membership.value = getMembership;
+      sessionStorage.setItem('membership', getMembership);
+    };
+
+    onMounted(() => {
+      // 새로고침 시 sessionStorage에 저장된 값을 불러와 설정
+      isLoggedIn.value = sessionStorage.getItem('isLoggedIn') === 'true';
+      balance.value = Number(sessionStorage.getItem('balance')) || 0;
+      membership.value = sessionStorage.getItem('membership') || 'bronze';
+
+      window.addEventListener('message', (event) => {
+        if (event.data.type === 'updateBalance') {
+          balance.value = event.data.balance;
+          sessionStorage.setItem('balance', event.data.balance);
         }
-      } else {
-        // 토큰이 없으면 로그아웃 상태
-        this.user.isLoggedIn= false;
-        this.user.role='guest';
-      }
-      this.loaded = true
-    },
-  },
+      });
+    });
+    
+    return {
+      showHeaderFooter,
+      isLoggedIn,
+      balance,
+      membership,
+      handleLoginSuccess,
+      handleLogoutSuccess,
+      updateBalance,
+      updateMembership
+    };
+  } 
 }
 </script>
 

@@ -18,7 +18,6 @@
 </template>
   
 <script>
-import axios from 'axios';
 import LogoHeader from '../common/LogoHeader.vue';
 import Calendar from '../common/Calendar.vue';
 
@@ -53,7 +52,7 @@ export default {
     async fetchEvents() {
       try {
         // API 엔드포인트 경로 설정
-        const response = await axios.get('http://localhost:4000/game/schedule/total');
+        const response = await this.$axios.get('http://localhost:4000/game/schedule/total');
         // events 배열을 response로 업데이트
         this.events = response.data;
       } catch (error) {

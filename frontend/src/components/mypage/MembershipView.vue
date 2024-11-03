@@ -18,7 +18,7 @@
       <div class="membership-info" v-if="grade !== 'bronze'">
         <div class="membership-detail">
           <p>
-            <strong>이용 중인 멤버십 : </strong> {{ year }} 시즌 {{ grade.toUpperCase()}} 등급
+            <strong>이용 중인 멤버십 : </strong> {{ year }} 시즌 {{ membership.toUpperCase() }}
             <span class="membership-image-container">
               <span v-if="grade === 'gold'">
                 <img :src="goldImage" alt="골드 등급" class="membershipLevel-image" />
@@ -28,8 +28,8 @@
               </span>
             </span>
           </p>
-          <p><strong>회원 이름 : {{ user.name }}</strong> 님</p>
-          <p><strong>결제 금액 : </strong> {{ membershipDetails.membershipPrice }}원</p>
+          <p><strong>회원 이름 : {{ name }}</strong> 님</p>
+          <p><strong>결제 금액 : </strong> {{ new Intl.NumberFormat('ko-KR').format(membershipDetails.membershipPrice) }}원</p>
           <p><strong>결제 상태 : </strong>
             <span v-if="membershipDetails.membershipSalesStatus === 'PURCHASE'">결제 완료</span>
             <span v-else-if="membershipDetails.membershipSalesStatus === 'CONFIRMED'">환불 불가</span>
@@ -38,9 +38,9 @@
           <p><strong>결제 날짜 : </strong> {{ formattedPaymentDate }}</p>
         </div>
         <div class="cancel-button-container">
-          <button 
-            @click="MembershipCancel" 
-            class="cancel-membership-button" 
+          <button
+            @click="MembershipCancel"
+            class="cancel-membership-button"
             :disabled="membershipDetails.membershipSalesStatus === 'CONFIRMED' || membershipDetails.membershipSalesStatus === 'REFUNDED'"
             :class="{ 'disabled-button': membershipDetails.membershipSalesStatus === 'CONFIRMED' || membershipDetails.membershipSalesStatus === 'REFUNDED' }">
             결제 취소
@@ -69,14 +69,15 @@ export default {
   components: {
     LogoHeader,
   },
-  props: {
-    user: {
-      type: Object,
-      default: () => ({ name: '', role: 'guest', email: '', isLoggedIn: false })
-    }
+  props:{
+    membership: {
+      type: String,
+      required: true
+    },
   },
   data() {
     return {
+      name: 'MMS',
       activeMenu: this.$route.path,
       membershipDetails: null,
       goldImage: require('@/assets/img/membershipImg/gold.png'),
@@ -96,10 +97,11 @@ export default {
       if (!this.membershipDetails || !this.membershipDetails.membershipSalesCreateAt) {
         return '';
       }
-      return this.membershipDetails.membershipSalesCreateAt.split('T').join(' ');
+      return this.membershipDetails.membershipSalesCreateAt.split('T').join(' ').split('.')[0];
     }
   },
   mounted() {
+    this.name = sessionStorage.getItem('name');
     this.fetchEvents();
   },
   methods: {
@@ -114,21 +116,19 @@ export default {
       this.$router.push('/membership/purchase');
     },
     async fetchEvents() {
-      console.log('---------------' + this.user.email);
-
       const params = new URLSearchParams();
-      params.append('email', this.user.email);
+      params.append('email', sessionStorage.getItem('email'));
 
       try {
-        const response = await this.$axios.post("/myPage/membership", null, { params: params });
-        
+        const response = await this.$axios.post("/myPage/membership", null, {params: params});
+
         this.membershipDetails = {
           membershipName: response.data.membershipName || '멤버십 이름',
           membershipPrice: response.data.membershipPrice || '멤버십 가격',
           membershipSalesStatus: response.data.membershipSalesStatus || '결제 후 상태',
           membershipSalesCreateAt: response.data.membershipSalesCreateAt || '결제 날짜'
         };
-        
+
         const [year, grade] = this.membershipDetails.membershipName.split('-');
         this.grade = grade;
         this.year = year;
@@ -138,15 +138,12 @@ export default {
     },
     MembershipCancel(){
     const params = new URLSearchParams();
-    params.append('userEmail', this.user.email);
-    console.log('으아아아ㅏ아아ㅏ아아' + this.user.email);
+    params.append('userEmail', sessionStorage.getItem('email'));
 
-    this.$axios.post("/membership/cancel", null, { params: params })
-    .then((response)=>{
-      console.log(response);
+    this.$axios.post("/membership/cancel", null, { params: params})
+    .then(()=>{
       alert('결제가 성공적으로 완료되었습니다.');
       window.location.reload();
-      
     })
   }
 }
@@ -213,6 +210,7 @@ export default {
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
   text-align: left;
   margin-bottom: 50px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 .membership-info-bronze {
@@ -226,6 +224,7 @@ export default {
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
   text-align: center;
   margin-bottom: 50px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 .membership-detail p {

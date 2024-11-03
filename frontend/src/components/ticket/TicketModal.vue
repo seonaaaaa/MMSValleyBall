@@ -24,11 +24,11 @@
 
             <!-- 모달 디테일 -->
             <div v-if="firstPage">
-        <div class="modal-body">
-            <!-- 모달 이미지 -->
-            <div class="modal-ticket-img" v-if="selectedZoneImage">
-                <img :src="selectedZoneImage" alt="선택한 구역 이미지" class="stadium-image" />
-            </div>
+                 <div class="modal-body">
+                <!-- 모달 이미지 -->
+                <div class="modal-ticket-img" v-if="selectedZoneImage">
+                    <img :src="selectedZoneImage" alt="선택한 구역 이미지" class="stadium-image" />
+                </div>
 
             <!-- 모달 표 -->
             <div class="modal-table-container">
@@ -48,7 +48,6 @@
                                     {{ zone.zoneName }}
                                 </button>
                             </td>
-                            <!-- <td></td> -->
                             <td>{{ zone.availableSeatAmount }}석</td>
                         </tr>
 
@@ -385,7 +384,10 @@ export default {
                     params: {
                         email: this.user.email,
                         matchId: this.match.matchId
-                    }
+                    },
+                    headers: {
+                        Authorization: sessionStorage.getItem('token')
+                    } 
                 });
                 this.ticketSalesDto = response.data.ticketSalesDto;
                 this.userBalance = response.data.userBalance;
@@ -417,7 +419,11 @@ export default {
             };
             // axios 요청
             try {
-                const response = await axios.post("/ticket/purchase/completed", this.ticketSalesDto);
+                const response = await axios.post("/ticket/purchase/completed", this.ticketSalesDto,{
+                    headers: {
+                        Authorization: sessionStorage.getItem('token')
+                    } 
+                });
                 console.log(response.data);
                 alert('티켓 구매 성공');
                 this.$router.push({ path: '/myPage/reservations' }); // 마이페이지로 리다이렉트
@@ -494,7 +500,6 @@ export default {
                 alert("좌석을 선택해주세요.");
             }
         },
-
         increaseQuantity(section) {
             // 다른 섹션의 수량 초기화
             this.zoneSelection.sections.forEach(sec => {
@@ -652,8 +657,8 @@ export default {
     position: fixed;
     top: 0;
     left: 0;
-    width: 100%;
-    height: 100%;
+    width: 90%;
+    height: 90%;
     background: rgba(0, 0, 0, 0.5);
     /* 모달 뒤 어두운 배경 */
     display: flex;

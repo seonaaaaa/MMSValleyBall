@@ -47,7 +47,7 @@ public class TicketController {
 
     //티켓 구매 페이지
     @GetMapping("/purchase")
-    public ResponseEntity<?> viewTicketPurchase(@RequestParam("email") String email) {
+    public ResponseEntity<?> viewTicketPurchase() {
         try {
             // 경기 정보 가져오기
             List<MatchTableDTO> matches = matchService.convertMatchToString();
@@ -57,20 +57,17 @@ public class TicketController {
                 return ResponseEntity.status(HttpStatus.NO_CONTENT).body("No matches available");
             }
 
-            // 사용자의 멤버십 정보 가져오기
-            Map<String, Object> userMembership = userService.findMembership(email);
-
-            // response에 보내기
-            Map<String, Object> response = new HashMap<>();
-            response.put("matches", matches);
-            response.put("userMembership", userMembership);
-
-            return ResponseEntity.ok(response); // matches를 JSON으로 반환
+            return ResponseEntity.ok(matches);
         } catch (Exception e) {
             System.err.println("Error fetching matches: " + e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error fetching match data");
         }
     }
+
+//    @GetMapping("/purchase/m")
+//    public ResponseEntity<?> viewTicketPurchase(@RequestParam("email") String email){
+//
+//    }
 
     // 티켓 구매 모달창 하나로 처리
     @GetMapping("/purchase/modal")
