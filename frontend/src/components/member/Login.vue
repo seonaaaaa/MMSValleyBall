@@ -93,7 +93,8 @@
                 this.$emit('loginSuccess');
                 this.$axios.defaults.headers.common["Authorization"] = accessToken;
                 alert("로그인이 되었습니다");
-                this.$router.replace("/");
+                const redirectTo = this.$route.query.from || '/';
+                this.$router.push(redirectTo); // 원래 페이지로 리다이렉트
                 }
             }).catch(() => {
                 alert("로그인 실패!!");

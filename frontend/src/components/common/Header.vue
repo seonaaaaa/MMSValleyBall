@@ -4,7 +4,7 @@
     <div class="auth-links">
       <router-link v-if="!isLoggedIn" to="/login" class="login">LOGIN</router-link>
       <router-link v-if="!isLoggedIn" to="/signup" class="signup">SIGNUP</router-link>
-      <router-link v-if="role == 'ADMIN'&& isLoggedIn" to="/admin/user-list" class="admin">ADMIN HOME</router-link>
+      <router-link v-if="role == 'ADMIN'" to="/admin/user-list" class="admin">ADMIN HOME</router-link>
       <button v-if="isLoggedIn" @click="logout" class="logout">LOGOUT</button>
     </div>
   

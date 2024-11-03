@@ -125,8 +125,6 @@ export default {
       userAddress: '',
       passwordVisible: false,
       confirmPasswordVisible: false,
-      userId: 0,
-      warningMsg: '',
       isPhoneChanged: false,
       isPhoneVerified: true,
       isAddressChanged: false,
@@ -143,10 +141,6 @@ export default {
       return this.changePhone.length>11;
     },
     isChanged() {
-      console.log("===============");
-      console.log("주소"+this.isAddressChanged);
-      console.log("전화"+this.isPhoneChanged);
-      console.log("인증"+this.isPhoneVerified);
       return !((this.isAddressChanged || this.isPhoneChanged) && this.isPhoneVerified);
     },
   },  
@@ -174,7 +168,6 @@ export default {
       }
     },
   },
-
   methods: {
     navigateTo(route) {
       this.$router.push(route);
@@ -255,9 +248,11 @@ export default {
       }
     },
     setInfo(response){
+      console.log(response);
       this.userAddress = response.user.userAddress;
       sessionStorage.setItem('address', response.user.userAddress);
       this.$emit("getBalance", response.balance);
+      this.$emit("getMembership", response.user.userMembershipName.split('-')[1]);
       this.userPhonePart1 = response.user.userPhone.split('-')[0];
       this.userPhonePart2 = response.user.userPhone.split('-')[1];
       this.userPhonePart3 = response.user.userPhone.split('-')[2];

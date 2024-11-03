@@ -247,8 +247,8 @@ export default {
       return  require(`@/assets/img/membershipImg/${this.membership}.png`);
     },
     openRechargeWindow() {
-      const width = 450;
-      const height = 215;
+      const width = 570;
+      const height = 275;
       const left = (window.screen.width / 2) - (width / 2); // 화면 중앙에 위치
       const top = (window.screen.height / 2) - (height / 2);
       window.open(`/myPage/recharge`, '충전하기', 

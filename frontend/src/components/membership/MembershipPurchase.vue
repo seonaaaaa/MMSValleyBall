@@ -58,7 +58,7 @@
               <p>충전금액 : </p>
               <p>{{ new Intl.NumberFormat('ko-KR').format(balance) }} 원</p>
             </div>
-            <button class="btn" id="btn-charge" v-if="leftMoney < 0">충전하기</button>
+            <button class="btn" id="btn-charge" v-if="leftMoney < 0" @click="openRechargeWindow">충전하기</button>
             <div class="membership-price">
               <p>결제금액</p>
               <p>- {{ paymenet }} 원</p>
@@ -75,6 +75,7 @@
       </div>
       <div v-else>
         이미 이용중인 멤버십이 있습니다.
+        <button class="myMembership">나의 멤버십</button>
       </div>
     </div>
   </div>
@@ -135,23 +136,31 @@ export default {
     },
     // 구매하기 버튼 클릭 시 호출되는 메서드
     async purchaseMembership() {
-        let purchaseInfo ={
-          email: sessionStorage.getItem('email'),
-          membership: this.selectedMembership.split('-')[0]
-        }
-        try {
-            await axios.post("/membership/purchase", purchaseInfo);
-            this.$emit('getMembership', this.selectedMembership.split('-')[0]);
-            this.$emit('getBalance', this.leftMoney);
-            alert('멤버십 구매 성공');
-            this.$router.push({ path: '/myPage/membership' }); // 마이페이지로 리다이렉트
-        } catch (error) {
-            const errorMessage = error.response ? error.response.data : error.message;
-            console.error('Error purchasing membership:', errorMessage); // 에러 메시지 로깅
-            alert('멤버십 구매 실패: ' + errorMessage); // 사용자에게 구체적인 에러 메시지 표시
-        }
-
-      },
+      let purchaseInfo ={
+        email: sessionStorage.getItem('email'),
+        membership: this.selectedMembership.split('-')[0]
+      }
+      try {
+          await axios.post("/membership/purchase", purchaseInfo);
+          this.$emit('getMembership', this.selectedMembership.split('-')[0]);
+          this.$emit('getBalance', this.leftMoney);
+          alert('멤버십 구매 성공');
+          this.$router.push({ path: '/myPage/membership' }); // 마이페이지로 리다이렉트
+      } catch (error) {
+          const errorMessage = error.response ? error.response.data : error.message;
+          console.error('Error purchasing membership:', errorMessage); // 에러 메시지 로깅
+          alert('멤버십 구매 실패: ' + errorMessage); // 사용자에게 구체적인 에러 메시지 표시
+      }
+    },
+    openRechargeWindow() {
+      const width = 570;
+      const height = 275;
+      const left = (window.screen.width / 2) - (width / 2); // 화면 중앙에 위치
+      const top = (window.screen.height / 2) - (height / 2);
+      window.open(`/myPage/recharge`, '충전하기', 
+      `width=${width},height=${height},,top=${top},left=${left},
+      toolbar=no,menubar=no,scrollbars=no,resizable=no,fullscreen=no`);
+    },
   }
 };
 </script>
