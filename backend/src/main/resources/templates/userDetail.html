@@ -9,7 +9,7 @@
         .userInfo {
              margin: 40px auto;
              text-align: center;
-             height: 300px;
+             height: 400px;
              width: 70%;
              padding-top: 50px;
              padding-left: 30%;
@@ -51,7 +51,12 @@
         <p><strong>🏐 회원 이름 : </strong><span th:text="${user.userName}">User Details</span></p>
         <p><strong>🏐 Email : </strong> <span th:text="${user.userEmail}">john.doe@example.com</span></p>
         <p><strong>🏐 멤버십 등급 : </strong> <span th:text="${user.userMembershipName}">GOLD</span></p>
+        <p><strong>🏐 주소 : </strong><span th:text="${user.userAddress}">서울</span></p>
+        <p><strong>🏐 연락처 : </strong><span th:text="${user.userPhone}">010</span></p>
+        <p><strong>🏐 생성일자: </strong><span th:text="${user.userCreateAt}">2024</span></p>
+        <p><strong>🏐 수정일자: </strong><span th:text="${user.userUpdateAt}">2024</span></p>
         <p><strong>🏐 계정 상태 : </strong> <span th:text="${user.userStatus}">ACTIVE</span></p>
+
     </div>
     <div class="button-line">
         <form th:action="@{/admin/userDetail/{userId}(userId=${user.userId})}" method="post">

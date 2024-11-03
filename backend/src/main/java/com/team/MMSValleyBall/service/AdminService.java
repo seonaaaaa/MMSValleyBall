@@ -47,7 +47,6 @@ public class AdminService {
         this.membershipRepository = membershipRepository;
     }
 
-
     // 시즌별 총 매출 조회
     public Map<String, Map<String, Integer>> getTotalPaymentAmount() {
         // 시즌 정보 찾기
@@ -130,7 +129,6 @@ public class AdminService {
         return matchPaymentsBySeason;
     }
 
-
     // 월별 매출 조회
     public Map<String, Map<String, Long>> getMonthlyTicketSales() {
         List<Object[]> results = ticketRepository.findMonthlySalesNative();
@@ -199,7 +197,6 @@ public class AdminService {
         return monthlySalesBySeason;
     }
 
-
     private String getMonthName(int month) {
         String[] monthNames = {
                 "1월", "2월", "3월", "4월", "5월", "6월",
@@ -218,27 +215,59 @@ public class AdminService {
         return seasons;
     }
 
-    // 특정 유저  조회
-    public UserDTO findUserById(Long userId) {
-        return userRepository.findById(userId)
-                .map(UserDTO::fromEntity)  // Users 엔티티를 UserDTO로 변환하는 매핑 메서드
-                .orElseThrow(() -> new IllegalArgumentException("해당 유저가 없습니다. userId: " + userId));
-    }
-
-
+    // ============================================================================================
+    //  유저 정보 조회
     // 전체 유저수
     public long countUsersByRole(UserRole userRole) {
         return userRepository.countByUserRole(userRole);
     }
 
+    // 유저 발란스 가져오기
+    public Map<Long, Integer> getAllUsersBalanceMap(List<UserDTO> userDTOS) {
+        Map<Long, Integer> userBalanceMap = new HashMap<>();
 
-    // 유저 검색 / 조회 모든것
+        for (UserDTO user : userDTOS) {
+            // payment 계산 (null 체크 추가)
+            int payment = (user.getPayments() != null)
+                    ? user.getPayments().stream()
+                    .filter(p -> p.getPaymentStatus() != PaymentStatus.REFUNDED)
+                    .mapToInt(PaymentDTO::getPaymentAmount)
+                    .sum()
+                    : 0;
+
+            // membership 계산 (null 체크 추가)
+            int membership = (user.getMembershipSales() != null)
+                    ? user.getMembershipSales().stream()
+                    .mapToInt(membershipSalesDTO -> {
+                        MembershipSales membershipSales = membershipSalesRepository.findById(membershipSalesDTO.getMembershipSalesId())
+                                .orElseThrow(() -> new RuntimeException("MembershipSales not found with id: " + membershipSalesDTO.getMembershipSalesId()));
+                        return membershipSales.getMembershipSalesMembership().getMembershipPrice();
+                    })
+                    .sum()
+                    : 0;
+
+            // ticket 계산 (null 체크 추가)
+            int ticket = (user.getTickets() != null)
+                    ? user.getTickets().stream()
+                    .mapToInt(TicketDTO::getTicketPaidPrice)
+                    .sum()
+                    : 0;
+
+            // leftMoney 계산
+            int leftMoney = payment - membership - ticket;
+            userBalanceMap.put(user.getUserId(), leftMoney);
+        }
+
+        return userBalanceMap;
+    }
+
+    // ============================================================================================
+    //    유저 검색
     public Page<UserDTO> searchUsers(String searchCriteria, String keyword, Pageable pageable) {
         if (searchCriteria == null || keyword == null || keyword.trim().isEmpty()) {
             // 검색 기준이나 키워드가 없을 경우 전체 조회
             return userRepository.findAll(pageable).map(UserDTO::fromEntity);
         }
-
         switch (searchCriteria) {
             case "name":
                 return userRepository.findByUserNameContainingOrderByUserIdAsc(keyword, pageable).map(UserDTO::fromEntity);
@@ -251,6 +280,65 @@ public class AdminService {
         }
     }
 
+    // ============================================================================================
+    //    필터링
+
+    //    시즌 + 상태
+    public Page<UserDTO> findUsersBySeasonAndStatus(String season, UserStatus userStatus, Pageable pageable) {
+        Page<Users> usersPage = userRepository.findByUserMembershipMembershipSeasonSeasonNameAndUserStatus(season, userStatus, pageable);
+        return usersPage.map(UserDTO::fromEntity);
+    }
+
+    // 멤버십 + 상태 필터링
+    public Page<UserDTO> findUsersByMembershipAndStatus(String membership, UserStatus userStatus, Pageable pageable) {
+        Page<Users> usersPage = userRepository.findByUserMembershipMembershipNameContainingIgnoreCaseAndUserStatusOrderByUserIdAsc(membership, userStatus, pageable);
+        return usersPage.map(UserDTO::fromEntity);
+    }
+
+    // 시즌 + 멤버쉽 필터링
+    public Page<UserDTO> findUsersByMembershipAndSeason(String membership, String season, Pageable pageable) {
+        Page<Users> usersPage = userRepository.findByUserMembershipMembershipNameContainingIgnoreCaseAndUserMembershipMembershipSeasonSeasonNameOrderByUserIdAsc(membership, season, pageable);
+        return usersPage.map(UserDTO::fromEntity);
+    }
+
+    // 시즌 + 멤버십 + 상태 필터링
+    public Page<UserDTO> findUsersBySeasonAndStatusAndMembership(String season, UserStatus userStatus, String membership, Pageable pageable) {
+        Page<Users> usersPage = userRepository.findByUserMembershipMembershipSeasonSeasonNameAndUserStatusAndUserMembershipMembershipNameContainingIgnoreCase(
+                season, userStatus, membership, pageable);
+        return usersPage.map(UserDTO::fromEntity);
+    }
+
+    //    전체 보여주기
+    public Page<UserDTO> findAllUsers(Pageable pageable) {
+        return userRepository.findAll(pageable).map(UserDTO::fromEntity);
+    }
+
+    // 시즌 필터링
+    public Page<UserDTO> findUsersBySeason(String season, Pageable pageable) {
+        Page<Users> usersPage = userRepository.findByUserMembership_MembershipSeason_SeasonNameContainingIgnoreCaseOrderByUserIdAsc(season, pageable);
+        return usersPage.map(UserDTO::fromEntity);
+    }
+
+    //    멤버쉽 필터링
+    public Page<UserDTO> findUsersByMembership(String membership, Pageable pageable) {
+        return userRepository.findByUserMembership_MembershipNameContainingIgnoreCaseOrderByUserIdAsc(membership, pageable).map(UserDTO::fromEntity);
+    }
+
+    //    상태 필터링
+    public Page<UserDTO> findUsersByStatus(UserStatus userStatus, Pageable pageable) {
+        Page<Users> usersPage = userRepository.findByUserStatus(userStatus, pageable);
+        return usersPage.map(UserDTO::fromEntity);
+    }
+
+    // ============================================================================================
+    // 상세정보
+    public UserDTO findUserById(Long userId) {
+        return userRepository.findById(userId)
+                .map(UserDTO::fromEntity)  // Users 엔티티를 UserDTO로 변환하는 매핑 메서드
+                .orElseThrow(() -> new IllegalArgumentException("해당 유저가 없습니다. userId: " + userId));
+    }
+
+    // 유저 상태 변경
     public void toggleUserStatus(Long userId) {
         Users user = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("Invalid user ID"));
@@ -263,14 +351,7 @@ public class AdminService {
         userRepository.save(user);
     }
 
-    public Page<UserDTO> findAllUsers(Pageable pageable) {
-        return userRepository.findAll(pageable).map(UserDTO::fromEntity);
-    }
-
-    public Page<UserDTO> findUsersByMembership(String membership, Pageable pageable) {
-        return userRepository.findByUserMembership_MembershipNameContainingIgnoreCaseOrderByUserIdAsc(membership, pageable).map(UserDTO::fromEntity);
-    }
-
+    // ============================================================================================
     // 관리자 추가
     // 이메일 중복 확인[ 완료 ]
     public boolean isEmailDuplicate(String userEmail) {
@@ -300,6 +381,7 @@ public class AdminService {
         userRepository.save(adminUser); // 사용자 저장
     }
 
+    // ============================================================================================
     // 관리자 삭제
     public void deleteAdmin(Long userId) {
         Users user = userRepository.findById(userId)
@@ -310,6 +392,7 @@ public class AdminService {
 
 
 }
+
 
 
 
