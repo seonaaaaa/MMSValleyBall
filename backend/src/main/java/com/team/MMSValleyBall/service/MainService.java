@@ -27,7 +27,6 @@ public class MainService {
         if (userEmail.isEmpty()) {
             return "null";
         }
-
         Boolean isUser = userRepository.existsByUserEmail(userEmail);
         return isUser ? "False" : "True";
     }

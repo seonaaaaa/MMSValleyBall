@@ -2,15 +2,16 @@ package com.team.MMSValleyBall.service;
 
 import com.team.MMSValleyBall.dto.*;
 import com.team.MMSValleyBall.entity.*;
-import com.team.MMSValleyBall.enums.MembershipSalesStatus;
-import com.team.MMSValleyBall.enums.PaymentStatus;
-import com.team.MMSValleyBall.enums.TicketStatus;
+import com.team.MMSValleyBall.enums.*;
 import com.team.MMSValleyBall.repository.*;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,34 +30,23 @@ public class AdminService {
     private final MatchRepository matchRepository;
     private final SeasonRepository seasonRepository;
     private final MembershipSalesRepository membershipSalesRepository;
+    private final BCryptPasswordEncoder bCryptPasswordEncoder;
+    private final EntityManager em;
+    private final MembershipRepository membershipRepository;
 
     @Autowired
-    public AdminService(UserRepository userRepository, PaymentRepository paymentRepository, TicketRepository ticketRepository, MatchRepository matchRepository, SeasonRepository seasonRepository, MembershipSalesRepository membershipSalesRepository) {
+    public AdminService(UserRepository userRepository, PaymentRepository paymentRepository, TicketRepository ticketRepository, MatchRepository matchRepository, SeasonRepository seasonRepository, MembershipSalesRepository membershipSalesRepository, BCryptPasswordEncoder bCryptPasswordEncoder, EntityManager em, MembershipRepository membershipRepository) {
         this.userRepository = userRepository;
         this.paymentRepository = paymentRepository;
         this.ticketRepository = ticketRepository;
         this.matchRepository = matchRepository;
         this.seasonRepository = seasonRepository;
         this.membershipSalesRepository = membershipSalesRepository;
+        this.bCryptPasswordEncoder = bCryptPasswordEncoder;
+        this.em = em;
+        this.membershipRepository = membershipRepository;
     }
 
-    // 유저 전체 조회
-    public Page<Users> findAllUsers(Pageable pageable) {
-        Page<Users> usersList = userRepository.findAll(pageable);
-        return usersList;
-    }
-
-    // 특정 유저  조회
-    public UserDTO findUserById(Long userId) {
-        return userRepository.findById(userId)
-                .map(UserDTO::fromEntity)  // Users 엔티티를 UserDTO로 변환하는 매핑 메서드
-                .orElseThrow(() -> new IllegalArgumentException("해당 유저가 없습니다. userId: " + userId));
-    }
-
-    // 전체 유저 수 계산
-    public long getTotalUserCount() {
-        return userRepository.count();
-    }
 
     // 시즌별 총 매출 조회
     public Map<String, Map<String, Integer>> getTotalPaymentAmount() {
@@ -228,8 +218,98 @@ public class AdminService {
         return seasons;
     }
 
-}
+    // 특정 유저  조회
+    public UserDTO findUserById(Long userId) {
+        return userRepository.findById(userId)
+                .map(UserDTO::fromEntity)  // Users 엔티티를 UserDTO로 변환하는 매핑 메서드
+                .orElseThrow(() -> new IllegalArgumentException("해당 유저가 없습니다. userId: " + userId));
+    }
 
+
+    // 전체 유저수
+    public long countUsersByRole(UserRole userRole) {
+        return userRepository.countByUserRole(userRole);
+    }
+
+
+    // 유저 검색 / 조회 모든것
+    public Page<UserDTO> searchUsers(String searchCriteria, String keyword, Pageable pageable) {
+        if (searchCriteria == null || keyword == null || keyword.trim().isEmpty()) {
+            // 검색 기준이나 키워드가 없을 경우 전체 조회
+            return userRepository.findAll(pageable).map(UserDTO::fromEntity);
+        }
+
+        switch (searchCriteria) {
+            case "name":
+                return userRepository.findByUserNameContainingOrderByUserIdAsc(keyword, pageable).map(UserDTO::fromEntity);
+            case "email":
+                return userRepository.findByUserEmailContainingOrderByUserIdAsc(keyword, pageable).map(UserDTO::fromEntity);
+            case "membership":
+                return userRepository.findByUserMembership_MembershipNameContainingIgnoreCaseOrderByUserIdAsc(keyword, pageable).map(UserDTO::fromEntity);
+            default:
+                return userRepository.findAll(pageable).map(UserDTO::fromEntity);
+        }
+    }
+
+    public void toggleUserStatus(Long userId) {
+        Users user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("Invalid user ID"));
+
+        if (user.getUserStatus() == UserStatus.ACTIVE) {
+            user.setUserStatus(UserStatus.INACTIVE);
+        } else {
+            user.setUserStatus(UserStatus.ACTIVE);
+        }
+        userRepository.save(user);
+    }
+
+    public Page<UserDTO> findAllUsers(Pageable pageable) {
+        return userRepository.findAll(pageable).map(UserDTO::fromEntity);
+    }
+
+    public Page<UserDTO> findUsersByMembership(String membership, Pageable pageable) {
+        return userRepository.findByUserMembership_MembershipNameContainingIgnoreCaseOrderByUserIdAsc(membership, pageable).map(UserDTO::fromEntity);
+    }
+
+    // 관리자 추가
+    // 이메일 중복 확인[ 완료 ]
+    public boolean isEmailDuplicate(String userEmail) {
+        return userRepository.existsByUserEmail(userEmail);
+    }
+
+    public boolean isPhoneDuplicate(String userPhone) {
+        return userRepository.existsByUserPhone(userPhone);
+    }
+
+    // 관리자 생성
+    public void createAdmin(UserDTO adminDTO) {
+        Users adminUser = new Users();
+        adminUser.setUserEmail(adminDTO.getUserEmail());
+        adminUser.setUserPassword(bCryptPasswordEncoder.encode(adminDTO.getUserPassword())); // 비밀번호 암호화
+        adminUser.setUserName(adminDTO.getUserName());
+        adminUser.setUserPhone(adminDTO.getUserPhone());
+        adminUser.setUserAddress(adminDTO.getUserAddress());
+        adminUser.setUserRole(UserRole.ADMIN);
+        adminUser.setUserStatus(UserStatus.ACTIVE);
+        adminUser.setUserCreateAt(LocalDateTime.now());
+
+        // 기본 멤버십 설정
+        Membership defaultMembership = membershipRepository.findByMembershipName("24/25-bronze");
+        adminUser.setUserMembership(defaultMembership);
+
+        userRepository.save(adminUser); // 사용자 저장
+    }
+
+    // 관리자 삭제
+    public void deleteAdmin(Long userId) {
+        Users user = userRepository.findById(userId)
+                .orElseThrow(() -> new EntityNotFoundException("사용자를 찾을 수 없습니다."));
+
+        userRepository.delete(user);
+    }
+
+
+}
 
 
 
