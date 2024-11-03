@@ -128,14 +128,13 @@
   
   /* 스폰서 */
   .sponsor-content {
-    max-width: 800px;
+    max-width: 700px;
     margin: 0 auto;
     padding-top: 35px;
     padding-bottom: 60px;
   }
   
   .sponsor-section {
-      /* margin-bottom: 70px; */
       margin-bottom: 100px;
   }
   
@@ -145,9 +144,9 @@
   }
   
   .sponsor-description h2 {
-      font-size: 24px;
-      color: #333;
-      margin-left: 50px;
+    font-size: 24px;
+    color: #333;
+    margin-left: 50px;
   }
   
   .sponsor-img-container {
@@ -166,7 +165,7 @@
     display: flex;
     justify-content: flex-start;
     flex-wrap: wrap;
-    gap: 40px;
+    gap: 20px;
   }
   
   .sponsor-image {

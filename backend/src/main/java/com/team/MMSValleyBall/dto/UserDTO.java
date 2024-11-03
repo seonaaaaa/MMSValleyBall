@@ -2,6 +2,7 @@ package com.team.MMSValleyBall.dto;
 
 import com.team.MMSValleyBall.entity.*;
 import com.team.MMSValleyBall.enums.UserRole;
+import com.team.MMSValleyBall.enums.UserStatus;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -22,6 +23,7 @@ public class UserDTO {
     private String userAddress;
     private String userMembershipName; // 출력 편의를 위해 멤버십 이름으로 변경
     private UserRole userRole = UserRole.USER;
+    private UserStatus userStatus = UserStatus.ACTIVE;
     private LocalDateTime userCreateAt;
     private LocalDateTime userUpdateAt;
     private List<TicketDTO> tickets;
@@ -39,6 +41,7 @@ public class UserDTO {
                 ", Address='" + userAddress + '\'' +
                 ", Membership=" + userMembershipName +
                 ", Role=" + userRole +
+                ", Status=" + userStatus +
                 ", CreateAt=" + userCreateAt +
                 ", UpdateAt=" + userUpdateAt +
                 ", TicketsCount=" + (tickets != null ? tickets.size() : 0) +
@@ -73,6 +76,7 @@ public class UserDTO {
                 user.getUserAddress(),
                 user.getUserMembership().getMembershipName(),
                 user.getUserRole(),
+                user.getUserStatus(),
                 user.getUserCreateAt(),
                 user.getUserUpdateAt(),
                 ticketDTOList,

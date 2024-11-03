@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
+@ResponseBody
 @RequestMapping("myPage")
 public class MyPageController {
    private final MyPageService myPageService;
@@ -29,9 +30,13 @@ public class MyPageController {
     }
 
     // 나의 멤버십 탭에서 받을 사용자 멤버십 정보
-    @GetMapping("membership")
-    public ResponseEntity<Map<String, Object>> userMembership(@RequestParam("email")String email){
-        return ResponseEntity.ok(myPageService.getUserCurrentMembership(email));
+    @PostMapping("membership")
+    public ResponseEntity<ResponseMembershipInfoDTO> userMembership(@RequestParam("email")String email){
+        System.out.println(email);
+        ResponseMembershipInfoDTO users = myPageService.getUserCurrentMembership(email);
+//        Map<String, Object> users = myPageService.getUserCurrentMembership(email);
+        System.out.println(users);
+        return ResponseEntity.ok(users);
     }
 
     // 나의 정보 탭에서 받을 사용자 정보
@@ -57,9 +62,9 @@ public class MyPageController {
     }
 
     // 회원 탈퇴
-    @DeleteMapping("info/delete")
+    @PatchMapping("info/deactivate")
     public ResponseEntity<String> deleteUser(@RequestBody UserDTO userDTO){
-        return ResponseEntity.ok(myPageService.deleteUserById(userDTO.getUserId()));
+        return ResponseEntity.ok(myPageService.deactivateUser(userDTO.getUserId()));
     }
 
     // 사용자의 충전 잔액

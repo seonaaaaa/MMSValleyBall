@@ -1,19 +1,13 @@
 package com.team.MMSValleyBall.service;
 
-import com.team.MMSValleyBall.dto.MoneyDTO;
 import com.team.MMSValleyBall.dto.UserDTO;
-import com.team.MMSValleyBall.entity.MembershipSales;
-import com.team.MMSValleyBall.entity.Payment;
-import com.team.MMSValleyBall.entity.Ticket;
-import com.team.MMSValleyBall.entity.Users;
-import com.team.MMSValleyBall.enums.MembershipSalesStatus;
-import com.team.MMSValleyBall.enums.PaymentStatus;
-import com.team.MMSValleyBall.enums.TicketStatus;
+import com.team.MMSValleyBall.entity.*;
 import com.team.MMSValleyBall.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.util.ObjectUtils;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 
 @Service
@@ -23,6 +17,11 @@ public class UserService {
     @Autowired
     public UserService(UserRepository userRepository) {
         this.userRepository = userRepository;
+    }
+
+    public UserDTO findByEmail(String email) {
+        Users user = userRepository.findByUserEmail(email);
+        return UserDTO.fromEntity(user);
     }
 
     public UserDTO findOneByUserId(Long id) {
@@ -36,53 +35,25 @@ public class UserService {
         return null;
     }
 
-    public MoneyDTO getUserMoney(Long id) {
-        // Optional 사용 시 값이 있는지 체크
-        Optional<Users> userOptional = userRepository.findById(id);
+    public Map<String, Object> findMembership(String userEmail) {
+        Users user = userRepository.findByUserEmail(userEmail);
+        Membership membership = user.getUserMembership();
 
-        if (userOptional.isEmpty()) {
-            throw new RuntimeException("User not found with id: " + id);
+        //멤버십 id가 4면, membershipType은 24/25-silver, 할인율 10%
+        //멤버십 id가 6이면, membershipType은 24/25-gold, 할인율 30%
+        String membershipType = "24/25 Bronze";
+        int membershipDiscount = 0;
+        if (membership.getMembershipId() == 4) {
+            membershipType = "24/25 Silver";
+            membershipDiscount = 10;
+        } else if (membership.getMembershipId() == 6) {
+            membershipType = "24/25 Gold";
+            membershipDiscount = 30;
         }
 
-        Users user = userOptional.get();
-
-        // 총 충전 금액, 결제 금액 계산하기
-        int payment = 0;
-        int membership = 0;
-        int ticket = 0;
-
-        // Payment 계산
-        for (Payment x : user.getPayments()) {
-            if (x.getPaymentStatus() != PaymentStatus.REFUNDED) {
-                payment += x.getPaymentAmount();
-            }
-        }
-        System.out.println("payment : " + payment);
-
-        // Membership 계산
-        for (MembershipSales x : user.getMembershipSales()) {
-            if (x.getMembershipSalesStatus() != MembershipSalesStatus.REFUNDED) {
-                membership += x.getMembershipSalesMembership().getMembershipPrice();
-            }
-        }
-        System.out.println("membership : " + membership);
-
-        // Ticket 계산
-        for (Ticket x : user.getTickets()) {
-            if (x.getTicketStatus() != TicketStatus.CANCELLED) {
-                ticket += x.getTicketPaidPrice();
-            }
-        }
-        System.out.println("ticket price : " + ticket);
-
-        // MoneyDTO 생성
-        MoneyDTO moneyDTO = new MoneyDTO();
-        moneyDTO.setUserId(user.getUserId());
-        moneyDTO.setPaymentAmount(payment);
-        moneyDTO.setMembershipPrice(membership);
-        moneyDTO.setTicketPaidPrice(ticket);
-        System.out.println("left money : "+moneyDTO.getLeftMoney());
-
-        return moneyDTO;
+        Map<String, Object> result = new HashMap<>();
+        result.put("membershipType", membershipType);
+        result.put("membershipDiscount", membershipDiscount);
+        return result;
     }
 }

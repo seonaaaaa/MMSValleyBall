@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/layoutReal}">
+<head>
+    <!-- 개별 페이지 전용 CSS 파일 -->
+    <link rel="stylesheet" th:href="@{/css/game-insert.css}">
+</head>
+<meta charset="UTF-8">
+<body>
+<div layout:fragment="content" class="content">
+  <section>
+    <div class="game-insert-page">
+      <div class="menu-title">신규 경기 입력</div>
+
+      <!-- 신규 경기 폼 -->
+      <!--   th:action="@{/admin/game/insert}" 삭제   -->
+      <form id="gameInsertForm" class="form-table">
+
+        <!-- 경기 날짜 및 시간 -->
+        <div class="form-row">
+          <label for="matchDate">🏐 경기 날짜</label>
+          <input type="date" id="matchDate" name="matchDate" th:value="${matchDatePart}" required />
+          <input type="time" id="matchTime" name="matchTime" th:value="${matchTimePart}" required />
+        </div>
+
+        <!-- 경기장 선택 -->
+        <div class="form-row">
+          <label for="matchStadium">🏐 경기장</label>
+          <select id="matchStadium" required>
+            <option value="HOME">HOME</option>
+            <option value="AWAY">AWAY</option>
+          </select>
+        </div>
+
+        <!-- 점수 입력 -->
+        <div class="form-row">
+          <label for="matchSetScore">🏐 우리 팀 세트 수</label>
+          <input type="number" id="matchSetScore" required min="0" max="5" value="0"/>
+        </div>
+        <div class="form-row">
+          <label for="matchOpponentTeamSetScore">🏐 상대 팀 세트 수</label>
+          <input type="number" id="matchOpponentTeamSetScore" required min="0" max="5" value="0"/>
+        </div>
+
+        <!-- 시즌 선택 -->
+        <div class="form-row">
+          <label for="seasonId">🏐 시즌</label>
+          <select id="seasonId" required>
+            <option th:each="season : ${seasons}" th:value="${season.seasonId}" th:text="${season.seasonName}">
+            </option>
+          </select>
+        </div>
+
+        <!-- 라운드 선택 -->
+        <div class="form-row">
+          <label for="matchRoundId">🏐 라운드</label>
+          <select id="matchRoundId" required>
+            <option th:each="round : ${rounds}" th:value="${round}" th:text="${round + '라운드'}"></option>
+          </select>
+        </div>
+
+        <!-- 팀 이름 선택 -->
+        <div class="form-row">
+          <label for="teamId">🏐 팀 이름</label>
+          <select id="teamId" required>
+            <option th:each="team : ${teams}" th:value="${team.teamId}" th:text="${team.teamName}"></option>
+          </select>
+        </div>
+
+        <!-- 버튼 -->
+        <div class="button-group">
+          <button type="submit" class="btn-submit">저장</button>
+          <a href="/admin/game"><button type="button" class="btn-back">돌아가기</button></a>
+        </div>
+      </form>
+    </div>
+  </section>
+
+  <script th:inline="javascript">
+    $(document).ready(function() {
+      // 폼 제출 시 데이터 처리
+      $('#gameInsertForm').on('submit', function(event) {
+        event.preventDefault();
+
+        // 날짜와 시간 필드 값 가져오기
+        const matchDate = $('#matchDate').val();
+        const matchTime = $('#matchTime').val();
+
+        // 필요한 데이터 구성
+        const matchData = {
+          matchDate: `${matchDate}T${matchTime}`, // 날짜와 시간을 조합하여 ISO 형식으로 설정
+          matchStadium: $('#matchStadium').val(),
+          matchSetScore: $('#matchSetScore').val(),
+          matchOpponentTeamSetScore: $('#matchOpponentTeamSetScore').val(),
+          seasonId: $('#seasonId').val(),
+          matchRoundId: $('#matchRoundId').val(),
+          teamId: $('#teamId').val()
+        };
+
+        // Ajax 요청
+        $.ajax({
+          url: '/admin/game/insert',
+          type: 'POST',
+          dataType: 'text',  // 서버에서 String 응답을 받기 때문에 text로 설정
+          data: JSON.stringify(matchData),
+          headers: {
+            "Content-Type": "application/json"
+          },
+          success: function(response) {
+            alert(response);  // 서버의 성공 메시지 표시
+            window.location.href = '/admin/game';  // 저장 후 목록 페이지로 이동
+          },
+          error: function(xhr, status, error) {
+            console.error('경기 등록 오류:', error);
+            alert('경기 등록 중 오류가 발생했습니다.');
+          }
+        });
+      });
+    });
+  </script>
+</div>
+
+</body>
+</html>

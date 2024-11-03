@@ -7,7 +7,7 @@
       <div class="menu">
         <div class="menu-item" :class="{ 'active-menu-item': activeMenu === '/mypage/reservations' }" @click="navigateTo('/mypage/reservations')">예매 내역</div>
         <div class="menu-item" :class="{ 'active-menu-item': activeMenu === '/mypage/membership' }" @click="navigateTo('/mypage/membership')">나의 멤버십</div>
-        <div class="menu-item" :class="{ 'active-menu-item': activeMenu === '/mypage/edit-profile' }" @click="navigateTo('/mypage/edit-profile')">개인정보 수정</div>
+        <div class="menu-item" :class="{ 'active-menu-item': activeMenu === '/mypage/edit-profile' }" @click="navigateTo('/mypage/edit-profile')">나의 정보 수정</div>
       </div>
     
       <!-- 회원 탈퇴 페이지 내용 -->
@@ -47,7 +47,7 @@
   }
   </script>
   
-  <style>
+  <style scoped>
   .delete-account-page {
       padding-top: var(--header-height);
       padding-bottom: var(--footer-height);

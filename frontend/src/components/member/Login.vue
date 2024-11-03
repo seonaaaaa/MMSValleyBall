@@ -6,14 +6,14 @@
       <!-- 로그인 폼 -->
       <div class="login-form">
              <h2>로그인</h2>
-             <form @submit.prevent="handleLogin">
+             <form @submit.prevent="login">
                  <div class="form-group">
                      <label for="userEmail">사용자 이메일</label>
-                     <input type="email" id="userEmail" v-model="userEmail" required />
+                     <input type="email" id="userEmail" v-model="userEmail" required placeholder="ex) abc@aaa.com"/>
                  </div>
                  <div class="form-group">
                      <label for="userPassword">비밀번호</label>
-                     <input type="Password" id="userPassword" v-model="userPassword" required />
+                     <input type="Password" id="userPassword" v-model="userPassword" required placeholder="비밀번호를 입력해주세요" />
                  </div>
                  <button type="submit" class="submit-button">로그인</button>
              </form>
@@ -48,19 +48,45 @@
          }
      },
      methods: {
-         handleLogin() {
-             // 로그인 처리 로직을 여기에 추가합니다.
-             console.log('로그인 시도:', this.username, this.password);
-         },
          navigateTo(route) {
              this.$router.push(route);
              this.activeMenu = route; // 메뉴를 클릭할 때 활성화된 메뉴 업데이트
-         }
+         },
+         login() {
+            const user = {
+                email: this.userEmail,
+                password: this.userPassword,
+            };
+            this.$axios({
+                method: "post",
+                url: "/login",
+                data: JSON.stringify(user),
+                headers: {
+                "Content-Type": "application/json",
+                },
+            }).then((response) => {
+                console.log(response);
+                if (response.status === 401) {
+                alert("이메일 혹은 패스워드가 잘못 입력되었습니다.");
+                } else {
+                let accessToken = response.headers.authorization;  // 응답헤더에서 토큰 받기
+                localStorage.setItem("accessToken", accessToken); // 토큰 localStorage에 저장
+                this.$axios.defaults.headers.common[
+                    "Authorization"
+                ] = `Bearer ${accessToken}`;
+                alert("로그인이 되었습니다");
+                this.$router.replace("/");
+                }
+            })
+            .catch(() => {
+                alert("로그인 실패!!");
+                });
+            },
      }
  }
  </script>
  
- <style>
+ <style scoped>
  .login-page {
      padding-top: var(--header-height);
      padding-bottom: var(--footer-height);
@@ -73,7 +99,8 @@
      padding: 20px; 
      background-color: #f9f9f9; 
      border-radius: 10px;
-     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); 
+     border: 2px solid #60a191;
+     box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1); 
  }
  
  .login-form h2 {
