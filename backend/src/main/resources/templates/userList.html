@@ -2,47 +2,47 @@
 <html xmlns:th="www.thymeleaf.org"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       layout:decorate="~{layout/layoutReal}">
-<head>
-    <meta charset="UTF-8">
-    <style>
-        .table {
-           table-layout: fixed; /* 모든 셀의 너비를 동일하게 고정 */
-       }
-    </style>
-</head>
+      <head>
+        <!-- 개별 페이지 전용 CSS 파일 -->
+        <link rel="stylesheet" th:href="@{/css/user-list.css}">
+    </head>
 <body>
 <div layout:fragment="content" class="content">
     <section>
         <div class="tab-menu">
             <a href="userList" class="active">회원 조회</a>
-            <a href="sales" class="active">매출 조회</a>
-            <a href="game" class="active">경기 조회</a>
+            <a href="sales">매출 조회</a>
+            <a href="game">경기 조회</a>
         </div>
 
         <div class="container">
             <div class="table-header">
-
-                <form action="/admin/userList" method="get">
-                    <div class="search-bar">
-                        <span class="filter-icon">🔍</span>
-                        <select name="searchCriteria" id="searchCriteria" class="search-criteria">
-                            <option value="name">이름</option>
-                            <option value="email">이메일</option>
-                            <option value="membership">멤버십</option>
-                        </select>
-                        <input name="keyword" type="text" id="keyword" placeholder="Search...">
-                        <button type="submit" id="searchButton">검색</button>
-                    </div>
-                </form>
-                <a href="createAdmin" class="add-button">+ 신규 관리자</a>
-                <a th:href="@{/admin/deleteAdmin}" type="button" class="delete-button">관리자 삭제</a>
-
+                <div class="left-section">
+                    <form action="/admin/userList" method="get">
+                        <div class="search-bar">
+                            <span class="filter-icon">🔍</span>
+                            <select name="searchCriteria" id="searchCriteria" class="search-criteria">
+                                <option value="name">이름</option>
+                                <option value="email">이메일</option>
+                                <option value="membership">멤버십</option>
+                            </select>
+                            <input name="keyword" type="text" id="keyword" placeholder="Search...">
+                            <button type="submit" id="searchButton">검색</button>
+                        </div>
+                    </form>
+                    <!-- 총 회원 수 표시 -->
+                    <span class="allUsers">총 회원 수 : <b th:text="${totalUsers}"></b>명</span>
+                </div>
+                <div>
+                    <a href="createAdmin"><button class="add-button">+ 신규 관리자</button></a>
+                    <a th:href="@{/admin/deleteAdmin}"><button class="delete-button">관리자 삭제</button></a>
+                </div>
             </div>
 
             <table class="table">
                 <thead>
                 <tr>
-                    <th>#</th>
+                    <th>ID</th>
                     <th>이름</th>
                     <th>이메일</th>
                     <th>
@@ -91,31 +91,32 @@
             </table>
 
             <div class="pagination">
+                <div class="pages">
                 <!-- 이전 페이지 버튼 -->
                 <span th:if="${userPage != null}" th:classappend="${userPage.number <= 0} ? 'disabled'">
                     <a th:href="${userPage.number > 0} ? @{/admin/userList(page=${userPage.number - 1}, size=${userPage.size}, searchCriteria=${searchCriteria}, keyword=${keyword}, membership=${membership})} : '#'">
-                        &laquo; 이전
+                        이전
                     </a>
                 </span>
 
                 <!-- 페이지 번호 링크 -->
                 <span th:if="${userPage != null}" th:each="pageNumber : ${pageBars}">
                     <a class="page-link"
-                       th:href="@{/admin/userList(page=${pageNumber}, size=${userPage.size}, searchCriteria=${searchCriteria}, keyword=${keyword}, membership=${membership})}"
-                       th:text="${pageNumber + 1}">1</a>
+                        th:classappend="${pageNumber == userPage.number} ? 'active'"
+                        th:href="@{/admin/userList(page=${pageNumber}, size=${userPage.size}, searchCriteria=${searchCriteria}, keyword=${keyword}, membership=${membership})}"
+                        th:text="${pageNumber + 1}">1</a>
                 </span>
 
                 <!-- 다음 페이지 버튼 -->
                 <span th:if="${userPage != null}"
-                      th:classappend="${userPage.number + 1 == userPage.totalPages} ? 'disabled'">
+                        th:classappend="${userPage.number + 1 == userPage.totalPages} ? 'disabled'">
                     <a th:href="${userPage.number + 1 < userPage.totalPages} ? @{/admin/userList(page=${userPage.number + 1}, size=${userPage.size}, searchCriteria=${searchCriteria}, keyword=${keyword}, membership=${membership})} : '#'">
-                        다음 &raquo;
+                        다음
                     </a>
                 </span>
+                </div>
             </div>
         </div>
-        <!-- 총 회원 수 표시 -->
-        <span th:text="'총 회원 수 : ' + ${totalUsers} + '명'"></span>
     </section>
 </div>
 

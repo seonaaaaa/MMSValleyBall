@@ -1,0 +1,95 @@
+.game-update-page {
+    padding-top: var(--header-height);
+    padding-bottom: var(--footer-height);
+    margin-bottom: 70px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.form-table {
+    width: 70%;
+       display: flex;
+       flex-direction: column;
+       align-items: flex-start;
+       padding: 100px;
+       border: 2px solid #60a191;
+       border-radius: 10px;
+       background-color: #f9f9f9;
+}
+
+.form-row {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    margin-bottom: 10px;
+}
+
+label {
+    width: 120px;
+    text-align: left;
+    margin-bottom: 10px;
+    margin-right: 50px;
+}
+
+input, select, button {
+  flex: 1;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  margin-bottom: 10px;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+input:disabled {
+  cursor: not-allowed;
+  /* background-color: #f0f0f0; */
+}
+
+.button-group {
+ display: flex;
+   gap: 15px;
+   width: 100%;
+   margin-top: 40px;
+}
+
+.btn-submit, .btn-back {
+    border: none;
+    border-radius: 8px;
+    font-size: 25px;
+    font-weight: bold;
+    padding: 5px 30px; /* 높이를 맞추기 위해 동일한 패딩 설정 */
+    height: 50px; /* 높이를 고정하여 일관성 유지 */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn-submit{
+     color: white;
+     background-color: #60a191;
+     width: 80%;
+    }
+
+.btn-back{
+     color: #555;
+     background-color: #f5f4ce;
+     width: 300px;
+}
+
+.button-group a{
+    text-decoration: none; /* 밑줄 제거 */
+}
+
+.menu-title{
+    font-size: 35px;
+    font-weight: bold;
+    color: #555;
+    margin: 40px
+}
+
+label{
+    width : 230px;
+}
