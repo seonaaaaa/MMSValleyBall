@@ -60,7 +60,7 @@
                       예매하기
                     </button>
                   <!-- 모달 컴포넌트 -->
-                  <Modal v-if="isModalVisible" :visible="isModalVisible" :user="user" :match="selectedMatch" @close="closeModal" />
+                  <Modal v-if="isModalVisible" :visible="isModalVisible" :match="selectedMatch" @close="closeModal" />
                 </td>
               </tr>
             </tbody>
@@ -85,10 +85,7 @@ export default {
     Modal,
   },
   props: {
-    user : {
-      type: Object,
-      default: () => ({ name: '', role: 'guest', email: '', isLoggedIn: false})
-    },
+    
   },
   async mounted(){
     this.fetchEvents();
@@ -125,15 +122,8 @@ export default {
     // 매치 데이터를 가져오는 메서드
     async fetchEvents() {
       try {
-        const response = await axios.get('/ticket/purchase', {
-          params: {
-            "email": this.user.email
-          }
-        });
-        console.log(response.data);
-        // matches가 배열인지 확인하고 할당
-        this.matches = Array.isArray(response.data.matches) ? response.data.matches : [];
-        this.userMembership = response.data.userMembership;
+        this.matches = (await axios.get('/ticket/purchase')).data;
+        console.log(this.matches);
         console.log("Matches fetched: ", this.matches);
       } catch (error) {
         console.log("Error fetching matches:", error);
@@ -225,6 +215,9 @@ export default {
       this.selectedMatch= null;
     },
     handleButtonClick(match) {
+      if(sessionStorage.getItem('token')!=null){
+        this.$router.push('/login');
+      }
       const today = new Date();
       const matchDate = new Date(match.matchDate);
       const preBookStartDate = new Date(match.matchDate);
@@ -233,14 +226,14 @@ export default {
       const generalBookStartDate = new Date(match.matchDate);
       generalBookStartDate.setDate(generalBookStartDate.getDate() - 5);
       generalBookStartDate.setHours(11, 0, 0, 0);
-      const userMembership = this.user.role; // 유저의 멤버십 정보
+      const userMembership = sessionStorage.getItem('membership')
 
       if (generalBookStartDate <= today && today < matchDate) {
         // 오늘 날짜가 일반 예매 시작일과 경기일 사이
         this.openModal(match);
       } else if ( preBookStartDate < today && today < generalBookStartDate) {
         // 오늘 날짜가 일반 예매 시작일과 경기일 사이
-        if (userMembership && userMembership.endsWith('Bronze')) {
+        if (userMembership == 'bronze') {
           this.openModal(match);
         } else {
           alert('브론즈 회원님은 선예매가 불가능합니다.');
@@ -256,7 +249,6 @@ export default {
 </script>
 
 <style scoped>
-/* ticket-purchase-page 중앙 정렬 설정 */
 .ticket-purchase-page-detail {
   display: flex;
   flex-direction: column;

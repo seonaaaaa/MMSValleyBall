@@ -1,46 +1,37 @@
 <template>
   <div class="content">
     <!-- 유저 정보 박스 -->
-     <div class="control-box">
+    <div class="control-box">
       <div class="user-info-box">
-      <div v-if="isLoggedIn">
-        <div v-if="role == 'USER'"> 
-          <span class="membership-image-container">
-        <span v-if="membershipLevel == 'GOLD'">
-          <img :src="goldImage" alt="골드 등급" class="membershipLevel-image" />
-        </span>
-         <span v-else-if="membershipLevel == 'SILVER'">
-           <img :src="silverImage" alt="실버 등급" class="membershipLevel-image" />
-        </span>
-        <span v-else>
-          <img :src="bronzeImage" alt="브론즈 등급" class="membershipLevel-image" />
-        </span>
-        <p><strong>{{ name }}</strong> 님</p>
-        </span>
-
-        <div class="money-box">
-          <p>잔액: <strong>{{ balance }}</strong>원</p><button class="btn-charge" @click="openRechargeWindow">충전</button>
+        <div v-if="isLoggedIn">
+          <!-- 관리자 -->
+          <div v-if="role == 'ADMIN'" class="admin"> 
+            <div class="image-container">
+              <img class="admin-icon" :src="require('@/assets/img/membershipImg/silver.png')" alt="관리자 아이콘" />
+              <h2 class="admin-header">관리자<span class="admin-name"> {{ name }} </span> 님</h2>
+            </div>
+            <button class="btn-AdminPage" @click="goToAdminPage">관리자 모드</button><br>
+            <button class="btn-logout2" @click="logout">로그아웃</button>
+          </div>
+          <!-- 사용자 -->
+          <div v-if="role == 'USER'"> 
+            <span class="image-container">
+              <img class="membershipLevel-image" :src="membershipImage()" alt="멤버십 등급 이미지" />
+              <p><strong>{{ name }}</strong> 님</p>
+            </span>
+            <div class="money-box">
+              <p>잔액: <strong>{{ new Intl.NumberFormat('ko-KR').format(balance) }}</strong>원</p><button class="btn-charge-main" @click="openRechargeWindow">충전하기</button>
+            </div>
+            <button class="btn-myPage" @click="goToMyPage">My Page</button>&nbsp;<button class="btn-logout" @click="logout">로그아웃</button>
+          </div>
         </div>
-          <button class="btn-myPage" @click="goToMyPage">My Page</button>&nbsp;<button class="btn-logout" @click="logout">로그아웃</button>
+        <div v-if="!isLoggedIn" class="login-signup-box">
+          <h2 class="welcome">WELCOME MMS</h2>
+          <button @click="goToLogin" class="btn-login">로그인</button><br>
+          <button @click="goToSignup" class="btn-signup">회원가입</button>
         </div>
-
-
-        <div v-else> 
-          <p class="Admin-notice">****관리자 모드입니다****</p>
-          <p><strong>{{ name }}</strong> 님</p>
-          <button class="btn-AdminPage" @click="goToAdminPage">ADMIN Page</button><br>
-          <button class="btn-logout2" @click="logout">로그아웃</button>
-        </div>
-        </div>
-      
-      <div v-if="!isLoggedIn">
-        <button @click="goToLogin" class="btn-login">로그인</button><br>
-        <button @click="goToSignup" class="btn-signup">회원가입</button>
-      </div>
       </div>
     </div>
-  
-
     <!-- 본문 내용 -->
     <div class="main-content">
       <!-- 상단 슬라이드 배너 -->
@@ -107,7 +98,7 @@
 
 <script>
 import axios from 'axios';
-import CalendarMain from '../common/CalendarMain.vue';
+import CalendarMain from '../common/Calendar.vue';
 
 export default {
   name: 'AppContent',
@@ -115,7 +106,18 @@ export default {
     CalendarMain,
   },
   props:{
-    isLoggedIn: Boolean,
+    isLoggedIn: {
+      type: Boolean,
+      required: true
+    },
+    balance: {
+      type: Number,
+      required: true
+    },
+    membership: {
+      type: String,
+      required: true
+    },
   },
   async mounted(){
     const token = sessionStorage.getItem('token');
@@ -126,14 +128,10 @@ export default {
         const userData = await axios.post('/main', null, {
           params: {
               email: sessionStorage.getItem('email')
-          },
-          headers: {
-              "Content-Type": "application/json",
-              Authorization: token
           }
         })
-        this.balance = userData.data.balance;
-        this.membershipLevel = userData.data.membership;
+        this.$emit("getBalance", userData.data.balance);
+        this.$emit("getMembership", userData.data.membership);
       }catch(error){
         console.error("email: " + sessionStorage.getItem('email'), error);
       }
@@ -144,15 +142,6 @@ export default {
     return {
       role: 'guest',
       name: null,
-      balance: 0,
-      membershipLevel: 'GOLD',
-      // 골드 등급 이미지 경로
-      goldImage: require('@/assets/img/membershipImg/gold.png'),
-      // 실버 등급 이미지 경로
-      silverImage: require('@/assets/img/membershipImg/silver.png'),
-      // 브론즈 등급 이미지 경로
-      bronzeImage: require('@/assets/img/membershipImg/bronze.png'),
-
       // 상단 슬라이드 배너
       currentSlide: 0, // 현재 보여지는 슬라이드의 인덱스
       slides: [
@@ -197,8 +186,8 @@ export default {
       sessionStorage.removeItem('role');
       const token = sessionStorage.getItem('token'); 
       if (token === null) {
-      this.$emit('logoutFromContent', false);
         console.log('토큰이 성공적으로 삭제되었습니다.');
+        this.$emit('logoutSuccess');
         alert("로그아웃이 되었습니다.");
       } else {
         console.log('Content에서 토큰 삭제에 실패했습니다.', token);
@@ -248,19 +237,24 @@ export default {
     },
     async fetchEvents() {
       try {
-        const response = await axios.get('/game/schedule/main',{
-          headers: {
-            Authorization: sessionStorage.getItem('token')
-          }
-        });
+        const response = await axios.get('/game/schedule/main');
         this.events = response.data; 
       } catch (error) {
         console.error("Error fetching events:", error);
       }
     },
+    membershipImage(){
+      return  require(`@/assets/img/membershipImg/${this.membership}.png`);
+    },
     openRechargeWindow() {
-      window.open('/myPage/recharge', '충전하기', 'width=350,height=180,toolbar=no,menubar=no,scrollbars=no,resizable=no');
-    }
+      const width = 450;
+      const height = 215;
+      const left = (window.screen.width / 2) - (width / 2); // 화면 중앙에 위치
+      const top = (window.screen.height / 2) - (height / 2);
+      window.open(`/myPage/recharge`, '충전하기', 
+      `width=${width},height=${height},,top=${top},left=${left},
+      toolbar=no,menubar=no,scrollbars=no,resizable=no,fullscreen=no`);
+    },
   },
 };
 </script>
@@ -285,15 +279,15 @@ a {
 /* 유저 정보 박스 */
 .user-info-box {
   position: fixed;
-  top: 595px;
-  right: 22px;
-  background-color: #f8f9fa;
+  top: 200px;
+  right: 50px;
+  background-color: #e6ebe5dc;
   width: 300px;
-  height: 300px;
+  height: 250px;
   padding: 0px 15px;
-  border: 2px solid #60a191;
+  border: 2px solid #bfccbdde;
   border-radius: 20px;
-  text-align: right;
+  text-align: center;
   box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
   display: flex;
   flex-direction: column;
@@ -302,7 +296,7 @@ a {
 }
 
 .btn-myPage, .btn-logout {
-  background-color: #60a191;
+  background-color: #60a191a3;
   color: white;
   border: none;
   padding: 10px;
@@ -310,6 +304,9 @@ a {
   border-radius: 5px;
   cursor: pointer;
   width: 48%;
+}
+.btn-myPage{
+  margin-right: 5px;
 }
 
 .user-info-box button:hover {
@@ -327,76 +324,85 @@ a {
 /* 금액충전 창 */
 .money-box {
   margin-top: 15px;
-  margin-left: 10px;
   display: flex;
   align-items: center; /* 수직 정렬 */
+  justify-content: center;
   gap: 1px; /* 간격 조정 */
-  width: 250px;
-  height: 80px;
+  width: 99%;
+  height: 70px;
   border: solid color(srgb rgb(68, 68, 68) green blue);
   border-radius: 8px;
-  background: #c7dfd9;
+  background-color: #d2e5d0de;
   text-align: left;
 }
 
 .money-box p {
-  margin-left: 15px; /* 기본 여백 제거 */
+  margin-left: 15px;
+  font-size: large;
 }
 
-.btn-charge {
-  margin-left: 25px; /* 오른쪽으로 버튼 밀기 */
+.btn-charge-main {
   width: 80px;
-  background-color: #f0efc3;
-  border: solid color(srgb rgb(224, 224, 224) green blue);
+  height: 45px;
+  background-color: #adcf69d2;
+  border: none;
+  color: white;
+  border-radius: 10px;
+}
+.btn-charge-main:hover{
+  background-color: #92c06c;
 }
 
 /* 멤버십 로고 */
-.membership-image-container {
+.image-container {
   display: flex;
   align-items: center; /* 이미지와 텍스트를 수직 중앙 정렬 */
   gap: 2px; /* 이미지와 텍스트 간격 조절 */
+  font-size: larger;
 }
 
 .membershipLevel-image {
   width: 50px;
-  /* 아이콘 크기 */
   height: 50px;
-  /* 아이콘 크기 */
+  margin-left: 40px;
+}
+.welcome{
+  color: #3c6259;
+}
+.btn-login, .btn-signup,
+.btn-logout2,.btn-AdminPage{
+  background-color: #60a191a3;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  width: 90%;
+  height: 60px;
+  margin-bottom: 10px;
+  font-size: large;
+  margin-top: 10px;
+}
+.admin-header{
+  font-size: large;
+  color: #3c6259;
   margin-left: 10px;
 }
-
-/* 로그아웃시 버튼 */
-.btn-login, .btn-signup{
-  background-color: #60a191;
-  color: white;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  width: 100%;
+.admin-icon {
+  width: 50px;
   height: 50px;
-  margin-top: 25px;
+  margin-left: 25px;
 }
-
-/* 관리자 박스 */
-.btn-AdminPage, .btn-logout2{
-  background-color: #60a191;
-  color: white;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  width: 100%;
-  height: 45px;
-  margin-top: 20px;
+.admin-name{
+  margin-left: 10px;
+  font-size: larger;
+  color: #223631;
 }
 
 .Admin-notice{
   color: #504f4f;
   font-size: 18px;
   text-align: center;
-  padding-bottom: 20px;
 }
-
-
 /* 상단 슬라이드 배너 */
 .slider-container {
   position: relative;

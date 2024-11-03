@@ -60,7 +60,7 @@
                     <table class="ticket-detail-table">
                       <thead>
                         <tr>
-                          <th colspan="2">티켓 상세보기</th>
+                          <th colspan="2">티켓 상세 내역</th>
                         </tr>
                       </thead>
                       <tbody>
@@ -181,7 +181,9 @@
               email: email,
             }
           });
-          this.reservations = list.data;
+          if(list.data.length!=0){
+            this.reservations = list.data;
+          }
         } catch (error) {
           console.log("티켓 리스트 불러오기 실패", error);
         }
@@ -211,7 +213,7 @@
         }
       },
       formattedDate(date) {
-        return `${date.split("T")[0]} ${date.split("T")[1]}`;
+        return date.split("T").join(" ").split(".")[0]
       },
       printDay(date){
         return date.split("T")[0];
@@ -296,6 +298,7 @@
   .no-reservations {
     font-size: 18px;
     color: #999;
+    margin-bottom: 50px;
   }
 
   .reservation-table-wrapper {
@@ -315,22 +318,24 @@
     margin: 0 auto;
     overflow: hidden;
     border-radius: 8px; /* 테두리를 둥글게 */
+    border: 2px solid #75a196ac;
   }
 
   .reservation-table th, .reservation-table td {
     padding: 15px 20px;
     text-align: center;
-    font-size: 16px;
-    border-left: 1px solid #e0e0e0;
+    font-size: 17px;
+    border-left: 1px solid #eee;
   }
 
   .reservation-table th {
-    background-color: #f1f1f1;
+    background-color: #d2e5d07e;
     color: #333;
     font-weight: bold;
     text-transform: uppercase;
     letter-spacing: 1px;
-    border-bottom: 2px solid #ddd;
+    border-bottom: 2px solid #4f85796a;
+    border-left: 2px solid #4f85796a;
   }
 
   .reservation-table tr {
@@ -338,7 +343,7 @@
   }
 
   .reservation-table tr:nth-child(even) {
-    background-color: #fafafa; /* 짝수 행에 다른 배경색을 추가 */
+    background-color: #f9f9f9; /* 짝수 행에 다른 배경색을 추가 */
   }
 
   .reservation-table td {
@@ -369,6 +374,7 @@
     padding: 10px 20px;
     cursor: pointer;
     transition: background-color 0.3s ease;
+    border-radius: 5px;
   }
 
   .cancel-button:hover {
@@ -376,16 +382,21 @@
   }
 
   .status-confirmed {
-    color: #5cb85c; /* 붉은 색으로 강조 (Bootstrap의 danger 색상) */
+    color: #5cb85c;
+    background-color: #5cb85c23;
     font-weight: bold;
     font-size: large;
+    padding: 8px 8px;
+    border-radius: 20px;
   }
 
   .status-cancelled {
-    color: #d9534f; /* 녹색으로 표시 (Bootstrap의 success 색상) */
+    color: #d9534f;
+    background-color: #d9534f23;
     font-weight: bold;
     font-size: large;
-
+    padding: 0px 8px;
+    border-radius: 13px;
   }
 
   .ticket-detail-wrapper {
@@ -410,7 +421,7 @@
   }
 
   .ticket-detail-table th {
-    background-color: #f7f7f7;
+    background-color: #d8e6d6;
     color: #333;
     font-weight: bold;
     font-size: 20px; 
@@ -436,7 +447,7 @@
 
   .payment-label {
     float: right;
-    color:#a82823;
+    color:#a82723b4;
     font-size: 18px; 
   }
 
@@ -449,7 +460,7 @@
   
   .line-through {
     text-decoration: line-through;
-    color: rgb(235, 170, 170);
+    color: rgba(255, 70, 70, 0.548);
   }
 
   .stadium-image {
@@ -471,10 +482,10 @@
   }
 
   .pagination-controls button {
-    background-color: #007bff;
+    background-color: #60a19197;
     color: white;
     border: none;
-    border-radius: 5px;
+    border-radius: 10px;
     padding: 10px 15px;
     cursor: pointer;
     font-weight: bold;
@@ -487,7 +498,7 @@
   }
 
   .pagination-controls button:hover:not(:disabled) {
-    background-color: #0056b3;
+    background-color: #4f8578;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
   }
 

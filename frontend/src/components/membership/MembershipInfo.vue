@@ -177,7 +177,7 @@
 }
 
 .membership-info-table {
-  width: 100%;
+  width: 75%;
   text-align: center;
   margin: auto;
   padding: 0;

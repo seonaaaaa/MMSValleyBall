@@ -14,15 +14,15 @@
     <div class="profile-container">
       <div class="profile-header">
         <div class="profile-picture">
-          <img :src="membershipImage(userMembership)" alt="멤버십 등급 이미지" />
+          <img :src="membershipImage()" alt="멤버십 등급 이미지" />
         </div>
         <div>
           <span class="header-name"><strong>{{ userName }}</strong> 님</span>
         </div>
         <div class="balance-info">
-          <span class="header-balance">잔액 : <strong>{{ balance }}</strong>원</span>
+          <span class="header-balance">잔액 : <strong>{{ new Intl.NumberFormat('ko-KR').format(balance) }}</strong>원</span>
+          <button class="recharge-button" @click="openRechargeWindow">충전하기</button>
         </div>
-        <button class="recharge-button" @click="openRechargeWindow">충전하기</button>
       </div>
 
       <div class="profile-form">
@@ -40,16 +40,30 @@
         <div class="form-row">
           <div class="form-group">
             <label for="userPassword">비밀번호</label>
-            <input type="text" id="userPassword" v-model="userPassword" />
+            <input :type="passwordVisible ? 'text' : 'password'" id="userPassword" v-model="userPassword"/>
+            <font-awesome-icon
+              :icon="passwordVisible ? ['fas', 'eye-slash'] : ['fas', 'eye']"
+              @click="togglePasswordVisibility"
+              class="toggle-icon"/>
           </div>
           <div class="form-group">
             <label for="confirmPassword">비밀번호 확인</label>
-            <input type="text" id="confirmPassword" v-model="confirmPassword" />
+            <input type="password" id="confirmPassword" v-model="confirmPassword" />
+            <font-awesome-icon
+              :icon="confirmPasswordVisible ? ['fas', 'eye-slash'] : ['fas', 'eye']"
+              @click="toggleConfirmPasswordVisibility"
+              class="toggle-icon"/>
           </div>
         </div>
+        <div class="btn-box">
+          <label for="btn-password-change" class="notMatch" v-if="!isPasswordMatched">비밀번호가 일치하지 않습니다.</label>
+          <button class="btn-password-change" :class="{ disabled: !userPassword || !isPasswordMatched}"
+          :disabled="!isPasswordMatched || !userPassword" @click="updatePassword">비밀번호 변경하기</button>
+        </div>
+        <hr style="border: 1px solid #60a19175; width: 100%;">
         <div class="form-row" id="userPhone">
           <label for="userPhone">전화번호</label>
-          <div class="form-group">
+          <div class="form-group" id="phone">
             <select id="userPhone1" v-model="userPhonePart1">
               <option value="010">010</option>
               <option value="011">011</option>
@@ -58,21 +72,23 @@
             </select>
           </div><strong>-</strong>
           <div class="form-group">
-            <input type="number" id="userPhone2" v-model="userPhonePart2" />
+            <input type="tel" id="userPhone2" v-model="userPhonePart2" maxlength="4" pattern="[0-9]{3,4}"/>
           </div><strong>-</strong>
           <div class="form-group">
-            <input type="number" id="userPhone3" v-model="userPhonePart3" />
+            <input type="tel" id="userPhone3" v-model="userPhonePart3" maxlength="4" pattern="[0-9]{4}"/>
           </div>
+          <button v-if="isPhoneChanged && !isPhoneVerified" class="btn-phone-check" :class="{ disabled: !isValid}"
+          :disabled="!isValid" @click="verifyPhone">인증하기</button>
+          <span v-if="isPhoneVerified || !isPhoneChanged" class="phoneChecked">인증완료</span>
         </div>
-        <div class="form-row" id="address">
+        <div class="form-row">
           <label for="address">주소</label>
           <div class="form-group">
             <input type="text" id="address" v-model="userAddress" @click="findAddress" readonly/>
           </div>
         </div>
-        <button class="edit-profile-button">
-          <i class="fas fa-pen"></i> 정보 수정하기
-        </button>
+        <button class="edit-profile-button" :class="{ disabled:isChanged}" :disabled="isChanged"
+        @click="updateProfile">정보 수정하기</button>
       </div>
     </div>
   </div>
@@ -87,55 +103,150 @@ export default {
     LogoHeader
   },
   props:{
-    balance : Number,
+    balance: {
+      type: Number,
+      required: true
+    },
+    membership: {
+      type: String,
+      required: true
+    },
   },
   data() {
     return {
       activeMenu: this.$route.path, // 현재 활성화된 경로
-      userName: '홍길동',
-      userEmail: 'hong@example.com',
+      userName: '',
+      userEmail: '',
       userPassword: '',
       confirmPassword: '',
       userPhonePart1: '010',
       userPhonePart2: '',
       userPhonePart3: '',
       userAddress: '',
-      userMembership: 'bronze',
       passwordVisible: false,
+      confirmPasswordVisible: false,
       userId: 0,
+      warningMsg: '',
+      isPhoneChanged: false,
+      isPhoneVerified: true,
+      isAddressChanged: false,
     };
   },
+  computed: {
+    isPasswordMatched() {
+      return this.userPassword === this.confirmPassword;
+    },
+    changePhone(){
+      return `${this.userPhonePart1}-${this.userPhonePart2}-${this.userPhonePart3}`;
+    },
+    isValid(){
+      return this.changePhone.length>11;
+    },
+    isChanged() {
+      console.log("===============");
+      console.log("주소"+this.isAddressChanged);
+      console.log("전화"+this.isPhoneChanged);
+      console.log("인증"+this.isPhoneVerified);
+      return !((this.isAddressChanged || this.isPhoneChanged) && this.isPhoneVerified);
+    },
+  },  
   watch: {
     // 경로가 변경될 때마다 activeMenu를 업데이트
     $route(to) {
       this.activeMenu = to.path;
-    }
+    },
+    changePhone(newPhone) {
+      const storedPhone = sessionStorage.getItem('phone');
+      if (storedPhone !== newPhone) {
+        this.isPhoneChanged = true;
+        this.isPhoneVerified = false; // 전화번호가 변경되었으므로 인증을 무효화
+      } else {
+        this.isPhoneChanged = false;
+        this.isPhoneVerified =true;
+      }
+    },
+    userAddress(newAddress) {
+    const storedAddress = sessionStorage.getItem('address');
+      if (storedAddress !== newAddress) {
+        this.isAddressChanged = true;
+      } else {
+        this.isAddressChanged = false;
+      }
+    },
   },
+
   methods: {
     navigateTo(route) {
       this.$router.push(route);
       this.activeMenu = route; // 메뉴를 클릭할 때 활성화된 메뉴 업데이트
     },
-    updateProfile() {
-      // 개인정보 업데이트 로직 추가 (예: API 호출)
-      if (this.userPassword !== this.confirmPassword) {
-        alert('비밀번호와 비밀번호 확인이 일치하지 않습니다.');
-        return;
+    onPhoneChange() {
+      this.isPhoneVerified = false;
+    },
+    verifyPhone(){
+      const changePhone = `${this.userPhonePart1}-${this.userPhonePart2}-${this.userPhonePart3}`;
+      this.$axios.post(`/myPage/info/phone`, {
+            userEmail: sessionStorage.getItem('email'),
+            userPhone: changePhone
+        }).then((response) => {
+          this.isPhoneVerified = response.data;
+          if(response.data){
+            alert('인증되었습니다.')
+          }else{
+            alert('이미 존재하는 번호입니다.')
+          }
+        }).catch((error) => {
+          console.error('전화번호 인증 중 오류 발생:', error);
+        });
+    },
+    updatePassword() {
+      if(window.confirm("비밀번호를 변경하시겠습니까?")){
+        this.$axios.post(`/myPage/info/modify`, {
+            userEmail: sessionStorage.getItem('email'),
+            userPassword: this.userPassword
+        }).then((response) => {
+          alert(response.data);
+        }).catch((error) => {
+          console.error('비밀번호 변경 중 오류 발생:', error);
+        });
       }
-      const userPhone = `${this.userPhonePart1}-${this.userPhonePart2}-${this.userPhonePart3}`;
-      console.log('전화번호:', userPhone);
-      alert('개인정보가 업데이트되었습니다.');
+    },
+    updateProfile() {
+      if(window.confirm("변경하시겠습니까?")){
+        this.$axios.post(`/myPage/info/modify`, {
+            userEmail: sessionStorage.getItem('email'),
+            userPhone: this.changePhone,
+            userAddress: this.userAddress
+        }).then((response) => {
+          sessionStorage.setItem('address',this.userAddress);
+          sessionStorage.setItem('phone',this.changePhone);
+          alert(response.data);
+        }).catch((error) => {
+          console.error('사용자 정보 업데이트 중 오류 발생:', error);
+        });
+      }
+    },
+    togglePasswordVisibility() {
+      this.passwordVisible = !this.passwordVisible;
+    },
+    toggleConfirmPasswordVisibility(){
+      this.confirmPasswordVisible = !this.confirmPasswordVisible;
     },
     findAddress() {
       new window.daum.Postcode({
         oncomplete: (data) => {
-          // 팝업에서 검색결과 선택 시 호출되는 콜백 함수
           this.userAddress = data.address;
         }
       }).open();
     },
     openRechargeWindow() {
-      window.open(`/myPage/recharge?balance=${this.balance}`, '충전하기', 'width=500,height=250,toolbar=no,menubar=no,scrollbars=no,resizable=no');
+      const width = 570;
+      const height = 275;
+      const left = (window.screen.width / 2) - (width / 2); // 화면 중앙에 위치
+      const top = (window.screen.height / 2) - (height / 2);
+      window.open(`/myPage/recharge`, '충전하기', 
+      `width=${width},height=${height},,top=${top},left=${left},
+      toolbar=no,menubar=no,scrollbars=no,resizable=no,fullscreen=no`);
     },
     withdrawMembership() {
       // 회원 탈퇴 로직 추가 (예: 확인 창 후 API 호출)
@@ -144,23 +255,18 @@ export default {
       }
     },
     setInfo(response){
-      this.userName = response.user.userName;
-      this.userEmail = response.user.userEmail;
       this.userAddress = response.user.userAddress;
-      this.$emit("userbalance", response.balance);
+      sessionStorage.setItem('address', response.user.userAddress);
+      this.$emit("getBalance", response.balance);
       this.userPhonePart1 = response.user.userPhone.split('-')[0];
       this.userPhonePart2 = response.user.userPhone.split('-')[1];
       this.userPhonePart3 = response.user.userPhone.split('-')[2];
-      this.userMembership = response.user.userMembership.split('-')[1];
-      this.userId = response.user.userId;
+      sessionStorage.setItem('phone', response.user.userPhone);
     },
     getUserInfo(){
       this.$axios.get(`/myPage/info`, {
         params: {
           email: sessionStorage.getItem('email')
-        },
-        headers: {
-          Authorization : sessionStorage.getItem('token')
         }
       }).then((response) => {
         this.setInfo(response.data);
@@ -168,11 +274,13 @@ export default {
         console.error('사용자 정보를 가져오는 중 오류 발생:', error);
       });
     },
-    membershipImage(userMembership){
-      return  require(`@/assets/img/membershipImg/${userMembership}.png`);
+    membershipImage(){
+      return  require(`@/assets/img/membershipImg/${this.membership}.png`);
     }
   },
   mounted() {
+    this.userEmail = sessionStorage.getItem('email');
+    this.userName = sessionStorage.getItem('name');
     // 카카오 주소 API 스크립트 로드
     const script = document.createElement('script');
     script.src = 'https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js';
@@ -233,23 +341,24 @@ export default {
 
 /* 개인정보 수정 */
 .profile-container {
-  border: 1px solid#565656;
+  border: 2px solid#60a191cc;
   border-radius: 10px;
-  max-width: 800px;
+  max-width: 650px;
   margin: 0 auto;
-  padding: 20px;
   box-sizing: border-box;
   margin-bottom: 50px;
-  background-color: #efeae33e;
+  background-color: #e6ebe567;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 .profile-header {
+  background-color: #d2e5d07e;
+  padding: 20px;
   display: flex;
   align-items: center;
   gap: 20px;
-  padding-bottom: 10px;
   margin-bottom: 20px;
-  font-size: 25px;
-  border-bottom: 1px solid #8b8686;
+  font-size: 27px;
+  border-bottom: 2px solid #60a191;
 }
 .profile-picture {
   display: flex;
@@ -266,38 +375,94 @@ export default {
   margin-left: auto;
   text-align: center;
   justify-content: center;
+  background-color: #528b7e46;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  border-radius: 20px;
+  padding: 10px 15px;
+  color: #355a51;
 }
 .header-balance {
-  font-size: 20px;
-  margin-bottom: 10px; /* 잔액과 버튼 간의 간격 추가 */
+  font-size: 24px;
+  margin-bottom: 10px;
+  margin-right: 10px;
 }
 .recharge-button{
-  padding: 5px 18px;
-  background-color: #e0a825;
-
+  font-size: 16px;
+  border: none;
+  border-radius: 15px;
+  cursor: pointer;
+  padding: 4px 10px;
+  margin-bottom: 6px;
+  color: white;
+  background-color: #a5d04fb0;
 }
-.recharge-button,
-.edit-profile-button {
+.recharge-button:hover{
+  background-color: #90b643;
+}
+.btn-box{
+  margin-left: auto;
+}
+.btn-password-change{
+  margin-top: 5px;
+}
+.btn-password-change:disabled,
+.edit-profile-button:disabled,
+.btn-password-change:disabled:hover,
+.edit-profile-button:disabled:hover{
+  background-color: #d5d4d4;
+}
+
+.btn-phone-check{
+  font-size: 16px;
+  padding: 10px 20px;
   color: #fff;
   border: none;
   border-radius: 5px;
   cursor: pointer;
+  background-color: #c46f6f97;
+}
+.btn-phone-check:hover{
+  background-color: #c46f6ff1;
+}
+
+.btn-password-change,
+.edit-profile-button {
+  font-size: 16px;
+  padding: 10px 20px;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  background-color: #60a19197;
 }
 .edit-profile-button{
+  margin-top: -10px;
   margin-left: auto;
+}
+.btn-password-change:hover,
+.edit-profile-button:hover{
+  background-color: #4f8578;
+}
+.phoneChecked{
+  font-size: 16px;
   padding: 10px 20px;
-  width: 18%;
-  background-color: #000;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  background-color: #d5d4d4;
 }
 .profile-form {
+  padding: 0px 20px 20px 20px;
   display: flex;
   flex-direction: column;
   gap: 20px;
 }
 .form-row {
+  width: 100%;
   align-items: center;
   display: flex;
   gap: 20px;
+  margin-right: auto;
 }
 .form-group {
   flex: 1;
@@ -311,27 +476,61 @@ label {
   font-weight: bold
 }
 
-label[for="address"],
-label[for="userPhone"]{
-  width: 10%;
+label[ for="confirmPassword"]{
+  overflow: visible;
+  white-space: nowrap;
+}
+label[ for="userPhone"],
+label[ for="address"]{
+  width: 70px;
+}
+.toggle-icon {
+  margin-left: auto;
+  margin-right: 10px;
+  margin-top: -32px;
+  cursor: pointer;
+  width: 20px;
+  height: 20px;
+  color: rgba(0, 0, 0, 0.381);
 }
 
-input {
-  padding: 10px;
-  border: 1px solid #000;
-  border-radius: 5px;
+.notMatch{
+  color: rgb(215, 94, 94);
+  font-weight: 100;
+  margin-left: auto;
+  margin-right: 10px;
 }
-#userPhone1{
+
+#confirmPassword, #userPassword{
+  width: 100%;
   padding: 10px;
-  border: 1px solid #000;
+  padding-right: 35px;
+  box-sizing: border-box;
+  border: 1px solid #4f85799c;
+  background-color: #ffffffda;
   border-radius: 5px;
+  font-size: 16px;
+}
+#userName, #userEmail, #address {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #4f85799c;
+  border-radius: 5px;
+  font-size: medium;
+  background-color: #ffffffda;
+}
+
+#userPhone1,#userPhone2,#userPhone3{
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #2e4e477c;
+  border-radius: 5px;
+  text-align: center;
+  font-size: medium;
 }
 input[type="number"]::-webkit-outer-spin-button,
 input[type="number"]::-webkit-inner-spin-button {
     -webkit-appearance: none;
     margin: 0;
-}
-#address, #userPhone{
-  margin-top: 10px;
 }
 </style>

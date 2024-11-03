@@ -9,6 +9,7 @@ import com.team.MMSValleyBall.enums.PaymentStatus;
 import com.team.MMSValleyBall.enums.TicketStatus;
 import com.team.MMSValleyBall.enums.UserStatus;
 import com.team.MMSValleyBall.repository.*;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
 
@@ -24,8 +25,9 @@ public class MyPageService {
     private final TicketRepository ticketRepository;
     private final SeatRepository seatRepository;
     private final MatchRepository matchRepository;
+    private final BCryptPasswordEncoder bCryptPasswordEncoder;
 
-    public MyPageService(UserRepository userRepository, MembershipRepository membershipRepository, MembershipSalesRepository membershipSalesRepository, PaymentRepository paymentRepository, TicketRepository ticketRepository, SeatRepository seatRepository, MatchRepository matchRepository) {
+    public MyPageService(UserRepository userRepository, MembershipRepository membershipRepository, MembershipSalesRepository membershipSalesRepository, PaymentRepository paymentRepository, TicketRepository ticketRepository, SeatRepository seatRepository, MatchRepository matchRepository, BCryptPasswordEncoder bCryptPasswordEncoder) {
         this.userRepository = userRepository;
         this.membershipRepository = membershipRepository;
         this.membershipSalesRepository = membershipSalesRepository;
@@ -33,6 +35,7 @@ public class MyPageService {
         this.ticketRepository = ticketRepository;
         this.seatRepository = seatRepository;
         this.matchRepository = matchRepository;
+        this.bCryptPasswordEncoder = bCryptPasswordEncoder;
     }
 
     public UserDTO findByEmail(String email) {
@@ -42,19 +45,21 @@ public class MyPageService {
     public List<Reservation> getReservationList(String email){
         List<Reservation>reservationList = new ArrayList<>();
         UserDTO user = UserDTO.fromEntity(userRepository.findByUserEmail(email));
-        List<TicketDTO> ticketList = user.getTickets().stream().sorted(Comparator.comparing(TicketDTO::getTicketId).reversed()).toList();
-        for(TicketDTO dto: ticketList){
-            Reservation reservation = new Reservation();
-            reservation.setTicket(dto);
-            Match match = matchRepository.findById(dto.getTicketMatchId()).get();
-            reservation.setOpponentTeam(match.getMatchOpponentTeam().getTeamName());
-            reservation.setOpponentTeamStadium(match.getMatchOpponentTeam().getTeamStadium());
-            reservation.setWhere(match.getMatchStadium());
-            reservation.setMatchDate(String.valueOf(match.getMatchDate()));
-            Seat seat = seatRepository.findById(dto.getTicketDetails().get(0).getTicketDetailSeat()).get();
-            reservation.setSeatSection(seat.getSeatZone()+"-"+seat.getSeatSection());
-            reservationList.add(reservation);
-        }
+        if(!ObjectUtils.isEmpty(user.getTickets())){
+            List<TicketDTO> ticketList = user.getTickets().stream().sorted(Comparator.comparing(TicketDTO::getTicketId).reversed()).toList();
+            for(TicketDTO dto: ticketList){
+                Reservation reservation = new Reservation();
+                reservation.setTicket(dto);
+                Match match = matchRepository.findById(dto.getTicketMatchId()).get();
+                reservation.setOpponentTeam(match.getMatchOpponentTeam().getTeamName());
+                reservation.setOpponentTeamStadium(match.getMatchOpponentTeam().getTeamStadium());
+                reservation.setWhere(match.getMatchStadium());
+                reservation.setMatchDate(String.valueOf(match.getMatchDate()));
+                Seat seat = seatRepository.findById(dto.getTicketDetails().get(0).getTicketDetailSeat()).get();
+                reservation.setSeatSection(seat.getSeatZone()+"-"+seat.getSeatSection());
+                reservationList.add(reservation);
+            }
+            }
         return reservationList;
     }
     public boolean changeTicketStatusById(Long id){
@@ -116,17 +121,27 @@ public class MyPageService {
     public String modifyUserInfo(UserDTO userDTO) {
         // 수정할 유저의 정보를 불러오기
         Users modifyUser = userRepository.findByUserEmail(userDTO.getUserEmail());
-        System.out.println(modifyUser);
         if(!ObjectUtils.isEmpty(modifyUser)){
-            // 수정 가능한 항목(비밀번호, 주소, 핸드폰번호)만 set
-            modifyUser.setUserPassword(userDTO.getUserPassword());
-            modifyUser.setUserAddress(userDTO.getUserAddress());
-            modifyUser.setUserPhone(userDTO.getUserPhone());
-            userRepository.save(modifyUser);
-            return "수정되었습니다!";
-        }else {
-            return "수정에 실패하였습니다!";
+            modifyUser.setUserUpdateAt(LocalDateTime.now());
+            if(userDTO.getUserPassword() != null) {
+                if (bCryptPasswordEncoder.matches(userDTO.getUserPassword(), modifyUser.getUserPassword())) {
+                    return "기존 비밀번호입니다.";
+                }
+                modifyUser.setUserPassword(bCryptPasswordEncoder.encode(userDTO.getUserPassword()));
+                userRepository.save(modifyUser);
+                return "비밀번호가 변경되었습니다.";
+            }else {
+                modifyUser.setUserPhone(userDTO.getUserPhone());
+                modifyUser.setUserAddress(userDTO.getUserAddress());
+                userRepository.save(modifyUser);
+                return "수정되었습니다!";
+            }
         }
+        return "수정에 실패하였습니다!";
+    }
+
+    public Boolean isPhoneValid(UserDTO userDTO){
+        return ObjectUtils.isEmpty(userRepository.findByUserPhone(userDTO.getUserPhone()));
     }
 
     public String deactivateUser(Long userId) {

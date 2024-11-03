@@ -6,6 +6,7 @@ import com.team.MMSValleyBall.jwt.JwtUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -64,7 +65,7 @@ public class SecurityConfig{
             @Override
             public CorsConfiguration getCorsConfiguration(HttpServletRequest request) {
                 CorsConfiguration configuration = new CorsConfiguration();
-                configuration.setAllowedOrigins(Collections.singletonList("http://localhost:8080"));
+                configuration.setAllowedOriginPatterns(Collections.singletonList("http://localhost:8080"));
                 configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
                 configuration.setAllowCredentials(true);
                 configuration.setMaxAge(3600L);
@@ -81,8 +82,10 @@ public class SecurityConfig{
         //http basic 인증 방식 disable
         http.httpBasic((auth) -> auth.disable());
         //경로별 인가 작업
-        http.authorizeHttpRequests((auth) -> auth.requestMatchers("/", "/main", "/login", "/signup/**", "/game/**","/myPage/**").permitAll()
-//                .requestMatchers("/admin").hasRole("ADMIN")
+        http.authorizeHttpRequests((auth) -> auth.requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                .requestMatchers("/", "/main", "/login", "/signup/**").permitAll()
+                .requestMatchers("/game/**", "/ticket/**", "/myPage/**", "/membership/**").permitAll()
+                .requestMatchers("/admin").hasRole("ADMIN")
                 .anyRequest().authenticated());
         // JwtFilter 등록
         http.addFilterBefore(new JwtFilter(jwtUtil), LoginFilter.class);
@@ -96,8 +99,7 @@ public class SecurityConfig{
 
 
         //세션 설정
-        http
-            .sessionManagement((session) -> session
+        http.sessionManagement((session) -> session
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS));
         return http.build();
     }

@@ -2,7 +2,6 @@ package com.team.MMSValleyBall.controller;
 
 import com.team.MMSValleyBall.dto.MatchPaymentDTO;
 import com.team.MMSValleyBall.dto.UserDTO;
-import com.team.MMSValleyBall.entity.Season;
 import com.team.MMSValleyBall.entity.Users;
 import com.team.MMSValleyBall.service.AdminService;
 import com.team.MMSValleyBall.service.PaginationService;
@@ -12,14 +11,15 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
 
 import java.util.List;
 import java.util.Map;
 
 @Controller
 @RequestMapping("/admin")
-@CrossOrigin(origins = "http://localhost:8080") // 클라이언트 주소를 명시
 public class AdminController {
     private final AdminService adminService;
     private final PaginationService paginationService;

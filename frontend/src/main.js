@@ -2,7 +2,9 @@ import { createApp } from 'vue';
 import App from './App.vue';
 import router from './assets/js/router';
 import axios from 'axios';
-
+import { library } from '@fortawesome/fontawesome-svg-core';
+import { faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 
 const app = createApp(App);
 app.config.globalProperties.$axios = axios;
@@ -17,10 +19,15 @@ router.beforeEach((to, from, next) => {
     if (token!=null) {
       next(); // 토큰이 있다면 페이지로 이동
     } else {
+      alert("로그인 후 이용해주세요.\n로그인 페이지로 이동합니다.")
       next('/login'); // 토큰이 없다면 로그인 페이지로 리디렉션
     }
   } else {
     next(); // 인증이 필요 없는 페이지는 그냥 이동
   }
 });
+
+library.add(faEye, faEyeSlash);
+app.component('font-awesome-icon', FontAwesomeIcon);
+
 app.mount('#app');

@@ -24,7 +24,7 @@ public class MyPageController {
 
     // 티켓 예매 탭에서 받을 티켓 예매 내역
     @GetMapping("ticket")
-    public ResponseEntity<List<Reservation>> userTicket(@RequestParam("email")String email){
+    public ResponseEntity<?> userTicket(@RequestParam("email")String email){
         return ResponseEntity.ok(myPageService.getReservationList(email));
     }
 
@@ -64,9 +64,15 @@ public class MyPageController {
     }
 
     // 사용자 정보 수정 요청처리
-    @PatchMapping("info/modify")
+    @PostMapping("info/modify")
     public ResponseEntity<String> modifyUserInfo(@RequestBody UserDTO userDTO){
         return ResponseEntity.ok(myPageService.modifyUserInfo(userDTO));
+    }
+
+    // 휴대전화 유니크인증
+    @PostMapping("info/phone")
+    public ResponseEntity<Boolean> isPhoneValid(@RequestBody UserDTO userDTO){
+        return ResponseEntity.ok(myPageService.isPhoneValid(userDTO));
     }
 
     // 회원 탈퇴

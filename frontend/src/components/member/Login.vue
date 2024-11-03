@@ -30,7 +30,6 @@
  
  export default {
      name: 'LoginPage',
-     
      components: {
          LogoHeader
      },
@@ -85,17 +84,14 @@
                 "Content-Type": "application/json",
                 },
             }).then((response) => {
-                console.log(response);
                 if (response.status === 401) {
-                alert("이메일 혹은 패스워드가 잘못 입력되었습니다.");
+                    alert("이메일 혹은 패스워드가 잘못 입력되었습니다.");
                 } else {
                 let accessToken = response.headers.authorization;  // 응답헤더에서 토큰 받기
                 sessionStorage.setItem("token", accessToken); // 토큰 sessionStorage에 저장
                 this.saveUserInfo(accessToken); 
-                this.$emit('login',true);
-                this.$axios.defaults.headers.common[
-                    "Authorization"
-                ] = `Bearer ${accessToken}`;
+                this.$emit('loginSuccess');
+                this.$axios.defaults.headers.common["Authorization"] = accessToken;
                 alert("로그인이 되었습니다");
                 this.$router.replace("/");
                 }

@@ -5,17 +5,17 @@
       <label for="amountSelect" class="amountSelect">금액 선택:</label>
       <select id="amountSelect" v-model.number="amount">
         <option value="0" disabled>충전하실 금액을 선택해주세요.</option>
-        <option value="10000">10000원</option>
-        <option value="20000">20000원</option>
-        <option value="30000">30000원</option>
-        <option value="40000">40000원</option>
-        <option value="50000">50000원</option>
-        <option value="100000">100000원</option>
-        <option value="200000">200000원</option>
-        <option value="300000">300000원</option>
+        <option value="10000">10,000원</option>
+        <option value="20000">20,000원</option>
+        <option value="30000">30,000원</option>
+        <option value="40000">40,000원</option>
+        <option value="50000">50,000원</option>
+        <option value="100000">100,000원</option>
+        <option value="200000">200,000원</option>
+        <option value="300000">300,000원</option>
       </select>
       <h3 class="balance">
-        현재 잔액: {{ balance }}원 + {{ amount }}원 = 충전 후 {{balance+amount}}원
+        현재 잔액: {{ moneyFormat(balance) }}원 + {{ moneyFormat(amount) }}원 = 충전 후 잔액 {{moneyFormat(balance+amount)}}원
       </h3>
     </div>
     <div class="button-group">
@@ -33,33 +33,26 @@ export default {
     return {
       amount: 0,
       balance: 0,
-    };
+    }
   },
   mounted() {
-    const queryString = window.location.search;
-    const urlParams = new URLSearchParams(queryString);
-
-    // 쿼리 파라미터로부터 데이터 추출
-    this.balance = Number(urlParams.get('balance'));
+    this.balance = Number(sessionStorage.getItem('balance') || 0);
   },
   methods: {
     recharge(){
-      this.$emit('userbalance', this.balance+this.amount);
       if(this.amount==0){
         alert('충전하실 금액을 선택해주세요.');
         return;
       }
       console.log("충전 함수 실행")
       this.$axios.post('/myPage/info/recharge',{
-          email: sessionStorage.getItem('email'),
-          amount: this.amount
-        },{
-        headers: {
-          Authorization : sessionStorage.getItem('token')
-        }
-      }).then((response) => {
-        console.log(response.data);
+        email: sessionStorage.getItem('email'),
+        amount: this.amount
+      }).then(() => {
         alert(`${this.amount}원 충전되셨습니다.`);
+        if (window.opener && !window.opener.closed) {
+          window.opener.postMessage({ type: 'updateBalance', balance: this.amount+this.balance }, '*');
+        }
         window.close();
       }).catch((error) => {
         console.error('충전 실패:', error);
@@ -71,6 +64,9 @@ export default {
     cancel() {
       window.close();
       alert('취소하셨습니다.');
+    },
+    moneyFormat(money){
+      return new Intl.NumberFormat('ko-KR').format(money)
     }
   }
 };
@@ -84,9 +80,9 @@ export default {
 .payment-container {
   width: 100%;
   max-width: 600px;
-  height: 100vh;
+  height: 100%;
   margin: 0;
-  padding: 20px;
+  padding: 40px;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -94,6 +90,7 @@ export default {
   border-radius: 10px;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
   box-sizing: border-box;
+  overflow: hidden; /* 스크롤 방지 */
 }
 .balance{
   margin-bottom: 10px;
@@ -121,15 +118,15 @@ export default {
   cursor: pointer;
 }
 .pay-button.confirm {
-  background-color: #28a745;
+  background-color: #adcf69;
 }
 .pay-button.confirm:hover {
-  background-color: #218838;
+  background-color: #92c06c;
 }
 .pay-button.cancel {
-  background-color: #dc3545;
+  background-color: #d9534f;
 }
 .pay-button.cancel:hover {
-  background-color: #c82333;
+  background-color: #c9302c;
 }
 </style>
