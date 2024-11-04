@@ -1,15 +1,15 @@
 .userInfo {
      margin: 40px auto;
      text-align: left;
-     height: 300px;
+     height: 400px;
      max-width: 800px;
      padding-top: 70px;
-     padding-bottom: 50px;
-     padding-left: 15%;
-     padding-right: 15%;
+     padding-left: 220px;
+     padding-right: 20px;
      border: 2px solid #60a191;
      border-radius: 10px;
      background-color: #f9f9f9;
+     font-size: 16px;
  }
 
 .button-line {
@@ -40,8 +40,19 @@
 
 .userInfo p {
     display: flex;
-    justify-content: flex-start; /* 왼쪽으로 정렬 */
-    align-items: center; /* 수직으로 가운데 정렬 */
-    gap: 10px; /* 라벨과 값 사이에 간격 */
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
     margin-top: 7px;
+}
+
+.userInfo strong {
+    min-width: 150px; /* 레이블의 고정된 최소 너비를 설정 */
+    font-weight: bold;
+    color: #34495e;
+}
+
+.userInfo span {
+    text-align: left;
+    flex: 1; /* span이 남은 공간을 차지하도록 설정 */
 }

@@ -7,23 +7,27 @@
     <link rel="stylesheet" th:href="@{/css/user-list.css}">
     <script th:inline="javascript">
         function filterUsers() {
-       const season = document.getElementById("seasonFilter").value;
-       const membership = document.getElementById("membershipFilter").value;
-       const status = document.getElementById("statusFilter").value;
+           const season = document.getElementById("seasonFilter").value;
+           const membership = document.getElementById("membershipFilter").value;
+           const status = document.getElementById("statusFilter").value;
+           const searchCriteria = document.getElementById("searchCriteria").value;
+           const keyword = document.getElementById("keyword").value;
 
-       const requestData = {
-           season: season,
-           membership: membership,
-           status: status
-       };
+           const requestData = {
+               season: season,
+               membership: membership,
+               status: status,
+               searchCriteria: searchCriteria,
+               keyword: keyword
+           };
 
-               fetch('/admin/userList?' + new URLSearchParams(requestData))
-                   .then(response => response.text())
-                   .then(data => {
-                       document.querySelector('body').innerHTML = data;
-                   })
-                   .catch(error => console.error('Error:', error));
-           }
+           fetch('/admin/userList?' + new URLSearchParams(requestData))
+               .then(response => response.text())
+               .then(data => {
+                   document.querySelector('body').innerHTML = data;
+               })
+               .catch(error => console.error('Error:', error));
+       }
     </script>
 </head>
 <body>
@@ -67,18 +71,18 @@
                     <th>이메일</th>
                     <th>
                         <!-- 시즌 필터 -->
-                        <label for="seasonFilter">시즌</label>
+<!--                        <label for="seasonFilter">시즌</label>-->
                         <select id="seasonFilter" name="season" onchange="filterUsers()">
-                            <option value="" th:selected="${season == ''}">모든 시즌</option>
+                            <option value="" th:selected="${season == ''}">시즌</option>
                             <option value="24/25" th:selected="${season == '24/25'}">24/25</option>
                             <option value="23/24" th:selected="${season == '23/24'}">23/24</option>
                         </select>
                     </th>
                     <th>
                         <!-- 멤버십 필터 -->
-                        <label for="membershipFilter">멤버십</label>
+<!--                        <label for="membershipFilter">멤버십</label>-->
                         <select id="membershipFilter" name="membership" onchange="filterUsers()">
-                            <option value="" th:selected="${membership == ''}">모두 보기</option>
+                            <option value="" th:selected="${membership == ''}">멤버십</option>
                             <option value="BRONZE" th:selected="${membership == 'BRONZE'}">BRONZE</option>
                             <option value="SILVER" th:selected="${membership == 'SILVER'}">SILVER</option>
                             <option value="GOLD" th:selected="${membership == 'GOLD'}">GOLD</option>
@@ -87,9 +91,9 @@
                     <th>충전 잔액</th>
                     <th>
                         <!-- 회원 상태 필터 -->
-                        <label for="statusFilter">회원 상태</label>
+<!--                        <label for="statusFilter">회원 상태</label>-->
                         <select id="statusFilter" name="status" onchange="filterUsers()">
-                            <option value="" th:selected="${status == ''}">모든 상태</option>
+                            <option value="" th:selected="${status == ''}">회원 상태</option>
                             <option value="ACTIVE" th:selected="${status == 'ACTIVE'}">ACTIVE</option>
                             <option value="INACTIVE" th:selected="${status == 'INACTIVE'}">INACTIVE</option>
                         </select>
