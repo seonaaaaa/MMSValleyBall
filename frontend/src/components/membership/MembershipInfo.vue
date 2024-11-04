@@ -263,10 +263,10 @@
 
 #btn-purchase {
   width: 140px;
-  background-color: #4CAF50;  /* 버튼 배경색 (녹색) */
+  background-color: #60a191;  /* 버튼 배경색 (녹색) */
 }
 
 #btn-purchase:hover {
-  background-color: #45a049; /* 마우스를 올렸을 때 배경색 변경 */
+  background-color: #4d7e74; /* 마우스를 올렸을 때 배경색 변경 */
 }
   </style>
