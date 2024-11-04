@@ -489,10 +489,15 @@ export default {
                     this.countTicket = 0;
                 }
             });
+
+            if (section.quantity == 4 && section.availableSeatAmount > section.quantity) {
+                this.countTicket=section.quantity;
+                this.sectionSelection = section; // 선택된 섹션 정보 저장
+            }
             
             if (section.quantity < 4 && section.availableSeatAmount > section.quantity) {
                 section.quantity++;
-                this.countTicket++;
+                this.countTicket=section.quantity;
                 this.sectionSelection = section; // 선택된 섹션 정보 저장
             }
             // 섹션 이름에서 첫 글자 추출
