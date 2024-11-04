@@ -45,6 +45,14 @@ public class MainController {
         return ResponseEntity.ok("회원가입이 완료되었습니다.");
     }
 
+    @PostMapping("/login/check-status")
+    public String checkStatus(@RequestParam("userEmail") String userEmail) {
+        System.out.println("============"+ userEmail);
+        String message = mainService.checkStatus(userEmail);
+        System.out.println(message);
+        return message;
+    }
+
     @GetMapping("/main")
     public ResponseEntity<ResponseDto> mainP() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -70,4 +78,6 @@ public class MainController {
         System.out.println(body.get("balance"));
         return ResponseEntity.ok(body);
     }
+
+
 }
