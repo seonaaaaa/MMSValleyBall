@@ -461,8 +461,12 @@ export default {
   border-radius: 5px;
   cursor: pointer;
   background-color:rgba(245, 245, 245, 0);
-  color: gray;
+  color: rgb(193, 190, 190);
   width: 80px;
+  font-size: smaller;
+}
+.delete-account-button:hover{
+  color: red;
 }
 
 .edit-profile-button{

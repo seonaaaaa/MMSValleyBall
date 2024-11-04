@@ -4,9 +4,11 @@
 
         <!-- 모달 내용 -->
         <div class="first-modal-content">
-            <!-- <div v-if="loading" class="loading-spinner">
+            <!-- 로딩 표시 -->
+            <div v-if="loading" class="loading-spinner">
                 데이터 로딩 중입니다...
-            </div> -->
+            </div>
+
             <!-- 모달 제목 -->
             <!-- 선택한 데이터 가져와서 일정 넣어야함 -->
             <div class="modal-title" v-if="firstPage">
@@ -18,13 +20,16 @@
                 </div>
                 <hr class="divider" />
             </div>
+
+
             <!-- 모달 디테일 -->
             <div v-if="firstPage">
-                 <div class="modal-body">
-                <!-- 모달 이미지 -->
-                <div class="modal-ticket-img" v-if="selectedZoneImage">
-                    <img :src="selectedZoneImage" alt="선택한 구역 이미지" class="stadium-image" />
-                </div>
+        <div class="modal-body">
+            <!-- 모달 이미지 -->
+            <div class="modal-ticket-img" v-if="selectedZoneImage">
+                <img :src="selectedZoneImage" alt="선택한 구역 이미지" class="stadium-image" />
+            </div>
+
             <!-- 모달 표 -->
             <div class="modal-table-container">
                 <table class="modal-table">
@@ -43,8 +48,10 @@
                                     {{ zone.zoneName }}
                                 </button>
                             </td>
+                            <!-- <td></td> -->
                             <td>{{ zone.availableSeatAmount }}석</td>
                         </tr>
+
                         <!-- 선택한 구역의 섹션 정보 표시 -->
                         <tr v-if="zoneSelection != null">
                             <td colspan="2">
@@ -199,9 +206,9 @@
                         <div class="charge">
                             <div class="charge-money">
                                     <p><strong>이용가능한 충전금액 : </strong></p>
-                                    <p>{{ userBalance }} 원</p>
+                                    <p>{{ balance }} 원</p>
                             </div>
-                            <button id="btn-charge" v-if="payment.leftMoney < 0" onclick="window.location.href='http://localhost:8080//myPage/info/recharge';">충전하기</button>
+                            <button id="btn-charge" v-if="payment.leftMoney < 0" @click="openRechargeWindow">충전하기</button>
                             <div class="membership-price">
                                 <p>결제금액</p>
                                 <p>- {{ formattedPayment.payment }} 원</p>
@@ -241,20 +248,16 @@ import axios from 'axios';
 export default {
     name: 'TicketModal',
     props: {
-        membership: {
-            type: String,
-            required: true,
-        },
-        balance: {
-            type: Number,
-            required: true,
-        },
         visible: {
             type: Boolean,
             default: false,
         },
         match: {
             type: Object,
+            required: true,
+        },   
+        balance: {
+            type: Number,
             required: true,
         },
     },
@@ -277,10 +280,12 @@ export default {
                 (zone.availableSeatAmount > 0 && zone.zoneName !== 'GOLD')
             );
         },
+
         formattedTotal() {
             // 숫자를 세 자리마다 쉼표가 붙은 문자열로 변환
             return this.total.toLocaleString();
         },
+
         formattedPayment() {
         // 변환된 결제 금액과 잔액을 반환
             return {
@@ -294,7 +299,9 @@ export default {
             const match = membershipType.match(/\/.{3}(.+)/);
             return match ? match[1].trim() : '';
         }
+
     },
+
     watch: {
         // 버튼의 수량이 변경되었을 때, 모든 수량이 0이면 activeButtonIndex 초기화
         zones: {
@@ -305,31 +312,34 @@ export default {
             },
             deep: true
         },
-        // autoClick: {
-        //     immediate: true, // 컴포넌트가 로드되면 즉시 실행
-        //     handler(newValue) {
-        //         if (newValue) {
-        //         this.handleClick(); // 자동으로 버튼 클릭 메서드 호출
-        //         this.autoClick = false; // 이후에는 자동 클릭이 재발하지 않도록 설정
-        //         }
-        //     }
-        // }
+        autoClick: {
+            immediate: true, // 컴포넌트가 로드되면 즉시 실행
+            handler(newValue) {
+                if (newValue) {
+                // this.handleClick(); // 자동으로 버튼 클릭 메서드 호출
+                this.autoClick = false; // 이후에는 자동 클릭이 재발하지 않도록 설정
+                }
+            }
+        }
+    },
+    mounted() {
+        this.fetchEvents();
     },
     data() {
         return {
-            // loading: true,
-            // autoClick: true, // 버튼 자동 클릭을 제어할 변수
+            loading: true,
+            autoClick: true, // 버튼 자동 클릭을 제어할 변수
             // 두번째 모달창으로 이동
             firstPage: true,
             secondPage: false,
 
             // 서버에서 받는 데이터
             ticketSalesDto: {},
-            // userBalance: 0,
             matchInfo: {},
             availableSeatsList: [],
             userMembership: {},
             seatDTOList: [],
+
             // 좌석 선택 관련
             zones: [],  // 초기값 설정
             zoneSelection: null,
@@ -349,9 +359,7 @@ export default {
             thisTeam: "GS ITM",
         };
     },
-    // mounted() {
-    //     this.fetchEvents;
-    // },
+
     methods: {
         // async handleClick() {
         //     console.log("버튼이 눌렸습니다!");
@@ -359,30 +367,40 @@ export default {
         //     await this.fetchEvents(); // 데이터 fetch
         // },
         // API 호출
-        async fetchEventsFromModal() {
+        async fetchEvents() {
+            // let data = {};
             try {
+                this.loading = true; // 데이터 로드 시작 시 로딩 활성화
+                console.log("Sending request with:", {
+                    email: sessionStorage.getItem('email'),
+                    matchId: this.match.matchId
+                });
                 const response = await axios.get('/ticket/purchase/modal', {
                     params: {
-                        email: sessionStorage.getItem('email'),
+                        email:  sessionStorage.getItem('email'),
                         matchId: this.match.matchId
                     }
                 });
                 this.ticketSalesDto = response.data.ticketSalesDto;
+                this.userBalance = response.data.userBalance;
                 this.matchInfo = response.data.matchInfo;
                 this.availableSeatsList = response.data.availableSeatsList;
                 this.userMembership = response.data.userMembership;
                 this.seatDTOList = response.data.seatDTOList;
-                this.$emit('getBalanceByModal',response.data.userBalance);
                 this.initializeSectionQuantities(); // 섹션 수량 초기화
+                console.log(response.data);
                 console.log("response:", response);
+                // response.data = response.data;
             } catch (error) {
                 console.error("Error fetching data: ", error);
+            } finally {
+                this.loading = false; // 데이터 로드 완료 시 로딩 비활성화
             }
         },
         // 예매하기 버튼 클릭 시 호출되는 메서드
         async purchaseTicket(){
             this.ticketSalesDto = {
-                userEmail: sessionStorage.getItem('email'),
+                userEmail:  sessionStorage.getItem('email'),
                 matchId: this.matchInfo.matchId,
                 ticketDetailAmount: this.seatSelection.quantity,
                 ticketDetailSeat: this.seatSelection.seatId,
@@ -391,6 +409,7 @@ export default {
                 ticketNumber: null,
                 ticketCreateAt: new Date().toISOString(), // 현재 시간으로 설정
             };
+            // axios 요청
             try {
                 const response = await axios.post("/ticket/purchase/completed", this.ticketSalesDto);
                 console.log(response.data);
@@ -410,23 +429,18 @@ export default {
         formatDate(date) {
             const options = { year: 'numeric', month: '2-digit', day: '2-digit' };
             const dateObj = new Date(date);
-            
             // 날짜 포맷
             const formattedDate = dateObj.toLocaleDateString('ko-KR', options);
-            
             // 요일 가져오기
             const days = ['일', '월', '화', '수', '목', '금', '토'];
             const dayName = days[dateObj.getDay()];
-
             // 시간 포맷
             const formattedTime = dateObj.toLocaleTimeString('ko-KR', {
             hour: '2-digit',
             minute: '2-digit'
             });
-
             return `${formattedDate} (${dayName}) ${formattedTime}`; // <br> 제거
         },
-
         // 총합
         calculateTotal() {
             this.total = this.seatSelection.seatPrice * this.seatSelection.quantity;
@@ -434,14 +448,12 @@ export default {
         // 결제 금액
         calculatePayment() {
             this.payment.payment = this.total * (100 - this.userMembership.membershipDiscount) * 0.01;
-            this.payment.leftMoney = this.balance - this.payment.payment;
+            this.payment.leftMoney = this.userBalance - this.payment.payment;
         },
-
         //두 번째 모달에 전달할 좌석 정보
         createSeatSelection(){
             const matchingSeat = this.seatDTOList.find(seat => seat.seatId === this.sectionSelection.seatId);
             const seatPrice = matchingSeat ? matchingSeat.seatPrice : 0; // 매칭된 좌석이 없을 경우 기본값 0
-
             this.seatSelection = {
                 seatId: this.sectionSelection.seatId,
                 sectionName: this.sectionSelection.sectionName,
@@ -455,6 +467,7 @@ export default {
             this.secondPage = false;
             this.total = 0;
         },
+
         // 두번째 모달창으로 이동
         openSecondPage() {
             this.createSeatSelection();
@@ -467,6 +480,7 @@ export default {
                 alert("좌석을 선택해주세요.");
             }
         },
+
         increaseQuantity(section) {
             // 다른 섹션의 수량 초기화
             this.zoneSelection.sections.forEach(sec => {
@@ -475,6 +489,7 @@ export default {
                     this.countTicket = 0;
                 }
             });
+            
             if (section.quantity < 4 && section.availableSeatAmount > section.quantity) {
                 section.quantity++;
                 this.countTicket++;
@@ -492,7 +507,6 @@ export default {
                 this.selectedZoneImage = require('@/assets/img/stadium/stadium-main.jpg'); // 기본 이미지
             }
         },
-
         decreaseQuantity(section) {
             if (section.quantity > 0) {
                 section.quantity--;
@@ -591,6 +605,7 @@ export default {
                     return '#47C83E'; // 나머지 구역
             }
         },
+
         //취소기한 자동 계산
         calculateCancellationDeadline(date) {
         const dateObj = new Date(date);
@@ -603,6 +618,16 @@ export default {
             minute: '2-digit'
         });
     },
+    openRechargeWindow() {
+      const width = 570;
+      const height = 275;
+      const left = (window.screen.width / 2) - (width / 2); // 화면 중앙에 위치
+      const top = (window.screen.height / 2) - (height / 2);
+      window.open(`/myPage/recharge`, '충전하기', 
+      `width=${width},height=${height},,top=${top},left=${left},
+      toolbar=no,menubar=no,scrollbars=no,resizable=no,fullscreen=no`);
+    },
+
     },
 }
 </script>
@@ -613,8 +638,8 @@ export default {
     position: fixed;
     top: 0;
     left: 0;
-    width: 90%;
-    height: 90%;
+    width: 100%;
+    height: 100%;
     background: rgba(0, 0, 0, 0.5);
     /* 모달 뒤 어두운 배경 */
     display: flex;
