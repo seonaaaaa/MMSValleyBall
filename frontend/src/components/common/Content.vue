@@ -89,7 +89,7 @@
       <div class="section">
         <h2>경기 일정</h2>
         <!-- Calendar 컴포넌트를 사용 -->
-        <CalendarMain :events="events" />
+        <CalendarMain :events="events" calendarMode="main" />
       </div>
 
     </div>
@@ -410,7 +410,7 @@ a {
   position: relative;
   width: 100%;
   height: 400px;
-  margin: 0 auto;
+  margin: 0;
   overflow: hidden;
 }
 
@@ -479,7 +479,7 @@ a {
 /* 경기 하이라이트 슬라이드 배너 */
 .highlight-slider-container {
   position: relative;
-  width: 1200px;
+  max-width: 1200px;
   height: auto;
   margin: 0 auto;
   overflow: hidden;
