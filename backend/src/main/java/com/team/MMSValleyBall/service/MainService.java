@@ -72,4 +72,22 @@ public class MainService {
         UserDTO userData = UserDTO.fromEntity(userRepository.findByUserEmail(email));
         return userData.getUserMembershipName().split("-")[1];
     }
+
+    public String checkStatus(String userEmail) {
+        // 이메일로 사용자 찾기
+        Users user = userRepository.findByUserEmail(userEmail);
+        if (user == null) {
+            return "User not found.";
+        }
+
+        // 사용자의 상태 확인 (예: "active" 또는 "inactive")
+        String userStatus = String.valueOf(user.getUserStatus());
+        if ("active".equalsIgnoreCase(userStatus)) {
+            return "active.";
+        } else if ("inactive".equalsIgnoreCase(userStatus)) {
+            return "inactive.";
+        } else {
+            return "null";
+        }
+    }
 }
