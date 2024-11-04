@@ -36,7 +36,7 @@
           <span class="th">결제 날짜</span><span class="td">{{ formattedPaymentDate }}</span>
         </div>
         <div class="membership-end-date">
-          <span class="th">멤버십 종료 날짜</span><span class="td">~ 2222년 11월 11일까지</span>
+          <span class="th">멤버십 종료 날짜</span><span class="td">~ 2025년 07월 31일까지</span>
         </div>
         <p class="membership-note">
           결제 후 콘텐츠 이용 내역이 없을 경우, 결제일로부터 7일 이내에 직접 결제 취소가 가능합니다.
@@ -55,7 +55,7 @@
           <img :src="membershipImage()" alt="멤버십 등급 아이콘" class="membershipLevel-image" />
         </h1>
         <div class="membership-bronze-content" v-if="membership === 'bronze'">
-          <h1>이용중인 멤버십이 없습니다.</h1>
+          <p>이용중인 멤버십이 없습니다.</p>
         </div>
         <div class="button-container">
     <button @click="goToMembershipInfo" class="btn-goToMembershipInfo">멤버십 안내</button>
@@ -353,23 +353,22 @@ export default {
 .membership-bronze-content{
   justify-content: center;
 }
-.membership-bronze-content h1 {
+.membership-bronze-content p {
   color: #5A3E2B;
+  font-size: 25px;
 }
 /* Cancel Membership Button */
 .cancel-button-box {
   text-align: right;
   max-width: 600px;
   margin: auto;
-  margin-bottom: 30px;
 }
 /* 버튼을 포함하는 컨테이너 */
 .button-container {
   display: flex;
   justify-content: center;
   gap: 30px; /* 버튼 사이 간격 확대 */
-  margin-top: 20px;
-  margin-bottom: 30px;
+  margin-right: 30px;
 }
 
 /* 브론즈 멤버십 버튼 스타일 */
@@ -401,7 +400,9 @@ export default {
   font-size: large;
   width: 100px;
   height: 40px;
-  padding: 10px
+  padding: 10px;
+  margin-top: 10px;
+  margin-bottom: 30px;
 }
 
 .cancel-membership-button:hover {

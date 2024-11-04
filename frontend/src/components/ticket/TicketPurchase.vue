@@ -60,8 +60,8 @@
                       예매하기
                     </button>
                   <!-- 모달 컴포넌트 -->
-                  <Modal v-show="isModalVisible" :visible="isModalVisible" :match="selectedMatch" 
-                  :balance="balance" :membership="membership" ref="ModalRef"
+                  <Modal v-if="isModalVisible" :visible="isModalVisible" :match="selectedMatch" 
+                  :balance="balance" :membership="membership"
                   @close="closeModal" @getBalanceByModal="updateBalance"/>
                 </td>
               </tr>
@@ -226,16 +226,9 @@ export default {
       },
       // 모달 열기 닫기
     openModal(match) {
+      this.selectedMatch= match;
       this.isModalVisible = true;
       //TicketModal로 이동할 때 matchId를 가져가도록
-      this.selectedMatch= match;
-      this.$nextTick(() => {
-      if (this.$refs.ModalRef && typeof this.$refs.ModalRef.fetchEventsFromModal === 'function') {
-          this.$refs.ModalRef.fetchEventsFromModal();
-        } else {
-          console.error("모달 컴포넌트에서 'fetchEventsFromModal' 메서드를 찾을 수 없습니다.");
-        }
-      });
     },
     // 모달에서 온 이벤트 app.vue에 보내기
     updateBalance(balance){
@@ -247,6 +240,7 @@ export default {
       this.selectedMatch= null;
     },
     handleButtonClick(match) {
+      console.log(match);
       if(sessionStorage.getItem('token')==null){
         alert('로그인 후 예매가능합니다.\n로그인 페이지로 이동합니다.')
         this.$router.push('/login');
@@ -262,7 +256,7 @@ export default {
       const userMembership = sessionStorage.getItem('membership')
       if (generalBookStartDate <= today && today < matchDate) {
         // 오늘 날짜가 일반 예매 시작일과 경기일 사이
-        console.log('구매창에서 모달열기');
+        this.selectedMatch= match;
         this.openModal(match);
       } else if ( preBookStartDate < today && today < generalBookStartDate) {
         // 오늘 날짜가 일반 예매 시작일과 경기일 사이
