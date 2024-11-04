@@ -255,7 +255,7 @@ export default {
         match: {
             type: Object,
             required: true,
-        },   
+        },
         balance: {
             type: Number,
             required: true,
@@ -489,10 +489,15 @@ export default {
                     this.countTicket = 0;
                 }
             });
-            
+
+            if (section.quantity == 4 && section.availableSeatAmount > section.quantity) {
+                this.countTicket=section.quantity;
+                this.sectionSelection = section; // 선택된 섹션 정보 저장
+            }
+
             if (section.quantity < 4 && section.availableSeatAmount > section.quantity) {
                 section.quantity++;
-                this.countTicket++;
+                this.countTicket=section.quantity;
                 this.sectionSelection = section; // 선택된 섹션 정보 저장
             }
             // 섹션 이름에서 첫 글자 추출
@@ -623,7 +628,7 @@ export default {
       const height = 275;
       const left = (window.screen.width / 2) - (width / 2); // 화면 중앙에 위치
       const top = (window.screen.height / 2) - (height / 2);
-      window.open(`/myPage/recharge`, '충전하기', 
+      window.open(`/myPage/recharge`, '충전하기',
       `width=${width},height=${height},,top=${top},left=${left},
       toolbar=no,menubar=no,scrollbars=no,resizable=no,fullscreen=no`);
     },

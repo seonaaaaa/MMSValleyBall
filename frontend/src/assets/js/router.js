@@ -155,7 +155,7 @@ const routes = [
     meta: { requiresAuth: true }
   },
   {
-    path: '/myPage/recharge',
+    path: '/myPage/rechargee',
     name: 'Recharge',
     component: Recharge,
     meta: { requiresAuth: true }

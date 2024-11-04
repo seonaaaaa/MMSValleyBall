@@ -262,7 +262,7 @@ export default {
       const height = 275;
       const left = (window.screen.width / 2) - (width / 2); // 화면 중앙에 위치
       const top = (window.screen.height / 2) - (height / 2);
-      window.open(`/myPage/recharge`, '충전하기',
+      window.open('/myPage/rechargee', '충전하기',
       `width=${width},height=${height},,top=${top},left=${left},
       toolbar=no,menubar=no,scrollbars=no,resizable=no,fullscreen=no`);
     },
