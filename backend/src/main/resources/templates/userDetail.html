@@ -3,46 +3,9 @@
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       layout:decorate="~{layout/layoutReal}">
 <head>
-    <meta charset="UTF-8">
-    <script src="/static/js/jQuery.js"></script>
-    <style>
-        .userInfo {
-             margin: 40px auto;
-             text-align: center;
-             height: 400px;
-             width: 70%;
-             padding-top: 50px;
-             padding-left: 30%;
-             border: 2px solid #60a191;
-             border-radius: 10px;
-             background-color: #f9f9f9;
-         }
-         .button-line{
-         display: flex;
-          justify-content: center; /* 수평 중앙 정렬 */
-         }
-
-         .button {
-            padding: 10px 20px;
-            background-color: #60a191;
-            color: white;
-            text-decoration: none;
-            border-radius: 5px;
-            text-align: center;
-        }
-         .button:hover {
-             background-color: #0056b3;
-         }
-
-      .userInfo p {
-            display: flex;
-            justify-content: flex-start; /* 왼쪽으로 정렬 */
-            align-items: center; /* 수직으로 가운데 정렬 */
-            gap: 10px; /* 라벨과 값 사이에 간격 */
-            margin-top: 7px;
-        }
-    </style>
-    <title></title>
+    <!-- 개별 페이지 전용 CSS 파일 -->
+    <link rel="stylesheet" th:href="@{/css/user-detail.css}">
+</head>
 </head>
 <body>
 <div layout:fragment="content" class="content">
@@ -56,13 +19,12 @@
         <p><strong>🏐 생성일자: </strong><span th:text="${user.userCreateAt}">2024</span></p>
         <p><strong>🏐 수정일자: </strong><span th:text="${user.userUpdateAt}">2024</span></p>
         <p><strong>🏐 계정 상태 : </strong> <span th:text="${user.userStatus}">ACTIVE</span></p>
-
     </div>
     <div class="button-line">
         <form th:action="@{/admin/userDetail/{userId}(userId=${user.userId})}" method="post">
             <button type="submit" class="button"> 상태변경</button>
         </form>
-        <button class="button" onclick="location.href='/admin/userList'">돌아가기</button>
+        <button class="button btn-back" onclick="location.href='/admin/userList'">돌아가기</button>
     </div>
 </div>
 </body>

@@ -2,87 +2,10 @@
 <html xmlns:th="http://www.thymeleaf.org"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       layout:decorate="~{layout/layoutReal}">
-<head>
-    <style>
-        /* 관리자 삭제 페이지 스타일 */
-
-body {
-    font-family: 'Arial', sans-serif;
-    background-color: #f4f4f4;
-    margin: 0;
-    padding: 0;
-}
-
-.content {
-    max-width: 800px;
-    margin: 40px auto;
-    padding: 20px;
-    background-color: #ffffff;
-    border-radius: 10px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-}
-
-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-bottom: 20px;
-}
-
-table th, table td {
-    padding: 12px;
-    text-align: left;
-    border-bottom: 1px solid #ddd;
-}
-
-table th {
-    background-color: #2c3e50;
-    color: #ffffff;
-}
-
-button {
-    padding: 10px 15px;
-    background-color: #e74c3c;
-    color: #ffffff;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-}
-
-button:hover {
-    background-color: #c0392b;
-}
-
-a {
-    text-decoration: none;
-    color: #3498db;
-    margin-left: 90%;
-}
-
-a:hover {
-    text-decoration: underline;
-}
-
-/* 반응형 디자인 */
-@media (max-width: 600px) {
-    .content {
-        padding: 10px;
-    }
-    table th, table td {
-        padding: 8px;
-    }
-    button {
-        width: 100%;
-        margin-top: 10px;
-    }
-    a {
-        display: block;
-        margin-top: 10px;
-    }
-}
-
-    </style>
-</head>
+      <head>
+        <!-- 개별 페이지 전용 CSS 파일 -->
+        <link rel="stylesheet" th:href="@{/css/admin-delete.css}">
+    </head>
 <body>
 <div layout:fragment="content" class="content">
     <section>
@@ -106,7 +29,7 @@ a:hover {
                 <td>
                     <button
                             th:onclick="'deleteAdmin(' + ${user.userId} + ')'"
-                            type="button">
+                            type="button" class="delete-btn">
                         관리자 삭제
                     </button>
                     <script th:inline="javascript">
@@ -134,8 +57,8 @@ a:hover {
             </tr>
             </tbody>
         </table>
-        <div>
-            <a href="userList">돌아가기</a>
+        <div class="button-container">
+            <a href="userList"><button class="back-btn">돌아가기</button></a>
         </div>
     </section>
 </div>

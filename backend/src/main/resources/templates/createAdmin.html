@@ -3,202 +3,58 @@
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       layout:decorate="~{layout/layoutReal}">
 <head>
-    <meta charset="UTF-8">
-    <title>관리자 추가</title>
-    <style>
-        /* 관리자 추가 페이지 스타일 */
-
-        body {
-            font-family: 'Helvetica Neue', Arial, sans-serif;
-            background: linear-gradient(to right, #ece9e6, #ffffff);
-            margin: 0;
-            padding: 0;
-        }
-
-        .content {
-            max-width: 600px;
-            margin: 40px auto;
-            padding: 20px;
-            background-color: #fdfdfd;
-            border-radius: 15px;
-            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
-        }
-
-        h2 {
-            color: #2c3e50;
-            text-align: center;
-            font-size: 26px;
-            margin-bottom: 5px;
-        }
-
-        h3 {
-            color: #95a5a6;
-            text-align: center;
-            font-size: 14px;
-            margin-bottom: 20px;
-        }
-
-        form {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-
-        label {
-            font-weight: bold;
-            color: #34495e;
-            margin-bottom: 3px;
-        }
-
-        input[type="text"],
-        input[type="email"],
-        input[type="password"] {
-            width: 100%;
-            padding: 14px;
-            border: 1px solid #bdc3c7;
-            border-radius: 8px;
-            box-sizing: border-box;
-            transition: all 0.3s ease;
-        }
-
-        input[type="text"]:focus,
-        input[type="email"]:focus,
-        input[type="password"]:focus {
-            border-color: #3498db;
-            box-shadow: 0 0 5px rgba(52, 152, 219, 0.5);
-        }
-
-        input[readonly] {
-            background-color: #f0f0f0;
-        }
-
-        button {
-            padding: 12px;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 15px;
-            transition: background-color 0.3s, box-shadow 0.2s;
-        }
-
-        button[type="button"] {
-            background-color: #8e44ad;
-            color: #ffffff;
-        }
-
-        button[type="button"]:hover {
-            background-color: #732d91;
-            box-shadow: 0 4px 10px rgba(142, 68, 173, 0.3);
-        }
-
-        button[type="submit"] {
-            background-color: #27ae60;
-            color: #ffffff;
-        }
-
-        button[type="submit"]:hover {
-            background-color: #1e8449;
-            box-shadow: 0 4px 10px rgba(39, 174, 96, 0.3);
-        }
-
-        button:disabled {
-            background-color: #bdc3c7;
-            cursor: not-allowed;
-        }
-
-        #emailResult,
-        #phoneResult {
-            margin-top: 5px;
-            font-size: 13px;
-            color: #e74c3c;
-        }
-
-        #passwordError {
-            font-size: 13px;
-            color: #e74c3c;
-        }
-
-        #searchAddressButton {
-            background-color: #f39c12;
-            color: #ffffff;
-            margin-top: 5px;
-        }
-
-        #searchAddressButton:hover {
-            background-color: #e67e22;
-            box-shadow: 0 4px 10px rgba(243, 156, 18, 0.3);
-        }
-
-        a[type="button"] {
-            display: inline-block;
-            padding: 12px;
-            background-color: #7f8c8d;
-            color: #ffffff;
-            text-align: center;
-            text-decoration: none;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: background-color 0.3s;
-        }
-
-        a[type="button"]:hover {
-            background-color: #5f6a6a;
-        }
-
-        /* 관리자 추가 및 뒤로가기 버튼을 한 줄에 배치 */
-        .button-group {
-            display: flex;
-            gap: 10px;
-            justify-content: flex-end;
-            margin-top: 10px;
-        }
-
-    </style>
+    <!-- 개별 페이지 전용 CSS 파일 -->
+    <link rel="stylesheet" th:href="@{/css/admin-create.css}">
 </head>
 <body>
 <div layout:fragment="content" class="content">
     <section>
-        <h2>관리자 추가</h2>
-        <h3> ** 필수 입력 항목입니다.</h3>
+        <h2 class="content-title">관리자 추가</h2>
+        <h3 class="content-info"> ** 필수 입력 항목입니다.</h3>
         <hr>
 
         <!-- 관리자 추가 폼 -->
         <form th:action="@{/admin/createAdmin}" method="post" name="createAdminForm">
-            <!-- 이메일 중복 확인 폼 -->
-            <div>
-                <label for="email">**이메일:</label>
-                <div>
-                    <input type="email" id="email" name="email" th:value="${email}" placeholder="이메일을 입력하세요" required>
-                    <button type="button" name="action" value="checkEmail" id="checkEmailButton">이메일 중복 확인</button>
-                    <div id="emailResult"></div>
-                </div>
+
+            <div class="form-group">
+                <label for="email">** 이메일 :</label>
+                <input type="email" id="email" name="email" th:value="${email}" placeholder="이메일을 입력하세요" required>
+                <button type="button" name="action" value="checkEmail" id="checkEmailButton">이메일 중복 확인</button>
+            </div>
+            <div id="emailResult" class="message"></div>
+
+            <div class="form-group">
+                <label for="name">** 이름 :</label>
+                <input type="text" id="name" name="name" placeholder="이름을 입력하세요" required>
             </div>
 
-            <label for="name">**이름:</label>
-            <input type="text" id="name" name="name" placeholder="이름을 입력하세요" required>
-            <br>
+            <div class="form-group">
+                <label for="password">** 비밀번호 :</label>
+                <input type="password" id="password" name="password" placeholder="비밀번호를 입력하세요" required>
+            </div>
 
-            <label for="password">**비밀번호:</label>
-            <input type="password" id="password" name="password" placeholder="비밀번호를 입력하세요" required>
-            <br>
+            <div class="form-group">
+                <label for="confirmPassword">** 비밀번호 확인 :</label>
+                <input type="password" id="confirmPassword" name="confirmPassword" placeholder="한 번 더 입력하세요" required>
+            </div>
+            <div id="passwordError" class="message"></div>
 
-            <label for="confirmPassword">**비밀번호 확인:</label>
-            <input type="password" id="confirmPassword" name="confirmPassword" placeholder="한 번 더 입력하세요" required>
-            <span id="passwordError" style="color: red;"></span>
-            <br>
+            <div class="form-group">
+                <label for="phone">** 전화번호 :</label>
+                <input type="text" id="phone" name="phone" placeholder="XXX-XXXX-XXXX" required>
+            </div>
+            <div id="phoneResult" class="message"></div>
 
-            <label for="phone">**전화번호:</label>
-            <input type="text" id="phone" name="phone" placeholder="XXX-XXXX-XXXX" required>
-            <div id="phoneResult" style="color: red;"></div>
-            <br>
+            <div class="form-group">
+                <label for="address">주소 :</label>
+                <input type="text" id="address" name="address" readonly placeholder="주소를 입력하세요" required>
+                <button type="button" id="searchAddressButton">주소 찾기</button>
+            </div>
 
-            <label for="address">주소:</label>
-            <input type="text" id="address" name="address" readonly placeholder="주소를 입력하세요" required>
-            <button type="button" id="searchAddressButton">주소 찾기</button>
-            <br>
-
-            <button type="submit" name="action" value="createAdmin" id="createAdminButton" disabled>관리자 추가</button>
-            <a type="button" href="userList" th:text="돌아가기"></a>
+            <div class="button-group">
+                <button type="submit" name="action" value="createAdmin" id="createAdminButton" disabled>관리자 추가</button>
+                <a type="button" class="back-btn" href="userList" th:text="돌아가기"></a>
+            </div>
         </form>
 
         <!-- 카카오 주소 검색 API -->

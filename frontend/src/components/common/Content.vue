@@ -88,8 +88,8 @@
       <!-- 경기 일정 섹션 -->
       <div class="section">
         <h2>경기 일정</h2>
-        <!-- Calendar 컴포넌트를 사용 -->
-        <CalendarMain :events="events" />
+        <!-- Calendar 컴포넌트를 main 모드로 사용 -->
+        <Calendar :events="events" calendarMode="main" />
       </div>
 
     </div>
@@ -98,12 +98,12 @@
 
 <script>
 import axios from 'axios';
-import CalendarMain from '../common/Calendar.vue';
+import Calendar from './Calendar.vue';
 
 export default {
   name: 'AppContent',
   components: {
-    CalendarMain,
+    Calendar,
   },
   props:{
     isLoggedIn: {
@@ -264,10 +264,7 @@ export default {
   flex-grow: 1; /* 콘텐츠가 화면의 나머지 공간을 차지하도록 설정 */
   padding-top: var(--header-height);  /* Header 높이만큼 패딩 */
   padding-bottom: var(--footer-height);  /* Footer 높이만큼 패딩 */
-  /* max-width: 1200px; */
-  /* margin: 30px auto; */
-  /* 상하 마진 제거, 하단에만 마진 30px */
-  margin: 0 auto;
+  margin: 0;
   margin-bottom: 100px;
   position: relative;
 }
@@ -403,12 +400,13 @@ a {
   font-size: 18px;
   text-align: center;
 }
+
 /* 상단 슬라이드 배너 */
 .slider-container {
   position: relative;
-  width: 100%;
-  height: 400px;
-  margin: 0 auto;
+  max-width: 100%;
+  max-height: 400px;
+  margin: 0;
   overflow: hidden;
 }
 
@@ -477,7 +475,7 @@ a {
 /* 경기 하이라이트 슬라이드 배너 */
 .highlight-slider-container {
   position: relative;
-  width: 1200px;
+  max-width: 1200px;
   height: auto;
   margin: 0 auto;
   overflow: hidden;

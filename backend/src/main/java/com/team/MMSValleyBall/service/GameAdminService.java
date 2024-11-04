@@ -167,6 +167,7 @@ public class GameAdminService {
                     + "- 경기명: GS MMS VS " + teamName + "\n"
                     + "- 원래 일정: " + date + "\n\n"
                     + "불편을 드려 죄송하며, 취소된 경기의 티켓은 전액 환불됩니다.\n"
+                    + "환불 절차에 대한 자세한 안내는 [고객센터 070-7544-7000]로 문의해 주시기 바랍니다.\n"
                     + "감사합니다.\n\n[GS MMS Volleyball 드림]";
         } else {
             return "안녕하세요, [GS MMS Volleyball]입니다.\n\n"
@@ -174,6 +175,7 @@ public class GameAdminService {
                     + "- 경기명: GS MMS VS " + teamName + "\n"
                     + "- 변경 후 일정: " + date + "\n\n"
                     + "변경된 일정에 맞춰 관람을 원치 않으실 경우 환불을 요청하실 수 있습니다.\n"
+                    + "환불 절차는 [고객센터 070-7544-7000]로 문의해 주시기 바랍니다.\n"
                     + "감사합니다.\n\n[GS MMS Volleyball 드림]";
         }
     }

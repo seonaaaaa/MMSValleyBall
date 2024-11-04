@@ -1,0 +1,139 @@
+/* 관리자 추가 페이지 스타일 */
+
+body {
+    font-family: 'Helvetica Neue', Arial, sans-serif;
+    background: linear-gradient(to right, #ece9e6, #ffffff);
+    margin: 0;
+    padding: 0;
+}
+
+.content {
+    width: 100%;
+    max-width: 800px;
+    margin: 40px auto;
+    padding: 20px;
+    background-color: #fdfdfd;
+    border-radius: 15px;
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+}
+
+.content-title {
+    color: #2c3e50;
+    text-align: center;
+    font-size: 26px;
+    margin-bottom: 5px;
+}
+
+.content-info {
+    color: #95a5a6;
+    text-align: center;
+    font-size: 14px;
+    margin-bottom: 20px;
+}
+
+.form-group {
+    display: flex;
+    align-items: center; /* 라벨과 인풋을 수직 정렬 */
+    gap: 10px; /* 라벨과 인풋 사이 간격 */
+    margin-top: 20px;
+    margin-bottom: 20px;
+}
+
+label {
+    width: 150px;
+    text-align: left;
+    font-weight: bold;
+    margin-bottom: 10px;
+    margin-right: 50px;
+    color: #34495e;
+}
+
+input {
+    flex: 1;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+input[type="text"],
+input[type="email"],
+input[type="password"] {
+    width: 100%;
+    padding: 14px;
+    border: 1px solid #bdc3c7;
+    border-radius: 8px;
+    box-sizing: border-box;
+    transition: all 0.3s ease;
+}
+
+input[readonly] {
+    background-color: #f0f0f0;
+}
+
+.message {
+    margin-left: 220px;
+    font-size: 13px;
+    color: #e74c3c;
+}
+
+button {
+    padding: 12px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: bold;
+    transition: background-color 0.3s, box-shadow 0.2s;
+}
+
+button[type="button"] {
+    background-color: #f39c12;
+    color: #ffffff;
+}
+
+button[type="submit"] {
+    background-color: #60a191;
+    color: #ffffff;
+}
+
+button:disabled {
+    background-color: #bdc3c7;
+    cursor: not-allowed;
+}
+
+#searchAddressButton {
+    background-color: #f39c12;
+    color: #ffffff;
+    margin-top: 5px;
+}
+
+a[type="button"] {
+    display: inline-block;
+    padding: 12px;
+    background-color: #7f8c8d;
+    color: #ffffff;
+    text-align: center;
+    text-decoration: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+/* 관리자 추가 및 뒤로가기 버튼을 한 줄에 배치 */
+.button-group {
+    display: flex;
+    gap: 10px;
+    width: 100%;
+    margin-top: 10px;
+}
+
+.button-group button,
+.button-group a {
+    flex: 1;
+}
+
+.back-btn {
+    font-weight: bold;
+}
