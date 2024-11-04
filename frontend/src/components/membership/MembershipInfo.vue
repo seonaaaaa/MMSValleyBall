@@ -61,17 +61,19 @@
           <div class="membership-season-goods">
               <h4>2024/25 시즌 굿즈 안내</h4>
               <div class="goods">
-                <div>
-                  <img class="img" src="@/assets/img/mms/mms-ci-uniform.png">
-                  <p>유니폼</p>
-                </div>
-                <div>
-                  <img class="img" src="@/assets/img/mms/mms-ci-uniform.png">
+                <div class="slogan">
+                  <img class="sloganImg" src="@/assets/img/mms/slogun.png">
                   <p>슬로건</p>
                 </div>
-                <div>
-                  <img class="img" src="@/assets/img/mms/mms-ci-uniform.png">
-                  <p>고무장갑</p>
+                <div class="goods-box">
+                  <div>
+                    <img class="img" src="@/assets/img/mms/mms-ci-uniform.png">
+                    <p>유니폼</p>
+                  </div>
+                  <div>
+                    <img class="img" src="@/assets/img/mms/mms_gloves.png">
+                    <p>고무장갑</p>
+                  </div>
                 </div>
               </div>
           </div>
@@ -191,17 +193,40 @@
   border: 1px solid #ddd; /* 테두리 추가 */
 }
 
+.membership-season-goods {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
 .goods {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 50px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 30px;
+}
+
+.slogan {
+    margin-bottom: 20px; /* 슬로건과 아래 항목 사이의 간격 */
+}
+
+.goods-box {
+    display: flex;
+    gap: 50px;
+    justify-content: center;
+}
+
+.goods-box div {
+    text-align: center;
 }
 
 .img {
-  width: 200px;
-  height: 250px;
-  object-fit: cover;
+    width: 320px;
+    height: 280px;
+    object-fit: cover;
+}
+
+.sloganImg{
+  width: 800px;
 }
 
 .btn {
