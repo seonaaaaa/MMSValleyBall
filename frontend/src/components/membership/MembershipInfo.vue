@@ -13,7 +13,7 @@
       <div class="membership-info-content">
         <div class="membership-info-layout">
           <div class="membership-season-info">
-            <h4>2024/25 시즌 멤버십 안내</h4>
+            <h2>2024/25 시즌 멤버십 안내</h2>
               <table class="membership-info-table">
                 <thead>
                   <tr>
@@ -59,7 +59,7 @@
           </div>
           <br>
           <div class="membership-season-goods">
-              <h4>2024/25 시즌 굿즈 안내</h4>
+              <h2>2024/25 시즌 굿즈 안내</h2>
               <div class="goods">
                 <div class="slogan">
                   <img class="sloganImg" src="@/assets/img/mms/slogun.png">
@@ -269,4 +269,9 @@
 #btn-purchase:hover {
   background-color: #4d7e74; /* 마우스를 올렸을 때 배경색 변경 */
 }
+
+h2 {
+  margin-bottom: 30px;
+}
+
   </style>
