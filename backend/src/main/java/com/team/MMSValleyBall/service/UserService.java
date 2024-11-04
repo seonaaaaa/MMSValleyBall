@@ -39,11 +39,11 @@ public class UserService {
         Users user = userRepository.findByUserEmail(userEmail);
         Membership membership = user.getUserMembership();
 
-        //멤버십 id가 4면, membershipType은 24/25-silver, 할인율 10%
+        //멤버십 id가 5면, membershipType은 24/25-silver, 할인율 10%
         //멤버십 id가 6이면, membershipType은 24/25-gold, 할인율 30%
         String membershipType = "24/25 Bronze";
         int membershipDiscount = 0;
-        if (membership.getMembershipId() == 4) {
+        if (membership.getMembershipId() == 5) {
             membershipType = "24/25 Silver";
             membershipDiscount = 10;
         } else if (membership.getMembershipId() == 6) {
