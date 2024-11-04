@@ -174,9 +174,9 @@ INSERT INTO users (user_create_at, user_membership_id, user_phone, user_name, us
 INSERT INTO payment (payment_amount,payment_create_at,payment_user_id,payment_status) VALUES
 	 (400000,'2023-08-01 10:46:00',3,'COMPLETED'),
 	 (400000,'2023-08-01 10:51:00',6,'COMPLETED'),
-	 (400000,'2023-08-01 11:08:00',7,'COMPLETED'),
-	 (300000,'2023-08-01 11:20:00',9,'COMPLETED'),
-	 (300000,'2023-08-02 09:16:00',10,'COMPLETED'),
+	 (600000,'2023-08-01 11:08:00',7,'COMPLETED'),
+	 (600000,'2023-08-01 11:20:00',9,'COMPLETED'),
+	 (600000,'2023-08-02 09:16:00',10,'COMPLETED'),
 	 (400000,'2023-08-02 17:38:00',12,'COMPLETED'),
 	 (350000,'2023-08-03 12:20:00',14,'COMPLETED'),
 	 (400000,'2023-08-03 12:40:00',2,'COMPLETED'),
