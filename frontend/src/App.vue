@@ -1,9 +1,11 @@
 <template>
   <div id="app">
     <AppHeader v-if="showHeaderFooter" @logoutSuccess="handleLogoutSuccess" :isLoggedIn="isLoggedIn"/>
-    <router-view :isLoggedIn="isLoggedIn" :balance="Number(balance)" :membership="membership"
+    <router-view :isLoggedIn="isLoggedIn" :balance="Number(balance)" 
+    :membership="membership" 
     @loginSuccess="handleLoginSuccess" @logoutSuccess="handleLogoutSuccess" 
-    @getBalance="updateBalance" @getMembership="updateMembership"/>
+    @getBalance="updateBalance" @getMembership="updateMembership"
+    />
     <AppFooter v-if="showHeaderFooter"/>
   </div>
 </template>
@@ -53,6 +55,8 @@ export default {
       sessionStorage.setItem('membership', getMembership);
     };
 
+    
+
     onMounted(() => {
       // 새로고침 시 sessionStorage에 저장된 값을 불러와 설정
       isLoggedIn.value = sessionStorage.getItem('isLoggedIn') === 'true';
@@ -75,7 +79,7 @@ export default {
       handleLoginSuccess,
       handleLogoutSuccess,
       updateBalance,
-      updateMembership
+      updateMembership,
     };
   } 
 }

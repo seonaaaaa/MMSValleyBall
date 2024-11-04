@@ -22,8 +22,6 @@ public interface UserRepository extends JpaRepository<Users, Long> {
 
     Users findByUserPhone(String userPassword);
 
-    // ============================================================================================
-    //     유저 검색
     Page<Users> findByUserNameContainingOrderByUserIdAsc(@Param("keyword") String keyword, Pageable pageable);
 
     Page<Users> findByUserEmailContainingOrderByUserIdAsc(@Param("keyword") String keyword, Pageable pageable);

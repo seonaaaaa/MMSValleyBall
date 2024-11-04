@@ -71,40 +71,21 @@ public class TicketController {
 
     // 티켓 구매 모달창 하나로 처리
     @GetMapping("/purchase/modal")
-//    public ResponseEntity<MultiValueMap<String,Object>> viewTicketPurchaseModal(
     public ResponseEntity<?> viewTicketPurchaseModal(
             @RequestParam("email") String email,
             @RequestParam("matchId") Long matchId) {
         try {
-            // 1. 세션에서 보낸 RequestParam으로 email 받아옴.
-//            if (email == null || email.isEmpty()) {
-//                return ResponseEntity.badRequest().body(Map.of("error", "Invalid email parameter"));
-//            }
             log.info("### ticket controller - request param: " + email + "/" + matchId);
-
             // 사용자 정보 - 충전금액
             MoneyDTO moneyDTO = usersBalanceService.getUsersBalance(email);
-//            if (moneyDTO == null) {
-//                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("error", "Could not fetch user balance"));
-//            }
-
             // 사용자 정보 - 멤버십
             Map<String, Object> userMembership = userService.findMembership(email);
-//            if (userMembership == null) {
-//                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("error", "Could not fetch user membership"));
-//            }
 
             // 경기 정보
             MatchTableDTO match = matchService.getOneMatch(matchId);
-//            if (match == null) {
-//                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("error", "Could not fetch match information"));
-//            }
 
             // 잔여석 정보
             List<AvailableSeatDTO> availableSeats = ticketService.getAvailableSeatsByMatch(matchId);
-//            if (availableSeats == null) {
-//                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("error", "Could not fetch available seats"));
-//            }
 
             // ticketSalesDTO
             TicketSalesDTO dto = new TicketSalesDTO();
@@ -113,10 +94,6 @@ public class TicketController {
             // 좌석 가격 정보
             List<SeatDTO> seatDTOList = ticketService.findSeatAll();
 
-            // API 응답 데이터
-//            MultiValueMap<String, Object> response = new LinkedMultiValueMap<>();
-//            response.put("setTicketSalesDto", (List<Object>) dto);
-//            response.put("setAvailableSeatsList", Collections.singletonList(availableSeats));
             TicketPurchaseResponseDTO responseDTO = new TicketPurchaseResponseDTO();
             responseDTO.setTicketSalesDto(dto);
             responseDTO.setMatchInfo(match);
@@ -125,16 +102,11 @@ public class TicketController {
             responseDTO.setSeatDTOList(seatDTOList);
             responseDTO.setAvailableSeatsList(availableSeats);
 
-//            Map<String, Object> response = new HashMap<>();
-//            response.put("response")
-
             return ResponseEntity.status(HttpStatus.OK).body(responseDTO);  // 응답을 반환합니다.
-//            return response;  // 응답을 반환합니다.
         }
         catch (Exception e) {
             log.error("Error fetching user data", e);  // 예외 로그 추가
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("error", "Error fetching user data"));
-//            return null;
         }
     }
 

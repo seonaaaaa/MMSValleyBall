@@ -7,7 +7,7 @@
           <!-- 관리자 -->
           <div v-if="role == 'ADMIN'" class="admin"> 
             <div class="image-container">
-              <img class="admin-icon" :src="require('@/assets/img/membershipImg/silver.png')" alt="관리자 아이콘" />
+              <img class="admin-icon" :src="require('@/assets/img/anyImg/admin.png')" alt="관리자 아이콘" />
               <h2 class="admin-header">관리자<span class="admin-name"> {{ name }} </span> 님</h2>
             </div>
             <button class="btn-AdminPage" @click="goToAdminPage">관리자 모드</button><br>
@@ -88,8 +88,8 @@
       <!-- 경기 일정 섹션 -->
       <div class="section">
         <h2>경기 일정</h2>
-        <!-- Calendar 컴포넌트를 main 모드로 사용 -->
-        <Calendar :events="events" calendarMode="main" />
+        <!-- Calendar 컴포넌트를 사용 -->
+        <CalendarMain :events="events" />
       </div>
 
     </div>
@@ -98,12 +98,12 @@
 
 <script>
 import axios from 'axios';
-import Calendar from './Calendar.vue';
+import CalendarMain from '../common/Calendar.vue';
 
 export default {
   name: 'AppContent',
   components: {
-    Calendar,
+    CalendarMain,
   },
   props:{
     isLoggedIn: {
@@ -165,9 +165,6 @@ export default {
     goToMyPage() {
       this.$router.push('/mypage/reservations');
     },
-    goToRecharge(){
-      this.$router.push('/myPage/info/recharge');
-    },
     goToLogin(){
       this.$router.push('/login');
     },
@@ -175,7 +172,8 @@ export default {
       this.$router.push('/signup');
     },
     goToAdminPage(){
-      this.$router.push('admin/user-list');
+      const targetUrl = `http://localhost:4000/admin/userList?adminName=${encodeURIComponent(this.name)}`;
+      window.location.href = targetUrl;
     },
     // 로그아웃
     logout() {
@@ -184,6 +182,8 @@ export default {
       sessionStorage.removeItem('name');
       sessionStorage.removeItem('email');
       sessionStorage.removeItem('role');
+      sessionStorage.removeItem('address');
+      sessionStorage.removeItem('phone');
       const token = sessionStorage.getItem('token'); 
       if (token === null) {
         console.log('토큰이 성공적으로 삭제되었습니다.');
@@ -247,8 +247,8 @@ export default {
       return  require(`@/assets/img/membershipImg/${this.membership}.png`);
     },
     openRechargeWindow() {
-      const width = 450;
-      const height = 215;
+      const width = 570;
+      const height = 275;
       const left = (window.screen.width / 2) - (width / 2); // 화면 중앙에 위치
       const top = (window.screen.height / 2) - (height / 2);
       window.open(`/myPage/recharge`, '충전하기', 
@@ -264,7 +264,10 @@ export default {
   flex-grow: 1; /* 콘텐츠가 화면의 나머지 공간을 차지하도록 설정 */
   padding-top: var(--header-height);  /* Header 높이만큼 패딩 */
   padding-bottom: var(--footer-height);  /* Footer 높이만큼 패딩 */
-  margin: 0;
+  /* max-width: 1200px; */
+  /* margin: 30px auto; */
+  /* 상하 마진 제거, 하단에만 마진 30px */
+  margin: 0 auto;
   margin-bottom: 100px;
   position: relative;
 }
@@ -284,12 +287,13 @@ a {
   padding: 0px 15px;
   border: 2px solid #bfccbdde;
   border-radius: 20px;
-  text-align: center;
   box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
   display: flex;
   flex-direction: column;
   justify-content: center;
   z-index: 100;
+  text-align: center;
+  justify-content: center;
 }
 
 .btn-myPage, .btn-logout {
@@ -355,14 +359,15 @@ a {
   display: flex;
   align-items: center; /* 이미지와 텍스트를 수직 중앙 정렬 */
   gap: 2px; /* 이미지와 텍스트 간격 조절 */
-  font-size: larger;
+  font-size: 25px;
 }
 
 .membershipLevel-image {
   width: 50px;
   height: 50px;
-  margin-left: 40px;
+  margin-left: 10px;
 }
+
 .welcome{
   color: #3c6259;
 }
@@ -400,13 +405,12 @@ a {
   font-size: 18px;
   text-align: center;
 }
-
 /* 상단 슬라이드 배너 */
 .slider-container {
   position: relative;
-  max-width: 100%;
-  max-height: 400px;
-  margin: 0;
+  width: 100%;
+  height: 400px;
+  margin: 0 auto;
   overflow: hidden;
 }
 
@@ -475,7 +479,7 @@ a {
 /* 경기 하이라이트 슬라이드 배너 */
 .highlight-slider-container {
   position: relative;
-  max-width: 1200px;
+  width: 1200px;
   height: auto;
   margin: 0 auto;
   overflow: hidden;
@@ -559,5 +563,14 @@ a {
   height: 10px;
   margin: 0 5px;
   cursor: pointer;
+}
+.admin-url {
+  text-decoration: none;
+  color: inherit; /* 원래 텍스트 색상 유지 */
+}
+
+.admin-url:hover {
+  text-decoration: none; /* hover 시 밑줄 없음 */
+  color: inherit; /* hover 시 색상 변화 없음 */
 }
 </style>

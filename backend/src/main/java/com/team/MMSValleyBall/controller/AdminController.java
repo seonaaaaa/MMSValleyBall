@@ -45,6 +45,7 @@ public class AdminController {
 
     @GetMapping("/userList")
     public String getUsers(
+            @RequestParam("adminName")String name,
             @RequestParam(name = "searchCriteria", required = false) String searchCriteria,
             @RequestParam(name = "keyword", required = false) String keyword,
             @RequestParam(value = "membership", required = false) String membership,
@@ -52,7 +53,12 @@ public class AdminController {
             @RequestParam(value = "season", required = false) String season,
             @PageableDefault(page = 0, size = 5, sort = "userId", direction = Sort.Direction.ASC) Pageable pageable,
             Model model) {
-
+        // 검색 조건과 키워드를 모델에 추가하여 페이지 이동 시에도 값 유지
+        model.addAttribute("searchCriteria", searchCriteria);
+        model.addAttribute("keyword", keyword);
+        model.addAttribute("membership", membership);
+        model.addAttribute("adminName", name);
+        System.out.println("보내온 이름 : "+name);
         // 필터링 조건에 따라 유저 리스트 가져오기
         Page<UserDTO> userPage = getUserPageByFilter(season, status, membership, searchCriteria, keyword, pageable);
 
@@ -148,6 +154,7 @@ public class AdminController {
         model.addAttribute("userBalanceMap", adminService.getAllUsersBalanceMap(userDTOS));
         model.addAttribute("totalUsers", adminService.countUsersByRole(UserRole.USER));
 
+        // 페이지 블럭 처리
         // 멤버십 및 시즌 정보 추가
         Map<Long, String> seasonMap = new HashMap<>();
         Map<Long, String> membershipTypeMap = new HashMap<>();
