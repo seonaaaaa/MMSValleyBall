@@ -76,9 +76,9 @@ public class MyPageController {
     }
 
     // 회원 탈퇴
-    @PatchMapping("info/deactivate")
+    @PostMapping("info/deactivate")
     public ResponseEntity<String> deleteUser(@RequestBody UserDTO userDTO){
-        return ResponseEntity.ok(myPageService.deactivateUser(userDTO.getUserId()));
+        return ResponseEntity.ok(myPageService.deactivateUser(userDTO.getUserEmail()));
     }
 
     // 잔액 충전

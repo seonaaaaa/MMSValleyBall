@@ -144,11 +144,12 @@ public class MyPageService {
         return ObjectUtils.isEmpty(userRepository.findByUserPhone(userDTO.getUserPhone()));
     }
 
-    public String deactivateUser(Long userId) {
-        Users deactivateUser = userRepository.findById(userId).orElse(null);
+    public String deactivateUser(String email) {
+        Users deactivateUser = userRepository.findByUserEmail(email);
         if(ObjectUtils.isEmpty(deactivateUser)) return "해당 회원이 존재하지 않습니다.";
         deactivateUser.setUserStatus(UserStatus.INACTIVE); // 찾은 회원 비활성화 상태로 변경
-        return "회원 탈퇴 성공";
+        userRepository.save(deactivateUser);
+        return "회원 탈퇴가 완료되었습니다.";
     }
 
     public String topUp(Recharge recharge) {

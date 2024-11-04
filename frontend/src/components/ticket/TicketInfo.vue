@@ -123,7 +123,7 @@
       </div>
       <div>
         <button class="ticket-button"
-          onclick="window.location.href='http://localhost:8080/ticket/purchase';">예매하기</button>
+          onclick="window.location.href='/ticket/purchase';">예매하기</button>
       </div>
     </div>
   </div>

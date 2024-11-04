@@ -4,11 +4,9 @@
 
         <!-- 모달 내용 -->
         <div class="first-modal-content">
-            <!-- 로딩 표시 -->
-            <div v-if="loading" class="loading-spinner">
+            <!-- <div v-if="loading" class="loading-spinner">
                 데이터 로딩 중입니다...
-            </div>
-
+            </div> -->
             <!-- 모달 제목 -->
             <!-- 선택한 데이터 가져와서 일정 넣어야함 -->
             <div class="modal-title" v-if="firstPage">
@@ -20,8 +18,6 @@
                 </div>
                 <hr class="divider" />
             </div>
-
-
             <!-- 모달 디테일 -->
             <div v-if="firstPage">
                  <div class="modal-body">
@@ -29,7 +25,6 @@
                 <div class="modal-ticket-img" v-if="selectedZoneImage">
                     <img :src="selectedZoneImage" alt="선택한 구역 이미지" class="stadium-image" />
                 </div>
-
             <!-- 모달 표 -->
             <div class="modal-table-container">
                 <table class="modal-table">
@@ -50,7 +45,6 @@
                             </td>
                             <td>{{ zone.availableSeatAmount }}석</td>
                         </tr>
-
                         <!-- 선택한 구역의 섹션 정보 표시 -->
                         <tr v-if="zoneSelection != null">
                             <td colspan="2">
@@ -92,7 +86,7 @@
             </div>
         </div>
         <div class="first-button">
-            <button class="hiden-button" ref="autoClickButton" @click="handleClick"></button>
+            <!-- <button class="hiden-button" ref="autoClickButton" @click="handleClick"></button> -->
             <!-- 결제 버튼 -->
             <button class="buy-button" @click="openSecondPage">다음</button>
 
@@ -246,27 +240,24 @@
 import axios from 'axios';
 export default {
     name: 'TicketModal',
-
-    components: {
-
-    },
-
     props: {
+        membership: {
+            type: String,
+            required: true,
+        },
+        balance: {
+            type: Number,
+            required: true,
+        },
         visible: {
             type: Boolean,
             default: false,
-        },
-        user: {
-            type: Object,
-            default: () => ({ name: '', role: 'guest', email: '', isLoggedIn: false })
         },
         match: {
             type: Object,
             required: true,
         },
-        
     },
-
     computed: {
         selectedZones() {
             // 수량이 1 이상인 구역만 필터링
@@ -286,12 +277,10 @@ export default {
                 (zone.availableSeatAmount > 0 && zone.zoneName !== 'GOLD')
             );
         },
-
         formattedTotal() {
             // 숫자를 세 자리마다 쉼표가 붙은 문자열로 변환
             return this.total.toLocaleString();
         },
-
         formattedPayment() {
         // 변환된 결제 금액과 잔액을 반환
             return {
@@ -305,9 +294,7 @@ export default {
             const match = membershipType.match(/\/.{3}(.+)/);
             return match ? match[1].trim() : '';
         }
-
     },
-
     watch: {
         // 버튼의 수량이 변경되었을 때, 모든 수량이 0이면 activeButtonIndex 초기화
         zones: {
@@ -318,33 +305,31 @@ export default {
             },
             deep: true
         },
-        autoClick: {
-            immediate: true, // 컴포넌트가 로드되면 즉시 실행
-            handler(newValue) {
-                if (newValue) {
-                this.handleClick(); // 자동으로 버튼 클릭 메서드 호출
-                this.autoClick = false; // 이후에는 자동 클릭이 재발하지 않도록 설정
-                }
-            }
-        }
+        // autoClick: {
+        //     immediate: true, // 컴포넌트가 로드되면 즉시 실행
+        //     handler(newValue) {
+        //         if (newValue) {
+        //         this.handleClick(); // 자동으로 버튼 클릭 메서드 호출
+        //         this.autoClick = false; // 이후에는 자동 클릭이 재발하지 않도록 설정
+        //         }
+        //     }
+        // }
     },
-
     data() {
         return {
-            loading: true,
-            autoClick: true, // 버튼 자동 클릭을 제어할 변수
+            // loading: true,
+            // autoClick: true, // 버튼 자동 클릭을 제어할 변수
             // 두번째 모달창으로 이동
             firstPage: true,
             secondPage: false,
 
             // 서버에서 받는 데이터
             ticketSalesDto: {},
-            userBalance: 0,
+            // userBalance: 0,
             matchInfo: {},
             availableSeatsList: [],
             userMembership: {},
             seatDTOList: [],
-
             // 좌석 선택 관련
             zones: [],  // 초기값 설정
             zoneSelection: null,
@@ -364,51 +349,40 @@ export default {
             thisTeam: "GS ITM",
         };
     },
-
+    // mounted() {
+    //     this.fetchEvents;
+    // },
     methods: {
-        async handleClick() {
-            console.log("버튼이 눌렸습니다!");
-            // 버튼 클릭 시 실행할 로직을 여기에 추가하세요
-            await this.fetchEvents(); // 데이터 fetch
-        },
+        // async handleClick() {
+        //     console.log("버튼이 눌렸습니다!");
+        //     // 버튼 클릭 시 실행할 로직을 여기에 추가하세요
+        //     await this.fetchEvents(); // 데이터 fetch
+        // },
         // API 호출
-        async fetchEvents() {
-            // let data = {};
+        async fetchEventsFromModal() {
             try {
-                this.loading = true; // 데이터 로드 시작 시 로딩 활성화
-                console.log("Sending request with:", {
-                    email: this.user.email,
-                    matchId: this.match.matchId
-                });
                 const response = await axios.get('/ticket/purchase/modal', {
                     params: {
-                        email: this.user.email,
+                        email: sessionStorage.getItem('email'),
                         matchId: this.match.matchId
-                    },
-                    headers: {
-                        Authorization: sessionStorage.getItem('token')
-                    } 
+                    }
                 });
                 this.ticketSalesDto = response.data.ticketSalesDto;
-                this.userBalance = response.data.userBalance;
                 this.matchInfo = response.data.matchInfo;
                 this.availableSeatsList = response.data.availableSeatsList;
                 this.userMembership = response.data.userMembership;
                 this.seatDTOList = response.data.seatDTOList;
+                this.$emit('getBalanceByModal',response.data.userBalance);
                 this.initializeSectionQuantities(); // 섹션 수량 초기화
-                console.log(response.data);
                 console.log("response:", response);
-                // response.data = response.data;
             } catch (error) {
                 console.error("Error fetching data: ", error);
-            } finally {
-                this.loading = false; // 데이터 로드 완료 시 로딩 비활성화
             }
         },
         // 예매하기 버튼 클릭 시 호출되는 메서드
         async purchaseTicket(){
             this.ticketSalesDto = {
-                userEmail: this.user.email,
+                userEmail: sessionStorage.getItem('email'),
                 matchId: this.matchInfo.matchId,
                 ticketDetailAmount: this.seatSelection.quantity,
                 ticketDetailSeat: this.seatSelection.seatId,
@@ -417,13 +391,8 @@ export default {
                 ticketNumber: null,
                 ticketCreateAt: new Date().toISOString(), // 현재 시간으로 설정
             };
-            // axios 요청
             try {
-                const response = await axios.post("/ticket/purchase/completed", this.ticketSalesDto,{
-                    headers: {
-                        Authorization: sessionStorage.getItem('token')
-                    } 
-                });
+                const response = await axios.post("/ticket/purchase/completed", this.ticketSalesDto);
                 console.log(response.data);
                 alert('티켓 구매 성공');
                 this.$router.push({ path: '/myPage/reservations' }); // 마이페이지로 리다이렉트
@@ -465,7 +434,7 @@ export default {
         // 결제 금액
         calculatePayment() {
             this.payment.payment = this.total * (100 - this.userMembership.membershipDiscount) * 0.01;
-            this.payment.leftMoney = this.userBalance - this.payment.payment;
+            this.payment.leftMoney = this.balance - this.payment.payment;
         },
 
         //두 번째 모달에 전달할 좌석 정보
@@ -480,14 +449,12 @@ export default {
                 seatPrice: seatPrice
             };
         },
-
         // 첫 모달창으로 이동
         openFirstPage() {
             this.firstPage = true;
             this.secondPage = false;
             this.total = 0;
         },
-
         // 두번째 모달창으로 이동
         openSecondPage() {
             this.createSeatSelection();
@@ -508,7 +475,6 @@ export default {
                     this.countTicket = 0;
                 }
             });
-            
             if (section.quantity < 4 && section.availableSeatAmount > section.quantity) {
                 section.quantity++;
                 this.countTicket++;
@@ -544,7 +510,6 @@ export default {
                 this.selectedZoneImage = require('@/assets/img/stadium/stadium-main.jpg'); // 기본 이미지
             }
         },
-
         toggleZoneSelection(zone) {
             //수량 초기화
             this.initializeSectionQuantities();
@@ -569,9 +534,7 @@ export default {
                 }
             });
             this.sectionSelection = section; // 현재 섹션을 선택
-            
         },
-
         onCheckboxChange(zone) {
             //수량 초기화
             this.initializeSectionQuantities();
@@ -583,7 +546,6 @@ export default {
         },
         showDetails(zone) {
             this.zoneSelection = zone;
-            
         },
         hideDetails() {
             this.countTicket = 0; // 숫자 값으로 초기화
@@ -592,7 +554,6 @@ export default {
             });
             this.selectedZoneImage = require('@/assets/img/stadium/stadium-main.jpg'); // 이미지도 초기화
         },
-
         initializeSectionQuantities() {
             //countTicket 초기화
             this.countTicket = 0;
@@ -603,7 +564,6 @@ export default {
                 });
             });
         },
-
         // 모달 열기 닫기
         closeModal() {
             this.hideDetails();
@@ -613,11 +573,9 @@ export default {
             this.secondPage = false;
             this.$emit('close'); // 모달 종료 이벤트 발생
         },
-
         openModal() {
             this.isModalOpen = true;
         },
-
         // 버튼 색깔을 반환하는 메서드
         getButtonColor(zoneName) {
             switch (zoneName) {
@@ -633,7 +591,6 @@ export default {
                     return '#47C83E'; // 나머지 구역
             }
         },
-
         //취소기한 자동 계산
         calculateCancellationDeadline(date) {
         const dateObj = new Date(date);
@@ -646,7 +603,6 @@ export default {
             minute: '2-digit'
         });
     },
-
     },
 }
 </script>

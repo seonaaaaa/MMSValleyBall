@@ -98,11 +98,12 @@
                 } else {
                 let accessToken = response.headers.authorization;  // 응답헤더에서 토큰 받기
                 sessionStorage.setItem("token", accessToken); // 토큰 sessionStorage에 저장
-                this.saveUserInfo(accessToken); 
+                this.saveUserInfo(accessToken);
                 this.$emit('loginSuccess');
                 this.$axios.defaults.headers.common["Authorization"] = accessToken;
                 alert("로그인이 되었습니다");
-                this.$router.replace("/");
+                const redirectTo = this.$route.query.from || '/';
+                this.$router.push(redirectTo); // 원래 페이지로 리다이렉트
                 }
             }).catch(() => {
                 alert("로그인 실패!!");
@@ -114,7 +115,7 @@
         .catch((error) => {
           alert(error);
         });
-           
+
 
         //     const user = {
         //         email: this.userEmail,
@@ -133,7 +134,7 @@
         //         } else {
         //         let accessToken = response.headers.authorization;  // 응답헤더에서 토큰 받기
         //         sessionStorage.setItem("token", accessToken); // 토큰 sessionStorage에 저장
-        //         this.saveUserInfo(accessToken); 
+        //         this.saveUserInfo(accessToken);
         //         this.$emit('loginSuccess');
         //         this.$axios.defaults.headers.common["Authorization"] = accessToken;
         //         alert("로그인이 되었습니다");
