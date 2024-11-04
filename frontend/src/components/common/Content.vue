@@ -89,7 +89,7 @@
       <div class="section">
         <h2>경기 일정</h2>
         <!-- Calendar 컴포넌트를 사용 -->
-        <CalendarMain :events="events" />
+        <CalendarMain :events="events" calendarMode="main"/>
       </div>
 
     </div>
