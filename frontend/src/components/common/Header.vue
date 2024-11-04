@@ -4,7 +4,7 @@
     <div class="auth-links">
       <router-link v-if="!isLoggedIn" to="/login" class="login">LOGIN</router-link>
       <router-link v-if="!isLoggedIn" to="/signup" class="signup">SIGNUP</router-link>
-      <router-link v-if="role == 'ADMIN'" to="/admin/user-list" class="admin">ADMIN HOME</router-link>
+      <button v-if="role == 'ADMIN' && isLoggedIn" @click="goToAdminPage" class="admin">ADMIN HOME</button>
       <button v-if="isLoggedIn" @click="logout" class="logout">LOGOUT</button>
     </div>
   
@@ -138,7 +138,11 @@ export default {
       console.log('Header에서 토큰 삭제에 실패했습니다.', token);
     }
       this.$router.push('/'); // 메인으로
-    }
+    },
+    goToAdminPage(){
+      const targetUrl = `http://localhost:4000/admin/userList?adminName=${encodeURIComponent(this.name)}`;
+      window.location.href = targetUrl;
+    },
   }
 }
 </script>
@@ -178,7 +182,16 @@ header {
   font-size: 18px;
   color: #565656;
 }
-
+.admin{
+  background-color: #ffffff;
+  border: none; /* 테두리 없애기 */
+  outline: none; /* 포커스 시 나타나는 외곽선 없애기 (선택 사항) */
+  font-size: 18px;
+  color: #565656;
+}
+.admin:hover{
+  color: #000000;
+}
 .logout:hover{
   color: #000000;
 }

@@ -54,6 +54,7 @@ public class AdminController {
 
     @GetMapping("/userList")
     public String getUsers(
+            @RequestParam("adminName")String name,
             @RequestParam(name = "searchCriteria", required = false) String searchCriteria,
             @RequestParam(name = "keyword", required = false) String keyword,
             @RequestParam(value = "membership", required = false) String membership,
@@ -77,7 +78,8 @@ public class AdminController {
         model.addAttribute("searchCriteria", searchCriteria);
         model.addAttribute("keyword", keyword);
         model.addAttribute("membership", membership);
-
+        model.addAttribute("adminName", name);
+        System.out.println("보내온 이름 : "+name);
         // 페이지 블럭 처리
         int totalPage = userPage.getTotalPages();
         int currentPage = userPage.getNumber();

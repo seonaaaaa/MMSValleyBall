@@ -5,9 +5,9 @@
 
     <!-- 예매 내역, 나의 멤버십, 개인정보 수정 -->
     <div class="menu">
-      <div class="menu-item" :class="{ 'active-menu-item': activeMenu === '/mypage/reservations' }" @click="navigateTo('/mypage/reservations')">예매 내역</div>
-      <div class="menu-item" :class="{ 'active-menu-item': activeMenu === '/mypage/membership' }" @click="navigateTo('/mypage/membership')">나의 멤버십</div>
-      <div class="menu-item" :class="{ 'active-menu-item': activeMenu === '/mypage/edit-profile' }" @click="navigateTo('/mypage/edit-profile')">나의 정보 수정</div>
+      <div class="menu-item" :class="{ 'active-menu-item': activeMenu === '/myPage/reservations' }" @click="navigateTo('/myPage/reservations')">예매 내역</div>
+      <div class="menu-item" :class="{ 'active-menu-item': activeMenu === '/myPage/membership' }" @click="navigateTo('/myPage/membership')">나의 멤버십</div>
+      <div class="menu-item" :class="{ 'active-menu-item': activeMenu === '/myPage/edit-profile' }" @click="navigateTo('/myPage/edit-profile')">나의 정보 수정</div>
     </div>
 
     <!-- 멤버십 내역 페이지 내용 -->
@@ -43,20 +43,25 @@
         </p>
       </div>
       <div class="cancel-button-box">
-        <button @click="MembershipCancel" class="cancel-membership-button"
-          :disabled="membershipSalesStatus === 'CONFIRMED'"
-          :class="{ 'disabled-button': membershipSalesStatus === 'CONFIRMED'}">
-          결제 취소
-        </button>
-      </div>
-
-      <!-- 브론즈 등급일 경우 -->
-      <div class="membership-info-bronze" v-if="membership === 'bronze'">
-        <p><strong>이용중인 멤버십이 없습니다.</strong></p>
-        <p><strong>구매 후 이용해주세요.</strong></p>
-        <button @click="goToMembershipInfo" class="btn-goToMembershipInfo">멤버십 안내</button>&nbsp;&nbsp;<button @click="goToMembershipPurchase" class="btn-goToMembershipPurchase">멤버십 구매</button>
+        <button @click="MembershipCancel" class="cancel-membership-button" 
+          v-if="membershipSalesStatus === 'PURCHASE'">결제 취소</button>
       </div>
     </div>
+      <!-- 브론즈 등급일 경우 -->
+      <div class="membership-detail" v-if="membership === 'bronze'" id="bronze">
+        <h1 class="membership-grade">
+          <img :src="membershipImage()" alt="멤버십 등급 아이콘" class="membershipLevel-image" />
+          <span>{{ membership.toUpperCase() }}</span> MEMBERSHIP
+          <img :src="membershipImage()" alt="멤버십 등급 아이콘" class="membershipLevel-image" />
+        </h1>
+        <div class="membership-bronze-content" v-if="membership === 'bronze'">
+          <h1>이용중인 멤버십이 없습니다.</h1>
+        </div>
+        <div class="button-container">
+    <button @click="goToMembershipInfo" class="btn-goToMembershipInfo">멤버십 안내</button>
+    <button @click="goToMembershipPurchase" class="btn-goToMembershipPurchase">멤버십 구매</button>
+  </div>
+      </div>
   </div>
 </template>
 
@@ -134,7 +139,10 @@ export default {
     params.append('userEmail', sessionStorage.getItem('email'));
     this.$axios.post("/membership/cancel", null, { params: params})
     .then(()=>{
-      alert('결제가 성공적으로 완료되었습니다.');
+      this.$emit("getMembership",'bronze');
+      this.$emit("getBalance", Number(sessionStorage.getItem('balance'))+this.membershipPrice);
+      alert(`멤버십 결제가 취소되셨습니다.\n${new Intl.NumberFormat('ko-KR').format(this.membershipPrice)}원 환불 되셨습니다.`);
+      this.membershipSalesStatus=null;
     }).catch((error)=>{
       console.log("멤버십 취소 중 오류 발생 : "+ error);
     });
@@ -218,7 +226,7 @@ export default {
 /* Membership Grade */
 .membership-grade {
   padding: 10px;
-  margin-bottom: 10px;
+  margin-bottom: 0px;
   margin-top: 0;
   text-align: center;
   justify-content: center;
@@ -228,7 +236,6 @@ export default {
   justify-content: center;
   gap: 10px;
 }
-/* Gold and Silver Membership Grade */
 #gold .membership-grade {
   border-bottom: 2px solid #D4AF37;
   color: #B8860B;
@@ -236,7 +243,7 @@ export default {
 }
 
 #silver .membership-grade {
-  border-bottom: 2px solid #B0BEC5; /* 수정: 은색 계열의 하단 줄 */
+  border-bottom: 2px solid #B0BEC5;
   color: #607D8B;
   background-color: #E0E0E0;
 }
@@ -250,10 +257,7 @@ export default {
   align-items: center; /* 세로 정렬을 중앙으로 */
 }
 
-.membership-detail div::before {
-  
-}
-#gold .membership-detail div::before {
+#gold div::before {
   background-color: #E1B12C; /* 골드 색상 */
   content: "";
   position: absolute;
@@ -264,7 +268,7 @@ export default {
   transform: translateX(-50%);
 }
 
-#silver .membership-detail div::before {
+#silver div::before {
   background-color: #B0BEC5; /* 은색 계열 */
   content: "";
   position: absolute;
@@ -301,9 +305,8 @@ export default {
   color: #8B4513; 
 }
 #silver .membership-detail .th {
-  color: #8B4513; 
+  color: #607D8B
 }
-
 
 .membership-detail .td {
   font-size: 20px;
@@ -315,21 +318,14 @@ export default {
   color: #3B2F2F; 
 }
 #silver .membership-detail .td {
-  color: #3B2F2F; 
+  color: #607D8B; 
 }
-
 /* Membership Note: 안내문 */
 .membership-note {
   font-size: 14px;
   margin-top: 10px;
   color: #b9b9b9;
 }
-/* #gold .membership-note {
-  color: #B8860B;
-}
-#silver .membership-note {
-  color: #B8860B;
-} */
 
 /* Bronze Membership Info */
 .membership-info-bronze {
@@ -343,48 +339,73 @@ export default {
   text-align: center;
   height: auto;
 }
-
+#bronze {
+  border: 2px solid #B87333;
+  background-color: #f2e9e0a7;
+  margin-bottom: 30px;
+}
+#bronze .membership-grade {
+  border-bottom: 2px solid #CD7F32;
+  color: #8C4B1F; 
+  background-color: #FAE3D2;
+  font-size: 1.8em;
+}
+.membership-bronze-content{
+  justify-content: center;
+}
+.membership-bronze-content h1 {
+  color: #5A3E2B;
+}
 /* Cancel Membership Button */
 .cancel-button-box {
-  max-width: 400px;
+  text-align: right;
+  max-width: 600px;
+  margin: auto;
+  margin-bottom: 30px;
+}
+/* 버튼을 포함하는 컨테이너 */
+.button-container {
+  display: flex;
+  justify-content: center;
+  gap: 30px; /* 버튼 사이 간격 확대 */
+  margin-top: 20px;
+  margin-bottom: 30px;
+}
+
+/* 브론즈 멤버십 버튼 스타일 */
+.btn-goToMembershipInfo,
+.btn-goToMembershipPurchase {
+  background-color: #B87333; /* 브론즈 색상 */
+  color: #fff;
+  border: 2px solid #CD7F32;
+  border-radius: 8px;
+  cursor: pointer;
+  padding: 15px 30px;
+  font-weight: bold;
+  font-size: 1.2em; /* 글씨 크기 확대 */
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* 버튼 호버 시 스타일 */
+.btn-goToMembershipInfo:hover,
+.btn-goToMembershipPurchase:hover {
+  background-color: #CD7F32; /* 조금 더 짙은 브론즈 색상 */
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2); /* 그림자 효과 추가 */
 }
 .cancel-membership-button {
-  margin-left: 0;
-  background-color: #f44336; /* 빨간색 버튼 */
+  background-color: #f3aca9;
   color: white;
   border: none;
-  padding: 10px 20px;
-  margin-top: 20px;
   cursor: pointer;
-  transition: background-color 0.3s ease;
   border-radius: 5px;
+  font-size: large;
+  width: 100px;
+  height: 40px;
+  padding: 10px
 }
 
 .cancel-membership-button:hover {
   background-color: #d32f2f; /* 더 짙은 빨간색 */
-}
-
-.disabled-button {
-  background-color: gray;
-  cursor: not-allowed;
-}
-
-/* General Button Styling */
-button {
-  background-color: #4CAF50; /* 녹색 버튼 */
-  color: white;
-  border: none;
-  padding: 10px;
-  width: 150px;
-  height: 53px;
-  margin-top: 10px;
-  border-radius: 5px;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-}
-
-button:hover {
-  background-color: #388E3C; /* 더 짙은 녹색 */
 }
 
 /* Membership Level Image */

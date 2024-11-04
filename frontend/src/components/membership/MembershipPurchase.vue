@@ -43,39 +43,37 @@
           </tbody>
         </table>
       </div>
-      <div v-if="membership=='bronze'" class="membership-purchase-box">
+      
         <!-- 멤버십 선택 -->
         <div class="membership-selection">
           <p class="sub-title">멤버십 선택</p>
-          <select class="select-form" v-model="selectedMembership">
+          <select class="select-form" v-model="selectedMembership" @change="updatePrices">
             <option value="">선택</option>
             <option value="silver-100000">SILVER</option>
             <option value="gold-300000">GOLD</option>
           </select>
         </div>
-        <div class="charge">
-            <div class="charge-money">
-              <p>충전금액 : </p>
-              <p>{{ new Intl.NumberFormat('ko-KR').format(balance) }} 원</p>
-            </div>
-            <button class="btn" id="btn-charge" v-if="leftMoney < 0" @click="openRechargeWindow">충전하기</button>
-            <div class="membership-price">
+
+      <div class="charge">
+          <div class="charge-money">
+                <p><strong>충전금액으로 결제</strong></p>
+                <p>이용가능 : </p>
+                <p>{{ new Intl.NumberFormat('ko-KR').format(balance) }} 원</p>
+          </div>
+          <button class="btn" id="btn-charge" v-if="leftMoney < 0" @click="openRechargeWindow">충전하기</button>
+          <div class="membership-price">
               <p>결제금액</p>
-              <p>- {{ paymenet }} 원</p>
-            </div>
-            <div class="left-money">
-                <p>결제 후 잔액</p>
-                <!-- leftMoney 값이 0보다 작으면 'negative' 클래스를 추가 -->
-                <p :class="{ 'negative': leftMoney < 0 }">{{ formattedLeftMoney }} 원</p>
-            </div>
-        </div>
-        <div class="buttons">
-          <button class="btn" id="btn-purchase" @click="purchaseMembership" v-if="leftMoney >= 0">구매하기</button>
-        </div>
+              <p>- {{ payment }} 원</p>
+          </div>
+          <div class="left-money">
+              <p>잔액</p>
+              <!-- leftMoney 값이 0보다 작으면 'negative' 클래스를 추가 -->
+              <p :class="{ 'negative': leftMoney < 0 }">{{ formattedLeftMoney }} 원</p>
+          </div>
       </div>
-      <div v-else>
-        이미 이용중인 멤버십이 있습니다.
-        <button class="myMembership">나의 멤버십</button>
+
+      <div class="buttons">
+        <button class="btn" id="btn-purchase" @click="purchaseMembership" v-if="leftMoney >= 0">구매하기</button>
       </div>
     </div>
   </div>
@@ -85,20 +83,20 @@
 import LogoHeader from '../common/LogoHeader.vue';
 import axios from 'axios';
 export default {
-  name: 'MembershipPurchase',
-  components: {
-    LogoHeader
-  },    
-  props: {
-    balance: {
-      type: Number,
-      required: true
+    name: 'MembershipPurchase',
+    components: {
+      LogoHeader
+    },    
+    props: {
+      balance: {
+        type: Number,
+        required: true
+      },
+      membership: {
+        type: String,
+        required: true
+      },
     },
-    membership: {
-      type: String,
-      required: true
-    },
-  },
   data() {
     return {
       activeMenu: this.$route.path, // 현재 활성화된 경로
@@ -113,7 +111,7 @@ export default {
     }
   },
   computed: {
-    paymenet(){
+    payment(){
       if(this.selectedMembership!=''){
         return Number(this.selectedMembership.split('-')[1]).toLocaleString('ko-KR');
       }
@@ -134,24 +132,26 @@ export default {
       this.$router.push(route);
       this.activeMenu = route; // 메뉴를 클릭할 때 활성화된 메뉴 업데이트
     },
+    
     // 구매하기 버튼 클릭 시 호출되는 메서드
     async purchaseMembership() {
-      let purchaseInfo ={
-        email: sessionStorage.getItem('email'),
-        membership: this.selectedMembership.split('-')[0]
-      }
-      try {
-          await axios.post("/membership/purchase", purchaseInfo);
-          this.$emit('getMembership', this.selectedMembership.split('-')[0]);
-          this.$emit('getBalance', this.leftMoney);
-          alert('멤버십 구매 성공');
-          this.$router.push({ path: '/myPage/membership' }); // 마이페이지로 리다이렉트
-      } catch (error) {
-          const errorMessage = error.response ? error.response.data : error.message;
-          console.error('Error purchasing membership:', errorMessage); // 에러 메시지 로깅
-          alert('멤버십 구매 실패: ' + errorMessage); // 사용자에게 구체적인 에러 메시지 표시
-      }
-    },
+        let purchaseInfo ={
+          email: sessionStorage.getItem('email'),
+          membership: this.selectedMembership.split('-')[0]
+        }
+        try {
+            await axios.post("/membership/purchase", purchaseInfo);
+            this.$emit('getMembership', this.selectedMembership.split('-')[0]);
+            this.$emit('getBalance', this.leftMoney);
+            alert('멤버십 구매 성공');
+            this.$router.push({ path: '/myPage/membership' }); // 마이페이지로 리다이렉트
+        } catch (error) {
+            const errorMessage = error.response ? error.response.data : error.message;
+            console.error('Error purchasing membership:', errorMessage); // 에러 메시지 로깅
+            alert('멤버십 구매 실패: ' + errorMessage); // 사용자에게 구체적인 에러 메시지 표시
+        }
+
+      },
     openRechargeWindow() {
       const width = 570;
       const height = 275;
@@ -229,6 +229,7 @@ flex-direction: column;
 align-items: center;
 justify-content: center;
 width: 100%;
+max-width: 90%; /* 최대 너비를 설정 */
 margin: 0 auto;
 }
 
@@ -238,8 +239,13 @@ margin-bottom: 30px; /* 아래 여백 추가 */
 }
 
 .membership-info-table {
+width: 100%; /* 테이블을 가로 전체에 맞추기 */
+margin: 0 auto; /* 가운데 정렬 */
+padding: auto;
 font-size: 21;
-width: 70%;
+}
+.membership-info-table {
+width: 100%;
 text-align: center;
 margin: auto;
 padding: 0;
@@ -260,35 +266,30 @@ color: rgb(7, 7, 7);
 .membership-info-table td {
 background-color: #eef1ee;
 }
-.membership-purchase-box{
-  width: 70%;
-}
 .membership-selection {
 display: flex;
 margin-top: 0px;
 margin-bottom: 30px;
 gap: 30px;
 text-align: center;
-width: 40%;
+width: 60%;
 margin-left: 0px;
 justify-content: center;
 align-items: center;
 }
 
 .select-form {
-width: 20%;
+width: 70%;
 text-align: center;
 font-size: 16px;
-padding: 10px;
-border-radius: 10px;
 }
 
 .charge {
   border: 1.5px solid #999999;
   padding: 30px;
-  width: 50%; /* 전체 페이지의 50%로 설정 */
+  width: 60%; /* 전체 페이지의 50%로 설정 */
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
   align-items: center;
   font-family: Arial, sans-serif;
   border-radius: 15px;
@@ -317,9 +318,6 @@ border-radius: 10px;
   justify-content: space-between;
   margin: 5px 0;
   border-radius: 10px;
-}
-.membership-price{
-  margin-right: 20px;
 }
 
 .left-money{

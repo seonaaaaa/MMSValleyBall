@@ -60,16 +60,23 @@
                       예매하기
                     </button>
                   <!-- 모달 컴포넌트 -->
-                  <Modal v-if="isModalVisible" :visible="isModalVisible" :match="selectedMatch" @close="closeModal" />
+                  <Modal v-show="isModalVisible" :visible="isModalVisible" :match="selectedMatch" 
+                  :balance="balance" :membership="membership" ref="ModalRef"
+                  @close="closeModal" @getBalanceByModal="updateBalance"/>
                 </td>
               </tr>
             </tbody>
           </table>
+          <!-- 페이지네이션 추가 -->
+          <div class="pagination">
+            <button @click="prevPage" :disabled="currentPage === 1">이전</button>
+            <span>페이지 {{ currentPage }} / {{ totalPages }}</span>
+            <button @click="nextPage" :disabled="currentPage === totalPages">다음</button>
+          </div>
         </div>
       </div>
     </div>
   </div>
-    
   </div>
 </template>
 
@@ -85,7 +92,14 @@ export default {
     Modal,
   },
   props: {
-    
+    membership: {
+      type: String,
+      required: true,
+    },
+    balance: {
+      type: Number,
+      required: true,
+    },
   },
   async mounted(){
     this.fetchEvents();
@@ -96,10 +110,11 @@ export default {
       thisTeam : "GS ITM",
       isModalVisible: false, // 모달 표시 여부
       //ticket modal에 전달할 경기 아이디
-      selectedMatch : null,
+      selectedMatch : {},
       //서버에서 가져온 경기 정보 배열
       matches : [], 
-      userMembership : {},
+      pageSize: 10, // 페이지당 행 수
+      currentPage: 1 // 현재 페이지 번호
     };
   },
   watch: {
@@ -112,6 +127,14 @@ export default {
     upcomingMatches(){
       const today = new Date();
       return this.matches.filter(match => new Date(match.matchDate) >= today);
+    },
+    totalPages() {
+      return Math.ceil(this.upcomingMatches.length / this.pageSize);
+    },
+    paginatedMatches() {
+      const start = (this.currentPage - 1) * this.pageSize;
+      const end = start + this.pageSize;
+      return this.upcomingMatches.slice(start, end);
     }
   },
   methods: {
@@ -123,7 +146,6 @@ export default {
     async fetchEvents() {
       try {
         this.matches = (await axios.get('/ticket/purchase')).data;
-        console.log(this.matches);
         console.log("Matches fetched: ", this.matches);
       } catch (error) {
         console.log("Error fetching matches:", error);
@@ -131,8 +153,6 @@ export default {
         this.matches = [];
       }
     },
-
-
     // 경기 정보 형식 지정 메서드
     formatMatchInfo(matchTeam, thisTeam) {
       return matchTeam === "서울하이체육관" ? `${thisTeam} VS ${matchTeam}` : `${matchTeam} VS ${thisTeam}`;
@@ -209,13 +229,26 @@ export default {
       this.isModalVisible = true;
       //TicketModal로 이동할 때 matchId를 가져가도록
       this.selectedMatch= match;
+      this.$nextTick(() => {
+      if (this.$refs.ModalRef && typeof this.$refs.ModalRef.fetchEventsFromModal === 'function') {
+          this.$refs.ModalRef.fetchEventsFromModal();
+        } else {
+          console.error("모달 컴포넌트에서 'fetchEventsFromModal' 메서드를 찾을 수 없습니다.");
+        }
+      });
+    },
+    // 모달에서 온 이벤트 app.vue에 보내기
+    updateBalance(balance){
+      console.log("모달에서 온 잔액"+balance);
+      this.$emit("getBalance", balance);
     },
     closeModal() {
       this.isModalVisible = false;
       this.selectedMatch= null;
     },
     handleButtonClick(match) {
-      if(sessionStorage.getItem('token')!=null){
+      if(sessionStorage.getItem('token')==null){
+        alert('로그인 후 예매가능합니다.\n로그인 페이지로 이동합니다.')
         this.$router.push('/login');
       }
       const today = new Date();
@@ -227,9 +260,9 @@ export default {
       generalBookStartDate.setDate(generalBookStartDate.getDate() - 5);
       generalBookStartDate.setHours(11, 0, 0, 0);
       const userMembership = sessionStorage.getItem('membership')
-
       if (generalBookStartDate <= today && today < matchDate) {
         // 오늘 날짜가 일반 예매 시작일과 경기일 사이
+        console.log('구매창에서 모달열기');
         this.openModal(match);
       } else if ( preBookStartDate < today && today < generalBookStartDate) {
         // 오늘 날짜가 일반 예매 시작일과 경기일 사이
@@ -237,11 +270,14 @@ export default {
           this.openModal(match);
         } else {
           alert('브론즈 회원님은 선예매가 불가능합니다.');
+          return;
         }
       } else {
         // 오늘 날짜가 선예매 시작일 이후
         alert(`아직 예매 일정이 아닙니다. 예매 일정은 다음과 같습니다:\n${this.formatDatePreBook(match.matchDate)}`);
+        return;
       }
+      return;
     },
   },
     
@@ -456,5 +492,14 @@ th {
   padding-top: var(--header-height);
   padding-bottom: var(--footer-height);
   text-align: center;
+}
+.pagination {
+  display: flex;
+  justify-content: center;
+  margin: 10px 0;
+}
+.pagination button {
+  padding: 5px 10px;
+  margin: 0 5px;
 }
 </style>

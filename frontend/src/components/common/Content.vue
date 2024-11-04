@@ -7,7 +7,7 @@
           <!-- 관리자 -->
           <div v-if="role == 'ADMIN'" class="admin"> 
             <div class="image-container">
-              <img class="admin-icon" :src="require('@/assets/img/membershipImg/silver.png')" alt="관리자 아이콘" />
+              <img class="admin-icon" :src="require('@/assets/img/anyImg/admin.png')" alt="관리자 아이콘" />
               <h2 class="admin-header">관리자<span class="admin-name"> {{ name }} </span> 님</h2>
             </div>
             <button class="btn-AdminPage" @click="goToAdminPage">관리자 모드</button><br>
@@ -165,9 +165,6 @@ export default {
     goToMyPage() {
       this.$router.push('/mypage/reservations');
     },
-    goToRecharge(){
-      this.$router.push('/myPage/info/recharge');
-    },
     goToLogin(){
       this.$router.push('/login');
     },
@@ -175,7 +172,8 @@ export default {
       this.$router.push('/signup');
     },
     goToAdminPage(){
-      this.$router.push('admin/user-list');
+      const targetUrl = `http://localhost:4000/admin/userList?adminName=${encodeURIComponent(this.name)}`;
+      window.location.href = targetUrl;
     },
     // 로그아웃
     logout() {
@@ -184,6 +182,8 @@ export default {
       sessionStorage.removeItem('name');
       sessionStorage.removeItem('email');
       sessionStorage.removeItem('role');
+      sessionStorage.removeItem('address');
+      sessionStorage.removeItem('phone');
       const token = sessionStorage.getItem('token'); 
       if (token === null) {
         console.log('토큰이 성공적으로 삭제되었습니다.');
@@ -287,12 +287,13 @@ a {
   padding: 0px 15px;
   border: 2px solid #bfccbdde;
   border-radius: 20px;
-  text-align: center;
   box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
   display: flex;
   flex-direction: column;
   justify-content: center;
   z-index: 100;
+  text-align: center;
+  justify-content: center;
 }
 
 .btn-myPage, .btn-logout {
@@ -358,14 +359,15 @@ a {
   display: flex;
   align-items: center; /* 이미지와 텍스트를 수직 중앙 정렬 */
   gap: 2px; /* 이미지와 텍스트 간격 조절 */
-  font-size: larger;
+  font-size: 25px;
 }
 
 .membershipLevel-image {
   width: 50px;
   height: 50px;
-  margin-left: 40px;
+  margin-left: 10px;
 }
+
 .welcome{
   color: #3c6259;
 }
@@ -561,5 +563,14 @@ a {
   height: 10px;
   margin: 0 5px;
   cursor: pointer;
+}
+.admin-url {
+  text-decoration: none;
+  color: inherit; /* 원래 텍스트 색상 유지 */
+}
+
+.admin-url:hover {
+  text-decoration: none; /* hover 시 밑줄 없음 */
+  color: inherit; /* hover 시 색상 변화 없음 */
 }
 </style>

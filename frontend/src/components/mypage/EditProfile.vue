@@ -5,9 +5,9 @@
 
     <!-- 예매 내역, 나의 멤버십, 나의 정보 수정 -->
     <div class="menu">
-      <div class="menu-item" :class="{ 'active-menu-item': activeMenu === '/mypage/reservations' }" @click="navigateTo('/mypage/reservations')">예매 내역</div>
-      <div class="menu-item" :class="{ 'active-menu-item': activeMenu === '/mypage/membership' }" @click="navigateTo('/mypage/membership')">나의 멤버십</div>
-      <div class="menu-item" :class="{ 'active-menu-item': activeMenu === '/mypage/edit-profile' }" @click="navigateTo('/mypage/edit-profile')">나의 정보</div>
+      <div class="menu-item" :class="{ 'active-menu-item': activeMenu === '/myPage/reservations' }" @click="navigateTo('/myPage/reservations')">예매 내역</div>
+      <div class="menu-item" :class="{ 'active-menu-item': activeMenu === '/myPage/membership' }" @click="navigateTo('/myPage/membership')">나의 멤버십</div>
+      <div class="menu-item" :class="{ 'active-menu-item': activeMenu === '/myPage/edit-profile' }" @click="navigateTo('/myPage/edit-profile')">나의 정보</div>
     </div>
 
     <!-- 나의 정보 수정 페이지 내용 -->
@@ -49,10 +49,6 @@
           <div class="form-group">
             <label for="confirmPassword">비밀번호 확인</label>
             <input type="password" id="confirmPassword" v-model="confirmPassword" />
-            <font-awesome-icon
-              :icon="confirmPasswordVisible ? ['fas', 'eye-slash'] : ['fas', 'eye']"
-              @click="toggleConfirmPasswordVisibility"
-              class="toggle-icon"/>
           </div>
         </div>
         <div class="btn-box">
@@ -87,9 +83,14 @@
             <input type="text" id="address" v-model="userAddress" @click="findAddress" readonly/>
           </div>
         </div>
-        <button class="edit-profile-button" :class="{ disabled:isChanged}" :disabled="isChanged"
-        @click="updateProfile">정보 수정하기</button>
+        <div class="bottom-button-box">
+          <button @click="deleteAcount" class="delete-account-button">회원탈퇴</button>
+          <button class="edit-profile-button" :class="{ disabled:isChanged}" :disabled="isChanged"
+          @click="updateProfile">정보 수정하기</button>
+        </div>
       </div>
+    </div>
+    <div>
     </div>
   </div>
 </template>
@@ -172,6 +173,9 @@ export default {
     navigateTo(route) {
       this.$router.push(route);
       this.activeMenu = route; // 메뉴를 클릭할 때 활성화된 메뉴 업데이트
+      sessionStorage.removeItem('phone');
+      sessionStorage.removeItem('address');
+
     },
     onPhoneChange() {
       this.isPhoneVerified = false;
@@ -219,11 +223,32 @@ export default {
         });
       }
     },
+    deleteAcount() {
+      if(window.confirm('정말로 회원 탈퇴를 진행하시겠습니까?')){
+        this.$axios.post(`/myPage/info/deactivate`, {
+            userEmail: sessionStorage.getItem('email'),
+        }).then((response) => {
+      // 로컬스토리지에 저장된 토큰과 사용자 정보 삭제
+          sessionStorage.removeItem('token');
+          sessionStorage.removeItem('name');
+          sessionStorage.removeItem('email');
+          sessionStorage.removeItem('role');
+          const token = sessionStorage.getItem('token'); 
+          if (token === null) {
+            console.log('토큰이 성공적으로 삭제되었습니다.');
+            this.$emit('logoutSuccess');
+          } else {
+            console.log('Content에서 토큰 삭제에 실패했습니다.', token);
+          }
+          this.$router.push('/');
+          alert(response.data);
+        }).catch((error) => {
+          console.error('회원탈퇴 중 오류 발생:', error);
+        });
+      }
+    },
     togglePasswordVisibility() {
       this.passwordVisible = !this.passwordVisible;
-    },
-    toggleConfirmPasswordVisibility(){
-      this.confirmPasswordVisible = !this.confirmPasswordVisible;
     },
     findAddress() {
       new window.daum.Postcode({
@@ -419,7 +444,6 @@ export default {
 .btn-phone-check:hover{
   background-color: #c46f6ff1;
 }
-
 .btn-password-change,
 .edit-profile-button {
   font-size: 16px;
@@ -430,13 +454,28 @@ export default {
   cursor: pointer;
   background-color: #60a19197;
 }
+.delete-account-button{
+  font-size: 16px;
+  padding-left: 0px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  background-color:rgba(245, 245, 245, 0);
+  color: gray;
+  width: 80px;
+}
+
 .edit-profile-button{
   margin-top: -10px;
-  margin-left: auto;
+  margin-right: 0;
 }
 .btn-password-change:hover,
 .edit-profile-button:hover{
   background-color: #4f8578;
+}
+.bottom-button-box{
+  display: flex;
+  justify-content: space-between;
 }
 .phoneChecked{
   font-size: 16px;
