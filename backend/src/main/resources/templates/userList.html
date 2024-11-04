@@ -3,61 +3,102 @@
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       layout:decorate="~{layout/layoutReal}">
 <head>
-    <meta charset="UTF-8">
-    <style>
-        .table {
-           table-layout: fixed; /* 모든 셀의 너비를 동일하게 고정 */
+    <!-- 개별 페이지 전용 CSS 파일 -->
+    <link rel="stylesheet" th:href="@{/css/user-list.css}">
+    <script th:inline="javascript">
+        function filterUsers() {
+           const season = document.getElementById("seasonFilter").value;
+           const membership = document.getElementById("membershipFilter").value;
+           const status = document.getElementById("statusFilter").value;
+           const searchCriteria = document.getElementById("searchCriteria").value;
+           const keyword = document.getElementById("keyword").value;
+
+           const requestData = {
+               season: season,
+               membership: membership,
+               status: status,
+               searchCriteria: searchCriteria,
+               keyword: keyword
+           };
+
+           fetch('/admin/userList?' + new URLSearchParams(requestData))
+               .then(response => response.text())
+               .then(data => {
+                   document.querySelector('body').innerHTML = data;
+               })
+               .catch(error => console.error('Error:', error));
        }
-    </style>
+    </script>
 </head>
 <body>
 <div layout:fragment="content" class="content">
     <section>
         <div class="tab-menu">
             <a href="userList" class="active">회원 조회</a>
-            <a href="sales" class="active">매출 조회</a>
-            <a href="game" class="active">경기 조회</a>
+            <a href="sales">매출 조회</a>
+            <a href="game">경기 조회</a>
         </div>
 
         <div class="container">
             <div class="table-header">
-
-                <form action="/admin/userList" method="get">
-                    <div class="search-bar">
-                        <span class="filter-icon">🔍</span>
-                        <select name="searchCriteria" id="searchCriteria" class="search-criteria">
-                            <option value="name">이름</option>
-                            <option value="email">이메일</option>
-                            <option value="membership">멤버십</option>
-                        </select>
-                        <input name="keyword" type="text" id="keyword" placeholder="Search...">
-                        <button type="submit" id="searchButton">검색</button>
-                    </div>
-                </form>
-                <a href="createAdmin" class="add-button">+ 신규 관리자</a>
-                <a th:href="@{/admin/deleteAdmin}" type="button" class="delete-button">관리자 삭제</a>
-
+                <div class="left-section">
+                    <form onsubmit="event.preventDefault(); filterUsers();">
+                        <div class="search-bar">
+                            <span class="filter-icon">🔍</span>
+                            <select name="searchCriteria" id="searchCriteria" class="search-criteria">
+                                <option value="name">이름</option>
+                                <option value="email">이메일</option>
+                                <option value="membership">멤버십</option>
+                            </select>
+                            <input name="keyword" type="text" id="keyword" placeholder="Search...">
+                            <button type="submit" id="searchButton">검색</button>
+                        </div>
+                    </form>
+                    <!-- 총 회원 수 표시 -->
+                    <span class="allUsers">총 회원 수 : <b th:text="${totalUsers}"></b>명</span>
+                </div>
+                <div>
+                    <a href="createAdmin"><button class="add-button">+ 신규 관리자</button></a>
+                    <a th:href="@{/admin/deleteAdmin}"><button class="delete-button">관리자 삭제</button></a>
+                </div>
             </div>
 
             <table class="table">
                 <thead>
                 <tr>
-                    <th>#</th>
+                    <th>ID</th>
                     <th>이름</th>
                     <th>이메일</th>
                     <th>
-                        <form action="/admin/userList" method="get">
-                            <label for="membershipFilter">멤버십</label>
-                            <select id="membershipFilter" name="membership" onchange="this.form.submit()">
-                                <option value="">모두 보기</option>
-                                <option value="BRONZE">BRONZE</option>
-                                <option value="SILVER">SILVER</option>
-                                <option value="GOLD">GOLD</option>
-                            </select>
-                        </form>
+                        <!-- 시즌 필터 -->
+<!--                        <label for="seasonFilter">시즌</label>-->
+                        <select id="seasonFilter" name="season" onchange="filterUsers()">
+                            <option value="" th:selected="${season == ''}">시즌</option>
+                            <option value="24/25" th:selected="${season == '24/25'}">24/25</option>
+                            <option value="23/24" th:selected="${season == '23/24'}">23/24</option>
+                        </select>
+                    </th>
+                    <th>
+                        <!-- 멤버십 필터 -->
+<!--                        <label for="membershipFilter">멤버십</label>-->
+                        <select id="membershipFilter" name="membership" onchange="filterUsers()">
+                            <option value="" th:selected="${membership == ''}">멤버십</option>
+                            <option value="BRONZE" th:selected="${membership == 'BRONZE'}">BRONZE</option>
+                            <option value="SILVER" th:selected="${membership == 'SILVER'}">SILVER</option>
+                            <option value="GOLD" th:selected="${membership == 'GOLD'}">GOLD</option>
+                        </select>
                     </th>
                     <th>충전 잔액</th>
-                    <th>회원 상태</th>
+                    <th>
+                        <!-- 회원 상태 필터 -->
+<!--                        <label for="statusFilter">회원 상태</label>-->
+                        <select id="statusFilter" name="status" onchange="filterUsers()">
+                            <option value="" th:selected="${status == ''}">회원 상태</option>
+                            <option value="ACTIVE" th:selected="${status == 'ACTIVE'}">ACTIVE</option>
+                            <option value="INACTIVE" th:selected="${status == 'INACTIVE'}">INACTIVE</option>
+                        </select>
+                    </th>
+                    <th>생성일</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -68,15 +109,10 @@
                            th:href="@{/admin/userDetail/{userId}(userId = ${user.userId})}">박선아</a>
                     </td>
                     <td th:text="${user.userEmail}">seon04520@gmail.com</td>
+                    <td th:text="${seasonMap[user.userId]}">시즌</td>
+                    <td th:text="${membershipTypeMap[user.userId]}">멤버십 정보</td>
                     <td>
-                        <span th:text="${user.userMembershipName != null ? user.userMembershipName : 'BRONZE'}">BRONZE</span>
-                    </td>
-                    <td>
-                        <span th:each="payment : ${user.payments}">
-                        <span th:with="amount=${payment.paymentAmount}"
-                              th:text="${#numbers.formatInteger(amount, 0, 'COMMA') + '원'}"></span>
-                        </span>
-                        <span th:if="${#lists.isEmpty(user.payments)}">0원</span>
+                        <span th:text="${userBalanceMap[user.userId] != null ? #numbers.formatInteger(userBalanceMap[user.userId], 0, 'COMMA') + '원' : '0원'}">0원</span>
                     </td>
                     <td>
                         <span th:if="${user.userStatus == T(com.team.MMSValleyBall.enums.UserStatus).ACTIVE}"
@@ -86,38 +122,39 @@
                               class="status INACTIVE" th:text="${user.userStatus}">INACTIVE
                         </span>
                     </td>
+                    <td th:text="${user.userCreateAt}">가입 날짜</td>
                 </tr>
                 </tbody>
             </table>
 
             <div class="pagination">
-                <!-- 이전 페이지 버튼 -->
-                <span th:if="${userPage != null}" th:classappend="${userPage.number <= 0} ? 'disabled'">
-                    <a th:href="${userPage.number > 0} ? @{/admin/userList(page=${userPage.number - 1}, size=${userPage.size}, searchCriteria=${searchCriteria}, keyword=${keyword}, membership=${membership})} : '#'">
-                        &laquo; 이전
-                    </a>
-                </span>
+                <div class="pages">
+                    <!-- 이전 페이지 버튼 -->
+                    <span th:if="${userPage != null}" th:classappend="${userPage.number <= 0} ? 'disabled'">
+                        <a th:href="${userPage.number > 0} ? @{/admin/userList(page=${userPage.number - 1}, size=${userPage.size}, searchCriteria=${searchCriteria}, keyword=${keyword}, membership=${membership}, season=${season}, status=${status})} : '#'">
+                            이전
+                        </a>
+                    </span>
 
-                <!-- 페이지 번호 링크 -->
-                <span th:if="${userPage != null}" th:each="pageNumber : ${pageBars}">
-                    <a class="page-link"
-                       th:href="@{/admin/userList(page=${pageNumber}, size=${userPage.size}, searchCriteria=${searchCriteria}, keyword=${keyword}, membership=${membership})}"
-                       th:text="${pageNumber + 1}">1</a>
-                </span>
+                    <!-- 페이지 번호 링크 -->
+                    <span th:if="${userPage != null}" th:each="pageNumber : ${pageBars}">
+                        <a class="page-link"
+                           th:classappend="${pageNumber == userPage.number} ? 'active'"
+                           th:href="@{/admin/userList(page=${pageNumber}, size=${userPage.size}, searchCriteria=${searchCriteria}, keyword=${keyword}, membership=${membership}, season=${season}, status=${status})}"
+                           th:text="${pageNumber + 1}">1</a>
+                    </span>
 
-                <!-- 다음 페이지 버튼 -->
-                <span th:if="${userPage != null}"
-                      th:classappend="${userPage.number + 1 == userPage.totalPages} ? 'disabled'">
-                    <a th:href="${userPage.number + 1 < userPage.totalPages} ? @{/admin/userList(page=${userPage.number + 1}, size=${userPage.size}, searchCriteria=${searchCriteria}, keyword=${keyword}, membership=${membership})} : '#'">
-                        다음 &raquo;
-                    </a>
-                </span>
+                    <!-- 다음 페이지 버튼 -->
+                    <span th:if="${userPage != null}"
+                          th:classappend="${userPage.number + 1 == userPage.totalPages} ? 'disabled'">
+                        <a th:href="${userPage.number + 1 < userPage.totalPages} ? @{/admin/userList(page=${userPage.number + 1}, size=${userPage.size}, searchCriteria=${searchCriteria}, keyword=${keyword}, membership=${membership}, season=${season}, status=${status})} : '#'">
+                            다음
+                        </a>
+                    </span>
+                </div>
             </div>
         </div>
-        <!-- 총 회원 수 표시 -->
-        <span th:text="'총 회원 수 : ' + ${totalUsers} + '명'"></span>
     </section>
 </div>
-
 </body>
 </html>

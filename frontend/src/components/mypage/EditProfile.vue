@@ -26,7 +26,7 @@
       </div>
 
       <div class="profile-form">
-        <div class="form-row"> 
+        <div class="form-row">
           <div class="form-group">
             <label for="userName">이름</label>
             <input type="text" id="userName" v-model="userName" />
@@ -144,7 +144,7 @@ export default {
     isChanged() {
       return !((this.isAddressChanged || this.isPhoneChanged) && this.isPhoneVerified);
     },
-  },  
+  },
   watch: {
     // 경로가 변경될 때마다 activeMenu를 업데이트
     $route(to) {
@@ -233,7 +233,7 @@ export default {
           sessionStorage.removeItem('name');
           sessionStorage.removeItem('email');
           sessionStorage.removeItem('role');
-          const token = sessionStorage.getItem('token'); 
+          const token = sessionStorage.getItem('token');
           if (token === null) {
             console.log('토큰이 성공적으로 삭제되었습니다.');
             this.$emit('logoutSuccess');
@@ -262,7 +262,7 @@ export default {
       const height = 275;
       const left = (window.screen.width / 2) - (width / 2); // 화면 중앙에 위치
       const top = (window.screen.height / 2) - (height / 2);
-      window.open(`/myPage/recharge`, '충전하기', 
+      window.open(`/myPage/recharge`, '충전하기',
       `width=${width},height=${height},,top=${top},left=${left},
       toolbar=no,menubar=no,scrollbars=no,resizable=no,fullscreen=no`);
     },

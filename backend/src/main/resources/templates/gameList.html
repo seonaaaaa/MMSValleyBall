@@ -10,16 +10,21 @@
 <div layout:fragment="content" class="content">
     <section>
         <div class="tab-menu">
-            <a href="userList" class="active">회원 조회</a>
-            <a href="sales" class="active">매출 조회</a>
+            <a href="userList">회원 조회</a>
+            <a href="sales">매출 조회</a>
             <a href="game" class="active">경기 조회</a>
         </div>
 
-        <div class="container admin-game-page">
+        <div class="container">
             <div class="filter-controls">
                 <div>
+                    <span class="AllText">총 경기 수 : <b th:text="${totalMatches}"></b>개</span>
+                    <span class="divider">|</span>
+                    <span class="SelectedText">선택된 경기 수 : <b th:text="${filteredTotalMatches}" id="filteredTotalMatches"></b>개</span>
+                </div>
+                <div>
                     <a href="/admin/game/insert"><button class="btn-plusMath">+ 신규 경기</button></a>
-                    <button class="btn-allMath" id="resetFiltersBtn">전체</button>
+                    <button class="btn-allMath" id="resetFiltersBtn">전체 경기</button>
                 </div>
             </div>
 
@@ -127,20 +132,25 @@
             <!-- 페이지네이션 컨트롤 -->
             <div class="pagination" id="paginationControls">
                 <div class="pages">
-                <span th:each="page : ${#numbers.sequence(0, totalPages - 1)}">
-                    <a href="#" th:text="${page + 1}"
-                       th:classappend="${page == currentPage} ? 'active'"
-                       th:href="@{/admin/game(page=${page})}"></a>
-                </span>
+                    <a href="#" data-action="first">&lt;&lt;</a>
+                    <a href="#" id="prevPage">이전</a>
+                    <span th:each="page : ${#numbers.sequence(0, totalPages - 1)}">
+                        <a href="#" th:text="${page + 1}"
+                        th:classappend="${page == currentPage} ? 'active'"
+                        th:href="@{/admin/game(page=${page})}"></a>
+                    </span>
+                    <a href="#" id="nextPage">다음</a>
+                    <a href="#" data-action="last">&gt;&gt;</a>
                 </div>
             </div>
-            <span class="AllText">총 경기 수 : <b th:text="${totalMatches}"></b>개</span>
         </div>
     </section>
 
 
     <script th:inline="javascript">
         $(document).ready(function() {
+        
+            let currentPage = parseInt($('#paginationControls').find('.active').text()) - 1;
 
             // [전체] 버튼 클릭 시 전체 데이터 URL로 이동
             $('#resetFiltersBtn').on('click', function() {
@@ -160,7 +170,7 @@
             }
 
             // 필터링 적용
-            function applyFilters() {
+            function applyFilters(page = 0) {
                 const seasonId = $('#season').val();
                 const matchRoundId = $('#round').val();
                 const sortField = $('#sortOrder').val().split(',')[0];
@@ -174,7 +184,7 @@
                     url: "/admin/game",
                     type: "GET",
                     data: {
-                        page: 0, // 필터 적용 시 항상 첫 페이지로
+                        page: page, // 선택된 페이지로 요청
                         seasonId: seasonId,
                         matchRoundId: matchRoundId,
                         sortField: sortField,
@@ -187,7 +197,12 @@
                     success: function(response) {
                         // 성공 시 테이블 본문과 페이지네이션 갱신
                         $('.match-table-body').html($(response).find('.match-table-body').html());
+                        // $('.match-table-body').html($(response).find('.match-table-body').html());
                         $('#paginationControls').html($(response).find('#paginationControls').html());
+
+                        // 필터링된 총 경기 수 업데이트
+                        const filteredTotalMatches = $(response).find('#filteredTotalMatches').text();
+                        $('#filteredTotalMatches').text(filteredTotalMatches); // 선택된 경기 수 갱신
                     },
                     error: function() {
                         alert("필터링된 데이터를 불러오는 중 오류가 발생했습니다.");
@@ -285,6 +300,39 @@
             $('.match-table-body').on('click', 'button.send-email-btn', function() {
                 const matchId = $(this).data('match-id');
                 sendEmails(matchId);
+            });
+
+            // 페이지네이션 숫자 클릭 이벤트 바인딩
+            $('#paginationControls').on('click', 'a', function(e) {
+                e.preventDefault(); // 기본 링크 동작을 막음
+                const pageText = $(this).text();
+                const totalPages = parseInt($('#paginationControls').find('.pages span').length);
+
+                if (pageText === '<<') {
+                    // 제일 첫 페이지로 이동
+                    currentPage = 0;
+                    applyFilters(currentPage);
+                } else if (pageText === '>>') {
+                    // 제일 마지막 페이지로 이동
+                    currentPage = totalPages - 1;
+                    applyFilters(currentPage);
+                } else if (pageText === '이전') {
+                    // 이전 페이지로 이동
+                    if (currentPage > 0) {
+                        currentPage--;
+                        applyFilters(currentPage);
+                    }
+                } else if (pageText === '다음') {
+                    // 다음 페이지로 이동
+                    if (currentPage < totalPages - 1) {
+                        currentPage++;
+                        applyFilters(currentPage);
+                    }
+                } else {
+                    // 특정 페이지로 이동
+                    currentPage = parseInt(pageText) - 1;
+                    applyFilters(currentPage);
+                }
             });
 
         });

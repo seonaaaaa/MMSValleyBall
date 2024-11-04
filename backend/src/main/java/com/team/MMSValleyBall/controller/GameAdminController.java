@@ -35,11 +35,6 @@ public class GameAdminController {
         this.gameAdminService = gameAdminService;
     }
 
-    @GetMapping("/user")
-    public String showUserList() {
-        return "userList";
-    }
-
     // 경기 관리 페이지
     @GetMapping("")
     public String showGameList(
@@ -62,16 +57,20 @@ public class GameAdminController {
         // 필터링 및 정렬된 경기 데이터 조회
         Page<MatchWithTeamDTO> matchPage = gameAdminService.findAllFiltered(seasonId, matchRoundId, matchStadium, teamId, matchMailStatus, matchStatus, pageable);
 
-        // 라운드 데이터 설정
-        List<Integer> rounds = Arrays.asList(1, 2, 3, 4, 5, 6);
-        model.addAttribute("rounds", rounds);
+        // 필터링된 총 경기 수 조회
+        long filteredTotalMatches = matchPage.getTotalElements(); // 필터링된 총 경기 수 가져오기
+        model.addAttribute("filteredTotalMatches", filteredTotalMatches); // 필터링된 총 경기 수
 
         // 페이지네이션 데이터 설정
         model.addAttribute("matchList", matchPage.getContent());
-        model.addAttribute("totalMatches", matchPage.getTotalElements());
+        model.addAttribute("totalMatches", matchPage.getTotalElements()); // 전체 경기 수
         model.addAttribute("totalPages", matchPage.getTotalPages());
         model.addAttribute("currentPage", page);
         model.addAttribute("pageSize", size); // 인덱스 계산용
+
+        // 라운드 데이터 설정
+        List<Integer> rounds = Arrays.asList(1, 2, 3, 4, 5, 6);
+        model.addAttribute("rounds", rounds);
 
         // 시즌과 팀 데이터 설정
         List<SeasonDTO> seasons = gameAdminService.getAllSeasons();

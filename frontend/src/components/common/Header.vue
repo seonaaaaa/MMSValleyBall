@@ -129,7 +129,7 @@ export default {
     sessionStorage.removeItem('name');
     sessionStorage.removeItem('email');
     sessionStorage.removeItem('role');
-    const token = sessionStorage.getItem('token'); 
+    const token = sessionStorage.getItem('token');
     if (token === null) {
       console.log('토큰이 성공적으로 삭제되었습니다.');
       this.$emit('logoutSuccess');

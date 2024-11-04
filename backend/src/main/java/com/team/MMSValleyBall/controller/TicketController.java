@@ -64,6 +64,11 @@ public class TicketController {
         }
     }
 
+//    @GetMapping("/purchase/m")
+//    public ResponseEntity<?> viewTicketPurchase(@RequestParam("email") String email){
+//
+//    }
+
     // 티켓 구매 모달창 하나로 처리
     @GetMapping("/purchase/modal")
     public ResponseEntity<?> viewTicketPurchaseModal(

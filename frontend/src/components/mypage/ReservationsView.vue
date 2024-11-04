@@ -9,7 +9,7 @@
       <div class="menu-item" :class="{ 'active-menu-item': activeMenu === '/myPage/membership' }" @click="navigateTo('/myPage/membership')">나의 멤버십</div>
       <div class="menu-item" :class="{ 'active-menu-item': activeMenu === '/myPage/edit-profile' }" @click="navigateTo('/myPage/edit-profile')">나의 정보</div>
     </div>
-  
+
     <!-- 예매 내역 페이지 내용 -->
     <div class="reservations-view-content">
       <h2>예매 내역</h2>
@@ -38,7 +38,7 @@
                 <td v-html="matchInfo(reservation)"></td>
                 <td>{{ printDay(reservation.matchDate) }} 00:00:00까지</td>
                 <td>
-                  <span v-if="reservation.ticket.ticketStatus=='BOOKED'" 
+                  <span v-if="reservation.ticket.ticketStatus=='BOOKED'"
                         @click="cancelReservation(reservation.ticket.ticketId)" class="cancel-button">
                     예매 취소
                   </span>
@@ -121,7 +121,7 @@
       return {
         activeMenu: this.$route.path, // 현재 활성화된 경로
         reservations: [
-          
+
         ],
         currentPage: 1,
         itemsPerPage: 5,
@@ -364,7 +364,7 @@
   }
 
   .ticket-number:hover {
-    color: green; 
+    color: green;
   }
 
   .cancel-button {
@@ -415,7 +415,7 @@
     height: 100%;
     border-collapse: collapse;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    margin: 0 auto; 
+    margin: 0 auto;
     border-radius: 8px;
     overflow: hidden;
   }
@@ -424,7 +424,7 @@
     background-color: #d8e6d6;
     color: #333;
     font-weight: bold;
-    font-size: 20px; 
+    font-size: 20px;
     text-align: center;
     padding: 15px;
     border-left: 1px solid #e0e0e0;
@@ -434,8 +434,8 @@
     border-bottom: 1px solid #ddd;
     padding: 15px;
     text-align: center;
-    font-size: 16px; 
-    font-weight: bold; 
+    font-size: 16px;
+    font-weight: bold;
     color: #555;
     border-left: 1px solid #e0e0e0;
   }
@@ -448,16 +448,16 @@
   .payment-label {
     float: right;
     color:#a82723b4;
-    font-size: 18px; 
+    font-size: 18px;
   }
 
   .payment-value {
     color:rgb(255, 70, 70);
-    font-size: 24px; 
+    font-size: 24px;
     font-weight: bold;
     margin: 5px;
   }
-  
+
   .line-through {
     text-decoration: line-through;
     color: rgba(255, 70, 70, 0.548);
@@ -468,7 +468,7 @@
     width: 50%;
     height: 100%;
     object-fit: cover;
-    border: 1px solid #ddd; 
+    border: 1px solid #ddd;
     border-radius: 8px;
   }
 

@@ -72,7 +72,16 @@
             sessionStorage.setItem('role', payload.role);
         },
         login(){
-            const user = {
+            // 회원 status 조회
+            const params = new URLSearchParams();
+            params.append('userEmail', this.userEmail);
+
+            this.$axios.post("/login/check-status", null, { params: params })
+            .then((response) => {
+                console.log(response);
+                if(response.data === 'active.'){
+
+                const user = {
                 email: this.userEmail,
                 password: this.userPassword,
             };
@@ -89,7 +98,7 @@
                 } else {
                 let accessToken = response.headers.authorization;  // 응답헤더에서 토큰 받기
                 sessionStorage.setItem("token", accessToken); // 토큰 sessionStorage에 저장
-                this.saveUserInfo(accessToken); 
+                this.saveUserInfo(accessToken);
                 this.$emit('loginSuccess');
                 this.$axios.defaults.headers.common["Authorization"] = accessToken;
                 alert("로그인이 되었습니다");
@@ -99,8 +108,44 @@
             }).catch(() => {
                 alert("로그인 실패!!");
             });
-        },
+                } else {
+                    alert("탈퇴한 회원입니다.");
+                }
+        })
+        .catch((error) => {
+          alert(error);
+        });
+
+
+        //     const user = {
+        //         email: this.userEmail,
+        //         password: this.userPassword,
+        //     };
+        //     this.$axios({
+        //         method: "post",
+        //         url: "/login",
+        //         data: JSON.stringify(user),
+        //         headers: {
+        //         "Content-Type": "application/json",
+        //         },
+        //     }).then((response) => {
+        //         if (response.status === 401) {
+        //             alert("이메일 혹은 패스워드가 잘못 입력되었습니다.");
+        //         } else {
+        //         let accessToken = response.headers.authorization;  // 응답헤더에서 토큰 받기
+        //         sessionStorage.setItem("token", accessToken); // 토큰 sessionStorage에 저장
+        //         this.saveUserInfo(accessToken);
+        //         this.$emit('loginSuccess');
+        //         this.$axios.defaults.headers.common["Authorization"] = accessToken;
+        //         alert("로그인이 되었습니다");
+        //         this.$router.replace("/");
+        //         }
+        //     }).catch(() => {
+        //         alert("로그인 실패!!");
+        //     });
+        // },
      }
+    }
  }
  </script>
  
