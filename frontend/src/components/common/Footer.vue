@@ -53,23 +53,30 @@ margin: 0;
 width: 100%;
 }
 
+.footer-content {
+  margin: auto;
+  /* padding: 0 20px; */
+}
+
 .footer-container {
 display: flex;
 justify-content: space-around;
 align-items: center;
 max-width: 1200px;
 margin: 0 auto;
+padding: 0 20px;
 }
 
 .logo img {
 height: 150px;
+margin: 0 30px;
 }
 
 .footer-menu {
 display: flex;
 justify-content: space-between;
 padding: 0;
-margin: 20;
+margin-right: 20px;
 }
 
 .footer-menu li a {
@@ -85,7 +92,7 @@ color: #8a8888;
 color: #8a8888;
 text-align: left;
 padding: 0;
-margin: 0;
+margin-right: 20px;
 }
 
 .mms-info p {
