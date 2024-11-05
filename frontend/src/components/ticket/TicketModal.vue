@@ -274,11 +274,13 @@ export default {
                 }));
         },
         filteredAvailableSeats() {
-            // userMembership.membershipType이 GOLD인 경우 GOLD 구역을 포함하고, 그렇지 않으면 GOLD 구역을 제외
-            return this.availableSeatsList.filter(zone => 
-                this.userMembership.membershipType === 'GOLD' || 
+            // userMembership.membershipType이 GOLD를 포함하는 경우 GOLD 구역을 포함하고, 그렇지 않으면 GOLD 구역을 제외
+            let list = this.availableSeatsList.filter(zone => 
+                this.userMembership.membershipType.endsWith('Gold') ? 
+                (zone.availableSeatAmount > 0) : 
                 (zone.availableSeatAmount > 0 && zone.zoneName !== 'GOLD')
             );
+            return list;
         },
 
         formattedTotal() {
@@ -448,7 +450,7 @@ export default {
         // 결제 금액
         calculatePayment() {
             this.payment.payment = this.total * (100 - this.userMembership.membershipDiscount) * 0.01;
-            this.payment.leftMoney = this.userBalance - this.payment.payment;
+            this.payment.leftMoney = this.balance - this.payment.payment;
         },
         //두 번째 모달에 전달할 좌석 정보
         createSeatSelection(){
@@ -489,10 +491,12 @@ export default {
                     this.countTicket = 0;
                 }
             });
-            
+            if(section.quantity == 4 && section.availableSeatAmount > section.quantity) {
+                this.countTicket = section.quantity;
+            }
             if (section.quantity < 4 && section.availableSeatAmount > section.quantity) {
                 section.quantity++;
-                this.countTicket++;
+                this.countTicket = section.quantity;
                 this.sectionSelection = section; // 선택된 섹션 정보 저장
             }
             // 섹션 이름에서 첫 글자 추출
