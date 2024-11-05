@@ -79,12 +79,14 @@
             this.$axios.post("/login/check-status", null, { params: params })
             .then((response) => {
                 console.log(response);
-                if(response.data === 'active.'){
+                if(response.data === 'INACTIVE'){
+                    alert("탈퇴한 회원입니다.");
+                }else{
 
                 const user = {
-                email: this.userEmail,
-                password: this.userPassword,
-            };
+                    email: this.userEmail,
+                    password: this.userPassword,
+                };
             this.$axios({
                 method: "post",
                 url: "/login",
@@ -108,8 +110,6 @@
             }).catch(() => {
                 alert("로그인 실패!!");
             });
-                } else {
-                    alert("탈퇴한 회원입니다.");
                 }
         })
         .catch((error) => {
