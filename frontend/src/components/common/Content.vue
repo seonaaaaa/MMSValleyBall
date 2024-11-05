@@ -251,7 +251,7 @@ export default {
       const height = 275;
       const left = (window.screen.width / 2) - (width / 2); // 화면 중앙에 위치
       const top = (window.screen.height / 2) - (height / 2);
-      window.open('/myPage/rechargee', '충전하기', 
+      window.open('/myPage/rechargee', '충전하기',
       `width=${width},height=${height},,top=${top},left=${left},
       toolbar=no,menubar=no,scrollbars=no,resizable=no,fullscreen=no`);
     },
@@ -410,7 +410,7 @@ a {
   position: relative;
   width: 100%;
   height: 400px;
-  margin: 0 auto;
+  margin: 0;
   overflow: hidden;
 }
 
@@ -479,7 +479,7 @@ a {
 /* 경기 하이라이트 슬라이드 배너 */
 .highlight-slider-container {
   position: relative;
-  width: 1200px;
+  max-width: 1200px;
   height: auto;
   margin: 0 auto;
   overflow: hidden;
