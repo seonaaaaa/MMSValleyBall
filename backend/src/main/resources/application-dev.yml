@@ -34,7 +34,7 @@ spring:
     properties:
       mail:
         smtp:
-          auth: true
+          auth: true                  # 사용자 인증 시도 여부 (기본값 : false)
           timeout: 5000               # SMTP 연결 타임아웃 (밀리초)
           starttls:
-            enable: true
+          enable: true                # StartTLS 활성화 여부 (기본값 : false)
