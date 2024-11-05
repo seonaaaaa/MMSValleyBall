@@ -58,7 +58,7 @@
                     예매하기
                   </button>
                   <Modal
-                    v-show="isModalVisible"
+                    v-if="isModalVisible"
                     :visible="isModalVisible"
                     :match="selectedMatch"
                     :balance="balance"
@@ -83,6 +83,7 @@
   </div>
   </div>
 </template>
+
 
 <script>
 import axios from 'axios';
@@ -117,7 +118,7 @@ export default {
       selectedMatch : {},
       //서버에서 가져온 경기 정보 배열
       matches : [], 
-      pageSize: 5, // 페이지당 행 수
+      pageSize: 10, // 페이지당 행 수
       currentPage: 1 // 현재 페이지 번호
     };
   },
@@ -133,11 +134,7 @@ export default {
       return this.matches.filter(match => new Date(match.matchDate) >= today);
     },
     totalPages() {
-      let listLength = this.upcomingMatches.length;
-      let listSize = this.pageSize;
-      let page = Math.floor(listLength / listSize);
-      if(listLength % listSize > 0) page += 1;
-      return page;
+      return Math.ceil(this.upcomingMatches.length / this.pageSize);
     },
     paginatedMatches() {
       const start = (this.currentPage - 1) * this.pageSize;
@@ -161,18 +158,6 @@ export default {
         this.matches = [];
       }
     },
-    //pagination
-    nextPage() {
-      if (this.currentPage < this.totalPages) {
-        this.currentPage++;
-      }
-    },
-    prevPage() {
-      if (this.currentPage > 1) {
-        this.currentPage--;
-      }
-    },
-  
     // 경기 정보 형식 지정 메서드
     formatMatchInfo(matchTeam, thisTeam) {
       return matchTeam === "서울하이체육관" ? `${thisTeam} VS ${matchTeam}` : `${matchTeam} VS ${thisTeam}`;
@@ -246,16 +231,9 @@ export default {
       },
       // 모달 열기 닫기
     openModal(match) {
+      this.selectedMatch= match;
       this.isModalVisible = true;
       //TicketModal로 이동할 때 matchId를 가져가도록
-      this.selectedMatch= match;
-      this.$nextTick(() => {
-      if (this.$refs.ModalRef && typeof this.$refs.ModalRef.fetchEventsFromModal === 'function') {
-          this.$refs.ModalRef.fetchEventsFromModal();
-        } else {
-          console.error("모달 컴포넌트에서 'fetchEventsFromModal' 메서드를 찾을 수 없습니다.");
-        }
-      });
     },
     // 모달에서 온 이벤트 app.vue에 보내기
     updateBalance(balance){
@@ -267,6 +245,7 @@ export default {
       this.selectedMatch= null;
     },
     handleButtonClick(match) {
+      console.log(match);
       if(sessionStorage.getItem('token')==null){
         alert('로그인 후 예매가능합니다.\n로그인 페이지로 이동합니다.')
         this.$router.push('/login');
@@ -282,7 +261,7 @@ export default {
       const userMembership = sessionStorage.getItem('membership')
       if (generalBookStartDate <= today && today < matchDate) {
         // 오늘 날짜가 일반 예매 시작일과 경기일 사이
-        console.log('구매창에서 모달열기');
+        this.selectedMatch= match;
         this.openModal(match);
       } else if ( preBookStartDate < today && today < generalBookStartDate) {
         // 오늘 날짜가 일반 예매 시작일과 경기일 사이
@@ -300,9 +279,8 @@ export default {
       return;
     },
   },
-
-};
-
+    
+}
 </script>
 
 <style scoped>

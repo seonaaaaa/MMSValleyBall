@@ -88,14 +88,13 @@ public class MyPageService {
         // 사용자가 가진 멤버십 정보 가져오기
         MembershipDTO usersMembership = getUserMembership(findByEmail(email).getUserMembershipName());
         System.out.println(usersMembership);
-
         // 사용자의 멤버십 가격 정보 설정
         int membershipPrice = usersMembership.getMembershipPrice();
         System.out.println("Membership Price: " + membershipPrice);
 
         // 출력에 불필요한 정보 삭제
         usersMembership.setUsers(null);
-
+        System.out.println(usersMembership);
         // ResponseMembershipInfoDTO 생성
         ResponseMembershipInfoDTO responseDTO = new ResponseMembershipInfoDTO();
         responseDTO.setMembershipName(usersMembership.getMembershipName());

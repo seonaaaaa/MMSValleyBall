@@ -262,7 +262,7 @@ export default {
       const height = 275;
       const left = (window.screen.width / 2) - (width / 2); // 화면 중앙에 위치
       const top = (window.screen.height / 2) - (height / 2);
-      window.open(`/myPage/recharge`, '충전하기',
+      window.open('/myPage/rechargee', '충전하기',
       `width=${width},height=${height},,top=${top},left=${left},
       toolbar=no,menubar=no,scrollbars=no,resizable=no,fullscreen=no`);
     },
@@ -461,8 +461,12 @@ export default {
   border-radius: 5px;
   cursor: pointer;
   background-color:rgba(245, 245, 245, 0);
-  color: gray;
+  color: rgb(193, 190, 190);
   width: 80px;
+  font-size: smaller;
+}
+.delete-account-button:hover{
+  color: red;
 }
 
 .edit-profile-button{
