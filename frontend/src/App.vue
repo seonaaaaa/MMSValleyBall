@@ -24,7 +24,7 @@ export default {
   },
   setup() {
     const route = useRoute();
-    const showHeaderFooter = computed(() => route.path !== '/myPage/recharge');
+    const showHeaderFooter = computed(() => route.path !== '/myPage/rechargee');
     let isLoggedIn = ref(false); 
     let balance = ref(0); 
     let membership = ref('bronze');

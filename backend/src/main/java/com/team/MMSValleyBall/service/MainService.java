@@ -79,15 +79,7 @@ public class MainService {
         if (user == null) {
             return "User not found.";
         }
-
-        // 사용자의 상태 확인 (예: "active" 또는 "inactive")
         String userStatus = String.valueOf(user.getUserStatus());
-        if ("active".equalsIgnoreCase(userStatus)) {
-            return "active.";
-        } else if ("inactive".equalsIgnoreCase(userStatus)) {
-            return "inactive.";
-        } else {
-            return "null";
-        }
+        return String.valueOf(user.getUserStatus());
     }
 }

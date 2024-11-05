@@ -43,42 +43,47 @@
               </tr>
             </thead>
             <tbody>
-              <tr v-for="match in upcomingMatches" :key="match.matchId">
+              <tr v-for="match in paginatedMatches" :key="match.matchId">
                 <td v-html="formatDate(match.matchDate)"></td>
-                <td> {{ formatMatchInfo(match.matchTeam, thisTeam) }}</td>
-                <td> {{ match.matchStadium }}</td>
+                <td>{{ formatMatchInfo(match.matchTeam, thisTeam) }}</td>
+                <td>{{ match.matchStadium }}</td>
                 <td>
                   <p>[선예매]</p>
                   <p v-html="formatDatePreBook(match.matchDate)"></p>
                   <p>[일반예매]</p>
                   <p v-html="formatDateBook(match.matchDate)"></p>
                 </td>
-                <!-- 티켓 예매 버튼 클릭 시 모달 열기 -->
                 <td>
-                    <button class="ticket-Modal" 
-                            @click="handleButtonClick(match)">
-                      예매하기
-                    </button>
-                  <!-- 모달 컴포넌트 -->
-                  <Modal v-if="isModalVisible" :visible="isModalVisible" :match="selectedMatch" 
-                  :balance="balance" :membership="membership"
-                  @close="closeModal" @getBalanceByModal="updateBalance"/>
+                  <button class="ticket-Modal" @click="handleButtonClick(match)">
+                    예매하기
+                  </button>
+                  <Modal
+                    v-if="isModalVisible"
+                    :visible="isModalVisible"
+                    :match="selectedMatch"
+                    :balance="balance"
+                    :membership="membership"
+                    ref="ModalRef"
+                    @close="closeModal"
+                    @getBalanceByModal="updateBalance"
+                  />
                 </td>
               </tr>
             </tbody>
           </table>
+        </div>
           <!-- 페이지네이션 추가 -->
           <div class="pagination">
-            <button @click="prevPage" :disabled="currentPage === 1">이전</button>
+            <button class="page-btn" @click="prevPage" :disabled="currentPage === 1">이전</button>
             <span>페이지 {{ currentPage }} / {{ totalPages }}</span>
-            <button @click="nextPage" :disabled="currentPage === totalPages">다음</button>
+            <button class="page-btn" @click="nextPage" :disabled="currentPage === totalPages">다음</button>
           </div>
-        </div>
       </div>
     </div>
   </div>
   </div>
 </template>
+
 
 <script>
 import axios from 'axios';
@@ -487,13 +492,20 @@ th {
   padding-bottom: var(--footer-height);
   text-align: center;
 }
+/* pagination */
 .pagination {
   display: flex;
   justify-content: center;
-  margin: 10px 0;
+  align-items: center;
+  margin: 10px 10px;
+  margin-bottom: 50px;
+  font-size: 20px;
 }
-.pagination button {
-  padding: 5px 10px;
-  margin: 0 5px;
+.page-btn {
+  padding: 10px 15px;
+  margin: 10px 15px;
+  border: none;
+  font-size: 20px;
+
 }
 </style>
