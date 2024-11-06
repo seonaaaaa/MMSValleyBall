@@ -45,65 +45,73 @@ export default {
 
 <style scoped>
 footer {
-background-color: #333;
-color: #fff;
-text-align: center;
-padding: 20px;
-margin: 0;
-width: 100%;
+  background-color: #333;
+  color: #fff;
+  text-align: center;
+  padding: 20px;
+  margin: 0;
+  width: 100%;
+  /* overflow: hidden; */
 }
 
 .footer-content {
   margin: auto;
-  /* padding: 0 20px; */
 }
 
 .footer-container {
-display: flex;
-justify-content: space-around;
-align-items: center;
-max-width: 1200px;
-margin: 0 auto;
-padding: 0 20px;
+  /* flex-wrap: wrap; */
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  /* width: 100%; */
+  max-width: 1140px;
+  margin: 0 auto;
 }
 
 .logo img {
-height: 150px;
-margin: 0 30px;
+  height: 150px;
+  margin: 0 30px;
 }
 
 .footer-menu {
-display: flex;
-justify-content: space-between;
-padding: 0;
-margin-right: 20px;
+  display: flex;
+  justify-content: space-between;
+  padding: 0;
+  margin-left: 20px;
+  margin-right: 20px;
 }
 
 .footer-menu li a {
-color: #fff;
-font-weight: bold;
+  color: #fff;
+  font-weight: bold;
 }
 
 .footer-menu li a:hover {
-color: #8a8888;
+  color: #8a8888;
 }
 
 .mms-info {
-color: #8a8888;
-text-align: left;
-padding: 0;
-margin-right: 20px;
+  color: #8a8888;
+  text-align: left;
+  padding: 0;
+  margin-left: 20px;
+  margin-right: 20px;
 }
 
 .mms-info p {
-margin-top: 10px;
-color:#8a8888
+  margin-top: 10px;
+  color:#8a8888
+}
+
+.sns-area {
+  margin: 0 30px;
 }
 
 .sns-area ul {
-display: flex;
-padding: 0;
-margin: 0;
+  display: flex;
+  padding: 0;
+  margin: 0;
+  gap: 30px;
 }
 
 .sns-icon{
@@ -114,42 +122,41 @@ margin: 0;
   display: flex;
   justify-content: center;
   align-items: center;
-  margin-right: 30px;
 }
 
 .sns-icon-img {
-width: 65%;
-height: auto;
-padding: 4px 0 0 0;
-/* svg 컬러 변경 */
-/* #8A8888 */
-filter: invert(63%) sepia(1%) saturate(1299%) hue-rotate(12deg) brightness(87%) contrast(90%);
+  width: 65%;
+  height: auto;
+  padding: 4px 0 0 0;
+  /* svg 컬러 변경 */
+  /* #8A8888 */
+  filter: invert(63%) sepia(1%) saturate(1299%) hue-rotate(12deg) brightness(87%) contrast(90%);
 }
 
 @media (max-width:992px){
-.footer-container {
-  display: flex;
-  justify-content: space-evenly;
-  align-items: center;
-}
+  .footer-container {
+    display: flex;
+    justify-content: space-evenly;
+    align-items: center;
+  }
 
-.logo {
-  text-align: center;
-}
+  .logo {
+    text-align: center;
+  }
 
-.footer-menu{
-  display: block;
-  text-align:center;
-}
+  .footer-menu{
+    display: block;
+    text-align:center;
+  }
 
-.mms-info{
-  display:none;
-}
+  .mms-info{
+    display:none;
+  }
 }
 
 @media (max-width:600px){
-.footer-menu{
-  display: none;
-}
+  .footer-menu{
+    display: none;
+  }
 }
 </style>

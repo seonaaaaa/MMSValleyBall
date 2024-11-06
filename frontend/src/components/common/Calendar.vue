@@ -259,7 +259,7 @@ export default {
   align-items: center;
   width: 100%;
   height: 60px;
-  max-width: 1200px;
+  max-width: 1140px;
   margin: 0 auto 30px;
   padding-bottom: 10px;
   font-weight: bold;
@@ -396,7 +396,7 @@ select {
 /* 달력 테이블 */
 .calendar-table {
   width: 100%;
-  max-width: 1200px;
+  max-width: 1140px;
   margin: 0 auto;
   border-collapse: collapse;
   height: 100%;

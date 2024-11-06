@@ -264,8 +264,8 @@ export default {
   flex-grow: 1; /* 콘텐츠가 화면의 나머지 공간을 차지하도록 설정 */
   padding-top: var(--header-height);  /* Header 높이만큼 패딩 */
   padding-bottom: var(--footer-height);  /* Footer 높이만큼 패딩 */
-  /* max-width: 1200px; */
-  /* margin: 30px auto; */
+  /* max-width: 1200px;
+  margin: 30px auto; */
   /* 상하 마진 제거, 하단에만 마진 30px */
   margin: 0 auto;
   margin-bottom: 100px;
@@ -368,11 +368,11 @@ a {
   margin-left: 10px;
 }
 
-.welcome{
+.welcome {
   color: #3c6259;
 }
 .btn-login, .btn-signup,
-.btn-logout2,.btn-AdminPage{
+.btn-logout2,.btn-AdminPage {
   background-color: #60a191a3;
   color: white;
   border: none;
@@ -384,7 +384,7 @@ a {
   font-size: large;
   margin-top: 10px;
 }
-.admin-header{
+.admin-header {
   font-size: large;
   color: #3c6259;
   margin-left: 10px;
@@ -394,13 +394,13 @@ a {
   height: 50px;
   margin-left: 25px;
 }
-.admin-name{
+.admin-name {
   margin-left: 10px;
   font-size: larger;
   color: #223631;
 }
 
-.Admin-notice{
+.Admin-notice {
   color: #504f4f;
   font-size: 18px;
   text-align: center;
@@ -479,7 +479,7 @@ a {
 /* 경기 하이라이트 슬라이드 배너 */
 .highlight-slider-container {
   position: relative;
-  max-width: 1200px;
+  max-width: 1140px;
   height: auto;
   margin: 0 auto;
   overflow: hidden;
