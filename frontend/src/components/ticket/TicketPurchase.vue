@@ -118,7 +118,7 @@ export default {
       selectedMatch : {},
       //서버에서 가져온 경기 정보 배열
       matches : [], 
-      pageSize: 10, // 페이지당 행 수
+      pageSize: 5, // 페이지당 행 수
       currentPage: 1 // 현재 페이지 번호
     };
   },
