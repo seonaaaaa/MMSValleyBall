@@ -2,10 +2,32 @@
   <header>
     <!-- 로그인, 회원가입 링크 상단 -->
     <div class="auth-links">
+      <div class="hamburger" @click="toggleMenu" v-if="isMobile">
+        <span></span>
+        <span></span>
+        <span></span>
+      </div>
       <router-link v-if="!isLoggedIn" to="/login" class="login">LOGIN</router-link>
       <router-link v-if="!isLoggedIn" to="/signup" class="signup">SIGNUP</router-link>
       <!-- <button v-if="role == 'ADMIN' && isLoggedIn" @click="goToAdminPage" class="admin">ADMIN HOME</button> -->
       <button v-if="isLoggedIn" @click="logout" class="logout">LOGOUT</button>
+    </div>
+
+    <!-- 모바일 햄버거 메뉴 -->
+    <div :class="['mobile-menu', { 'is-open': isMenuOpen }]">
+      <button @click="closeMobileMenu" class="close-btn">X</button>
+      <ul class="mobile-menu-list">
+        <li v-for="(item, index) in unifiedMenu" :key="index">
+          <div @click="toggleSubMenu(index)" class="mobile-menu-title">
+            {{ item.title }}
+          </div>
+          <ul :class="['mobile-dropdown', { 'is-open': activeIndex === index }]">
+            <li v-for="subItem in item.submenu" :key="subItem.path">
+              <router-link :to="subItem.path" @click="closeMobileMenu">{{ subItem.title }}</router-link>
+            </li>
+          </ul>
+        </li>
+      </ul>
     </div>
   
     <!-- 네비게이션 바 -->
@@ -57,6 +79,9 @@ export default {
   },
   data() {
     return {
+      isMobile: false,
+      isMenuOpen: false,
+      activeIndex: null,
       leftMenu: [
         { 
           title: 'MMS', 
@@ -116,11 +141,18 @@ export default {
       role: 'guest',
     };
   },
+  computed: {
+    unifiedMenu() {
+      return [...this.leftMenu, ...this.rightMenu];
+    }
+  },
   mounted(){
     const token = sessionStorage.getItem('token');
     if(token!=null){
       this.role = sessionStorage.getItem('role');
     }
+    this.updateIsMobile();
+    window.addEventListener('resize', this.updateIsMobile);
   },
   methods: {
     logout() {
@@ -143,6 +175,23 @@ export default {
       const targetUrl = `http://localhost:4000/admin/userList?adminName=${encodeURIComponent(this.name)}`;
       window.location.href = targetUrl;
     },
+    toggleMenu() {
+      this.isMenuOpen = !this.isMenuOpen;
+    },
+    toggleSubMenu(index) {
+      this.activeIndex = this.activeIndex === index ? null : index;
+    },
+    updateIsMobile() {
+      this.isMobile = window.innerWidth <= 480;
+      if (!this.isMobile) this.isMenuOpen = false;
+    },
+    closeMobileMenu() {
+      this.isMenuOpen = false;
+      this.activeIndex = null;
+    },
+  },
+  beforeUnmount() {
+    window.removeEventListener('resize', this.updateIsMobile);
   }
 }
 </script>
@@ -339,6 +388,114 @@ header {
   .auth-links a {
     font-size: 16px; /* 글씨 크기 유지 */
     margin: 0 5px; /* 링크 간격 줄이기 */
+  }
+}
+
+/* 햄버거 아이콘 */
+.hamburger {
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  width: 25px;
+  margin-right: auto;
+}
+
+.hamburger span {
+  display: block;
+  height: 3px;
+  background-color: #333;
+  transition: all 0.3s ease;
+}
+
+/* 모바일 메뉴 */
+.mobile-menu {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: white;
+  padding: 60px 20px;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+  overflow-y: auto;
+  transform: translateX(-100%); /* 화면 왼쪽 바깥에 시작 */
+  transition: transform 0.3s ease;
+  z-index: 1001;
+}
+
+.mobile-menu.is-open {
+  display: block;
+  transform: translateX(0); /* 화면 내로 슬라이드 */
+}
+
+/* 닫기 버튼 */
+.close-btn {
+  position: absolute;
+  top: 10px;
+  right: 20px;
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+}
+
+/* 모바일 메뉴 항목 */
+.mobile-menu-list {
+  list-style: none;
+  padding: 0;
+}
+
+.mobile-menu-title {
+  font-size: 24px;
+  margin-bottom: 10px;
+  cursor: pointer;
+}
+
+/* 모바일 드롭다운 메뉴 */
+.mobile-dropdown {
+  list-style: none;
+  padding-left: 20px;
+  margin-top: 5px;
+  overflow: hidden;
+  max-height: 0;
+  transition: max-height 0.3s ease;
+}
+
+.mobile-dropdown.is-open {
+  max-height: 300px;
+}
+
+.mobile-dropdown li {
+  margin-bottom: 10px;
+}
+
+.mobile-dropdown li a {
+  color: #565656;
+  font-size: 18px;
+}
+
+.mobile-dropdown li a:hover {
+  color: #000;
+}
+
+@media (max-width: 480px) {
+
+  .navbar,
+  .nav-menu {
+    display: none;
+  }
+
+  .auth-links {
+    box-shadow: 0px 8px 8px -4px rgba(0, 0, 0, 0.1);
+  }
+}
+
+@media (min-width: 481px) {
+  .hamburger,
+  .mobile-menu {
+    display: none;
   }
 }
 </style>

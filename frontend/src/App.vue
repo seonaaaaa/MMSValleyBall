@@ -130,4 +130,11 @@ a {
     --footer-height: 0px;
   }
 }
+
+@media (max-width: 480px) {
+  :root {
+    --header-height: 42px;
+    --footer-height: 0px;
+  }
+}
 </style>
