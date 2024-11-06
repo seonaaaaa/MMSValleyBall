@@ -56,6 +56,7 @@ footer {
 
 .footer-content {
   margin: auto;
+  /* padding: 0 20px; */
 }
 
 .footer-container {

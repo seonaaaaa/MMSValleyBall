@@ -214,8 +214,10 @@ header {
   justify-content: space-between;
   align-items: center;
   width: 100%;
+  max-width: 1140px;
+  margin: 0 auto;
   padding: 0;
-  margin: 0;
+  /* margin: 0; */
 }
 
 /* 중앙 로고 */
@@ -288,5 +290,55 @@ header {
   color: #000000;
   background-color: #f2f2f2;
   border-radius: 5px;
+}
+
+/* 1024px 이하일 때 스타일 조정 */
+@media (max-width: 1024px) {
+  /* 네비게이션 바 크기 및 메뉴 폭 조정 */
+  .nav-menu {
+    max-width: 90%; /* 메뉴 폭 줄이기 */
+  }
+
+  /* 로고 이미지 숨기기 */
+  .logo img {
+    display: none;
+  }
+
+  /* 메뉴 글씨 크기 줄이기 */
+  .nav-item {
+    font-size: 16px;
+  }
+  
+  /* 인증 링크 상단 글씨 크기 줄이기 */
+  .auth-links a {
+    font-size: 16px;
+  }
+}
+
+/* 768px 이하일 때 스타일 조정 */
+@media (max-width: 768px) {
+  /* 네비게이션 바 크기 및 메뉴 폭 조정 */
+  .nav-menu {
+    max-width: 100%; /* 메뉴 폭 줄이기 */
+    padding: 0 10px; /* 좌우 패딩 줄이기 */
+  }
+
+  /* 로고 이미지 숨기기 */
+  .logo img {
+    display: none;
+  }
+
+  /* 메뉴 항목의 너비와 간격 줄이기 */
+  .nav-item {
+    width: 120px; /* 메뉴 항목 너비 줄이기 */
+    font-size: 16px; /* 글씨 크기 유지 */
+    padding: 0 5px; /* 메뉴 항목 간 좌우 패딩 줄이기 */
+  }
+
+  /* 인증 링크 상단 글씨 크기와 간격 조정 */
+  .auth-links a {
+    font-size: 16px; /* 글씨 크기 유지 */
+    margin: 0 5px; /* 링크 간격 줄이기 */
+  }
 }
 </style>
