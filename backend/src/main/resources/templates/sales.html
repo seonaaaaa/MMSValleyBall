@@ -120,31 +120,33 @@
             const monthlyPaymentSalesMap = {};
             const monthlyTicketSalesMap = {};
 
-            // 기본 매출을 0으로 설정
-            months.forEach(month => {
-                monthlyPaymentSalesMap[month] = 0; // 기본 매출액 0으로 설정
-                monthlyTicketSalesMap[month] = 0; // 기본 매출액 0으로 설정
-            });
+            function updateMonthlySalesData() {
+                // 기본 매출을 0으로 설정
+                months.forEach(month => {
+                    monthlyPaymentSalesMap[month] = 0; // 기본 매출액 0으로 설정
+                    monthlyTicketSalesMap[month] = 0; // 기본 매출액 0으로 설정
+                });
 
-            // 받은 monthlyPaymentSalesData에서 매출을 설정
-            if (monthlyPaymentSalesData) {
-                for (const month in monthlyPaymentSalesData) {
-                    if (monthlyPaymentSalesMap.hasOwnProperty(month)) {
-                        monthlyPaymentSalesMap[month] = monthlyPaymentSalesData[month]; // 해당 월의 매출 설정
+                // 받은 monthlyPaymentSalesData에서 매출을 설정
+                if (monthlyPaymentSalesData) {
+                    for (const month in monthlyPaymentSalesData) {
+                        if (monthlyPaymentSalesMap.hasOwnProperty(month)) {
+                            monthlyPaymentSalesMap[month] = monthlyPaymentSalesData[month]; // 해당 월의 매출 설정
+                        }
+                    }
+                }
+
+                // 받은 monthlyTicketSalesData에서 매출을 설정
+                if (monthlyTicketSalesData) {
+                    for (const month in monthlyTicketSalesData) {
+                        if (monthlyTicketSalesMap.hasOwnProperty(month)) {
+                            monthlyTicketSalesMap[month] = monthlyTicketSalesData[month]; // 해당 월의 매출 설정
+                        }
                     }
                 }
             }
 
-            // 받은 monthlyTicketSalesData에서 매출을 설정
-            if (monthlyTicketSalesData) {
-                for (const month in monthlyTicketSalesData) {
-                    if (monthlyTicketSalesMap.hasOwnProperty(month)) {
-                        monthlyTicketSalesMap[month] = monthlyTicketSalesData[month]; // 해당 월의 매출 설정
-                    }
-                }
-            }
-
-            console.log("월별 매출 데이터: ", monthlyTicketSalesMap);
+            updateMonthlySalesData(); // 초기 데이터 설정
 
             // Chart.js를 사용하여 그래프 그리기
             const ctx = document.getElementById('monthlySalesChart').getContext('2d');
@@ -170,6 +172,7 @@
                     ]
                 },
                 options: {
+                    animation: false, // 애니메이션 비활성화
                     scales: {
                         y: {
                             beginAtZero: true // y축 0에서 시작
@@ -226,6 +229,10 @@
                 selectedSeason = $(this).val();
                 totalPaymentData = totalPayments[selectedSeason];
                 matchPaymentData = matchPayments[selectedSeason];
+                monthlyTicketSalesData = monthlyTicketSales[selectedSeason];
+                monthlyPaymentSalesData = monthlyPaymentSales[selectedSeason];
+
+                updateMonthlySalesData(); // 월별 매출 데이터 업데이트
 
                 // 테이블 초기화
                 $('.match-table tbody').empty(); // 기존 데이터 초기화
