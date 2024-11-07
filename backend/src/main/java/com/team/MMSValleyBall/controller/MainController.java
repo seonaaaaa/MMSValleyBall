@@ -71,6 +71,10 @@ public class MainController {
 
     @PostMapping("/main")
     public ResponseEntity<Map<String, String>> sendUserInfo(@RequestParam("email")String email){
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+
+        System.out.println(authentication.getName());
         Map<String, String> body = new HashMap<>();
         // 맵에 담아서 보내기
         body.put("membership", mainService.userMembershipName(email));
