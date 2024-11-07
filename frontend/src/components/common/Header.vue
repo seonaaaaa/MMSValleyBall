@@ -79,7 +79,6 @@ export default {
   },
   data() {
     return {
-      isMobile: false,
       isMenuOpen: false,
       activeIndex: null,
       leftMenu: [
@@ -151,8 +150,6 @@ export default {
     if(token!=null){
       this.role = sessionStorage.getItem('role');
     }
-    this.updateIsMobile();
-    window.addEventListener('resize', this.updateIsMobile);
   },
   methods: {
     logout() {
@@ -181,18 +178,11 @@ export default {
     toggleSubMenu(index) {
       this.activeIndex = this.activeIndex === index ? null : index;
     },
-    updateIsMobile() {
-      this.isMobile = window.innerWidth <= 480;
-      if (!this.isMobile) this.isMenuOpen = false;
-    },
     closeMobileMenu() {
       this.isMenuOpen = false;
       this.activeIndex = null;
     },
   },
-  beforeUnmount() {
-    window.removeEventListener('resize', this.updateIsMobile);
-  }
 }
 </script>
 
@@ -485,6 +475,10 @@ header {
   .navbar,
   .nav-menu {
     display: none;
+  }
+
+  .hamburger {
+    display: flex;
   }
 
   .auth-links {
