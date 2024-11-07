@@ -175,7 +175,24 @@ const routes = [
 
 const router = createRouter({
   history: createWebHistory(process.env.BASE_URL), // HTML5 히스토리 모드 사용
-  routes
+  routes,
+  scrollBehavior(to, from, savedPosition) {
+    // 1. savedPosition이 있는 경우 (예: 뒤로 가기 했을 때)
+    if (savedPosition) {
+      return savedPosition;
+    } 
+    // 2. 특정 앵커로 이동할 경우 (#앵커)
+    else if (to.hash) {
+      return {
+        el: to.hash,  // 해당 앵커로 이동
+        behavior: 'smooth'  // 부드러운 스크롤
+      };
+    } 
+    // 3. 기본: 페이지 상단으로 이동
+    else {
+      return { top: 0 };
+    }
+  }
 });
 
 export default router;

@@ -364,7 +364,7 @@ header {
   }
 }
 
-/* 480px 이하일 때 스타일 조정 */
+/* 768px 이하일 때 스타일 조정 */
 /* 햄버거 아이콘 */
 .hamburger {
   cursor: pointer;
@@ -410,9 +410,7 @@ header {
   overflow-y: auto;
   /* 화면 왼쪽 바깥에 시작 */
   transform: translateX(-100%);
-  /* transition: transform 0.3s ease; */
   z-index: 1001;
-  /* opacity: 0; */
 }
 
 /* 슬라이드 인 효과 */
@@ -500,6 +498,11 @@ header {
 }
 
 @media (max-width: 768px) {
+
+  .auth-links {
+    align-items: center;
+  }
+
   .navbar,
   .nav-menu {
     display: none;
