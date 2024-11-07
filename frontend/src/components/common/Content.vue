@@ -1,5 +1,5 @@
 <template>
-  <div class="content">
+  <div class="content" id="main-page">
     <!-- 유저 정보 박스 -->
     <div class="control-box">
       <div class="user-info-box">

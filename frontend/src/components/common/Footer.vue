@@ -2,9 +2,10 @@
   <footer>
     <div class="footer-container">
       <div class="logo">
-          <router-link to="/">
+          <!-- <router-link to="/">
             <img src="@/assets/logo-mms.png" alt="Team Logo">
-          </router-link>
+          </router-link> -->
+          <a href="/#main-page"><img src="@/assets/logo-mms.png" alt="Team Logo"></a>
       </div>
       <div class="footer-content">
         <ul class="footer-menu">

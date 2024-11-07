@@ -131,9 +131,9 @@ a {
   }
 }
 
-@media (max-width: 480px) {
+@media (max-width: 768px) {
   :root {
-    --header-height: 42px;
+    --header-height: 56px;
     --footer-height: 0px;
   }
 }

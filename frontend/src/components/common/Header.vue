@@ -2,10 +2,17 @@
   <header>
     <!-- 로그인, 회원가입 링크 상단 -->
     <div class="auth-links">
-      <div class="hamburger" @click="toggleMenu" v-if="isMobile">
+      <!-- 모바일 - 햄버거 아이콘 -->
+      <div class="hamburger" @click="toggleMenu">
         <span></span>
         <span></span>
         <span></span>
+      </div>
+      <!-- 모바일 - 작은 로고 -->
+      <div class="small-logo">
+        <router-link to="/">
+          <img src="@/assets/logo-mms.png" alt="Team Logo" />
+        </router-link>
       </div>
       <router-link v-if="!isLoggedIn" to="/login" class="login">LOGIN</router-link>
       <router-link v-if="!isLoggedIn" to="/signup" class="signup">SIGNUP</router-link>
@@ -14,7 +21,7 @@
     </div>
 
     <!-- 모바일 햄버거 메뉴 -->
-    <div :class="['mobile-menu', { 'is-open': isMenuOpen }]">
+    <div :class="['mobile-menu', { 'is-open': isMenuOpen, 'is-closing': isClosing }]">
       <button @click="closeMobileMenu" class="close-btn">X</button>
       <ul class="mobile-menu-list">
         <li v-for="(item, index) in unifiedMenu" :key="index">
@@ -80,6 +87,7 @@ export default {
   data() {
     return {
       isMenuOpen: false,
+      isClosing: false,
       activeIndex: null,
       leftMenu: [
         { 
@@ -174,11 +182,13 @@ export default {
     },
     toggleMenu() {
       this.isMenuOpen = !this.isMenuOpen;
+      this.isClosing = false; // 메뉴를 열 때는 닫힘 애니메이션 상태를 false로 초기화
     },
     toggleSubMenu(index) {
       this.activeIndex = this.activeIndex === index ? null : index;
     },
     closeMobileMenu() {
+      this.isClosing = true;
       this.isMenuOpen = false;
       this.activeIndex = null;
     },
@@ -354,40 +364,15 @@ header {
   }
 }
 
-/* 768px 이하일 때 스타일 조정 */
-@media (max-width: 768px) {
-  /* 네비게이션 바 크기 및 메뉴 폭 조정 */
-  .nav-menu {
-    max-width: 100%; /* 메뉴 폭 줄이기 */
-    padding: 0 10px; /* 좌우 패딩 줄이기 */
-  }
-
-  /* 로고 이미지 숨기기 */
-  .logo img {
-    display: none;
-  }
-
-  /* 메뉴 항목의 너비와 간격 줄이기 */
-  .nav-item {
-    width: 120px; /* 메뉴 항목 너비 줄이기 */
-    font-size: 16px; /* 글씨 크기 유지 */
-    padding: 0 5px; /* 메뉴 항목 간 좌우 패딩 줄이기 */
-  }
-
-  /* 인증 링크 상단 글씨 크기와 간격 조정 */
-  .auth-links a {
-    font-size: 16px; /* 글씨 크기 유지 */
-    margin: 0 5px; /* 링크 간격 줄이기 */
-  }
-}
-
+/* 480px 이하일 때 스타일 조정 */
 /* 햄버거 아이콘 */
 .hamburger {
   cursor: pointer;
-  display: flex;
+  display: none;
   flex-direction: column;
   justify-content: space-between;
   width: 25px;
+  height: 25px;
   margin-right: auto;
 }
 
@@ -396,6 +381,19 @@ header {
   height: 3px;
   background-color: #333;
   transition: all 0.3s ease;
+}
+
+/* 작은 로고 */
+.small-logo {
+  display: none;
+  margin-left: 10px;
+  display: inline-block;
+  vertical-align: middle;
+}
+
+.small-logo img {
+  height: 30px;
+  cursor: pointer;
 }
 
 /* 모바일 메뉴 */
@@ -410,14 +408,45 @@ header {
   padding: 60px 20px;
   box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
   overflow-y: auto;
-  transform: translateX(-100%); /* 화면 왼쪽 바깥에 시작 */
-  transition: transform 0.3s ease;
+  /* 화면 왼쪽 바깥에 시작 */
+  transform: translateX(-100%);
+  /* transition: transform 0.3s ease; */
   z-index: 1001;
+  /* opacity: 0; */
 }
 
+/* 슬라이드 인 효과 */
 .mobile-menu.is-open {
   display: block;
-  transform: translateX(0); /* 화면 내로 슬라이드 */
+  animation: slideIn 0.3s ease-out forwards;
+}
+
+/* 왼쪽에서 오른쪽으로 슬라이드 인 애니메이션 */
+@keyframes slideIn {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+/* 슬라이드 아웃 효과 */
+.mobile-menu.is-closing {
+  display: block;
+  animation: slideOut 0.3s ease-out forwards;
+}
+
+/* 오른쪽에서 왼쪽으로 슬라이드 아웃 애니메이션 */
+@keyframes slideOut {
+  from {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateX(-100%);
+    opacity: 0;
+  }
 }
 
 /* 닫기 버튼 */
@@ -470,15 +499,16 @@ header {
   color: #000;
 }
 
-@media (max-width: 480px) {
-
+@media (max-width: 768px) {
   .navbar,
   .nav-menu {
     display: none;
   }
 
-  .hamburger {
-    display: flex;
+  .hamburger,
+  .small-logo {
+    display: inline-flex;
+    margin-top: 5px;
   }
 
   .auth-links {
@@ -486,8 +516,9 @@ header {
   }
 }
 
-@media (min-width: 481px) {
+@media (min-width: 769px) {
   .hamburger,
+  .small-logo,
   .mobile-menu {
     display: none;
   }
