@@ -2,9 +2,9 @@
   <div id="app">
     <AppHeader v-if="showHeaderFooter" @logoutSuccess="handleLogoutSuccess" :isLoggedIn="isLoggedIn"/>
     <router-view :isLoggedIn="isLoggedIn" :balance="Number(balance)" 
-    :membership="membership" 
+    :membership="membership" :toModal="toModal" :modalStatus="modalStatus"
     @loginSuccess="handleLoginSuccess" @logoutSuccess="handleLogoutSuccess" 
-    @getBalance="updateBalance" @getMembership="updateMembership"
+    @getBalance="updateBalance" @getMembership="updateMembership" @openMadal="sendingRequestFormModal"
     />
     <AppFooter v-if="showHeaderFooter"/>
   </div>
@@ -15,6 +15,7 @@ import AppHeader from './components/common/Header.vue'
 import AppFooter from './components/common/Footer.vue'
 import { computed, onMounted, ref } from 'vue';
 import { useRoute } from 'vue-router';
+import axios from 'axios';
 
 export default {
   name: 'App',
@@ -28,6 +29,14 @@ export default {
     let isLoggedIn = ref(false); 
     let balance = ref(0); 
     let membership = ref('bronze');
+    let toModal = ref({
+      ticketSalesDto: {},
+      matchInfo: {},
+      availableSeatsList: [],
+      userMembership: {},
+      seatDTOList: []
+    });
+    let modalStatus = ref(false);
 
     // 로그인 성공 처리 함수
     const handleLoginSuccess = () => {
@@ -55,14 +64,33 @@ export default {
       sessionStorage.setItem('membership', getMembership);
     };
 
-    
+    const sendingRequestFormModal = async (matchId) => {
+      sessionStorage.setItem('matchId', matchId);
+      try {
+        const response = await axios.get('/ticket/purchase/modal', {
+            params: {
+                matchId: matchId
+            }
+        });
+        toModal.value = response.data;
+        console.log(toModal.value);
+      } catch (error) {
+        console.error("Error fetching data: ", error);
+      }
+      modalStatus.value = true;
+      sessionStorage.setItem('modalStatus', 'true');
+    };
 
     onMounted(() => {
       // 새로고침 시 sessionStorage에 저장된 값을 불러와 설정
       isLoggedIn.value = sessionStorage.getItem('isLoggedIn') === 'true';
       balance.value = Number(sessionStorage.getItem('balance')) || 0;
       membership.value = sessionStorage.getItem('membership') || 'bronze';
-
+      modalStatus.value = sessionStorage.getItem('modalStatus') === 'true';
+      // 새로고침 시 모달창이 열려있는지 여부를 판단해서 다시 경기정보 날려주기
+      if(modalStatus.value){
+        sendingRequestFormModal(sessionStorage.getItem('matchId'));
+      }
       window.addEventListener('message', (event) => {
         if (event.data.type === 'updateBalance') {
           balance.value = event.data.balance;
@@ -76,10 +104,13 @@ export default {
       isLoggedIn,
       balance,
       membership,
+      toModal,
+      modalStatus,
       handleLoginSuccess,
       handleLogoutSuccess,
       updateBalance,
       updateMembership,
+      sendingRequestFormModal
     };
   } 
 }

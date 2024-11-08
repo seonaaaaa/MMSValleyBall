@@ -1,27 +1,19 @@
 <template>
     <!-- 모달 창 -->
-    <div id="modal" class="modal" v-if="visible">
-
+    <div id="modal" class="modal" v-if="toModal">
         <!-- 모달 내용 -->
         <div class="first-modal-content">
-            <!-- 로딩 표시 -->
-            <div v-if="loading" class="loading-spinner">
-                데이터 로딩 중입니다...
-            </div>
-
             <!-- 모달 제목 -->
             <!-- 선택한 데이터 가져와서 일정 넣어야함 -->
             <div class="modal-title" v-if="firstPage">
-                <p class="match-info-title"><strong>{{ formatMatchInfo(matchInfo.matchTeam, thisTeam) }}</strong></p>
+                <p class="match-info-title"><strong>{{ formatMatchInfo( toModal.matchInfo.matchTeam, thisTeam) }}</strong></p>
                 <div class="match-info">
-                    <p>{{ match.matchStadium }}&nbsp;</p>
+                    <p>{{ toModal.matchStadium }}&nbsp;</p>
                     <p> | &nbsp;</p> 
-                    <p v-html="formatDate(match.matchDate)"></p>
+                    <p v-html="formatDate(toModal.matchInfo.matchDate)"></p>
                 </div>
                 <hr class="divider" />
             </div>
-
-
             <!-- 모달 디테일 -->
             <div v-if="firstPage">
         <div class="modal-body">
@@ -29,7 +21,6 @@
             <div class="modal-ticket-img" v-if="selectedZoneImage">
                 <img :src="selectedZoneImage" alt="선택한 구역 이미지" class="stadium-image" />
             </div>
-
             <!-- 모달 표 -->
             <div class="modal-table-container">
                 <table class="modal-table">
@@ -110,11 +101,11 @@
                             <!-- 경기 정보 -->
                     <div class="second-modal-left">
                      <div class="modal-second-title">
-                        <p id="second-modal-match-info-title"><strong>{{ formatMatchInfo(matchInfo.matchTeam, thisTeam) }}</strong></p>
+                        <p id="second-modal-match-info-title"><strong>{{ formatMatchInfo(toModal.matchInfo.matchTeam, thisTeam) }}</strong></p>
                         <div id="second-modal-match-info">
-                            <p>{{ match.matchStadium }}&nbsp;</p>
+                            <p>{{ toModal.matchInfo.matchStadium }}&nbsp;</p>
                             <p> | &nbsp;</p> 
-                            <p v-html="formatDate(match.matchDate)"></p>
+                            <p v-html="formatDate(toModal.matchInfo.matchDate)"></p>
                         </div>
                     </div>
                     <!-- 왼쪽 표 -->
@@ -132,7 +123,7 @@
                                             <td> {{ seatSelection.sectionName }}구역 </td>
                                             <td> {{ seatSelection.quantity }}매</td>
                                             <td> {{ seatSelection.seatPrice }}원</td>
-                                            <td> {{ userMembership.membershipDiscount }} %</td>
+                                            <td> {{ match.userMembership.membershipDiscount }} %</td>
                                         </tr>
                                         <tr class="table-theader">
                                             <th colspan="4">총액</th>
@@ -190,7 +181,7 @@
                                 <tr>
                                     <td>멤버십 할인</td>
                                     <td>
-                                        {{ formattedMembershipType }} | {{ userMembership.membershipDiscount }} %
+                                        {{ formattedMembershipType }} | {{ match.userMembership.membershipDiscount }} %
                                     </td>
                                 </tr>
                                 <tr>
@@ -248,11 +239,7 @@ import axios from 'axios';
 export default {
     name: 'TicketModal',
     props: {
-        visible: {
-            type: Boolean,
-            default: false,
-        },
-        match: {
+        toModal: {
             type: Object,
             required: true,
         },
@@ -264,7 +251,7 @@ export default {
     computed: {
         selectedZones() {
             // 수량이 1 이상인 구역만 필터링
-            return this.availableSeatsList
+            return this.match.availableSeatsList
                 .filter(zone => zone.availableSeatAmount > 0 && zone.isChecked)
                 .map(zone => ({
                     ...zone,
@@ -275,8 +262,8 @@ export default {
         },
         filteredAvailableSeats() {
             // userMembership.membershipType이 GOLD를 포함하는 경우 GOLD 구역을 포함하고, 그렇지 않으면 GOLD 구역을 제외
-            let list = this.availableSeatsList.filter(zone => 
-                this.userMembership.membershipType.endsWith('Gold') ? 
+            let list = this.match.availableSeatsList.filter(zone => 
+                this.match.userMembership.membershipType.endsWith('Gold') ? 
                 (zone.availableSeatAmount > 0) : 
                 (zone.availableSeatAmount > 0 && zone.zoneName !== 'GOLD')
             );
@@ -296,7 +283,7 @@ export default {
             };
         },
         formattedMembershipType() {
-            const membershipType = this.userMembership.membershipType;
+            const membershipType = this.match.userMembership.membershipType;
             // '/' 이후 세 글자와 그 이후 문자열을 추출
             const match = membershipType.match(/\/.{3}(.+)/);
             return match ? match[1].trim() : '';
@@ -324,23 +311,22 @@ export default {
             }
         }
     },
-    mounted() {
-        this.fetchEvents();
+    async mounted() {
+        await this.initializeSectionQuantities();
     },
     data() {
         return {
-            loading: true,
             autoClick: true, // 버튼 자동 클릭을 제어할 변수
             // 두번째 모달창으로 이동
             firstPage: true,
             secondPage: false,
 
-            // 서버에서 받는 데이터
-            ticketSalesDto: {},
-            matchInfo: {},
-            availableSeatsList: [],
-            userMembership: {},
-            seatDTOList: [],
+            // // 서버에서 받는 데이터
+            // ticketSalesDto: {},
+            // matchInfo: {},
+            // availableSeatsList: [],
+            // userMembership: {},
+            // seatDTOList: [],
 
             // 좌석 선택 관련
             zones: [],  // 초기값 설정
@@ -361,54 +347,15 @@ export default {
             thisTeam: "GS ITM",
         };
     },
-
     methods: {
-        // async handleClick() {
-        //     console.log("버튼이 눌렸습니다!");
-        //     // 버튼 클릭 시 실행할 로직을 여기에 추가하세요
-        //     await this.fetchEvents(); // 데이터 fetch
-        // },
-        // API 호출
-        async fetchEvents() {
-            // let data = {};
-            try {
-                this.loading = true; // 데이터 로드 시작 시 로딩 활성화
-                console.log("Sending request with:", {
-                    email: sessionStorage.getItem('email'),
-                    matchId: this.match.matchId
-                });
-                const response = await axios.get('/ticket/purchase/modal', {
-                    params: {
-                        email:  sessionStorage.getItem('email'),
-                        matchId: this.match.matchId
-                    }
-                });
-                this.ticketSalesDto = response.data.ticketSalesDto;
-                this.userBalance = response.data.userBalance;
-                this.matchInfo = response.data.matchInfo;
-                this.availableSeatsList = response.data.availableSeatsList;
-                this.userMembership = response.data.userMembership;
-                this.seatDTOList = response.data.seatDTOList;
-                this.initializeSectionQuantities(); // 섹션 수량 초기화
-                console.log(response.data);
-                console.log("response:", response);
-                // response.data = response.data;
-            } catch (error) {
-                console.error("Error fetching data: ", error);
-            } finally {
-                this.loading = false; // 데이터 로드 완료 시 로딩 비활성화
-            }
-        },
         // 예매하기 버튼 클릭 시 호출되는 메서드
         async purchaseTicket(){
             this.ticketSalesDto = {
                 userEmail:  sessionStorage.getItem('email'),
-                matchId: this.matchInfo.matchId,
+                matchId: this.match.matchId,
                 ticketDetailAmount: this.seatSelection.quantity,
                 ticketDetailSeat: this.seatSelection.seatId,
                 ticketPaidPrice: this.payment.payment,
-                tickeId: null,
-                ticketNumber: null,
                 ticketCreateAt: new Date().toISOString(), // 현재 시간으로 설정
             };
             // axios 요청
@@ -449,12 +396,12 @@ export default {
         },
         // 결제 금액
         calculatePayment() {
-            this.payment.payment = this.total * (100 - this.userMembership.membershipDiscount) * 0.01;
+            this.payment.payment = this.total * (100 - this.match.userMembership.membershipDiscount) * 0.01;
             this.payment.leftMoney = this.balance - this.payment.payment;
         },
         //두 번째 모달에 전달할 좌석 정보
         createSeatSelection(){
-            const matchingSeat = this.seatDTOList.find(seat => seat.seatId === this.sectionSelection.seatId);
+            const matchingSeat = this.match.seatDTOList.find(seat => seat.seatId === this.sectionSelection.seatId);
             const seatPrice = matchingSeat ? matchingSeat.seatPrice : 0; // 매칭된 좌석이 없을 경우 기본값 0
             this.seatSelection = {
                 seatId: this.sectionSelection.seatId,
@@ -577,7 +524,7 @@ export default {
             //countTicket 초기화
             this.countTicket = 0;
             // 각 섹션의 수량을 초기화
-            this.availableSeatsList.forEach(zone => {
+            this.match.availableSeatsList.forEach(zone => {
                 zone.sections.forEach(section => {
                     section.quantity = 0; // 수량 초기화
                 });
@@ -926,13 +873,6 @@ export default {
     position: absolute;
     right: 1%;
     bottom: 1%;
-}
-
-.loading-spinner {
-    text-align: center;
-    padding: 20px;
-    font-size: 18px;
-    color: #555;
 }
 
 /* 다음 버튼 */

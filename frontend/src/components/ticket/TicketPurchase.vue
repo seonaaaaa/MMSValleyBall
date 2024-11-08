@@ -58,12 +58,10 @@
                     예매하기
                   </button>
                   <Modal
-                    v-if="isModalVisible"
-                    :visible="isModalVisible"
-                    :match="selectedMatch"
+                    v-if="modalStatus"
                     :balance="balance"
                     :membership="membership"
-                    ref="ModalRef"
+                    :toModal="toModal"
                     @close="closeModal"
                     @getBalanceByModal="updateBalance"
                   />
@@ -83,7 +81,6 @@
   </div>
   </div>
 </template>
-
 
 <script>
 import axios from 'axios';
@@ -105,6 +102,14 @@ export default {
       type: Number,
       required: true,
     },
+    toModal: {
+      type: Object,
+      required: false,
+    },
+    modalStatus: {
+      type: Boolean,
+      required: true,
+    },
   },
   async mounted(){
     this.fetchEvents();
@@ -114,8 +119,6 @@ export default {
       activeMenu: this.$route.path, // 현재 활성화된 경로
       thisTeam : "GS ITM",
       isModalVisible: false, // 모달 표시 여부
-      //ticket modal에 전달할 경기 아이디
-      selectedMatch : {},
       //서버에서 가져온 경기 정보 배열
       matches : [], 
       pageSize: 5, // 페이지당 행 수
@@ -151,7 +154,6 @@ export default {
     async fetchEvents() {
       try {
         this.matches = (await axios.get('/ticket/purchase')).data;
-        console.log("Matches fetched: ", this.matches);
       } catch (error) {
         console.log("Error fetching matches:", error);
         // 에러 발생 시 matches를 빈 배열로 초기화
@@ -229,11 +231,8 @@ export default {
 
         return `${formattedDate} (${dayName})<br>${formattedTime}`;
       },
-      // 모달 열기 닫기
-    openModal(match) {
-      this.selectedMatch= match;
-      this.isModalVisible = true;
-      //TicketModal로 이동할 때 matchId를 가져가도록
+    openModal(matchId) {
+      this.$emit("openMadal", matchId);
     },
     // 모달에서 온 이벤트 app.vue에 보내기
     updateBalance(balance){
@@ -241,11 +240,8 @@ export default {
       this.$emit("getBalance", balance);
     },
     closeModal() {
-      this.isModalVisible = false;
-      this.selectedMatch= null;
     },
     handleButtonClick(match) {
-      console.log(match);
       if(sessionStorage.getItem('token')==null){
         alert('로그인 후 예매가능합니다.\n로그인 페이지로 이동합니다.')
         this.$router.push('/login');
@@ -261,12 +257,11 @@ export default {
       const userMembership = sessionStorage.getItem('membership')
       if (generalBookStartDate <= today && today < matchDate) {
         // 오늘 날짜가 일반 예매 시작일과 경기일 사이
-        this.selectedMatch= match;
-        this.openModal(match);
+        this.openModal(match.matchId);
       } else if ( preBookStartDate < today && today < generalBookStartDate) {
         // 오늘 날짜가 일반 예매 시작일과 경기일 사이
         if (userMembership == 'bronze') {
-          this.openModal(match);
+          this.openModal(match.matchId);
         } else {
           alert('브론즈 회원님은 선예매가 불가능합니다.');
           return;
