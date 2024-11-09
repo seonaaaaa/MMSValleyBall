@@ -45,7 +45,7 @@ public class AdminController {
 
     @GetMapping("/userList")
     public String getUsers(
-            @RequestParam("adminName")String name,
+            @RequestParam(value = "adminName", required = false)String name,
             @RequestParam(name = "searchCriteria", required = false) String searchCriteria,
             @RequestParam(name = "keyword", required = false) String keyword,
             @RequestParam(value = "membership", required = false) String membership,

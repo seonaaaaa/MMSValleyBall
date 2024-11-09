@@ -93,11 +93,12 @@
                         <td th:text="${match.matchId}">ID</td>
                         <td th:text="${match.seasonName}">시즌</td>
                         <td th:text="${match.matchRoundId}">라운드</td>
+                        <!-- <td th:utext="${match.formattedDateTime}">경기 날짜</td> -->
                         <td th:text="${match.matchDate}">날짜</td>
                         <td th:text="${match.matchStadium}">경기장</td>
                         <td th:text="${match.teamName}">팀 이름</td>
-                        <td th:text="${match.matchSetScore}">우리 팀 점수</td>
-                        <td th:text="${match.matchOpponentTeamSetScore}">상대 팀 점수</td>
+                        <td th:text="${match.matchSetScore}">우리 팀 세트</td>
+                        <td th:text="${match.matchOpponentTeamSetScore}">상대 팀 세트</td>
                         <td th:text="${match.matchMailStatus}">메일 상태</td>
                         <td th:text="${match.matchStatus}">경기 상태</td>
                         <td>
@@ -118,12 +119,12 @@
                         <td>
                         <button class="update-mail-status-btn"
                                 th:data-match-id="${match.matchId}"
-                                th:disabled="${match.matchMailStatus.name() != 'REQUIRED'}">메일 상태 변경</button>
+                                th:disabled="${match.matchMailStatus.name() != 'REQUIRED'}">변경</button>
                         </td>
                         <td>
                             <button class="send-email-btn"
                                     th:data-match-id="${match.matchId}"
-                                    th:disabled="${match.matchMailStatus.name() != 'REQUIRED'}">메일 발송</button>
+                                    th:disabled="${match.matchMailStatus.name() != 'REQUIRED'}">발송</button>
                         </td>
                     </tr>
                 </tbody>

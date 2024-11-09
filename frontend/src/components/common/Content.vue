@@ -405,12 +405,13 @@ a {
   font-size: 18px;
   text-align: center;
 }
+
 /* 상단 슬라이드 배너 */
 .slider-container {
   position: relative;
-  width: 100%;
+  width: 100vw;
   height: 400px;
-  margin: 0;
+  margin: 0 auto;
   overflow: hidden;
 }
 

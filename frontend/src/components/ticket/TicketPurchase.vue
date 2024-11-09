@@ -400,23 +400,22 @@ th {
 }
 
 .ticket-Modal {
-  background-color: #4CAF50;
+  background-color: #60a191;
   /* 버튼 배경색 (녹색) */
-  border: 1px;
-  border-color: #000000;
+  border: none;
   color: white;
   /* 글자 색 (흰색) */
-  padding: 7px 14px;
-  /* 버튼 내부 여백 (위아래 12px, 좌우 24px) */
+  padding: 8px 16px;
+  /* 버튼 내부 여백 */
   text-align: center;
   /* 글자 가운데 정렬 */
   text-decoration: none;
   /* 밑줄 없음 */
   display: inline-block;
   /* 기본 인라인 블록 설정 */
-  font-size: 20px;
+  font-size: 22px;
   /* 글자 크기 */
-  border-radius: 15px;
+  border-radius: 8px;
   /* 모서리를 둥글게 */
   cursor: pointer;
   /* 마우스를 올렸을 때 포인터 모양 */
@@ -425,12 +424,12 @@ th {
   margin: 15px;
   width: 140px;
   /* 버튼의 너비 */
-  height: 70px;
+  height: 50px;
   /* 버튼의 높이 */
 }
 
-.ticket-buy:hover {
-  background-color: #45a049;
+.ticket-Modal:hover {
+  background-color: #4d7e74;
   /* 마우스를 올렸을 때 배경색 변경 */
 }
 
@@ -492,6 +491,7 @@ th {
   padding-bottom: var(--footer-height);
   text-align: center;
 }
+
 /* pagination */
 .pagination {
   display: flex;
@@ -501,6 +501,7 @@ th {
   margin-bottom: 50px;
   font-size: 20px;
 }
+
 .page-btn {
   padding: 10px 15px;
   margin: 10px 15px;

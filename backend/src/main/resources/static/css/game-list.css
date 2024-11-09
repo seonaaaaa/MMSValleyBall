@@ -5,22 +5,42 @@ select, button {
     font-weight: bold;
     cursor: pointer;
     font-size: 15px;
-    text-align: center;
-    text-align-last: center;
 }
 
-/* 테이블 스타일 */
+button {
+    border-radius: 8px;
+}
+
+/* 테이블 */
 table {
+    table-layout: fixed;
     width: 100%;
     border-collapse: collapse;
-    font-size: 16px;
+    font-size: 15px;
 }
 
 th, td {
-    padding: 12px 8px; /* 셀 간격 조정 */
+    padding: 12px 8px;
     border-bottom: 1px solid #ddd;
     text-align: center;
 }
+
+/* No */
+th:nth-child(1), td:nth-child(1) { width: 3%; }  
+/* ID */
+th:nth-child(2), td:nth-child(2) { width: 3%; }  
+/* 라운드 */
+th:nth-child(4), td:nth-child(4) { width: 7%; } 
+/* 경기 날짜 */
+th:nth-child(5), td:nth-child(5) { width: 10%; } 
+/* 팀 이름 */
+th:nth-child(7), td:nth-child(7) { width: 9%; } 
+/* 메일 상태 */
+th:nth-child(10), td:nth-child(10) { width: 8%; } 
+/* 경기 상태 */
+th:nth-child(11), td:nth-child(11) { width: 8%; } 
+/* 메일 상태 변경 */
+th:nth-child(14), td:nth-child(14) { width: 8%; }  
 
 thead th {
     background-color: #f0f0f0;
@@ -29,10 +49,10 @@ thead th {
 }
 
 tbody tr:hover {
-    background-color: #f0f0f0; /* 호버 시 색상 */
+    background-color: #f0f0f0;
 }
 
-/* 페이지네이션 스타일 */
+/* 페이지네이션 */
 .pagination {
     display: flex;
     align-items: center;
@@ -42,24 +62,24 @@ tbody tr:hover {
 
 .pagination a, .pagination .pages a {
     display: flex;
-    align-items: center; /* 요소들을 수직 가운데 정렬 */
-    padding: 8px 12px; /* 패딩을 줄여 높이를 조정 */
-    margin: 0; /* 불필요한 마진이 있으면 제거 */
+    align-items: center;
+    padding: 8px 12px;
+    margin: 0;
 }
 
 /* 경기 수와 버튼들 */
 .filter-controls {
     display: flex;
-    justify-content: space-between; /* 왼쪽과 오른쪽으로 배치 */
-    align-items: center; /* 수직 가운데 정렬 */
+    justify-content: space-between;
+    align-items: center;
     margin-bottom: 20px;
 }
 
 .AllText {
     font-size: 16px;
     color: #333;
-    padding: 10px 0; /* 버튼과 동일한 padding */
-    margin: 0; /* 버튼과 동일한 margin */
+    padding: 10px 0;
+    margin: 0;
 }
 
 .divider {
