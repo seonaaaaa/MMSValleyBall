@@ -17,10 +17,10 @@
           <img :src="membershipImage()" alt="멤버십 등급 이미지" />
         </div>
         <div>
-          <span class="header-name"><strong>{{ userName }}</strong> 님</span>
+          <span class="header-name"><strong>{{ user.name }}</strong> 님</span>
         </div>
         <div class="balance-info">
-          <span class="header-balance">잔액 : <strong>{{ new Intl.NumberFormat('ko-KR').format(balance) }}</strong>원</span>
+          <span class="header-balance">잔액 : <strong>{{ new Intl.NumberFormat('ko-KR').format(user.balance) }}</strong>원</span>
           <button class="recharge-button" @click="openRechargeWindow">충전하기</button>
         </div>
       </div>
@@ -29,11 +29,11 @@
         <div class="form-row">
           <div class="form-group">
             <label for="userName">이름</label>
-            <input type="text" id="userName" v-model="userName" />
+            <input type="text" id="userName" :value="user.name" readonly/>
           </div>
           <div class="form-group">
             <label for="userEmail">이메일</label>
-            <input type="text" id="userEmail" v-model="userEmail" />
+            <input type="text" id="userEmail" v-model="userEmail" readonly/>
           </div>
         </div>
 
@@ -104,19 +104,14 @@ export default {
     LogoHeader
   },
   props:{
-    balance: {
-      type: Number,
-      required: true
-    },
-    membership: {
-      type: String,
+    user: {
+      type: Object,
       required: true
     },
   },
   data() {
     return {
       activeMenu: this.$route.path, // 현재 활성화된 경로
-      userName: '',
       userEmail: '',
       userPassword: '',
       confirmPassword: '',
@@ -125,7 +120,6 @@ export default {
       userPhonePart3: '',
       userAddress: '',
       passwordVisible: false,
-      confirmPasswordVisible: false,
       isPhoneChanged: false,
       isPhoneVerified: true,
       isAddressChanged: false,
@@ -175,7 +169,6 @@ export default {
       this.activeMenu = route; // 메뉴를 클릭할 때 활성화된 메뉴 업데이트
       sessionStorage.removeItem('phone');
       sessionStorage.removeItem('address');
-
     },
     onPhoneChange() {
       this.isPhoneVerified = false;
@@ -183,7 +176,6 @@ export default {
     verifyPhone(){
       const changePhone = `${this.userPhonePart1}-${this.userPhonePart2}-${this.userPhonePart3}`;
       this.$axios.post(`/myPage/info/phone`, {
-            userEmail: sessionStorage.getItem('email'),
             userPhone: changePhone
         }).then((response) => {
           this.isPhoneVerified = response.data;
@@ -199,7 +191,6 @@ export default {
     updatePassword() {
       if(window.confirm("비밀번호를 변경하시겠습니까?")){
         this.$axios.post(`/myPage/info/modify`, {
-            userEmail: sessionStorage.getItem('email'),
             userPassword: this.userPassword
         }).then((response) => {
           alert(response.data);
@@ -211,12 +202,13 @@ export default {
     updateProfile() {
       if(window.confirm("변경하시겠습니까?")){
         this.$axios.post(`/myPage/info/modify`, {
-            userEmail: sessionStorage.getItem('email'),
             userPhone: this.changePhone,
             userAddress: this.userAddress
         }).then((response) => {
           sessionStorage.setItem('address',this.userAddress);
           sessionStorage.setItem('phone',this.changePhone);
+          this.isPhoneChanged = false;
+          this.isAddressChanged = false;
           alert(response.data);
         }).catch((error) => {
           console.error('사용자 정보 업데이트 중 오류 발생:', error);
@@ -225,23 +217,11 @@ export default {
     },
     deleteAcount() {
       if(window.confirm('정말로 회원 탈퇴를 진행하시겠습니까?')){
-        this.$axios.post(`/myPage/info/deactivate`, {
-            userEmail: sessionStorage.getItem('email'),
-        }).then((response) => {
-      // 로컬스토리지에 저장된 토큰과 사용자 정보 삭제
-          sessionStorage.removeItem('token');
-          sessionStorage.removeItem('name');
-          sessionStorage.removeItem('email');
-          sessionStorage.removeItem('role');
-          const token = sessionStorage.getItem('token');
-          if (token === null) {
-            console.log('토큰이 성공적으로 삭제되었습니다.');
-            this.$emit('logoutSuccess');
-          } else {
-            console.log('Content에서 토큰 삭제에 실패했습니다.', token);
-          }
-          this.$router.push('/');
+        this.$axios.get(`/myPage/info/deactivate`)
+        .then((response) => {
+          this.$emit('logoutSuccess');     
           alert(response.data);
+          this.$router.push('/');
         }).catch((error) => {
           console.error('회원탈퇴 중 오류 발생:', error);
         });
@@ -274,33 +254,27 @@ export default {
     },
     setInfo(response){
       console.log(response);
-      this.userAddress = response.user.userAddress;
-      sessionStorage.setItem('address', response.user.userAddress);
-      this.$emit("getBalance", response.balance);
-      this.$emit("getMembership", response.user.userMembershipName.split('-')[1]);
-      this.userPhonePart1 = response.user.userPhone.split('-')[0];
-      this.userPhonePart2 = response.user.userPhone.split('-')[1];
-      this.userPhonePart3 = response.user.userPhone.split('-')[2];
-      sessionStorage.setItem('phone', response.user.userPhone);
+      this.userEmail  = response.userEmail;
+      this.userAddress = response.userAddress;
+      sessionStorage.setItem('address', response.userAddress);
+      this.userPhonePart1 = response.userPhone.split('-')[0];
+      this.userPhonePart2 = response.userPhone.split('-')[1];
+      this.userPhonePart3 = response.userPhone.split('-')[2];
+      sessionStorage.setItem('phone', response.userPhone);
     },
     getUserInfo(){
-      this.$axios.get(`/myPage/info`, {
-        params: {
-          email: sessionStorage.getItem('email')
-        }
-      }).then((response) => {
+      this.$axios.get(`/myPage/info`)
+      .then((response) => {
         this.setInfo(response.data);
       }).catch((error) => {
         console.error('사용자 정보를 가져오는 중 오류 발생:', error);
       });
     },
     membershipImage(){
-      return  require(`@/assets/img/membershipImg/${this.membership}.png`);
+      return  require(`@/assets/img/membershipImg/${this.user.membership}.png`);
     }
   },
   mounted() {
-    this.userEmail = sessionStorage.getItem('email');
-    this.userName = sessionStorage.getItem('name');
     // 카카오 주소 API 스크립트 로드
     const script = document.createElement('script');
     script.src = 'https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js';
@@ -425,8 +399,10 @@ export default {
 .btn-password-change{
   margin-top: 5px;
 }
+.btn-phone-check:disabled,
 .btn-password-change:disabled,
 .edit-profile-button:disabled,
+.btn-phone-check:disabled:hover,
 .btn-password-change:disabled:hover,
 .edit-profile-button:disabled:hover{
   background-color: #d5d4d4;
@@ -443,6 +419,9 @@ export default {
 }
 .btn-phone-check:hover{
   background-color: #c46f6ff1;
+}
+.btn-phone-check:disabled{
+
 }
 .btn-password-change,
 .edit-profile-button {
@@ -515,6 +494,7 @@ label {
 }
 
 label[ for="confirmPassword"]{
+  margin-top: 10px;
   overflow: visible;
   white-space: nowrap;
 }

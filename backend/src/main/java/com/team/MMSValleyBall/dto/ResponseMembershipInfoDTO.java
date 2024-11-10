@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 
 import javax.swing.text.html.parser.Entity;
 import java.lang.reflect.Member;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Data
@@ -18,15 +19,5 @@ public class ResponseMembershipInfoDTO {
     private int membershipPrice;
     private String membershipSalesStatus;
     private LocalDateTime membershipSalesCreateAt;
-
-    public static ResponseMembershipInfoDTO fromEntity(Membership membership, MembershipSales membershipSales){
-        ResponseMembershipInfoDTO dto = new ResponseMembershipInfoDTO();
-
-        dto.setMembershipName(membership.getMembershipName());
-        dto.setMembershipPrice(membership.getMembershipPrice());
-        dto.setMembershipSalesStatus(String.valueOf(membershipSales.getMembershipSalesStatus()));
-        dto.setMembershipSalesCreateAt(membershipSales.getMembershipSalesCreateAt());
-
-        return dto;
-    }
+    private LocalDate seasonEndDate;
 }

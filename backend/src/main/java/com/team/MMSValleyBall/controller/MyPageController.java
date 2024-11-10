@@ -5,6 +5,8 @@ import com.team.MMSValleyBall.service.MyPageService;
 import com.team.MMSValleyBall.service.UsersBalanceService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
@@ -24,8 +26,9 @@ public class MyPageController {
 
     // 티켓 예매 탭에서 받을 티켓 예매 내역
     @GetMapping("ticket")
-    public ResponseEntity<?> userTicket(@RequestParam("email")String email){
-        return ResponseEntity.ok(myPageService.getReservationList(email));
+    public ResponseEntity<?> userTicket(){
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        return ResponseEntity.ok(myPageService.getReservationList(authentication.getName()));
     }
 
     @PostMapping("/ticket/cancel")
@@ -38,34 +41,32 @@ public class MyPageController {
     }
 
     // 나의 멤버십 탭에서 받을 사용자 멤버십 정보
-    @PostMapping("membership")
-    public ResponseEntity<ResponseMembershipInfoDTO> userMembership(@RequestParam("email")String email){
-        System.out.println(email);
-        ResponseMembershipInfoDTO users = myPageService.getUserCurrentMembership(email);
-//        Map<String, Object> users = myPageService.getUserCurrentMembership(email);
+    @GetMapping("membership")
+    public ResponseEntity<ResponseMembershipInfoDTO> userMembership(){
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        ResponseMembershipInfoDTO users = myPageService.getUserCurrentMembership(authentication.getName());
         System.out.println(users);
         return ResponseEntity.ok(users);
     }
 
     // 나의 정보 탭에서 받을 사용자 정보
     @GetMapping("info")
-    public ResponseEntity<Map<String, Object>> userInfo(@RequestParam("email")String email){
-        UserDTO findUser = myPageService.findByEmail(email);
+    public ResponseEntity<UserDTO> userInfo(){
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        UserDTO findUser = myPageService.findByEmail(authentication.getName());
         // 출력에 불필요한 정보 삭제
         findUser.setTickets(null);
         findUser.setPayments(null);
         findUser.setMembershipSales(null);
-        // 맵에 담아서 보내기
-        Map<String, Object> body = new HashMap<>();
-        body.put("user", findUser);
-        // 충전 잔액 담기
-        body.put("balance", usersBalanceService.getUsersBalance(email).getLeftMoney());
-        return ResponseEntity.ok(body);
+        findUser.setUserPassword(null);
+        return ResponseEntity.ok(findUser);
     }
 
     // 사용자 정보 수정 요청처리
     @PostMapping("info/modify")
     public ResponseEntity<String> modifyUserInfo(@RequestBody UserDTO userDTO){
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        userDTO.setUserEmail(authentication.getName());
         return ResponseEntity.ok(myPageService.modifyUserInfo(userDTO));
     }
 
@@ -76,14 +77,16 @@ public class MyPageController {
     }
 
     // 회원 탈퇴
-    @PostMapping("info/deactivate")
-    public ResponseEntity<String> deleteUser(@RequestBody UserDTO userDTO){
-        return ResponseEntity.ok(myPageService.deactivateUser(userDTO.getUserEmail()));
+    @GetMapping("info/deactivate")
+    public ResponseEntity<String> deleteUser(){
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        return ResponseEntity.ok(myPageService.deactivateUser(authentication.getName()));
     }
 
     // 잔액 충전
     @PostMapping("info/recharge")
-    public ResponseEntity<String> topUp(@RequestBody Recharge recharge){
-        return ResponseEntity.ok(myPageService.topUp(recharge));
+    public ResponseEntity<String> topUp(@RequestBody Map<String, String> request){
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        return ResponseEntity.ok(myPageService.topUp(authentication.getName(), Integer.parseInt(request.get("amount"))));
     }
 }

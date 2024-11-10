@@ -13,7 +13,7 @@
     <!-- 예매 내역 페이지 내용 -->
     <div class="reservations-view-content">
       <h2>예매 내역</h2>
-      <div v-if="reservations.length === 0" class="no-reservations">
+      <div v-if="!reservations" class="no-reservations">
         예매 내역이 없습니다.
       </div>
       <div v-else class="reservation-table-wrapper">
@@ -114,15 +114,13 @@
     props: {
       user: {
         type: Object,
-        default: () => ({ name: '', role: 'guest', email: '', isLoggedIn: false })
-      }
+        required: true
+      },
     },
     data() {
       return {
         activeMenu: this.$route.path, // 현재 활성화된 경로
-        reservations: [
-
-        ],
+        reservations: null,
         currentPage: 1,
         itemsPerPage: 5,
         openedTicketId : null,
@@ -155,7 +153,7 @@
       };
     },
     mounted(){
-      this.getReservationList(sessionStorage.getItem('email'));
+      this.getReservationList();
     },
     computed: {
       totalPages() {
@@ -174,15 +172,13 @@
       }
     },
     methods: {
-      async getReservationList(email){
+      async getReservationList(){
         try {
-          const list = await this.$axios.get('/myPage/ticket', {
-            params: {
-              email: email,
-            }
-          });
+          const list = await this.$axios.get('/myPage/ticket');
           if(list.data.length!=0){
             this.reservations = list.data;
+          }else{
+            this.reservations = null;
           }
         } catch (error) {
           console.log("티켓 리스트 불러오기 실패", error);
@@ -199,6 +195,7 @@
           this.$axios.post("/myPage/ticket/cancel", null, {params:params})
           .then((response)=>{
             alert(response.data);
+            this.getReservationList;
           })
         }
       },

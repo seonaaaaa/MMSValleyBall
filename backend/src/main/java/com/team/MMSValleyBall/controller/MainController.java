@@ -54,32 +54,15 @@ public class MainController {
     }
 
     @GetMapping("/main")
-    public ResponseEntity<ResponseDto> mainP() {
+    public ResponseEntity<Map<String, String>> sendUserInfo(){
+        // 토큰에서 이메일 정보 추출
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+        String email = authentication.getName();
 
-        ResponseDto dto = ResponseDto.builder()
-                .email(authentication.getName())
-                .role(userDetails.getAuthorities().iterator().next().getAuthority())
-                .name(userDetails.getName())
-                .build();
-
-        return ResponseEntity
-                .status(HttpStatus.OK)
-                .body(dto);
-    }
-
-    @PostMapping("/main")
-    public ResponseEntity<Map<String, String>> sendUserInfo(@RequestParam("email")String email){
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
-
-        System.out.println(authentication.getName());
         Map<String, String> body = new HashMap<>();
         // 맵에 담아서 보내기
         body.put("membership", mainService.userMembershipName(email));
         body.put("balance", String.valueOf(usersBalanceService.getUsersBalance(email).getLeftMoney()));
-        System.out.println(body.get("balance"));
         return ResponseEntity.ok(body);
     }
 
