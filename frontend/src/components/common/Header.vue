@@ -2,10 +2,12 @@
   <header>
     <!-- 로그인, 회원가입 링크 상단 -->
     <div class="auth-links">
-      <router-link v-if="!user.isLoggedIn" to="/login" class="login">LOGIN | </router-link>
+      <router-link v-if="!user.isLoggedIn" to="/login" class="login">LOGIN</router-link>
+      <span class="bar" v-if="!user.isLoggedIn">|</span>
       <router-link v-if="!user.isLoggedIn" to="/signup" class="signup">SIGNUP</router-link>
-      <button v-if="user.role == 'ROLE_ADMIN' && user.isLoggedIn" @click="goToAdminPage" class="admin">ADMIN HOME | </button>
-      <button v-if="user.isLoggedIn" @click="logout" class="logout">LOGOUT | </button>
+      <button v-if="user.role == 'ROLE_ADMIN' && user.isLoggedIn" @click="goToAdminPage" class="admin">ADMIN HOME</button>
+      <span class="bar" v-if="user.role == 'ROLE_ADMIN' && user.isLoggedIn">|</span>
+      <button v-if="user.isLoggedIn" @click="logout" class="logout">LOGOUT</button>
       <span v-if="user.isLoggedIn" class="user-name">{{ user.name }} 님</span>
     </div>
   
@@ -282,5 +284,8 @@ header {
   color: #000000;
   background-color: #f2f2f2;
   border-radius: 5px;
+}
+.bar{
+  margin-left: 4px;
 }
 </style>

@@ -1,9 +1,10 @@
 <template>
   <div id="app">
     <AppHeader v-if="showHeaderFooter" @logoutSuccess="handleLogoutSuccess" :user="user"/>
-    <router-view :user="user"
+    <router-view :user="user" :receivedModalData="receivedModalData" :modalStatus="modalStatus"
     @loginSuccess="handleLoginSuccess" @logoutSuccess="handleLogoutSuccess" 
     @getBalance="updateBalance" @getMembership="updateMembership"
+    @openMadal="sendModalRequest" @closeModal="closeModal"
     />
     <AppFooter v-if="showHeaderFooter"/>
   </div>
@@ -32,6 +33,13 @@ export default {
       balance : 0,
       membership : 'bronze'
     });
+    let receivedModalData = ref({
+      matchInfo : {}, 
+      availableSeatsList : [],
+      userMembership : {},
+      seatDTOList : []
+    });
+    let modalStatus = ref(false);
 
     // 로그인 성공 처리 함수
     const handleLoginSuccess = (token) => {
@@ -80,6 +88,34 @@ export default {
       user.value.membership = getMembership;
       sessionStorage.setItem('membership', getMembership);
     };
+
+    const sendModalRequest = async (matchId) =>{
+      try {
+        const response = await axios.get('/ticket/purchase/modal', {
+          params: {
+            matchId: matchId
+          }
+        });
+        modalStatus.value = true;
+        receivedModalData.value = response.data;
+        sessionStorage.setItem('modalStatus', true);
+        sessionStorage.setItem('matchId', matchId);
+      } catch (error) {
+        console.log("모달에 보낼 정보 요청중 오류:", error);
+      }
+    }
+
+    const closeModal = () =>{
+      sessionStorage.removeItem('modalStatus');
+      sessionStorage.removeItem('matchId');
+      modalStatus.value = false;
+      receivedModalData.value = {
+        matchInfo : {}, 
+        availableSeatsList : [],
+        userMembership : {},
+        seatDTOList : []
+      };
+    }
     
     onMounted(() => {
       // 새로고침 시 sessionStorage에 저장된 값을 불러와 설정
@@ -88,9 +124,13 @@ export default {
       user.value.membership = sessionStorage.getItem('membership') || 'bronze';
       user.value.name = sessionStorage.getItem('name') || '';
       user.value.role = sessionStorage.getItem('role') || 'guest';
+      modalStatus.value = sessionStorage.getItem('modalStatus') === 'true';
       const token = sessionStorage.getItem("token");
       if (token) {
         axios.defaults.headers.common["Authorization"] = token;
+      }
+      if(modalStatus.value){
+        sendModalRequest(sessionStorage.getItem('matchId'));
       }
 
       window.addEventListener('message', (event) => {
@@ -103,10 +143,14 @@ export default {
     return {
       showHeaderFooter,
       user,
+      receivedModalData,
+      modalStatus,
       handleLoginSuccess,
       handleLogoutSuccess,
       updateBalance,
       updateMembership,
+      sendModalRequest,
+      closeModal
     };
   } 
 }

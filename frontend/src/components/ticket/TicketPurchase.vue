@@ -57,14 +57,9 @@
                   <button class="ticket-Modal" @click="handleButtonClick(match)">
                     예매하기
                   </button>
-                  <Modal
-                    v-if="modalStatus"
-                    :balance="balance"
-                    :membership="membership"
-                    :toModal="toModal"
-                    @close="closeModal"
-                    @getBalanceByModal="updateBalance"
-                  />
+                  <Modal v-if="modalStatus"
+                    :receivedModalData="receivedModalData" :user="user"
+                    @closeModal="closeModal" @getBalanceByModal="updateBalance"/>
                 </td>
               </tr>
             </tbody>
@@ -94,22 +89,18 @@ export default {
     Modal,
   },
   props: {
-    membership: {
-      type: String,
-      required: true,
-    },
-    balance: {
-      type: Number,
-      required: true,
-    },
-    toModal: {
+    receivedModalData: {
       type: Object,
       required: false,
     },
-    modalStatus: {
-      type: Boolean,
+    user: {
+      type: Object,
       required: true,
     },
+    modalStatus:{
+      type: Boolean,
+      required: true,
+    }
   },
   async mounted(){
     this.fetchEvents();
@@ -240,6 +231,7 @@ export default {
       this.$emit("getBalance", balance);
     },
     closeModal() {
+      this.$emit("closeModal");
     },
     handleButtonClick(match) {
       if(sessionStorage.getItem('token')==null){
