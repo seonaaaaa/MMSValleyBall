@@ -10,7 +10,6 @@
             </div>
 
             <!-- 모달 제목 -->
-            <!-- 선택한 데이터 가져와서 일정 넣어야함 -->
             <div class="modal-title" v-if="firstPage">
                 <p class="match-info-title"><strong>{{ formatMatchInfo(matchInfo.matchTeam, thisTeam) }}</strong></p>
                 <div class="match-info">
@@ -21,222 +20,215 @@
                 <hr class="divider" />
             </div>
 
-
             <!-- 모달 디테일 -->
             <div v-if="firstPage">
-        <div class="modal-body">
-            <!-- 모달 이미지 -->
-            <div class="modal-ticket-img" v-if="selectedZoneImage">
-                <img :src="selectedZoneImage" alt="선택한 구역 이미지" class="stadium-image" />
+                <div class="modal-body">
+                    <!-- 모달 이미지 -->
+                    <div class="modal-ticket-img" v-if="selectedZoneImage">
+                        <img :src="selectedZoneImage" alt="선택한 구역 이미지" class="stadium-image" />
+                    </div>
+
+                    <!-- 모달 표 -->
+                    <div class="modal-table-container">
+                        <table class="modal-table">
+                            <thead class="table-theader">
+                                <tr>
+                                    <th>구역</th>
+                                    <th>잔여석</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr v-for="zone in filteredAvailableSeats" :key="zone.zoneName">
+                                    <td>
+                                        <button class="select-zone-btn" @click="toggleZoneSelection(zone)"
+                                        :style="{ backgroundColor: getButtonColor(zone.zoneName) }">
+                                            {{ zone.zoneName }}
+                                        </button>
+                                    </td>
+                                    <td>{{ zone.availableSeatAmount }}석</td>
+                                </tr>
+
+                                <!-- 선택한 구역의 섹션 정보 표시 -->
+                                <tr v-if="zoneSelection != null">
+                                    <td colspan="2">
+                                        <table class="modal-table-hide">
+                                            <tbody>
+                                                <tr v-for="section in zoneSelection.sections" :key="section.seatId">
+                                                    <td>{{ section.sectionName }}</td>
+                                                    <td>
+                                                        <div class="quantity-selector">
+                                                            <button @click="decreaseQuantity(section)" 
+                                                                    :disabled="section.quantity <= 0">-</button>
+                                                            <input type="text" v-model="section.quantity" readonly class="quantity-box" />
+                                                            <button @click="increaseQuantity(section, section.availableSeatAmount)">
+                                                                +
+                                                            </button>
+                                                        </div>
+                                                    </td>
+                                                    <td>{{ section.availableSeatAmount }}석</td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <hr class="divider" />
+
+                <div class="result-text">
+                    구역을 선택하면 좌석은 자동 배정됩니다.
+                    <div>
+                        선택한 좌석 : {{ sectionSelection ? sectionSelection.sectionName : ' ' }}구역 {{ countTicket }}매
+                    </div>
+                    <div class="result-text-all">
+                        총 : {{ countTicket }}매
+                    </div>
+                </div>
+                <div class="first-button">
+                    <!-- <button class="hiden-button" ref="autoClickButton" @click="handleClick"></button> -->
+                    <!-- 결제 버튼 -->
+                    <button class="buy-button" @click="openSecondPage">다음</button>
+
+                    <!-- 모달 종료버튼 -->
+                    <button class="close-button" @click="closeModal">닫기</button>
+                </div>
             </div>
-
-            <!-- 모달 표 -->
-            <div class="modal-table-container">
-                <table class="modal-table">
-                    <thead class="table-theader">
-                        <tr>
-                            <th>구역</th>
-                            <!-- <th></th> -->
-                            <th>잔여석</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr v-for="zone in filteredAvailableSeats" :key="zone.zoneName">
-                            <td>
-                                <button class="select-zone-btn" @click="toggleZoneSelection(zone)"
-                                :style="{ backgroundColor: getButtonColor(zone.zoneName) }">
-                                    {{ zone.zoneName }}
-                                </button>
-                            </td>
-                            <!-- <td></td> -->
-                            <td>{{ zone.availableSeatAmount }}석</td>
-                        </tr>
-
-                        <!-- 선택한 구역의 섹션 정보 표시 -->
-                        <tr v-if="zoneSelection != null">
-                            <td colspan="2">
-                                <table class="modal-table-hide">
-                                    <tbody>
-                                        <tr v-for="section in zoneSelection.sections" :key="section.seatId">
-                                            <td>{{ section.sectionName }}</td>
-                                            <td>
-                                                <div class="quantity-selector">
-                                                    <button @click="decreaseQuantity(section)" 
-                                                            :disabled="section.quantity <= 0">-</button>
-                                                    <input type="text" v-model="section.quantity" readonly class="quantity-box" />
-                                                    <button @click="increaseQuantity(section, section.availableSeatAmount)">
-                                                        +
-                                                    </button>
-                                                </div>
-                                            </td>
-                                            <td>{{ section.availableSeatAmount }}석</td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </td>
-                        </tr>
-
-                    </tbody>
-                </table>
-
-            </div>
-        </div>
-        <hr class="divider" />
-
-        <div class="result-text">
-            구역을 선택하면 좌석은 자동 배정됩니다.
-            <div>
-                선택한 좌석 : {{ sectionSelection ? sectionSelection.sectionName : ' ' }}구역 {{ countTicket }}매
-            </div>
-            <div class="result-text-all">
-                총 : {{ countTicket }}매
-            </div>
-        </div>
-        <div class="first-button">
-            <!-- <button class="hiden-button" ref="autoClickButton" @click="handleClick"></button> -->
-            <!-- 결제 버튼 -->
-            <button class="buy-button" @click="openSecondPage">다음</button>
-
-            <!-- 모달 종료버튼 -->
-            <button class="close-button" @click="closeModal">닫기</button>
-        </div>
-    </div>
             <!-- ------------------------------------------------------------------ -->
 
             <!-- 2번째 모달  -->
             <div v-if="secondPage" class="second-modal-content">
                 <div class="modal-body">
                     <div class="left-body">
-                            <!-- 경기 정보 -->
-                    <div class="second-modal-left">
-                     <div class="modal-second-title">
-                        <p id="second-modal-match-info-title"><strong>{{ formatMatchInfo(matchInfo.matchTeam, thisTeam) }}</strong></p>
-                        <div id="second-modal-match-info">
-                            <p>{{ match.matchStadium }}&nbsp;</p>
-                            <p> | &nbsp;</p> 
-                            <p v-html="formatDate(match.matchDate)"></p>
-                        </div>
-                    </div>
-                    <!-- 왼쪽 표 -->
-                    <div class="left-table">
-                        <div class="modal-table-container">
-                            <table class="modal-table">
-                                    <tbody>
-                                        <tr class="table-theader">
-                                            <th>구역</th>
-                                            <th>매수</th>
-                                            <th>금액</th>
-                                            <th>멤버십할인</th>
-                                        </tr>
-                                        <tr>
-                                            <td> {{ seatSelection.sectionName }}구역 </td>
-                                            <td> {{ seatSelection.quantity }}매</td>
-                                            <td> {{ seatSelection.seatPrice }}원</td>
-                                            <td> {{ userMembership.membershipDiscount }} %</td>
-                                        </tr>
-                                        <tr class="table-theader">
-                                            <th colspan="4">총액</th>
-                                        </tr>
-                                        <tr>
-                                            <td colspan="4">{{ formattedTotal }}원</td>
-                                        </tr>
-                                    </tbody>
-                            </table>
-
-                            <div class="modal-info-box">
-                                <div class="icon">
-                                    <img src="@/assets/img/anyImg/bell-icon.png" alt="alert" />
-                                </div>
-                                <div class="info-content">
-                                    <h4>예매 마감안내</h4>
-                                    <ul class="notice">
-                                        <li> - 당일 경기 시작 전 1시간 까지 가능</li>
-                                        <li> - 취소 시간 이후 구매한 티켓은 취소 및 좌석 변경이 되지 않습니다.</li>
-                                    </ul>
-                                    <h4>예매 취소안내</h4>
-                                    <ul class="notice">
-                                        <li> - 당일 경기 시작 12시간 전까지 가능</li>
-                                    </ul>
+                        <!-- 경기 정보 -->
+                        <div class="second-modal-left">
+                            <div class="modal-second-title">
+                                <p id="second-modal-match-info-title"><strong>{{ formatMatchInfo(matchInfo.matchTeam, thisTeam) }}</strong></p>
+                                <div id="second-modal-match-info">
+                                    <p>{{ match.matchStadium }}&nbsp;</p>
+                                    <p> | &nbsp;</p> 
+                                    <p v-html="formatDate(match.matchDate)"></p>
                                 </div>
                             </div>
-                    </div>
-                     
-                        </div>
+                            <!-- 왼쪽 표 -->
+                            <div class="left-table">
+                                <div class="modal-table-container">
+                                    <table class="modal-table">
+                                        <tbody>
+                                            <tr class="table-theader">
+                                                <th>구역</th>
+                                                <th>매수</th>
+                                                <th>금액</th>
+                                                <th>멤버십할인</th>
+                                            </tr>
+                                            <tr>
+                                                <td> {{ seatSelection.sectionName }}구역 </td>
+                                                <td> {{ seatSelection.quantity }}매</td>
+                                                <td> {{ seatSelection.seatPrice }}원</td>
+                                                <td> {{ userMembership.membershipDiscount }} %</td>
+                                            </tr>
+                                            <tr class="table-theader">
+                                                <th colspan="4">총액</th>
+                                            </tr>
+                                            <tr>
+                                                <td colspan="4">{{ formattedTotal }}원</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+
+                                    <div class="modal-info-box">
+                                        <div class="icon">
+                                            <img src="@/assets/img/anyImg/bell-icon.png" alt="alert" />
+                                        </div>
+                                        <div class="info-content">
+                                            <h4>예매 마감안내</h4>
+                                            <ul class="notice">
+                                                <li> - 당일 경기 시작 전 1시간 까지 가능</li>
+                                                <li> - 취소 시간 이후 구매한 티켓은 취소 및 좌석 변경이 되지 않습니다.</li>
+                                            </ul>
+                                            <h4>예매 취소안내</h4>
+                                            <ul class="notice">
+                                                <li> - 당일 경기 시작 12시간 전까지 가능</li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
                 <div class="vertical-divider"></div>
                     
-                <div class="right-table">
-                   
-                    <div class="ticket-info-content">
-                        <p><strong>[예매정보]</strong></p>
-                        <p>경기정보: {{ formatMatchInfo(matchInfo.matchTeam, thisTeam) }}</p>
-                        <p>경기장: {{ match.matchStadium }}</p>
-                        <p v-html="`경기일시: ${formatDate(match.matchDate)}`"></p>
-                        <p>구역: <strong>{{ seatSelection.sectionName }}</strong>구역 / <strong>{{ seatSelection.quantity }}</strong>매</p>
-                    </div>
-                    <hr class="divider" />
+                    <div class="right-table">
 
-                    <div>
-                        <table class="second-modal-table" id="second-modal-ticke-price">
-                            <tbody>
-                                <tr>
-                                    <td>티켓 금액</td>
-                                    <td>
-                                        {{ formattedTotal }}원
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>멤버십 할인</td>
-                                    <td>
-                                        {{ formattedMembershipType }} | {{ userMembership.membershipDiscount }} %
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>총 결제 금액</td>
-                                    <td>
-                                        {{ formattedPayment.payment }}원
-                                    </td>
-                                </tr>
-                            </tbody>
-                            
-                        </table>
-                        <br>
-                        <div class="charge">
-                            <div class="charge-money">
-                                    <p><strong>이용가능한 충전금액 : </strong></p>
-                                    <p>{{ balance }} 원</p>
-                            </div>
-                            <button id="btn-charge" v-if="payment.leftMoney < 0" @click="openRechargeWindow">충전하기</button>
-                            <div class="membership-price">
-                                <p>결제금액</p>
-                                <p>- {{ formattedPayment.payment }} 원</p>
-                            </div>
-                            <div class="left-money">
-                                <p>잔액</p>
-                                <!-- leftMoney 값이 0보다 작으면 'negative' 클래스를 추가 -->
-                                <p :class="{ 'negative': payment.leftMoney < 0 }">{{ formattedPayment.leftMoney }} 원</p>
+                        <div class="ticket-info-content">
+                            <p><strong>[예매정보]</strong></p>
+                            <p>경기정보: {{ formatMatchInfo(matchInfo.matchTeam, thisTeam) }}</p>
+                            <p>경기장: {{ match.matchStadium }}</p>
+                            <p v-html="`경기일시: ${formatDate(match.matchDate)}`"></p>
+                            <p>구역: <strong>{{ seatSelection.sectionName }}</strong>구역 / <strong>{{ seatSelection.quantity }}</strong>매</p>
+                        </div>
+                        <hr class="divider" />
+
+                        <div>
+                            <table class="second-modal-table" id="second-modal-ticke-price">
+                                <tbody>
+                                    <tr>
+                                        <td>티켓 금액</td>
+                                        <td>
+                                            {{ formattedTotal }}원
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>멤버십 할인</td>
+                                        <td>
+                                            {{ formattedMembershipType }} | {{ userMembership.membershipDiscount }} %
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>총 결제 금액</td>
+                                        <td>
+                                            {{ formattedPayment.payment }}원
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <br>
+                            <div class="charge">
+                                <div class="charge-money">
+                                        <p><strong>이용가능한 충전금액 : </strong></p>
+                                        <p>{{ balance }} 원</p>
+                                </div>
+                                <button id="btn-charge" v-if="payment.leftMoney < 0" @click="openRechargeWindow">충전하기</button>
+                                <div class="membership-price">
+                                    <p>결제금액</p>
+                                    <p>- {{ formattedPayment.payment }} 원</p>
+                                </div>
+                                <div class="left-money">
+                                    <p>잔액</p>
+                                    <!-- leftMoney 값이 0보다 작으면 'negative' 클래스를 추가 -->
+                                    <p :class="{ 'negative': payment.leftMoney < 0 }">{{ formattedPayment.leftMoney }} 원</p>
+                                </div>
                             </div>
                         </div>
 
+                        <div>
+                            <p class="p">
+                                취소기한 : {{ calculateCancellationDeadline(match.matchDate) }}<br>
+                                <!-- 링크 -->
+                                취소수수료 : 
+                                <router-link to="/ticket/info">[상세보기]</router-link>
+                            </p>
+                        </div>
+
+                        <div class="second-button">
+                            <!-- 결제 버튼 -->
+                            <button v-if="payment.leftMoney >= 0" class="buy-button" @click="purchaseTicket">예매 하기</button>
+                            <!-- 모달 종료버튼 -->
+                            <button class="close-button" @click="openFirstPage">취소</button>
+                        </div>
                     </div>
-                    <div>
-                        <p class="p">
-                            취소기한 : {{ calculateCancellationDeadline(match.matchDate) }}<br>
-                            <!-- 링크 -->
-                            취소수수료 : 
-                            <router-link to="/ticket/info">[상세보기]</router-link>
-                        </p>
-                    </div>
-                    <div class="second-button">
-                        <!-- 결제 버튼 -->
-                        <button v-if="payment.leftMoney >= 0" class="buy-button" @click="purchaseTicket">예매 하기</button>
-                        <!-- 모달 종료버튼 -->
-                        <button class="close-button" @click="openFirstPage">취소</button>
-                    </div>
-                    </div>
-                
                 </div>
             </div>
         </div>
@@ -472,6 +464,11 @@ export default {
 
         // 두번째 모달창으로 이동
         openSecondPage() {
+            // 좌석이 선택되지 않은 경우 경고창 띄우기
+            if (this.countTicket === 0) {
+                alert("좌석을 선택해주세요.");
+                return;
+            }
             this.createSeatSelection();
             this.calculateTotal();
             this.calculatePayment();
@@ -645,7 +642,7 @@ export default {
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0, 0, 0, 0.1);
+    background: v-bind("secondPage ? 'rgba(0, 0, 0, 0.8)' : 'rgba(0, 0, 0, 0.1)'");
     /* 모달 뒤 어두운 배경 */
     display: flex;
     align-items: center;
