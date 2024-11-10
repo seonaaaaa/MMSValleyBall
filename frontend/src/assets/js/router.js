@@ -1,4 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router';
+
+import AppContent from '@/components/common/Content.vue';
+
 // MMS 메뉴
 import AppMMS from '@/components/mms/MMS.vue';
 import AppGreeting from '@/components/mms/Greeting.vue';
@@ -27,139 +30,147 @@ import MembershipPurchase from '@/components/membership/MembershipPurchase.vue';
 import ReservationsView from '@/components/mypage/ReservationsView.vue';
 import MembershipView from '@/components/mypage/MembershipView.vue';
 import EditProfile from '@/components/mypage/EditProfile.vue';
-import DeleteAccount from '@/components/mypage/DeleteAccount.vue';
+import Recharge from '@/components/mypage/Recharge.vue';
+
 
 // login, joinpage 만들기
 import loginPage from '@/components/member/Login.vue';
 import SignupPage from '@/components/member/Signup.vue'
 
 const routes = [
+  // 기본 홈 화면 경로 추가
+  {
+    path: '/',
+    name: 'Home',
+    component: AppContent,
+    meta: { requiresAuth: false }, // 인증이 필요 없는 페이지
+  },
+
+  // MMS 메뉴
   {
     path: '/mms',
     name: 'MMS',
     component: AppMMS,
-    meta: { hideContent: true },  // AppContent 숨김 설정
+    meta: { requiresAuth: false }
   },
   {
     path: '/mms/greeting',
     name: 'Greeting',
     component: AppGreeting,
-    meta: { hideContent: true },
-
+    meta: { requiresAuth: false }
   },
   {
     path: '/mms/history',
     name: 'History',
     component: AppHistory,
-    meta: { hideContent: true },
+    meta: { requiresAuth: false }
   },
   {
     path: '/mms/ci',
     name: 'CI',
     component: AppCI,
-    meta: { hideContent: true },
+    meta: { requiresAuth: false }
   },
   {
     path: '/mms/sponsor',
     name: 'Sponsor',
     component: AppSponsor,
-    meta: { hideContent: true },
+    meta: { requiresAuth: false }
   },
+  // TEAM 메뉴
   {
     path: '/team/players',
     name: 'Players',
     component: AppPlayers,
-    meta: { hideContent: true },
+    meta: { requiresAuth: false }
   },
   {
     path: '/team/staff',
     name: 'Staff',
     component: AppStaff,
-    meta: { hideContent: true },
+    meta: { requiresAuth: false }
   },
   {
     path: '/team/stadium',
     name: 'Stadium',
     component: AppStadium,
-    meta: { hideContent: true },
+    meta: { requiresAuth: false }
   },
    // GAME 메뉴
-   {
+  {
     path: '/game/schedule',
     name: 'Schedule',
     component: AppSchedule,
-    meta: { hideContent: true },
+    meta: { requiresAuth: false }
   },
   {
     path: '/game/results',
     name: 'Results',
     component: AppResults,
-    meta: { hideContent: true },
+    meta: { requiresAuth: false }
   },
   // TICKET 메뉴
   {
     path: '/ticket/info',
     name: 'TicketInfo',
     component: TicketInfo,
-    meta: { hideContent: true },
+    meta: { requiresAuth: false }
   },
   {
     path: '/ticket/purchase',
     name: 'TicketPurchase',
     component: TicketPurchase,
-    meta: { hideContent: true },
+    meta: { requiresAuth: false }
   },
   // MEMBERSHIP 메뉴
   {
     path: '/membership/info',
     name: 'MembershipInfo',
     component: MembershipInfo,
-    meta: { hideContent: true },
+    meta: { requiresAuth: false }
   },
   {
     path: '/membership/purchase',
     name: 'MembershipPurchase',
     component: MembershipPurchase,
-    meta: { hideContent: true },
+    meta: { requiresAuth: true }, // 인증이 필요한 페이지
   },
   // MY PAGE 메뉴
   {
-    path: '/mypage/reservations',
+    path: '/myPage/reservations',
     name: 'ReservationsView',
     component: ReservationsView,
-    meta: { hideContent: true },
+    meta: { requiresAuth: true }
   },
   {
-    path: '/mypage/membership',
+    path: '/myPage/membership',
     name: 'MembershipView',
     component: MembershipView,
-    meta: { hideContent: true },
+    meta: { requiresAuth: true }
   },
   {
-    path: '/mypage/edit-profile',
+    path: '/myPage/edit-profile',
     name: 'EditProfile',
     component: EditProfile,
-    meta: { hideContent: true },
+    meta: { requiresAuth: true }
   },
   {
-    path: '/mypage/delete-account',
-    name: 'DeleteAccount',
-    component: DeleteAccount,
-    meta: { hideContent: true },
+    path: '/myPage/rechargee',
+    name: 'Recharge',
+    component: Recharge,
+    meta: { requiresAuth: true }
   },
   // 로그인, 회원가입 
   {
     path: '/login',
     name: 'loginPage',
     component: loginPage,
-    meta: { hideContent: true },
   },
   {
     path: '/signup',
     name: 'SignupPage',
     component: SignupPage,
-    meta: { hideContent: true },
-  }
+  },
 ];
 
 const router = createRouter({

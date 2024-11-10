@@ -1,20 +1,37 @@
 <template>
   <div class="content">
     <!-- 유저 정보 박스 -->
-    <div class="user-info-box">
-      <div v-if="isLoggedIn">
-        <p><strong>{{ userId }}</strong></p>
-        <p>멤버십: <strong>{{ membershipLevel }}</strong></p>
-        <p>충전 금액: <strong>{{ balance }}</strong>원</p>
-        <p><a href="#"><strong>My Page</strong></a></p>
-        <button @click="logout">로그아웃</button>
-      </div>
-      <div v-else>
-        <button @click="login">로그인</button>
-        <button @click="signup">회원가입</button>
+    <div class="control-box">
+      <div class="user-info-box">
+        <div v-if="user.isLoggedIn">
+          <!-- 관리자 -->
+          <div v-if="user.role == 'ROLE_ADMIN'" class="admin"> 
+            <div class="image-container">
+              <img class="admin-icon" :src="require('@/assets/img/anyImg/admin.png')" alt="관리자 아이콘" />
+              <h2 class="admin-header">관리자<span class="admin-name"> {{ user.name }} </span> 님</h2>
+            </div>
+            <button class="btn-AdminPage" @click="goToAdminPage">관리자 모드</button><br>
+            <button class="btn-logout2" @click="logout">로그아웃</button>
+          </div>
+          <!-- 사용자 -->
+          <div v-if="user.role == 'ROLE_USER'"> 
+            <span class="image-container">
+              <img class="membershipLevel-image" :src="membershipImage()" alt="멤버십 등급 이미지" />
+              <p><strong>{{ user.name }}</strong> 님</p>
+            </span>
+            <div class="money-box">
+              <p>잔액: <strong>{{ new Intl.NumberFormat('ko-KR').format(user.balance) }}</strong>원</p><button class="btn-charge-main" @click="openRechargeWindow">충전하기</button>
+            </div>
+            <button class="btn-myPage" @click="goToMyPage">My Page</button>&nbsp;<button class="btn-logout" @click="logout">로그아웃</button>
+          </div>
+        </div>
+        <div v-if="!user.isLoggedIn" class="login-signup-box">
+          <h2 class="welcome">WELCOME MMS</h2>
+          <button @click="goToLogin" class="btn-login">로그인</button><br>
+          <button @click="goToSignup" class="btn-signup">회원가입</button>
+        </div>
       </div>
     </div>
-
     <!-- 본문 내용 -->
     <div class="main-content">
       <!-- 상단 슬라이드 배너 -->
@@ -72,7 +89,7 @@
       <div class="section">
         <h2>경기 일정</h2>
         <!-- Calendar 컴포넌트를 사용 -->
-        <Calendar :events="events" />
+        <CalendarMain :events="events" calendarMode="main"/>
       </div>
 
     </div>
@@ -80,20 +97,37 @@
 </template>
 
 <script>
-import Calendar from '../common/CalendarMain.vue';
+import axios from 'axios';
+import CalendarMain from '../common/Calendar.vue';
 
 export default {
   name: 'AppContent',
   components: {
-    Calendar
+    CalendarMain,
+  },
+  props:{
+    user: {
+      type: Object,
+      required: true
+    },
+  },
+  async mounted(){
+    const token = sessionStorage.getItem('token');
+    if(token!=null){
+      try{
+        const userData = await axios.get('/main');
+        this.$emit("getBalance", userData.data.balance);
+        this.$emit("getMembership", userData.data.membership);
+      }catch(error){
+        console.error("Content에서 기본정보 로딩중 오류" , error);
+      }
+    }
+    await this.fetchEvents();
   },
   data() {
     return {
-      // 유저 정보 박스
-      isLoggedIn: true,  // 로그인 여부를 확인하는 변수
-      userId: 'user@mail.com',
-      membershipLevel: 'Gold', // <--- 멤버십 레벨 아이콘 삽입
-      balance: 10000,
+      role: 'guest',
+      name: null,
       // 상단 슬라이드 배너
       currentSlide: 0, // 현재 보여지는 슬라이드의 인덱스
       slides: [
@@ -108,37 +142,36 @@ export default {
         { img: require('@/assets/img/common/content-highlight-slide-006.png') },
         { img: require('@/assets/img/common/content-highlight-slide-002.png') }
       ],
-
-
-      // Calendar에 전달할 경기 일정 데이터
-      events: [
-        {
-          id: 1,
-          team: 'blueFangs',
-          location: '서울',
-          time: '18:30',
-          result: '승',
-          score: '6:3',
-          date: '2024-10-23',
-          isHomeGame: true // 홈 경기 여부 추가
-        },
-        {
-          id: 2,
-          team: 'jumbos',
-          location: '인천',
-          time: '17:00',
-          result: '패',
-          score: '2:5',
-          date: '2024-10-24',
-          isHomeGame: false // 원정 경기 여부 추가
-        }
-        // 테스트용 데이터, axios - api 연동할 때 Calender*.vew 로직 수정 예정
-      ]
-
-
+      // CalendarMain에 전달할 경기 일정 데이터
+      events: [],
     };
   },
   methods: {
+    // 페이지 이동 버튼
+    goToMyPage() {
+      this.$router.push('/mypage/reservations');
+    },
+    goToLogin(){
+      this.$router.push('/login');
+    },
+    goToSignup(){
+      this.$router.push('/signup');
+    },
+    goToAdminPage(){
+      const targetUrl = `http://localhost:4000/admin/userList`;
+      window.location.href = targetUrl;
+    },
+    // 로그아웃
+    logout() {
+      this.$emit('logoutSuccess');
+      if(!sessionStorage.getItem('token')){
+        alert("로그아웃 되었습니다.\n메인화면으로 이동합니다.");
+        this.$router.push('/');
+      }else{
+        alert("로그아웃 실패");
+      }
+    },
+
     // 상단 슬라이드 배너
     // 왼쪽 슬라이드로 이동
     prevSlide() {
@@ -178,8 +211,28 @@ export default {
     },
     goToHighlightSlide(index) {
       this.currentHighlightSlide = index;
-    }
-  }
+    },
+    async fetchEvents() {
+      try {
+        const response = await axios.get('/game/schedule/main');
+        this.events = response.data; 
+      } catch (error) {
+        console.error("Error fetching events:", error);
+      }
+    },
+    membershipImage(){
+      return  require(`@/assets/img/membershipImg/${this.user.membership}.png`);
+    },
+    openRechargeWindow() {
+      const width = 570;
+      const height = 275;
+      const left = (window.screen.width / 2) - (width / 2); // 화면 중앙에 위치
+      const top = (window.screen.height / 2) - (height / 2);
+      window.open('/myPage/rechargee', '충전하기', 
+      `width=${width},height=${height},,top=${top},left=${left},
+      toolbar=no,menubar=no,scrollbars=no,resizable=no,fullscreen=no`);
+    },
+  },
 };
 </script>
 
@@ -202,32 +255,36 @@ a {
 
 /* 유저 정보 박스 */
 .user-info-box {
-  position: absolute;
-  top: 630px;
-  right: 100px;
-  background-color: #f8f9fa;
-  width: 220px;
-  height: 200px;
-  padding: 10px 20px;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  text-align: right;
+  position: fixed;
+  top: 200px;
+  right: 50px;
+  background-color: #e6ebe5dc;
+  width: 300px;
+  height: 250px;
+  padding: 0px 15px;
+  border: 2px solid #bfccbdde;
+  border-radius: 20px;
   box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
   display: flex;
   flex-direction: column;
   justify-content: center;
   z-index: 100;
+  text-align: center;
+  justify-content: center;
 }
 
-.user-info-box button {
-  background-color: #60a191;
+.btn-myPage, .btn-logout {
+  background-color: #60a191a3;
   color: white;
   border: none;
   padding: 10px;
-  margin: 5px;
+  margin-top: 20px;
   border-radius: 5px;
   cursor: pointer;
-  width: 100%;
+  width: 48%;
+}
+.btn-myPage{
+  margin-right: 5px;
 }
 
 .user-info-box button:hover {
@@ -235,13 +292,96 @@ a {
 }
 
 .user-info-box p {
-  margin: 5px 5px;
+  margin: 5px 20px;
 }
 
 .user-info-box a:hover {
   text-decoration: underline;
 }
 
+/* 금액충전 창 */
+.money-box {
+  margin-top: 15px;
+  display: flex;
+  align-items: center; /* 수직 정렬 */
+  justify-content: center;
+  gap: 1px; /* 간격 조정 */
+  width: 99%;
+  height: 70px;
+  border: solid color(srgb rgb(68, 68, 68) green blue);
+  border-radius: 8px;
+  background-color: #d2e5d0de;
+  text-align: left;
+}
+
+.money-box p {
+  margin-left: 15px;
+  font-size: large;
+}
+
+.btn-charge-main {
+  width: 80px;
+  height: 45px;
+  background-color: #adcf69d2;
+  border: none;
+  color: white;
+  border-radius: 10px;
+}
+.btn-charge-main:hover{
+  background-color: #92c06c;
+}
+
+/* 멤버십 로고 */
+.image-container {
+  display: flex;
+  align-items: center; /* 이미지와 텍스트를 수직 중앙 정렬 */
+  gap: 2px; /* 이미지와 텍스트 간격 조절 */
+  font-size: 25px;
+}
+
+.membershipLevel-image {
+  width: 50px;
+  height: 50px;
+  margin-left: 10px;
+}
+
+.welcome{
+  color: #3c6259;
+}
+.btn-login, .btn-signup,
+.btn-logout2,.btn-AdminPage{
+  background-color: #60a191a3;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  width: 90%;
+  height: 60px;
+  margin-bottom: 10px;
+  font-size: large;
+  margin-top: 10px;
+}
+.admin-header{
+  font-size: large;
+  color: #3c6259;
+  margin-left: 10px;
+}
+.admin-icon {
+  width: 50px;
+  height: 50px;
+  margin-left: 25px;
+}
+.admin-name{
+  margin-left: 10px;
+  font-size: larger;
+  color: #223631;
+}
+
+.Admin-notice{
+  color: #504f4f;
+  font-size: 18px;
+  text-align: center;
+}
 /* 상단 슬라이드 배너 */
 .slider-container {
   position: relative;
@@ -316,7 +456,7 @@ a {
 /* 경기 하이라이트 슬라이드 배너 */
 .highlight-slider-container {
   position: relative;
-  width: 500px;
+  width: 1200px;
   height: auto;
   margin: 0 auto;
   overflow: hidden;
@@ -400,5 +540,14 @@ a {
   height: 10px;
   margin: 0 5px;
   cursor: pointer;
+}
+.admin-url {
+  text-decoration: none;
+  color: inherit; /* 원래 텍스트 색상 유지 */
+}
+
+.admin-url:hover {
+  text-decoration: none; /* hover 시 밑줄 없음 */
+  color: inherit; /* hover 시 색상 변화 없음 */
 }
 </style>

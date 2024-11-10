@@ -47,7 +47,7 @@
       <div class="transport-info">
         <h2>교통 안내</h2>
         <div class="transport-flex">
-          <div class="transport-bus">
+          <div class="transport-bus" id="directions-map">
             <h3>버스</h3>
             <p>시내버스: 101, 103, 143, 150, 160, 201, 260, 262, 270</p>
             <p>직행좌석버스: 1101, 1102, 7101, 9301</p>
@@ -269,5 +269,6 @@ methods: {
     display: flex;
     justify-content: center; /* 가로 가운데 정렬 */
     align-items: center; /* 세로 가운데 정렬 */
+    margin-bottom: 100px;
 }
 </style>

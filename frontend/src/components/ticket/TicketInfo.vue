@@ -14,7 +14,7 @@
     <!-- 티켓 안내 페이지 내용 -->
     <div class="ticket-info-content">
       <div>
-        <h1>🏐좌석 안내🏐</h1>
+        <h2>🏐 좌석 안내 🏐</h2>
       </div>
 
       <!-- 티켓이미지 섹션 -->
@@ -81,7 +81,7 @@
 
       <!-- 티켓 환불과 기타 규정 설명 -->
       <div>
-        <h1>🏐안내 및 주의사항🏐</h1>
+        <h2>🏐 안내 및 주의사항 🏐</h2>
       </div>
 
       <div class="rule-box">
@@ -123,7 +123,7 @@
       </div>
       <div>
         <button class="ticket-button"
-          onclick="window.location.href='http://localhost:8080/ticket/purchase';">예매하기</button>
+          onclick="window.location.href='/ticket/purchase';">예매하기</button>
       </div>
     </div>
   </div>
@@ -157,15 +157,15 @@ export default {
 }
 </script>
 
-<style>
+<style scoped>
 .ticket-button {
-  background-color: #4CAF50;
+  background-color: #60a191;
   /* 버튼 배경색 (녹색) */
   border: none;
   /* 테두리 없음 */
   color: white;
   /* 글자 색 (흰색) */
-  padding: 12px 24px;
+  padding: 8px 16px;
   /* 버튼 내부 여백 (위아래 12px, 좌우 24px) */
   text-align: center;
   /* 글자 가운데 정렬 */
@@ -173,7 +173,7 @@ export default {
   /* 밑줄 없음 */
   display: inline-block;
   /* 기본 인라인 블록 설정 */
-  font-size: 35px;
+  font-size: 22px;
   /* 글자 크기 */
   border-radius: 8px;
   /* 모서리를 둥글게 */
@@ -186,19 +186,19 @@ export default {
   margin-right: auto;
   margin-bottom: 50px;
 
-  width: 200px;
+  width: 140px;
   /* 버튼의 너비 */
-  height: 100px;
+  height: 50px;
   /* 버튼의 높이 */
 }
 
 .ticket-button:hover {
-  background-color: #45a049;
+  background-color: #4d7e74;
   /* 마우스를 올렸을 때 배경색 변경 */
 }
 
 .sub-text {
-  font-size: 21px;
+  font-size: 16px;
   /* 글자 크기를 기본보다 작게 설정 */
   margin-left: 20px;
   /* 왼쪽에 여백 추가 */
@@ -207,15 +207,15 @@ export default {
 }
 
 .rule-box {
-  background-color: #e0f7fa;
+  background-color: #eef1ee;
 
   border-radius: 15px;
   /* 모서리 둥글게 */
-  width: 1300px;
+  max-width: 1000px;
   /* 가로 길이 */
-  height: 900px;
+  height: auto;
   /* 세로 길이 */
-  border: 2px solid black;
+  border: 2px solid #60a191;
   /* 경계선 설정 (2px 두께, 검정색) */
   display: flex;
   /* 중앙 정렬을 위한 flexbox 사용 */
@@ -223,20 +223,22 @@ export default {
   /* 세로 중앙 정렬 */
   justify-content: center;
   /* 가로 중앙 정렬 */
-  font-size: 23px;
+  font-size: 18px;
   /* 글자 크기 */
   text-align: left;
   /* 글자 왼쪽 정렬 */
   margin-left: auto;
   margin-right: auto;
+  padding: 40px;
 }
 
 .ticket-info-price {
-  width: 62%;
+  width: 100%;
   /* 표 전체 너비 설정 */
+  max-width: 1000px;
   border-collapse: collapse;
   /* 경계선 합치기 */
-  font-size: 20px;
+  font-size: 18px;
   /* 폰트 크기 설정 */
   background-color: #f9f9f9;
   /* 표의 배경색 설정 */
@@ -268,10 +270,9 @@ th {
   /* 머리글 텍스트 굵게 */
 }
 
-
 .stadium-image {
   display: flex;
-  width: 1300px;
+  max-width: 1000px;
   justify-content: center;
   align-items: center;
   margin-bottom: 40px;
@@ -330,6 +331,10 @@ th {
 .menu-item:hover::after {
   transform: scaleX(1);
   /* 마우스를 올리면 밑줄 표시 */
+}
+
+h2 {
+  margin-bottom: 30px;
 }
 
 /* 티켓 안내 */

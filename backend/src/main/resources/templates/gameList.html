@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/layoutReal}">
+<head>
+    <!-- 개별 페이지 전용 CSS 파일 -->
+    <link rel="stylesheet" th:href="@{/css/game-list.css}">
+</head>
+<body>
+<div layout:fragment="content" class="content">
+    <section>
+        <div class="tab-menu">
+            <a href="/admin/userList">회원 조회</a>
+            <a href="/admin/sales">매출 조회</a>
+            <a href="/admin/game" class="active">경기 조회</a>
+        </div>
+
+        <div class="container">
+            <div class="filter-controls">
+                <div>
+                    <span class="AllText">총 경기 수 : <b th:text="${totalMatches}"></b>개</span>
+                    <span class="divider">|</span>
+                    <span class="SelectedText">선택된 경기 수 : <b th:text="${filteredTotalMatches}" id="filteredTotalMatches"></b>개</span>
+                </div>
+                <div>
+                    <a href="/admin/game/insert"><button class="btn-plusMath">+ 신규 경기</button></a>
+                    <button class="btn-allMath" id="resetFiltersBtn">전체 경기</button>
+                </div>
+            </div>
+
+            <!-- 경기 목록 테이블 -->
+            <table class="table table-striped table-bordered">
+                <thead>
+                <tr>
+                    <th>No</th>
+                    <th>ID</th>
+                    <th>
+                        <select id="season">
+                            <option value="">시즌</option>
+                            <option th:each="season : ${seasons}" th:value="${season.seasonId}" th:text="${season.seasonName}"></option>
+                        </select>
+                    </th>
+                    <th>
+                        <select id="round">
+                            <option value="">라운드</option>
+                            <option th:each="round : ${rounds}" th:value="${round}" th:text="${round + '라운드'}"></option>
+                        </select>
+                    </th>
+                    <th>
+                        <select id="sortOrder">
+                            <option value="matchDate,asc">경기 날짜 △</option>
+                            <option value="matchDate,desc">경기 날짜 ▽</option>
+                        </select>
+                    </th>
+                    <th>
+                        <select id="stadium">
+                            <option value="">경기장</option>
+                            <option value="HOME">HOME</option>
+                            <option value="AWAY">AWAY</option>
+                        </select>
+                    </th>
+                    <th>
+                        <select id="team">
+                            <option value="">팀 이름</option>
+                            <option th:each="team : ${teams}" th:value="${team.teamId}" th:text="${team.teamName}"></option>
+                        </select>
+                    </th>
+                    <th>우리 팀</th>
+                    <th>상대 팀</th>
+                    <th>
+                        <select id="mailStatus">
+                            <option value="">메일 상태</option>
+                            <option value="DEFAULT">DEFAULT</option>
+                            <option value="REQUIRED">REQUIRED</option>
+                        </select>
+                    </th>
+                    <th>
+                        <select id="matchStatus">
+                            <option value="">경기 상태</option>
+                            <option value="DEFAULT">DEFAULT</option>
+                            <option value="DELETED">DELETED</option>
+                        </select>
+                    </th>
+                    <th>수정</th>
+                    <th>삭제</th>
+                    <th>메일 상태 변경</th>
+                    <th>메일 발송</th>
+                </tr>
+                </thead>
+                <tbody class="match-table-body">
+                    <tr th:each="match, stat : ${matchList}">
+                        <td th:text="${(currentPage * pageSize) + stat.index + 1}">1</td>
+                        <td th:text="${match.matchId}">ID</td>
+                        <td th:text="${match.seasonName}">시즌</td>
+                        <td th:text="${match.matchRoundId}">라운드</td>
+                        <td th:text="${match.matchDate}">날짜</td>
+                        <td th:text="${match.matchStadium}">경기장</td>
+                        <td th:text="${match.teamName}">팀 이름</td>
+                        <td th:text="${match.matchSetScore}">우리 팀 점수</td>
+                        <td th:text="${match.matchOpponentTeamSetScore}">상대 팀 점수</td>
+                        <td th:text="${match.matchMailStatus}">메일 상태</td>
+                        <td th:text="${match.matchStatus}">경기 상태</td>
+                        <td>
+                            <a th:href="@{/admin/game/update/{matchId}(matchId=${match.matchId})}">
+                                <button class="btn-alter">수정</button>
+                            </a>
+                        </td>
+                        <td>
+                            <button class="delete-btn"
+                                    th:data-match-id="${match.matchId}"
+                                    th:data-match-status="${match.matchStatus}"
+                                    th:if="${match.matchStatus.name() != 'DELETED'}">삭제</button>
+                            <button class="activate-btn"
+                                    th:data-match-id="${match.matchId}"
+                                    th:data-match-status="${match.matchStatus}"
+                                    th:if="${match.matchStatus.name() == 'DELETED'}">활성화</button>
+                        </td>
+                        <td>
+                        <button class="update-mail-status-btn"
+                                th:data-match-id="${match.matchId}"
+                                th:disabled="${match.matchMailStatus.name() != 'REQUIRED'}">메일 상태 변경</button>
+                        </td>
+                        <td>
+                            <button class="send-email-btn"
+                                    th:data-match-id="${match.matchId}"
+                                    th:disabled="${match.matchMailStatus.name() != 'REQUIRED'}">메일 발송</button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <!-- 페이지네이션 컨트롤 -->
+            <div class="pagination" id="paginationControls">
+                <div class="pages">
+                    <a href="#" data-action="first">&lt;&lt;</a>
+                    <a href="#" id="prevPage">이전</a>
+                    <span th:each="page : ${#numbers.sequence(0, totalPages - 1)}">
+                        <a href="#" th:text="${page + 1}"
+                        th:classappend="${page == currentPage} ? 'active'"
+                        th:href="@{/admin/game(page=${page})}"></a>
+                    </span>
+                    <a href="#" id="nextPage">다음</a>
+                    <a href="#" data-action="last">&gt;&gt;</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+
+    <script th:inline="javascript">
+        $(document).ready(function() {
+        
+            let currentPage = parseInt($('#paginationControls').find('.active').text()) - 1;
+
+            // [전체] 버튼 클릭 시 전체 데이터 URL로 이동
+            $('#resetFiltersBtn').on('click', function() {
+                window.location.href = "/admin/game"; // 전체 데이터를 표시하는 기본 URL로 이동
+            });
+
+            // 필터 변경 시 Ajax 요청
+            $('#season, #round, #sortOrder, #stadium, #team, #mailStatus, #matchStatus').on('change', function() {
+                applyFilters();
+            });
+
+            // 필터 초기화 및 전체 데이터 가져오기
+            function resetFilters() {
+                // 필터 값을 초기화
+                $('#season, #round, #sortOrder, #stadium, #team, #mailStatus, #matchStatus').val('');
+                applyFilters(); // 초기화된 상태로 필터를 적용하여 전체 데이터 로드
+            }
+
+            // 필터링 적용
+            function applyFilters(page = 0) {
+                const seasonId = $('#season').val();
+                const matchRoundId = $('#round').val();
+                const sortField = $('#sortOrder').val().split(',')[0];
+                const sortDirection = $('#sortOrder').val().split(',')[1];
+                const matchStadium = $('#stadium').val();
+                const teamId = $('#team').val();
+                const matchMailStatus = $('#mailStatus').val();
+                const matchStatus = $('#matchStatus').val();
+
+                $.ajax({
+                    url: "/admin/game",
+                    type: "GET",
+                    data: {
+                        page: page, // 선택된 페이지로 요청
+                        seasonId: seasonId,
+                        matchRoundId: matchRoundId,
+                        sortField: sortField,
+                        sortDirection: sortDirection,
+                        matchStadium: matchStadium,
+                        teamId: teamId,
+                        matchMailStatus: matchMailStatus,
+                        matchStatus: matchStatus
+                    },
+                    success: function(response) {
+                        // 성공 시 테이블 본문과 페이지네이션 갱신
+                        $('.match-table-body').html($(response).find('.match-table-body').html());
+                        // $('.match-table-body').html($(response).find('.match-table-body').html());
+                        $('#paginationControls').html($(response).find('#paginationControls').html());
+
+                        // 필터링된 총 경기 수 업데이트
+                        const filteredTotalMatches = $(response).find('#filteredTotalMatches').text();
+                        $('#filteredTotalMatches').text(filteredTotalMatches); // 선택된 경기 수 갱신
+                    },
+                    error: function() {
+                        alert("필터링된 데이터를 불러오는 중 오류가 발생했습니다.");
+                    }
+                });
+            }
+
+            // 논리적 삭제
+            function deactivateMatch(matchId) {
+                if (confirm("삭제하시겠습니까?")) {
+                    $.ajax({
+                        url: `/admin/game/delete/${matchId}`,
+                        type: 'PATCH',
+                        success: function(response) {
+                            alert(response); // 서버로부터의 성공 메시지 출력
+                            alert("메일 상태가 변경되었습니다.\n필요 시 고객에게 메일을 발송해 주세요.");
+                            location.reload(); // 페이지 새로고침하여 변경 사항 반영
+                        },
+                        error: function(xhr, status, error) {
+                            console.error("경기 삭제 오류:", error);
+                            alert("경기 삭제 중 오류가 발생했습니다.");
+                        }
+                    });
+                }
+            }
+
+            // 경기 상태 활성화
+            function activateMatch(matchId) {
+                if (confirm("경기 상태를 활성화하시겠습니까?")) {
+                $.ajax({
+                        url: `/admin/game/activate/${matchId}`,
+                        type: 'PATCH',
+                        success: function(response) {
+                            alert(response); // 서버로부터의 성공 메시지 출력
+                            location.reload(); // 페이지 새로고침하여 변경 사항 반영
+                        },
+                        error: function(xhr, status, error) {
+                            console.error("경기 상태 활성화 오류:", error);
+                            alert("경기 활성화 중 오류가 발생했습니다.");
+                        }
+                    });
+                }
+            }
+
+            // 메일 상태 변경
+            function updateMailStatus(matchId) {
+                $.ajax({
+                    url: `/admin/game/update-mail-status/${matchId}`,
+                    type: 'PATCH',
+                    success: function(response) {
+                        alert(response); // 서버로부터의 성공 메시지 출력
+                        location.reload(); // 페이지 새로고침하여 변경 사항 반영
+                    },
+                    error: function(xhr, status, error) {
+                        console.error("메일 상태 변경 오류:", error);
+                        alert("메일 상태 변경 중 오류가 발생했습니다.");
+                    }
+                });
+            }
+
+            // 메일 발송
+            function sendEmails(matchId) {
+                if (confirm("해당 경기를 예매한 고객에게 메일이 발송됩니다.\n발송하시겠습니까?")) {
+                    $.ajax({
+                        url: `/admin/game/${matchId}/sendEmail`,
+                        type: 'POST',
+                        success: function(response) {
+                            alert(response); // 서버로부터의 성공 메시지 출력
+                            location.reload(); // 페이지 새로고침하여 변경 사항 반영
+                        },
+                        error: function(xhr, status, error) {
+                            console.error("메일 발송 오류:", error);
+                            alert("메일 발송 중 오류가 발생했습니다.");
+                        }
+                    });
+                }
+            }
+
+            // 이벤트 바인딩
+            $('.match-table-body').on('click', 'button.delete-btn', function() {
+                const matchId = $(this).data('match-id');
+                deactivateMatch(matchId);
+            });
+
+            $('.match-table-body').on('click', 'button.activate-btn', function() {
+                const matchId = $(this).data('match-id');
+                activateMatch(matchId);
+            });
+
+            $('.match-table-body').on('click', 'button.update-mail-status-btn', function() {
+                const matchId = $(this).data('match-id');
+                updateMailStatus(matchId);
+            });
+
+            $('.match-table-body').on('click', 'button.send-email-btn', function() {
+                const matchId = $(this).data('match-id');
+                sendEmails(matchId);
+            });
+
+            // 페이지네이션 숫자 클릭 이벤트 바인딩
+            $('#paginationControls').on('click', 'a', function(e) {
+                e.preventDefault(); // 기본 링크 동작을 막음
+                const pageText = $(this).text();
+                const totalPages = parseInt($('#paginationControls').find('.pages span').length);
+
+                if (pageText === '<<') {
+                    // 제일 첫 페이지로 이동
+                    currentPage = 0;
+                    applyFilters(currentPage);
+                } else if (pageText === '>>') {
+                    // 제일 마지막 페이지로 이동
+                    currentPage = totalPages - 1;
+                    applyFilters(currentPage);
+                } else if (pageText === '이전') {
+                    // 이전 페이지로 이동
+                    if (currentPage > 0) {
+                        currentPage--;
+                        applyFilters(currentPage);
+                    }
+                } else if (pageText === '다음') {
+                    // 다음 페이지로 이동
+                    if (currentPage < totalPages - 1) {
+                        currentPage++;
+                        applyFilters(currentPage);
+                    }
+                } else {
+                    // 특정 페이지로 이동
+                    currentPage = parseInt(pageText) - 1;
+                    applyFilters(currentPage);
+                }
+            });
+
+        });
+
+    </script>
+</div>
+
+</body>
+</html>

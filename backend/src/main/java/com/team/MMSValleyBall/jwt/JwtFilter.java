@@ -50,13 +50,15 @@ public class JwtFilter extends OncePerRequestFilter {
         //토큰에서 username과 role 획득
         String email = jwtUtil.getUserEmail(token);
         String role = jwtUtil.getRole(token);
-        UserRole userRole = UserRole.valueOf(role);
+        String name = jwtUtil.getUserName(token);
+        UserRole userRole = UserRole.valueOf(role.split("_")[1]);
 
         //userEntity를 생성하여 값 set
         Users user = new Users();
         user.setUserEmail(email);
         user.setUserPassword("temppassword");
         user.setUserRole(userRole);
+        user.setUserName(name);
 
         //UserDetails에 회원 정보 객체 담기
         CustomUserDetails customUserDetails = new CustomUserDetails(user);
@@ -67,6 +69,7 @@ public class JwtFilter extends OncePerRequestFilter {
                 null,
                 customUserDetails.getAuthorities()
         );
+
         //세션에 사용자 등록
         SecurityContextHolder.getContext().setAuthentication(authToken);
         filterChain.doFilter(request, response);

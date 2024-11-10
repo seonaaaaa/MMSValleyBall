@@ -9,11 +9,11 @@
              <form @submit.prevent="login">
                  <div class="form-group">
                      <label for="userEmail">사용자 이메일</label>
-                     <input type="email" id="userEmail" v-model="userEmail" required />
+                     <input type="email" id="userEmail" v-model="userEmail" required placeholder="ex) abc@aaa.com"/>
                  </div>
                  <div class="form-group">
                      <label for="userPassword">비밀번호</label>
-                     <input type="Password" id="userPassword" v-model="userPassword" required />
+                     <input type="Password" id="userPassword" v-model="userPassword" required placeholder="비밀번호를 입력해주세요" />
                  </div>
                  <button type="submit" class="submit-button">로그인</button>
              </form>
@@ -30,7 +30,6 @@
  
  export default {
      name: 'LoginPage',
-     
      components: {
          LogoHeader
      },
@@ -48,15 +47,23 @@
          }
      },
      methods: {
-         navigateTo(route) {
-             this.$router.push(route);
-             this.activeMenu = route; // 메뉴를 클릭할 때 활성화된 메뉴 업데이트
-         },
-         login() {
-            const user = {
-                email: this.userEmail,
-                password: this.userPassword,
-            };
+        navigateTo(route) {
+            this.$router.push(route);
+            this.activeMenu = route; // 메뉴를 클릭할 때 활성화된 메뉴 업데이트
+        },
+        login(){
+            // 회원 status 조회
+            const params = new URLSearchParams();
+            params.append('userEmail', this.userEmail);
+            this.$axios.post("/login/check-status", null, { params: params })
+            .then((response) => {
+                if(response.data === 'INACTIVE'){
+                    alert("탈퇴한 회원입니다.");
+                }else{
+                const user = {
+                    email: this.userEmail,
+                    password: this.userPassword,
+                };
             this.$axios({
                 method: "post",
                 url: "/login",
@@ -65,29 +72,30 @@
                 "Content-Type": "application/json",
                 },
             }).then((response) => {
-                console.log(response);
                 if (response.status === 401) {
-                alert("이메일 혹은 패스워드가 잘못 입력되었습니다.");
+                    alert("이메일 혹은 패스워드가 잘못 입력되었습니다.");
                 } else {
                 let accessToken = response.headers.authorization;  // 응답헤더에서 토큰 받기
-                console.log("access 토큰 :", accessToken);
-                localStorage.setItem("accessToken", accessToken); // 토큰 localStorage에 저장
-                this.$axios.defaults.headers.common[
-                    "Authorization"
-                ] = `Bearer ${accessToken}`;
-                alert("로그인 성공");
-                this.$router.replace("/");
+                sessionStorage.setItem("token", accessToken); // 토큰 sessionStorage에 저장
+                this.$emit('loginSuccess',accessToken);
+                alert("로그인이 되었습니다");
+                const redirectTo = this.$route.query.from || '/';
+                this.$router.push(redirectTo); // 원래 페이지로 리다이렉트
                 }
-            })
-            .catch(() => {
+            }).catch(() => {
                 alert("로그인 실패!!");
-                });
-            },
-     }
+            });
+            }
+        })
+        .catch((error) => {
+          alert(error);
+        });
+    }
+    }
  }
  </script>
  
- <style>
+ <style scoped>
  .login-page {
      padding-top: var(--header-height);
      padding-bottom: var(--footer-height);
@@ -100,7 +108,8 @@
      padding: 20px; 
      background-color: #f9f9f9; 
      border-radius: 10px;
-     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); 
+     border: 2px solid #60a191;
+     box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1); 
  }
  
  .login-form h2 {
@@ -161,4 +170,3 @@
      text-decoration: underline; 
  }
  </style>
- 

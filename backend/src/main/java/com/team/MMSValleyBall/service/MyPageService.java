@@ -1,15 +1,15 @@
 package com.team.MMSValleyBall.service;
 
 import com.team.MMSValleyBall.dto.*;
+import com.team.MMSValleyBall.entity.*;
 import com.team.MMSValleyBall.entity.MembershipSales;
 import com.team.MMSValleyBall.entity.Payment;
-import com.team.MMSValleyBall.entity.Ticket;
 import com.team.MMSValleyBall.entity.Users;
 import com.team.MMSValleyBall.enums.PaymentStatus;
-import com.team.MMSValleyBall.repository.MembershipRepository;
-import com.team.MMSValleyBall.repository.MembershipSalesRepository;
-import com.team.MMSValleyBall.repository.PaymentRepository;
-import com.team.MMSValleyBall.repository.UserRepository;
+import com.team.MMSValleyBall.enums.TicketStatus;
+import com.team.MMSValleyBall.enums.UserStatus;
+import com.team.MMSValleyBall.repository.*;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
 
@@ -22,16 +22,59 @@ public class MyPageService {
     private final MembershipRepository membershipRepository;
     private final MembershipSalesRepository membershipSalesRepository;
     private final PaymentRepository paymentRepository;
+    private final TicketRepository ticketRepository;
+    private final SeatRepository seatRepository;
+    private final MatchRepository matchRepository;
+    private final SeasonRepository seasonRepository;
+    private final BCryptPasswordEncoder bCryptPasswordEncoder;
 
-    public MyPageService(UserRepository userRepository, MembershipRepository membershipRepository, MembershipSalesRepository membershipSalesRepository, PaymentRepository paymentRepository) {
+    public MyPageService(UserRepository userRepository, MembershipRepository membershipRepository, MembershipSalesRepository membershipSalesRepository, PaymentRepository paymentRepository, TicketRepository ticketRepository, SeatRepository seatRepository, MatchRepository matchRepository, SeasonRepository seasonRepository, BCryptPasswordEncoder bCryptPasswordEncoder) {
         this.userRepository = userRepository;
         this.membershipRepository = membershipRepository;
         this.membershipSalesRepository = membershipSalesRepository;
         this.paymentRepository = paymentRepository;
+        this.ticketRepository = ticketRepository;
+        this.seatRepository = seatRepository;
+        this.matchRepository = matchRepository;
+        this.seasonRepository = seasonRepository;
+        this.bCryptPasswordEncoder = bCryptPasswordEncoder;
     }
 
     public UserDTO findByEmail(String email) {
         return UserDTO.fromEntity(userRepository.findByUserEmail(email));
+    }
+
+    public List<Reservation> getReservationList(String email){
+        List<Reservation>reservationList = new ArrayList<>();
+        UserDTO user = UserDTO.fromEntity(userRepository.findByUserEmail(email));
+        if(!ObjectUtils.isEmpty(user.getTickets())){
+            List<TicketDTO> ticketList = user.getTickets().stream().sorted(Comparator.comparing(TicketDTO::getTicketId).reversed()).toList();
+            for(TicketDTO dto: ticketList){
+                Reservation reservation = new Reservation();
+                reservation.setTicket(dto);
+                Match match = matchRepository.findById(dto.getTicketMatchId()).get();
+                reservation.setOpponentTeam(match.getMatchOpponentTeam().getTeamName());
+                reservation.setOpponentTeamStadium(match.getMatchOpponentTeam().getTeamStadium());
+                reservation.setWhere(match.getMatchStadium());
+                reservation.setMatchDate(String.valueOf(match.getMatchDate()));
+                Seat seat = seatRepository.findById(dto.getTicketDetails().get(0).getTicketDetailSeat()).get();
+                reservation.setSeatSection(seat.getSeatZone()+"-"+seat.getSeatSection());
+                reservationList.add(reservation);
+            }
+            }
+        return reservationList;
+    }
+    public boolean changeTicketStatusById(Long id){
+        Ticket cancelTicket = ticketRepository.findById(id).get();
+        if(!ObjectUtils.isEmpty(cancelTicket)){
+            cancelTicket.setTicketStatus(TicketStatus.CANCELLED);
+            System.out.println(cancelTicket);
+            cancelTicket.setTicketUpdateAt(LocalDateTime.now());
+            System.out.println(cancelTicket);
+            ticketRepository.save(cancelTicket);
+            return true;
+        }
+        return  false;
     }
 
     public MembershipDTO getUserMembership(String userMembershipName) {
@@ -43,59 +86,76 @@ public class MyPageService {
         return myMembershipSalesList.stream().map(x-> MembershipSalesDTO.fromEntity(x)).toList();
     }
 
-    public Map<String, Object> getUserCurrentMembership(String email) {
-        Map<String, Object> response = new HashMap<>();
-        // 사용자가 가진 멤버십의 정보
+    public ResponseMembershipInfoDTO getUserCurrentMembership(String email) {
+        // 사용자가 가진 멤버십 정보 가져오기
         MembershipDTO usersMembership = getUserMembership(findByEmail(email).getUserMembershipName());
-        // 멤버십의 가격 담기
-        response.put("price", usersMembership.getMembershipPrice());
+        // 사용자의 멤버십 가격 정보 설정
+        int membershipPrice = usersMembership.getMembershipPrice();
         // 출력에 불필요한 정보 삭제
         usersMembership.setUsers(null);
-        if (usersMembership.getMembershipPrice() != 0) {
-            // 사용자의 멤버십 결제 정보
+        // ResponseMembershipInfoDTO 생성
+        ResponseMembershipInfoDTO responseDTO = new ResponseMembershipInfoDTO();
+        responseDTO.setMembershipName(usersMembership.getMembershipName());
+        responseDTO.setMembershipPrice(membershipPrice);
+
+        if (membershipPrice != 0) {
+            // 사용자의 멤버십 결제 정보 가져오기
             List<MembershipSalesDTO> userMembershipSalesList = getUserMembershipSalesList(email);
+
             // 마지막 결제 정보만 담아주기
-            List<MembershipSalesDTO> userRecentMembershipSales = new ArrayList<>();
-            userRecentMembershipSales.add(userMembershipSalesList.get(userMembershipSalesList.size() - 1));
-            usersMembership.setMembershipSales(userRecentMembershipSales);
-        } else {
-            // 멤버십이 가진 판매내역은 해당 사용자의 판매내역만 가지고 있는게 아니므로 삭제
-            usersMembership.setMembershipSales(null);
+            if (!userMembershipSalesList.isEmpty()) {
+                MembershipSalesDTO recentMembershipSale = userMembershipSalesList.get(userMembershipSalesList.size() - 1);
+                responseDTO.setMembershipSalesStatus(String.valueOf(recentMembershipSale.getMembershipSalesStatus()));
+                responseDTO.setMembershipSalesCreateAt(recentMembershipSale.getMembershipSalesCreateAt());
+                List<Season> seasonList = seasonRepository.findAll();
+                responseDTO.setSeasonEndDate(seasonList.get(seasonList.size()-1).getSeasonEndDate()); // 가장 최근 시즌의 종료날짜
+            }
+
         }
-        response.put("myMembership", usersMembership);
-        return response;
+
+        System.out.println(responseDTO);
+        return responseDTO;
     }
 
     public String modifyUserInfo(UserDTO userDTO) {
         // 수정할 유저의 정보를 불러오기
         Users modifyUser = userRepository.findByUserEmail(userDTO.getUserEmail());
-        System.out.println(modifyUser);
         if(!ObjectUtils.isEmpty(modifyUser)){
-            // 수정 가능한 항목(비밀번호, 주소, 핸드폰번호)만 set
-            modifyUser.setUserPassword(userDTO.getUserPassword());
-            modifyUser.setUserAddress(userDTO.getUserAddress());
-            modifyUser.setUserPhone(userDTO.getUserPhone());
-            userRepository.save(modifyUser);
-            return "수정되었습니다!";
-        }else {
-            return "수정에 실패하였습니다!";
+            modifyUser.setUserUpdateAt(LocalDateTime.now());
+            if(userDTO.getUserPassword() != null) {
+                if (bCryptPasswordEncoder.matches(userDTO.getUserPassword(), modifyUser.getUserPassword())) {
+                    return "기존 비밀번호입니다.";
+                }
+                modifyUser.setUserPassword(bCryptPasswordEncoder.encode(userDTO.getUserPassword()));
+                userRepository.save(modifyUser);
+                return "비밀번호가 변경되었습니다.";
+            }else {
+                modifyUser.setUserPhone(userDTO.getUserPhone());
+                modifyUser.setUserAddress(userDTO.getUserAddress());
+                userRepository.save(modifyUser);
+                return "수정되었습니다!";
+            }
         }
+        return "수정에 실패하였습니다!";
     }
 
-    public String deleteUserById(Long userId) {
-        userRepository.deleteById(userId);
-        if(userRepository.existsById(userId)){
-            return "오류가 발생했습니다. 고객센터로 문의해 주세요.";
-        }else {
-            return "회정정보가 삭제되었습니다.";
-        }
+    public Boolean isPhoneValid(UserDTO userDTO){
+        return ObjectUtils.isEmpty(userRepository.findByUserPhone(userDTO.getUserPhone()));
     }
 
-    public String topUp(Map<String, String> data) {
+    public String deactivateUser(String email) {
+        Users deactivateUser = userRepository.findByUserEmail(email);
+        if(ObjectUtils.isEmpty(deactivateUser)) return "해당 회원이 존재하지 않습니다.";
+        deactivateUser.setUserStatus(UserStatus.INACTIVE); // 찾은 회원 비활성화 상태로 변경
+        userRepository.save(deactivateUser);
+        return "회원 탈퇴가 완료되었습니다.";
+    }
+
+    public String topUp(String email, int amount) {
         Payment payment = new Payment();
-        payment.setPaymentUser(userRepository.findByUserEmail(data.get("email")));
+        payment.setPaymentUser(userRepository.findByUserEmail(email));
         payment.setPaymentCreateAt(LocalDateTime.now());
-        payment.setPaymentAmount(Integer.parseInt(data.get("amount")));
+        payment.setPaymentAmount(amount);
         payment.setPaymentStatus(PaymentStatus.COMPLETED);
         paymentRepository.save(payment);
         return "충전되었습니다.";

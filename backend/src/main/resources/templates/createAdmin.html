@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/layoutReal}">
+<head>
+    <!-- 개별 페이지 전용 CSS 파일 -->
+    <link rel="stylesheet" th:href="@{/css/admin-create.css}">
+</head>
+<body>
+<div layout:fragment="content" class="content">
+    <section>
+        <h2 class="content-title">관리자 추가</h2>
+        <h3 class="content-info"> ** 필수 입력 항목입니다.</h3>
+        <hr>
+
+        <!-- 관리자 추가 폼 -->
+        <form th:action="@{/admin/createAdmin}" method="post" name="createAdminForm">
+
+            <div class="form-group">
+                <label for="email">** 이메일 :</label>
+                <input type="email" id="email" name="email" th:value="${email}" placeholder="이메일을 입력하세요" required>
+                <button type="button" name="action" value="checkEmail" id="checkEmailButton">이메일 중복 확인</button>
+            </div>
+            <div id="emailResult" class="message"></div>
+
+            <div class="form-group">
+                <label for="name">** 이름 :</label>
+                <input type="text" id="name" name="name" placeholder="이름을 입력하세요" required>
+            </div>
+
+            <div class="form-group">
+                <label for="password">** 비밀번호 :</label>
+                <input type="password" id="password" name="password" placeholder="비밀번호를 입력하세요" required>
+            </div>
+
+            <div class="form-group">
+                <label for="confirmPassword">** 비밀번호 확인 :</label>
+                <input type="password" id="confirmPassword" name="confirmPassword" placeholder="한 번 더 입력하세요" required>
+            </div>
+            <div id="passwordError" class="message"></div>
+
+            <div class="form-group">
+                <label for="phone">** 전화번호 :</label>
+                <input type="text" id="phone" name="phone" placeholder="XXX-XXXX-XXXX" required>
+            </div>
+            <div id="phoneResult" class="message"></div>
+
+            <div class="form-group">
+                <label for="address">주소 :</label>
+                <input type="text" id="address" name="address" readonly placeholder="주소를 입력하세요" required>
+                <button type="button" id="searchAddressButton">주소 찾기</button>
+            </div>
+
+            <div class="button-group">
+                <button type="submit" name="action" value="createAdmin" id="createAdminButton" disabled>관리자 추가</button>
+                <a type="button" class="back-btn" href="userList" th:text="돌아가기"></a>
+            </div>
+        </form>
+
+        <!-- 카카오 주소 검색 API -->
+        <script src="https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
+
+        <script th:inline="javascript">
+            document.addEventListener("DOMContentLoaded", function () {
+                const emailInput = document.getElementById("email");
+                const checkEmailButton = document.getElementById("checkEmailButton");
+                const passwordInput = document.getElementById("password");
+                const confirmPasswordInput = document.getElementById("confirmPassword");
+                const phoneInput = document.getElementById("phone");
+                const passwordError = document.getElementById("passwordError");
+                const emailResultDiv = document.getElementById("emailResult");
+                const phoneResultDiv = document.getElementById("phoneResult");
+                const createAdminButton = document.getElementById("createAdminButton");
+                const addressInput = document.getElementById("address");
+                const searchAddressButton = document.getElementById("searchAddressButton");
+
+                // 이메일 중복 확인 버튼 클릭 시 AJAX 요청
+                checkEmailButton.addEventListener("click", function (event) {
+                    event.preventDefault();
+                    const email = emailInput.value;
+
+                    if (!email) {
+                        emailResultDiv.textContent = "이메일을 입력해주세요.";
+                        emailResultDiv.style.color = "red";
+                        createAdminButton.disabled = true;
+                        return;
+                    }
+
+                    fetch(`/admin/createAdmin/checkEmail?email=${email}`)
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data) {
+                                emailResultDiv.textContent = "이미 사용 중인 이메일입니다.";
+                                emailResultDiv.style.color = "red";
+                                createAdminButton.disabled = true;
+                            } else {
+                                emailResultDiv.textContent = "사용 가능한 이메일입니다.";
+                                emailResultDiv.style.color = "green";
+                                createAdminButton.disabled = false;
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                            emailResultDiv.textContent = "오류가 발생했습니다. 다시 시도해주세요.";
+                            emailResultDiv.style.color = "red";
+                        });
+                });
+
+                // 이메일 입력 시 이메일 중복 확인 상태 초기화
+                emailInput.addEventListener("input", function () {
+                    emailResultDiv.textContent = "";
+                    createAdminButton.disabled = true;
+                });
+
+                // 비밀번호와 비밀번호 확인 일치 여부 확인
+                function checkPasswords() {
+                    if (passwordInput.value !== confirmPasswordInput.value) {
+                        passwordError.textContent = "비밀번호가 일치하지 않습니다.";
+                        createAdminButton.disabled = true;
+                    } else {
+                        passwordError.textContent = "";
+                        createAdminButton.disabled = false;
+                    }
+                }
+
+                passwordInput.addEventListener("input", checkPasswords);
+                confirmPasswordInput.addEventListener("input", checkPasswords);
+
+                // 전화번호 중복 확인 - 실시간 확인
+                phoneInput.addEventListener("input", function () {
+                    const phone = phoneInput.value;
+
+                    if (!phone) {
+                        phoneResultDiv.textContent = "전화번호를 입력해주세요.";
+                        createAdminButton.disabled = true;
+                        return;
+                    }
+
+                    fetch(`/admin/createAdmin/checkPhone?phone=${phone}`)
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data) {
+                                phoneResultDiv.textContent = "이미 사용 중인 전화번호입니다.";
+                                createAdminButton.disabled = true;
+                            } else {
+                                phoneResultDiv.textContent = "";
+                                createAdminButton.disabled = false;
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                            phoneResultDiv.textContent = "오류가 발생했습니다. 다시 시도해주세요.";
+                            createAdminButton.disabled = true;
+                        });
+                });
+
+                // 카카오 주소 찾기 API 사용
+                searchAddressButton.addEventListener("click", function () {
+                    new daum.Postcode({
+                        oncomplete: function (data) {
+                            addressInput.value = data.address;
+                        }
+                    }).open();
+                });
+            });
+        </script>
+    </section>
+
+</div>
+</body>
+</html>

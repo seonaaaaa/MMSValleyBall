@@ -5,59 +5,92 @@
 
     <!-- 예매 내역, 나의 멤버십, 나의 정보 수정 -->
     <div class="menu">
-      <div class="menu-item" :class="{ 'active-menu-item': activeMenu === '/mypage/reservations' }" @click="navigateTo('/mypage/reservations')">예매 내역</div>
-      <div class="menu-item" :class="{ 'active-menu-item': activeMenu === '/mypage/membership' }" @click="navigateTo('/mypage/membership')">나의 멤버십</div>
-      <div class="menu-item" :class="{ 'active-menu-item': activeMenu === '/mypage/edit-profile' }" @click="navigateTo('/mypage/edit-profile')">나의 정보 수정</div>
+      <div class="menu-item" :class="{ 'active-menu-item': activeMenu === '/myPage/reservations' }" @click="navigateTo('/myPage/reservations')">예매 내역</div>
+      <div class="menu-item" :class="{ 'active-menu-item': activeMenu === '/myPage/membership' }" @click="navigateTo('/myPage/membership')">나의 멤버십</div>
+      <div class="menu-item" :class="{ 'active-menu-item': activeMenu === '/myPage/edit-profile' }" @click="navigateTo('/myPage/edit-profile')">나의 정보</div>
     </div>
-  
+
     <!-- 나의 정보 수정 페이지 내용 -->
-    <div class="edit-profile-content">
-      <h2 class="edit-profile-content-title">나의 정보 수정</h2>
-      <form @submit.prevent="updateProfile">
-        <!-- 이메일 -->
-        <div class="form-group">
-          <label for="userEmail">이메일</label>
-          <input type="email" id="userEmail" v-model="userEmail" readonly required/>
+    <div class="profile-container">
+      <div class="profile-header">
+        <div class="profile-picture">
+          <img :src="membershipImage()" alt="멤버십 등급 이미지" />
+        </div>
+        <div>
+          <span class="header-name"><strong>{{ user.name }}</strong> 님</span>
+        </div>
+        <div class="balance-info">
+          <span class="header-balance">잔액 : <strong>{{ new Intl.NumberFormat('ko-KR').format(user.balance) }}</strong>원</span>
+          <button class="recharge-button" @click="openRechargeWindow">충전하기</button>
+        </div>
+      </div>
+
+      <div class="profile-form">
+        <div class="form-row">
+          <div class="form-group">
+            <label for="userName">이름</label>
+            <input type="text" id="userName" :value="user.name" readonly/>
+          </div>
+          <div class="form-group">
+            <label for="userEmail">이메일</label>
+            <input type="text" id="userEmail" v-model="userEmail" readonly/>
+          </div>
         </div>
 
-        <!-- 이름 -->
-        <div class="form-group">
-          <label for="userName">이름</label>
-          <input type="text" id="userName" v-model="userName" readonly required />
+        <div class="form-row">
+          <div class="form-group">
+            <label for="userPassword">비밀번호</label>
+            <input :type="passwordVisible ? 'text' : 'password'" id="userPassword" v-model="userPassword"/>
+            <font-awesome-icon
+              :icon="passwordVisible ? ['fas', 'eye-slash'] : ['fas', 'eye']"
+              @click="togglePasswordVisibility"
+              class="toggle-icon"/>
+          </div>
+          <div class="form-group">
+            <label for="confirmPassword">비밀번호 확인</label>
+            <input type="password" id="confirmPassword" v-model="confirmPassword" />
+          </div>
         </div>
-
-        <!-- 비밀번호 -->
-        <div class="form-group">
-          <label for="userPassword">비밀번호</label>
-          <input type="password" id="userPassword" v-model="userPassword" required />
+        <div class="btn-box">
+          <label for="btn-password-change" class="notMatch" v-if="!isPasswordMatched">비밀번호가 일치하지 않습니다.</label>
+          <button class="btn-password-change" :class="{ disabled: !userPassword || !isPasswordMatched}"
+          :disabled="!isPasswordMatched || !userPassword" @click="updatePassword">비밀번호 변경하기</button>
         </div>
-
-        <!-- 전화번호 -->
-        <div class="form-group">
+        <hr style="border: 1px solid #60a19175; width: 100%;">
+        <div class="form-row" id="userPhone">
           <label for="userPhone">전화번호</label>
-          <div class="phone-input-group single-line">
-            <select v-model="userPhonePart1" required>
+          <div class="form-group" id="phone">
+            <select id="userPhone1" v-model="userPhonePart1">
               <option value="010">010</option>
               <option value="011">011</option>
               <option value="016">016</option>
               <option value="017">017</option>
-            </select> -
-            <input type="tel" v-model="userPhonePart2" maxlength="4" required /> -
-            <input type="tel" v-model="userPhonePart3" maxlength="4" required />
+            </select>
+          </div><strong>-</strong>
+          <div class="form-group">
+            <input type="tel" id="userPhone2" v-model="userPhonePart2" maxlength="4" pattern="[0-9]{3,4}"/>
+          </div><strong>-</strong>
+          <div class="form-group">
+            <input type="tel" id="userPhone3" v-model="userPhonePart3" maxlength="4" pattern="[0-9]{4}"/>
+          </div>
+          <button v-if="isPhoneChanged && !isPhoneVerified" class="btn-phone-check" :class="{ disabled: !isValid}"
+          :disabled="!isValid" @click="verifyPhone">인증하기</button>
+          <span v-if="isPhoneVerified || !isPhoneChanged" class="phoneChecked">인증완료</span>
+        </div>
+        <div class="form-row">
+          <label for="address">주소</label>
+          <div class="form-group">
+            <input type="text" id="address" v-model="userAddress" @click="findAddress" readonly/>
           </div>
         </div>
-
-        <!-- 주소 -->
-        <div class="form-group">
-          <label for="userAddress">주소</label>
-          <div class="input-with-button">
-            <input type="text" id="userAddress" v-model="userAddress" readonly />
-            <button type="button" @click="findAddress" class="check-button">주소 찾기</button>
-          </div>
+        <div class="bottom-button-box">
+          <button @click="deleteAcount" class="delete-account-button">회원탈퇴</button>
+          <button class="edit-profile-button" :class="{ disabled:isChanged}" :disabled="isChanged"
+          @click="updateProfile">정보 수정하기</button>
         </div>
-
-        <button type="submit" class="alter-button">수정</button>
-      </form>
+      </div>
+    </div>
+    <div>
     </div>
   </div>
 </template>
@@ -70,42 +103,175 @@ export default {
   components: {
     LogoHeader
   },
+  props:{
+    user: {
+      type: Object,
+      required: true
+    },
+  },
   data() {
     return {
       activeMenu: this.$route.path, // 현재 활성화된 경로
-      userName: '',
       userEmail: '',
       userPassword: '',
+      confirmPassword: '',
       userPhonePart1: '010',
       userPhonePart2: '',
       userPhonePart3: '',
-      userAddress: ''
+      userAddress: '',
+      passwordVisible: false,
+      isPhoneChanged: false,
+      isPhoneVerified: true,
+      isAddressChanged: false,
     };
+  },
+  computed: {
+    isPasswordMatched() {
+      return this.userPassword === this.confirmPassword;
+    },
+    changePhone(){
+      return `${this.userPhonePart1}-${this.userPhonePart2}-${this.userPhonePart3}`;
+    },
+    isValid(){
+      return this.changePhone.length>11;
+    },
+    isChanged() {
+      return !((this.isAddressChanged || this.isPhoneChanged) && this.isPhoneVerified);
+    },
   },
   watch: {
     // 경로가 변경될 때마다 activeMenu를 업데이트
     $route(to) {
       this.activeMenu = to.path;
-    }
+    },
+    changePhone(newPhone) {
+      const storedPhone = sessionStorage.getItem('phone');
+      if (storedPhone !== newPhone) {
+        this.isPhoneChanged = true;
+        this.isPhoneVerified = false; // 전화번호가 변경되었으므로 인증을 무효화
+      } else {
+        this.isPhoneChanged = false;
+        this.isPhoneVerified =true;
+      }
+    },
+    userAddress(newAddress) {
+    const storedAddress = sessionStorage.getItem('address');
+      if (storedAddress !== newAddress) {
+        this.isAddressChanged = true;
+      } else {
+        this.isAddressChanged = false;
+      }
+    },
   },
   methods: {
     navigateTo(route) {
       this.$router.push(route);
       this.activeMenu = route; // 메뉴를 클릭할 때 활성화된 메뉴 업데이트
+      sessionStorage.removeItem('phone');
+      sessionStorage.removeItem('address');
+    },
+    onPhoneChange() {
+      this.isPhoneVerified = false;
+    },
+    verifyPhone(){
+      const changePhone = `${this.userPhonePart1}-${this.userPhonePart2}-${this.userPhonePart3}`;
+      this.$axios.post(`/myPage/info/phone`, {
+            userPhone: changePhone
+        }).then((response) => {
+          this.isPhoneVerified = response.data;
+          if(response.data){
+            alert('인증되었습니다.')
+          }else{
+            alert('이미 존재하는 번호입니다.')
+          }
+        }).catch((error) => {
+          console.error('전화번호 인증 중 오류 발생:', error);
+        });
+    },
+    updatePassword() {
+      if(window.confirm("비밀번호를 변경하시겠습니까?")){
+        this.$axios.post(`/myPage/info/modify`, {
+            userPassword: this.userPassword
+        }).then((response) => {
+          alert(response.data);
+        }).catch((error) => {
+          console.error('비밀번호 변경 중 오류 발생:', error);
+        });
+      }
     },
     updateProfile() {
-      // 개인정보 업데이트 로직 추가 (예: API 호출)
-      const userPhone = `${this.userPhonePart1}-${this.userPhonePart2}-${this.userPhonePart3}`;
-      console.log('전화번호:', userPhone);
-      alert('개인정보가 업데이트되었습니다.');
+      if(window.confirm("변경하시겠습니까?")){
+        this.$axios.post(`/myPage/info/modify`, {
+            userPhone: this.changePhone,
+            userAddress: this.userAddress
+        }).then((response) => {
+          sessionStorage.setItem('address',this.userAddress);
+          sessionStorage.setItem('phone',this.changePhone);
+          this.isPhoneChanged = false;
+          this.isAddressChanged = false;
+          alert(response.data);
+        }).catch((error) => {
+          console.error('사용자 정보 업데이트 중 오류 발생:', error);
+        });
+      }
+    },
+    deleteAcount() {
+      if(window.confirm('정말로 회원 탈퇴를 진행하시겠습니까?')){
+        this.$axios.get(`/myPage/info/deactivate`)
+        .then((response) => {
+          this.$emit('logoutSuccess');     
+          alert(response.data);
+          this.$router.push('/');
+        }).catch((error) => {
+          console.error('회원탈퇴 중 오류 발생:', error);
+        });
+      }
+    },
+    togglePasswordVisibility() {
+      this.passwordVisible = !this.passwordVisible;
     },
     findAddress() {
       new window.daum.Postcode({
         oncomplete: (data) => {
-          // 팝업에서 검색결과 선택 시 호출되는 콜백 함수
           this.userAddress = data.address;
         }
       }).open();
+    },
+    openRechargeWindow() {
+      const width = 570;
+      const height = 275;
+      const left = (window.screen.width / 2) - (width / 2); // 화면 중앙에 위치
+      const top = (window.screen.height / 2) - (height / 2);
+      window.open('/myPage/rechargee', '충전하기',
+      `width=${width},height=${height},,top=${top},left=${left},
+      toolbar=no,menubar=no,scrollbars=no,resizable=no,fullscreen=no`);
+    },
+    withdrawMembership() {
+      // 회원 탈퇴 로직 추가 (예: 확인 창 후 API 호출)
+      if (confirm('정말로 회원 탈퇴를 진행하시겠습니까?')) {
+        alert('회원 탈퇴가 완료되었습니다.');
+      }
+    },
+    setInfo(response){
+      console.log(response);
+      this.userEmail  = response.userEmail;
+      this.userAddress = response.userAddress;
+      sessionStorage.setItem('address', response.userAddress);
+      this.userPhonePart1 = response.userPhone.split('-')[0];
+      this.userPhonePart2 = response.userPhone.split('-')[1];
+      this.userPhonePart3 = response.userPhone.split('-')[2];
+      sessionStorage.setItem('phone', response.userPhone);
+    },
+    getUserInfo(){
+      this.$axios.get(`/myPage/info`)
+      .then((response) => {
+        this.setInfo(response.data);
+      }).catch((error) => {
+        console.error('사용자 정보를 가져오는 중 오류 발생:', error);
+      });
+    },
+    membershipImage(){
+      return  require(`@/assets/img/membershipImg/${this.user.membership}.png`);
     }
   },
   mounted() {
@@ -113,15 +279,16 @@ export default {
     const script = document.createElement('script');
     script.src = 'https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js';
     document.head.appendChild(script);
+    this.getUserInfo();
   }
 }
 </script>
 
-<style>
+<style scoped>
 .edit-profile-page {
   padding-top: var(--header-height);
   padding-bottom: var(--footer-height);
-  text-align: left;
+  text-align: center;
 }
 
 /* 메뉴 */
@@ -167,103 +334,221 @@ export default {
 }
 
 /* 개인정보 수정 */
-.edit-profile-content {
-  max-width: 500px;
-  margin: 50px auto;
-  padding: 20px;
-  background-color: #f9f9f9;
+.profile-container {
+  border: 2px solid#60a191cc;
   border-radius: 10px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-  text-align: left;
+  max-width: 650px;
+  margin: 0 auto;
+  box-sizing: border-box;
+  margin-bottom: 50px;
+  background-color: #e6ebe567;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+.profile-header {
+  background-color: #d2e5d07e;
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  margin-bottom: 20px;
+  font-size: 27px;
+  border-bottom: 2px solid #60a191;
+}
+.profile-picture {
+  display: flex;
+  align-items: center;
+}
+.profile-picture img {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  object-fit: cover;
 }
 
-.form-group {
-  margin-bottom: 30px;
+.balance-info{
+  margin-left: auto;
+  text-align: center;
+  justify-content: center;
+  background-color: #528b7e46;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  border-radius: 20px;
+  padding: 10px 15px;
+  color: #355a51;
+}
+.header-balance {
+  font-size: 24px;
+  margin-bottom: 10px;
+  margin-right: 10px;
+}
+.recharge-button{
+  font-size: 16px;
+  border: none;
+  border-radius: 15px;
+  cursor: pointer;
+  padding: 4px 10px;
+  margin-bottom: 6px;
+  color: white;
+  background-color: #a5d04fb0;
+}
+.recharge-button:hover{
+  background-color: #90b643;
+}
+.btn-box{
+  margin-left: auto;
+}
+.btn-password-change{
+  margin-top: 5px;
+}
+.btn-phone-check:disabled,
+.btn-password-change:disabled,
+.edit-profile-button:disabled,
+.btn-phone-check:disabled:hover,
+.btn-password-change:disabled:hover,
+.edit-profile-button:disabled:hover{
+  background-color: #d5d4d4;
 }
 
-label {
-  display: block;
-  margin-bottom: 5px;
-  color: #555;
+.btn-phone-check{
+  font-size: 16px;
+  padding: 10px 20px;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  background-color: #c46f6f97;
+}
+.btn-phone-check:hover{
+  background-color: #c46f6ff1;
+}
+.btn-phone-check:disabled{
+
+}
+.btn-password-change,
+.edit-profile-button {
+  font-size: 16px;
+  padding: 10px 20px;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  background-color: #60a19197;
+}
+.delete-account-button{
+  font-size: 16px;
+  padding-left: 0px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  background-color:rgba(245, 245, 245, 0);
+  color: rgb(193, 190, 190);
+  width: 80px;
+  font-size: smaller;
+}
+.delete-account-button:hover{
+  color: red;
 }
 
-.input-with-button {
+.edit-profile-button{
+  margin-top: -10px;
+  margin-right: 0;
+}
+.btn-password-change:hover,
+.edit-profile-button:hover{
+  background-color: #4f8578;
+}
+.bottom-button-box{
   display: flex;
   justify-content: space-between;
 }
-
-.phone-input-group {
+.phoneChecked{
+  font-size: 16px;
+  padding: 10px 20px;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  background-color: #d5d4d4;
+}
+.profile-form {
+  padding: 0px 20px 20px 20px;
   display: flex;
-  gap: 5px;
-  align-items: center;
+  flex-direction: column;
+  gap: 20px;
 }
-
-select,
-input[type="tel"],
-input[type="email"],
-input[type="password"],
-input[type="text"] {
-  margin-top: 10px;
-  padding: 10px;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-}
-
-.phone-input-group select {
-  width: auto;
-}
-
-.phone-input-group input[type="tel"] {
-  width: calc(33% - 10px);
-}
-
-input[type="email"][readonly],
-input[type="text"][readonly]:not(#userAddress) {
-  background-color: #f0f0f0;
-  color: #888;
-}
-
-input[type="email"]:focus,
-input[type="password"]:focus,
-input[type="tel"]:focus,
-input[type="text"]:focus {
-  border-color: #4f8578;
-  outline: none;
-}
-
-.check-button {
-  background-color: #4f8578;
-  color: white;
-  border: none;
-  padding: 15px;
-  width: 150px;
-  margin-left: 10px;
-  border-radius: 5px;
-  cursor: pointer;
-}
-
-.check-button:hover {
-  background-color: #3f6f68;
-}
-
-.alter-button {
-  margin-top: 15px;
+.form-row {
   width: 100%;
-  padding: 15px;
-  background-color: #4f8578;
-  color: #ffffff;
-  border: none;
-  border-radius: 5px;
+  align-items: center;
+  display: flex;
+  gap: 20px;
+  margin-right: auto;
+}
+.form-group {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+label {
+  text-align: left;
+  justify-content: center;
+  margin-bottom: 5px;
+  font-weight: bold
+}
+
+label[ for="confirmPassword"]{
+  margin-top: 10px;
+  overflow: visible;
+  white-space: nowrap;
+}
+label[ for="userPhone"],
+label[ for="address"]{
+  width: 70px;
+}
+.toggle-icon {
+  margin-left: auto;
+  margin-right: 10px;
+  margin-top: -32px;
   cursor: pointer;
-  font-size: 30px;
+  width: 20px;
+  height: 20px;
+  color: rgba(0, 0, 0, 0.381);
 }
 
-.alter-button:hover {
-  background-color: #3f6f68;
+.notMatch{
+  color: rgb(215, 94, 94);
+  font-weight: 100;
+  margin-left: auto;
+  margin-right: 10px;
 }
 
-.edit-profile-content-title {
-  margin-bottom: 50px;
+#confirmPassword, #userPassword{
+  width: 100%;
+  padding: 10px;
+  padding-right: 35px;
+  box-sizing: border-box;
+  border: 1px solid #4f85799c;
+  background-color: #ffffffda;
+  border-radius: 5px;
+  font-size: 16px;
+}
+#userName, #userEmail, #address {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #4f85799c;
+  border-radius: 5px;
+  font-size: medium;
+  background-color: #ffffffda;
+}
+
+#userPhone1,#userPhone2,#userPhone3{
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #2e4e477c;
+  border-radius: 5px;
   text-align: center;
+  font-size: medium;
+}
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
 }
 </style>

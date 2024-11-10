@@ -6,6 +6,7 @@ import com.team.MMSValleyBall.jwt.JwtUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -53,7 +54,7 @@ public class SecurityConfig{
                 "favicon.ico",
                 "/css/**",
                 "/js/**",
-                "/images/**"
+                "/img/**"
         );
     }
 
@@ -64,13 +65,10 @@ public class SecurityConfig{
             @Override
             public CorsConfiguration getCorsConfiguration(HttpServletRequest request) {
                 CorsConfiguration configuration = new CorsConfiguration();
-                configuration.setAllowedOrigins(Collections.singletonList("http://localhost:8080"));
-//                        configuration.setAllowedMethods(Collections.singletonList("*"));
+                configuration.setAllowedOriginPatterns(Collections.singletonList("http://localhost:8080"));
                 configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
                 configuration.setAllowCredentials(true);
-//                        configuration.setAllowedHeaders(Collections.singletonList("*"));
                 configuration.setMaxAge(3600L);
-//                        configuration.setExposedHeaders(Collections.singletonList("Authorization")
                 configuration.setExposedHeaders(List.of("accessToken","Authorization","Content-Type", "Accept"));
                         configuration.setAllowedHeaders(List.of("accessToken","Authorization","Content-Type", "Accept"));
                 return  configuration;
@@ -84,10 +82,10 @@ public class SecurityConfig{
         //http basic 인증 방식 disable
         http.httpBasic((auth) -> auth.disable());
         //경로별 인가 작업
-        http.authorizeHttpRequests((auth) -> auth.requestMatchers("/", "/login", "/signup").permitAll()
-//                        .requestMatchers(PathRequest.toStaticResources().atCommonLocations()).permitAll()
-                .requestMatchers("/admin").hasRole("ADMIN")
-                .requestMatchers("/user", "/main").hasRole("USER")
+        http.authorizeHttpRequests((auth) -> auth.requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                .requestMatchers( "/main", "/login/**", "/signup/**","/game/**").permitAll()
+                .requestMatchers( "/ticket/**", "/myPage/**", "/membership/**").hasRole("USER")
+                .requestMatchers("/admin/**").hasRole("ADMIN")
                 .anyRequest().authenticated());
         // JwtFilter 등록
         http.addFilterBefore(new JwtFilter(jwtUtil), LoginFilter.class);
@@ -101,8 +99,7 @@ public class SecurityConfig{
 
 
         //세션 설정
-        http
-            .sessionManagement((session) -> session
+        http.sessionManagement((session) -> session
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS));
         return http.build();
     }

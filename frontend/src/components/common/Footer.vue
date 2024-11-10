@@ -2,7 +2,9 @@
   <footer>
     <div class="footer-container">
       <div class="logo">
-          <a href="#"><img src="@/assets/logo-mms.png" alt="Team Logo"></a>
+          <router-link to="/">
+            <img src="@/assets/logo-mms.png" alt="Team Logo">
+          </router-link>
       </div>
       <div class="footer-content">
         <ul class="footer-menu">
@@ -10,7 +12,7 @@
           <li><a href="#">서비스 이용약관</a></li>
           <li><a href="#">운영정책</a></li>
           <li><a href="#">이메일 무단수집거부</a></li>
-          <li><a href="#">오시는 길</a></li>
+          <li><a href="/team/stadium#directions-map">오시는 길</a></li>
         </ul>
         <ul class="mms-info">
           <li>대표이사 : 김형민 | 사업등록번호 : 220-26-78113 | 주소 : 서울 종로구 인사동길 12 대일빌딩 7층, 15층</li>

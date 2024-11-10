@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/layoutReal}">
+      <head>
+        <!-- 개별 페이지 전용 CSS 파일 -->
+        <link rel="stylesheet" th:href="@{/css/admin-delete.css}">
+    </head>
+<body>
+<div layout:fragment="content" class="content">
+    <section>
+        <table>
+            <thead>
+            <tr>
+                <th>이메일</th>
+                <th>이름</th>
+                <th>전화번호</th>
+                <th>역할</th>
+                <th>관리</th>
+            </tr>
+            </thead>
+            <tbody>
+            <!-- ADMIN 역할의 사용자만 목록에 표시 -->
+            <tr th:each="user : ${users}">
+                <td th:text="${user.userEmail}"></td>
+                <td th:text="${user.userName}"></td>
+                <td th:text="${user.userPhone}"></td>
+                <td th:text="${user.userRole}"></td>
+                <td>
+                    <button
+                            th:onclick="'deleteAdmin(' + ${user.userId} + ')'"
+                            type="button" class="delete-btn">
+                        관리자 삭제
+                    </button>
+                    <script th:inline="javascript">
+                        function deleteAdmin(userId) {
+                            if (confirm("정말로 이 관리자를 삭제하시겠습니까?")) {
+                                fetch(`/admin/deleteAdmin/${userId}`, {
+                                    method: 'DELETE'
+                                })
+                                .then(response => {
+                                    if (response.ok) {
+                                        alert('관리자가 삭제되었습니다.');
+                                        window.location.reload();
+                                    } else {
+                                        alert('삭제 중 오류가 발생했습니다.');
+                                    }
+                                })
+                                .catch(error => {
+                                    console.error('Error:', error);
+                                    alert('오류가 발생했습니다.');
+                                });
+                            }
+                        }
+                    </script>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+        <div class="button-container">
+            <a href="userList"><button class="back-btn">돌아가기</button></a>
+        </div>
+    </section>
+</div>
+</body>
+</html>

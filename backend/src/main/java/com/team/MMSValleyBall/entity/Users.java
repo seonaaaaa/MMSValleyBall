@@ -30,7 +30,7 @@ public class Users {
     @Column(nullable = false, length = 50)
     private String userName;
 
-    @Column(unique = true, length = 11)
+    @Column(unique = true, length = 13)
     private String userPhone;
 
     @Column
@@ -88,4 +88,4 @@ public class Users {
                 ", MembershipSales=" + membershipSales +
                 '}'+'\n';
     }
-}
+  }

@@ -2,7 +2,13 @@
   <header>
     <!-- 로그인, 회원가입 링크 상단 -->
     <div class="auth-links">
-     <router-link to="/login" class="login">로그인</router-link> | <router-link to="/signup" class="signup">회원가입</router-link>
+      <router-link v-if="!user.isLoggedIn" to="/login" class="login">LOGIN</router-link>
+      <span class="bar" v-if="!user.isLoggedIn">|</span>
+      <router-link v-if="!user.isLoggedIn" to="/signup" class="signup">SIGNUP</router-link>
+      <button v-if="user.role == 'ROLE_ADMIN' && user.isLoggedIn" @click="goToAdminPage" class="admin">ADMIN HOME</button>
+      <span class="bar" v-if="user.role == 'ROLE_ADMIN' && user.isLoggedIn">|</span>
+      <button v-if="user.isLoggedIn" @click="logout" class="logout">LOGOUT</button>
+      <span v-if="user.isLoggedIn" class="user-name">{{ user.name }} 님</span>
     </div>
   
     <!-- 네비게이션 바 -->
@@ -41,16 +47,20 @@
       </div>
     </nav>
   </header>
-  </template>
+</template>
   
-  <script>
-  
-  export default {
-    name: 'AppHeader',
-  
-    data() {
-      return {
-        leftMenu: [
+<script>
+export default {
+  name: 'AppHeader',
+  props: {
+    user: {
+      type: Object,
+      required: true
+    },
+  },
+  data() {
+    return {
+      leftMenu: [
         { 
           title: 'MMS', 
           path: '/mms/greeting',  // 첫 번째 서브메뉴의 경로
@@ -98,15 +108,31 @@
         },
         { 
           title: 'MY PAGE', 
-          path: '/mypage/reservations',
+          path: '/myPage/reservations',
           submenu: [
-            { title: '예매 내역', path: '/mypage/reservations' }, 
-            { title: '나의 멤버십', path: '/mypage/membership' }, 
-            { title: '나의 정보 수정', path: '/mypage/edit-profile' }, 
+            { title: '예매 내역', path: '/myPage/reservations' }, 
+            { title: '나의 멤버십', path: '/myPage/membership' }, 
+            { title: '나의 정보 수정', path: '/myPage/edit-profile' }, 
           ] 
         }
-      ]
+      ],
+      role: 'guest',
     };
+  },
+  methods: {
+    logout() {
+      this.$emit('logoutSuccess');
+      if(!sessionStorage.getItem('token')){
+        alert("로그아웃 되었습니다.\n메인화면으로 이동합니다.");
+        this.$router.push('/');
+      }else{
+        alert("로그아웃 실패");
+      }
+    },
+    goToAdminPage(){
+      const targetUrl = `http://localhost:4000/admin/userList`;
+      window.location.href = targetUrl;
+    },
   }
 }
 </script>
@@ -131,9 +157,38 @@ header {
 .auth-links a {
   color: #565656;
   margin: 0 10px;
+  font-size: 18px;
 }
 
 .auth-links a:hover {
+  color: #000000;
+}
+
+/* 로그아웃 버튼 */
+.logout{
+  background-color: #ffffff;
+  border: none; /* 테두리 없애기 */
+  outline: none; /* 포커스 시 나타나는 외곽선 없애기 (선택 사항) */
+  font-size: 18px;
+  color: #565656;
+}
+.user-name{
+  font-size: 20px;
+  color: #4f8578;
+  font-weight: 700;
+  margin-left: 3px;
+}
+.admin{
+  background-color: #ffffff;
+  border: none; /* 테두리 없애기 */
+  outline: none; /* 포커스 시 나타나는 외곽선 없애기 (선택 사항) */
+  font-size: 18px;
+  color: #565656;
+}
+.admin:hover{
+  color: #000000;
+}
+.logout:hover{
   color: #000000;
 }
 
@@ -229,5 +284,8 @@ header {
   color: #000000;
   background-color: #f2f2f2;
   border-radius: 5px;
+}
+.bar{
+  margin-left: 4px;
 }
 </style>
