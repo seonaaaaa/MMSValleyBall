@@ -168,7 +168,12 @@ export default {
         const dateObj = new Date(date);
         
         // 날짜 포맷
-        const formattedDate = dateObj.toLocaleDateString('ko-KR', options);
+        let formattedDate = dateObj.toLocaleDateString('ko-KR', options);
+
+        // 마지막 점 제거
+        if (formattedDate.endsWith('.')) {
+          formattedDate = formattedDate.slice(0, -1);
+        }
         
         // 요일 가져오기
         const days = ['일', '월', '화', '수', '목', '금', '토'];
