@@ -77,7 +77,8 @@
                 </div>
                 <hr class="divider" />
 
-                <div class="result-text">
+                <div class="result-container">
+                    <div class="result-text">
                     구역을 선택하면 좌석은 자동 배정됩니다.
                     <div>
                         선택한 좌석 : {{ sectionSelection ? sectionSelection.sectionName : ' ' }}구역 {{ countTicket }}매
@@ -86,6 +87,8 @@
                         총 : {{ countTicket }}매
                     </div>
                 </div>
+
+                <!-- 버튼 영역 -->
                 <div class="first-button">
                     <!-- <button class="hiden-button" ref="autoClickButton" @click="handleClick"></button> -->
                     <!-- 결제 버튼 -->
@@ -93,6 +96,7 @@
 
                     <!-- 모달 종료버튼 -->
                     <button class="close-button" @click="closeModal">닫기</button>
+                </div>
                 </div>
             </div>
             <!-- ------------------------------------------------------------------ -->
@@ -621,13 +625,13 @@ export default {
         });
     },
     openRechargeWindow() {
-      const width = 570;
-      const height = 275;
-      const left = (window.screen.width / 2) - (width / 2); // 화면 중앙에 위치
-      const top = (window.screen.height / 2) - (height / 2);
-      window.open(`/myPage/rechargee`, '충전하기',
-      `width=${width},height=${height},,top=${top},left=${left},
-      toolbar=no,menubar=no,scrollbars=no,resizable=no,fullscreen=no`);
+        const width = 570;
+        const height = 275;
+        const left = (window.screen.width / 2) - (width / 2); // 화면 중앙에 위치
+        const top = (window.screen.height / 2) - (height / 2);
+        window.open(`/myPage/rechargee`, '충전하기',
+        `width=${width},height=${height},,top=${top},left=${left},
+        toolbar=no,menubar=no,scrollbars=no,resizable=no,fullscreen=no`);
     },
 
     },
@@ -654,9 +658,12 @@ export default {
     background: white;
     padding: 20px;
     border-radius: 10px;
-    max-width: 2000px;
-    max-height: 1500px;
+    /* max-width: 2000px;
+    max-height: 1500px; */
+    max-width: 1000px; /* 모달 창 너비 줄임 */
+    max-height: 800px; /* 모달 창 높이 줄임 */
     position: relative;
+    overflow-y: auto; /* 세로 스크롤 추가 */
 }
 
 .second-modal-content {
@@ -719,7 +726,8 @@ export default {
 
 /* 티켓 이미지 */
 .modal-ticket-img img {
-    max-width: 800px;
+    /* max-width: 800px; */
+    max-width: 600px; /* 이미지 너비 줄임 */
     clip-path: inset(0 17% 0 0);
     /* 위쪽, 오른쪽, 아래쪽, 왼쪽 여백 순서 */
 }
@@ -734,7 +742,8 @@ export default {
 .modal-table {
     margin-left: 10%;
     border-collapse: collapse;
-    width: 700px;
+    /* width: 700px; */
+    width: 400px; /* 테이블 너비 줄임 */
     table-layout: fixed;
     /* 테이블 레이아웃을 고정(fixed)으로 설정 */
 }
@@ -757,7 +766,8 @@ export default {
 .modal-table-hide {
     margin-left: 5%;
     border-collapse: collapse;
-    font-size: 18px;
+    /* font-size: 18px; */
+    font-size: 16px;
     width: 90%;
     table-layout: fixed;
     /* 테이블 레이아웃을 고정(fixed)으로 설정 */
@@ -767,15 +777,20 @@ export default {
 .modal-table-hide td {
     vertical-align: middle; /* 세로 가운데 정렬 */
     text-align: center; /* 가로 가운데 정렬 */
-    padding: 8px; /* 셀의 패딩 조정 (필요시) */
+    /* padding: 6px; */
+    padding: 8px;
 }
 
 .select-zone-btn {
     display: inline-block;
-    margin: 5px;
-    padding: 10px 15px;
+    /* margin: 5px; */
+    margin: 0px;
+    /* padding: 10px 15px; */
+    padding: 5px 10px;
     text-align: center;
-    font-size: 20px;
+    /* font-size: 20px; */
+    width: 100px; /* 버튼 사이즈 통일 */
+    font-size: 16px;
     font-weight: bold;
     cursor: pointer;
 }
@@ -900,16 +915,23 @@ export default {
     height: 30px;
 }
 
+.result-container {
+    display: flex;
+    align-items: center;
+    gap: 20px; /* 텍스트와 버튼 사이의 간격 */
+    margin-top: 20px;
+}
+
 .result-text {
-    margin-left: 30%;
+    margin-left: 15%;
     width: 500px;
     font-size: 20px;
 }
 
 .result-text-all {
     color: red;
-    width: 500px;
-    font-size: 30px;
+    /* width: 500px; */
+    font-size: 25px;
 }
 
 .match-info {
@@ -920,9 +942,11 @@ export default {
 }
 
 .first-button {
-    position: absolute;
+    /* position: absolute;
     right: 1%;
-    bottom: 1%;
+    bottom: 1%; */
+    display: flex;
+    gap: 10px; /* 버튼 간격 */
 }
 
 .loading-spinner {
