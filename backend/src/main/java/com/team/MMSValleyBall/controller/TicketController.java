@@ -12,6 +12,8 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.*;
@@ -27,22 +29,12 @@ import java.util.Map;
 public class TicketController {
     private final TicketService ticketService;
     private final MatchService matchService;
-    private final UsersBalanceService usersBalanceService;
     private final UserService userService;
-    private final SeatRepository seatRepository;
 
-    public TicketController(TicketService ticketService, MatchService matchService, UsersBalanceService usersBalanceService, UserService userService, SeatRepository seatRepository) {
+    public TicketController(TicketService ticketService, MatchService matchService, UserService userService) {
         this.ticketService = ticketService;
         this.matchService = matchService;
-        this.usersBalanceService = usersBalanceService;
         this.userService = userService;
-        this.seatRepository = seatRepository;
-    }
-
-    //티켓 안내 페이지
-    @GetMapping("/info")
-    public ResponseEntity<String> viewTicket() {
-        return ResponseEntity.ok("Ticket Info");
     }
 
     //티켓 구매 페이지
@@ -64,20 +56,13 @@ public class TicketController {
         }
     }
 
-//    @GetMapping("/purchase/m")
-//    public ResponseEntity<?> viewTicketPurchase(@RequestParam("email") String email){
-//
-//    }
-
     // 티켓 구매 모달창 하나로 처리
     @GetMapping("/purchase/modal")
-    public ResponseEntity<?> viewTicketPurchaseModal(
-            @RequestParam("email") String email,
-            @RequestParam("matchId") Long matchId) {
+    public ResponseEntity<?> viewTicketPurchaseModal(@RequestParam("matchId") Long matchId) {
         try {
-            log.info("### ticket controller - request param: " + email + "/" + matchId);
-            // 사용자 정보 - 충전금액
-            MoneyDTO moneyDTO = usersBalanceService.getUsersBalance(email);
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            String email = authentication.getName();
+            log.info("### ticket controller - request param: "  + matchId);
             // 사용자 정보 - 멤버십
             Map<String, Object> userMembership = userService.findMembership(email);
 
@@ -87,17 +72,11 @@ public class TicketController {
             // 잔여석 정보
             List<AvailableSeatDTO> availableSeats = ticketService.getAvailableSeatsByMatch(matchId);
 
-            // ticketSalesDTO
-            TicketSalesDTO dto = new TicketSalesDTO();
-            dto.setUserEmail(email);
-
             // 좌석 가격 정보
             List<SeatDTO> seatDTOList = ticketService.findSeatAll();
 
             TicketPurchaseResponseDTO responseDTO = new TicketPurchaseResponseDTO();
-            responseDTO.setTicketSalesDto(dto);
             responseDTO.setMatchInfo(match);
-            responseDTO.setUserBalance(moneyDTO.getLeftMoney());
             responseDTO.setUserMembership(userMembership);
             responseDTO.setSeatDTOList(seatDTOList);
             responseDTO.setAvailableSeatsList(availableSeats);
@@ -113,16 +92,10 @@ public class TicketController {
     // 티켓 구매 완료 POST API
     @PostMapping("/purchase/completed")
     public ResponseEntity<?> membershipPurchase(@RequestBody TicketSalesDTO ticketSalesDTO) {
-        // ticketNumber 생성
-        ticketSalesDTO.setTicketNumber(ticketService.createTicketNumber(ticketSalesDTO));
         try {
-            // 로그 출력
-            log.info("Match ID: {}", ticketSalesDTO.getMatchId());
-            log.info("User ID: {}", ticketSalesDTO.getUserEmail());
-
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
             // 멤버십 구매 정보 저장
-            ticketService.reserveTickets(ticketSalesDTO);
-
+            ticketService.reserveTickets(authentication.getName(), ticketSalesDTO);
             return ResponseEntity.ok("Purchase completed successfully!");
         } catch (DataAccessException dae) {
             log.error("Data access error while completing purchase: {}", dae.getMessage());

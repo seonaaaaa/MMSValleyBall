@@ -45,8 +45,7 @@ export default {
         return;
       }
       console.log("충전 함수 실행")
-      this.$axios.post('/myPage/info/recharge',{
-        email: sessionStorage.getItem('email'),
+      this.$axios.post('/myPage/info/recharge', {
         amount: this.amount
       }).then(() => {
         alert(`${this.amount}원 충전되셨습니다.`);
@@ -57,9 +56,6 @@ export default {
       }).catch((error) => {
         console.error('충전 실패:', error);
       });
-    },
-    membershipImage(userMembership){
-      return  require(`@/assets/img/membershipImg/${userMembership}.png`);
     },
     cancel() {
       window.close();

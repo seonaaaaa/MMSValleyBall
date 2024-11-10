@@ -32,18 +32,22 @@ public class TicketService {
     }
 
     //티켓 넘버 생성 메서드
-    public String createTicketNumber(TicketSalesDTO ticketSalesDTO) {
+    public String createTicketNumber(String email, Long matchId, int ticketDetailAmount) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
-        String formattedDate = ticketSalesDTO.getTicketCreateAt().format(formatter);
-        Long userId = userRepository.findByUserEmail(ticketSalesDTO.getUserEmail()).getUserId();
-
+        String formattedDate = LocalDateTime.now().format(formatter);
+        String userId = String.valueOf(userRepository.findByUserEmail(email).getUserId());
+        String formattedMatchId = String.valueOf(matchId);
         // userId와 matchId를 포맷팅하여 한 자리수일 경우 0을 붙임
-        String formattedUserId = String.format("%02d", userId);
-        String formattedMatchId = String.format("%02d", ticketSalesDTO.getMatchId());
+        if(userId.length()==1){
+            userId = String.format("%02d", userId);
+        }
+        if(String.valueOf(matchId).length()==1){
+            formattedMatchId = String.format("%02d", matchId);
+        }
 
         return "T" + formattedDate
-                + ticketSalesDTO.getMatchId()
-                + ticketSalesDTO.getTicketDetailAmount()
+                + formattedMatchId
+                + ticketDetailAmount
                 + userId;
     }
 
@@ -103,19 +107,19 @@ public class TicketService {
         return dtoList;
     }
 
-    public void reserveTickets(TicketSalesDTO dto) {
+    public void reserveTickets(String email,TicketSalesDTO dto) {
         // Match와 Seat 정보 조회
         Match match = matchRepository.findById(dto.getMatchId()).orElseThrow(() ->
                 new RuntimeException("Match not found for ID: " + dto.getMatchId()));
         Seat seat = seatRepository.findById(dto.getTicketDetailSeat()).orElseThrow(() ->
                 new RuntimeException("Seat not found for ID: " + dto.getTicketDetailSeat()));
-        Users user = userRepository.findByUserEmail(dto.getUserEmail());
+        Users user = userRepository.findByUserEmail(email);
 
         // Ticket 객체 생성
         Ticket newTicket = new Ticket();
         newTicket.setTicketMatch(match);
         newTicket.setTicketPaidPrice(dto.getTicketPaidPrice());
-        newTicket.setTicketNumber(dto.getTicketNumber());
+        newTicket.setTicketNumber(createTicketNumber(email, dto.getMatchId(), dto.getTicketDetailAmount()));
         newTicket.setTicketUser(user);
         newTicket.setTicketStatus(TicketStatus.BOOKED);
         newTicket.setTicketCreateAt(LocalDateTime.now());
@@ -128,19 +132,13 @@ public class TicketService {
 
         // Ticket 저장
         if (ObjectUtils.isEmpty(newTicket.getTicketDetails())) {
-            newTicket.setTicketDetails(new ArrayList<>());
-            newTicket.getTicketDetails().add(newTicketDetail);
+            List<TicketDetail> detailList = new ArrayList<>();
+            detailList.add(newTicketDetail);
+            newTicket.setTicketDetails(detailList);
         }
 
         ticketRepository.save(newTicket);
-
-        // TicketDetail 저장
         ticketDetailRepository.save(newTicketDetail);
-    }
-
-    public int findTicketPriceBySeatId(Long seatId) {
-        Seat seat = seatRepository.findById(seatId).orElseThrow(() -> new RuntimeException("Seat not found for ID : " + seatId));
-        return seat.getSeatPrice();
     }
 
     public List<SeatDTO> findSeatAll() {

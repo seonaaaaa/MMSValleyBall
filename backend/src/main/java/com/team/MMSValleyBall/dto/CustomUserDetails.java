@@ -2,6 +2,7 @@ package com.team.MMSValleyBall.dto;
 
 import com.team.MMSValleyBall.entity.Users;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.ArrayList;
@@ -18,12 +19,8 @@ public class CustomUserDetails implements UserDetails {
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         Collection<GrantedAuthority> collection = new ArrayList<>();
-        collection.add(new GrantedAuthority() {
-            @Override
-            public String getAuthority() {
-                return users.getUserRole().toString();
-            }
-        });
+        String role = users.getUserRole().toString();
+        collection.add(new SimpleGrantedAuthority("ROLE_" +role));
 
         return collection;
     }

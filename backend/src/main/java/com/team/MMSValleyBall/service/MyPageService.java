@@ -25,9 +25,10 @@ public class MyPageService {
     private final TicketRepository ticketRepository;
     private final SeatRepository seatRepository;
     private final MatchRepository matchRepository;
+    private final SeasonRepository seasonRepository;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
 
-    public MyPageService(UserRepository userRepository, MembershipRepository membershipRepository, MembershipSalesRepository membershipSalesRepository, PaymentRepository paymentRepository, TicketRepository ticketRepository, SeatRepository seatRepository, MatchRepository matchRepository, BCryptPasswordEncoder bCryptPasswordEncoder) {
+    public MyPageService(UserRepository userRepository, MembershipRepository membershipRepository, MembershipSalesRepository membershipSalesRepository, PaymentRepository paymentRepository, TicketRepository ticketRepository, SeatRepository seatRepository, MatchRepository matchRepository, SeasonRepository seasonRepository, BCryptPasswordEncoder bCryptPasswordEncoder) {
         this.userRepository = userRepository;
         this.membershipRepository = membershipRepository;
         this.membershipSalesRepository = membershipSalesRepository;
@@ -35,6 +36,7 @@ public class MyPageService {
         this.ticketRepository = ticketRepository;
         this.seatRepository = seatRepository;
         this.matchRepository = matchRepository;
+        this.seasonRepository = seasonRepository;
         this.bCryptPasswordEncoder = bCryptPasswordEncoder;
     }
 
@@ -87,14 +89,10 @@ public class MyPageService {
     public ResponseMembershipInfoDTO getUserCurrentMembership(String email) {
         // 사용자가 가진 멤버십 정보 가져오기
         MembershipDTO usersMembership = getUserMembership(findByEmail(email).getUserMembershipName());
-        System.out.println(usersMembership);
         // 사용자의 멤버십 가격 정보 설정
         int membershipPrice = usersMembership.getMembershipPrice();
-        System.out.println("Membership Price: " + membershipPrice);
-
         // 출력에 불필요한 정보 삭제
         usersMembership.setUsers(null);
-        System.out.println(usersMembership);
         // ResponseMembershipInfoDTO 생성
         ResponseMembershipInfoDTO responseDTO = new ResponseMembershipInfoDTO();
         responseDTO.setMembershipName(usersMembership.getMembershipName());
@@ -109,6 +107,8 @@ public class MyPageService {
                 MembershipSalesDTO recentMembershipSale = userMembershipSalesList.get(userMembershipSalesList.size() - 1);
                 responseDTO.setMembershipSalesStatus(String.valueOf(recentMembershipSale.getMembershipSalesStatus()));
                 responseDTO.setMembershipSalesCreateAt(recentMembershipSale.getMembershipSalesCreateAt());
+                List<Season> seasonList = seasonRepository.findAll();
+                responseDTO.setSeasonEndDate(seasonList.get(seasonList.size()-1).getSeasonEndDate()); // 가장 최근 시즌의 종료날짜
             }
 
         }
@@ -151,11 +151,11 @@ public class MyPageService {
         return "회원 탈퇴가 완료되었습니다.";
     }
 
-    public String topUp(Recharge recharge) {
+    public String topUp(String email, int amount) {
         Payment payment = new Payment();
-        payment.setPaymentUser(userRepository.findByUserEmail(recharge.getEmail()));
+        payment.setPaymentUser(userRepository.findByUserEmail(email));
         payment.setPaymentCreateAt(LocalDateTime.now());
-        payment.setPaymentAmount(recharge.getAmount());
+        payment.setPaymentAmount(amount);
         payment.setPaymentStatus(PaymentStatus.COMPLETED);
         paymentRepository.save(payment);
         return "충전되었습니다.";

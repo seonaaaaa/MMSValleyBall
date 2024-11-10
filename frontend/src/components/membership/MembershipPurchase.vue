@@ -45,6 +45,7 @@
       </div>
       
         <!-- 멤버십 선택 -->
+      <div v-if="user.membership==='bronze'" class="membership-purchase-box">
         <div class="membership-selection">
           <p class="sub-title">멤버십 선택</p>
           <select class="select-form" v-model="selectedMembership" @change="updatePrices">
@@ -54,26 +55,33 @@
           </select>
         </div>
 
-      <div class="charge">
-          <div class="charge-money">
-                <p><strong>충전금액으로 결제</strong></p>
-                <p>이용가능 : </p>
-                <p>{{ new Intl.NumberFormat('ko-KR').format(balance) }} 원</p>
-          </div>
-          <button class="btn" id="btn-charge" v-if="leftMoney < 0" @click="openRechargeWindow">충전하기</button>
-          <div class="membership-price">
-              <p>결제금액</p>
-              <p>- {{ payment }} 원</p>
-          </div>
-          <div class="left-money">
-              <p>잔액</p>
-              <!-- leftMoney 값이 0보다 작으면 'negative' 클래스를 추가 -->
-              <p :class="{ 'negative': leftMoney < 0 }">{{ formattedLeftMoney }} 원</p>
-          </div>
-      </div>
+        <div class="charge">
+            <div class="charge-money">
+                  <p><strong>충전금액으로 결제</strong></p>
+                  <p>이용가능 : </p>
+                  <p>{{ new Intl.NumberFormat('ko-KR').format(user.balance) }} 원</p>
+            </div>
+            <button class="btn" id="btn-charge" v-if="leftMoney < 0" @click="openRechargeWindow">충전하기</button>
+            <div class="membership-price">
+                <p>결제금액</p>
+                <p>- {{ payment }} 원</p>
+            </div>
+            <div class="left-money">
+                <p>잔액</p>
+                <!-- leftMoney 값이 0보다 작으면 'negative' 클래스를 추가 -->
+                <p :class="{ 'negative': leftMoney < 0 }">{{ formattedLeftMoney }} 원</p>
+            </div>
+        </div>
 
-      <div class="buttons">
-        <button class="btn" id="btn-purchase" @click="purchaseMembership" v-if="leftMoney >= 0">구매하기</button>
+        <div class="buttons">
+          <button class="btn" id="btn-purchase" @click="purchaseMembership" v-if="leftMoney >= 0">구매하기</button>
+        </div>
+
+      </div>
+      <div v-else class="hasMembership">
+        <div>이미 {{ user.membership.toUpperCase() }} 등급 회원이십니다.</div>
+        <div>멤버십 변경을 원하시면 구매 취소후 이용해주세요.</div>
+        <button @click="goToMyMembership" class="btn-goToMyMembership">나의 멤버십</button>
       </div>
     </div>
   </div>
@@ -88,12 +96,8 @@ export default {
       LogoHeader
     },    
     props: {
-      balance: {
-        type: Number,
-        required: true
-      },
-      membership: {
-        type: String,
+      user: {
+        type: Object,
         required: true
       },
     },
@@ -118,13 +122,13 @@ export default {
       return 0;
     },
     leftMoney() {
-      return this.balance - Number(this.selectedMembership.split('-')[1]);
+      return this.user.balance - Number(this.selectedMembership.split('-')[1]);
     },
     formattedLeftMoney(){
       if(this.selectedMembership!=''){
         return this.leftMoney.toLocaleString('ko-KR');
       }
-      return this.balance.toLocaleString('ko-KR');
+      return this.user.balance.toLocaleString('ko-KR');
     }
   },
   methods: {
@@ -135,23 +139,25 @@ export default {
     
     // 구매하기 버튼 클릭 시 호출되는 메서드
     async purchaseMembership() {
-        let purchaseInfo ={
-          email: sessionStorage.getItem('email'),
-          membership: this.selectedMembership.split('-')[0]
-        }
-        try {
-            await axios.post("/membership/purchase", purchaseInfo);
-            this.$emit('getMembership', this.selectedMembership.split('-')[0]);
-            this.$emit('getBalance', this.leftMoney);
-            alert('멤버십 구매 성공');
-            this.$router.push({ path: '/myPage/membership' }); // 마이페이지로 리다이렉트
-        } catch (error) {
-            const errorMessage = error.response ? error.response.data : error.message;
-            console.error('Error purchasing membership:', errorMessage); // 에러 메시지 로깅
-            alert('멤버십 구매 실패: ' + errorMessage); // 사용자에게 구체적인 에러 메시지 표시
-        }
-
-      },
+      try {
+          await axios.post("/membership/purchase", null,{
+            params:{
+              membership: this.selectedMembership.split('-')[0]
+            }
+          });
+          this.$emit('getMembership', this.selectedMembership.split('-')[0]);
+          this.$emit('getBalance', this.leftMoney);
+          alert('멤버십 구매 성공');
+          this.$router.push({ path: '/myPage/membership' }); // 마이페이지로 리다이렉트
+      } catch (error) {
+          const errorMessage = error.response ? error.response.data : error.message;
+          console.error('Error purchasing membership:', errorMessage); // 에러 메시지 로깅
+          alert('멤버십 구매 실패: ' + errorMessage); // 사용자에게 구체적인 에러 메시지 표시
+      }
+    },
+    goToMyMembership(){
+      this.$router.push({ path: '/myPage/membership' });
+    },
     openRechargeWindow() {
       const width = 570;
       const height = 275;
@@ -218,7 +224,37 @@ export default {
 font-size: 20px;
 font-weight: 700;
 }
-
+.membership-purchase-box{
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center; 
+  justify-content: center;
+  margin: 0 auto;
+}
+.hasMembership{
+  width: 50%;
+  border: 1.5px solid #32733547;
+  border-radius: 20px;
+  padding: 30px;
+  margin-bottom: 30px;
+  font-size: 25px;
+  background-color: #eefcca27;
+  color: #3b893f;
+}
+.btn-goToMyMembership{
+  background-color: #b8e256;
+  color: white;
+  border-radius: 10px;
+  border: none;
+  padding: 5px 10px;
+  margin-top: 20px;
+  font-size: large;
+  cursor: pointer;
+}
+.btn-goToMyMembership:hover{
+  background-color: #819d3f;
+}
 .membership-selection p {
 font-size: 18px;
 }
