@@ -191,7 +191,12 @@ export default {
         const options = { year: 'numeric', month: '2-digit', day: '2-digit' };
         
         // 날짜 포맷
-        const formattedDate = dateObj.toLocaleDateString('ko-KR', options);
+        let formattedDate = dateObj.toLocaleDateString('ko-KR', options);
+
+        // 마지막 점 제거
+        if (formattedDate.endsWith('.')) {
+          formattedDate = formattedDate.slice(0, -1);
+        }
         
         // 요일 가져오기
         const days = ['일', '월', '화', '수', '목', '금', '토'];
@@ -215,7 +220,12 @@ export default {
         const options = { year: 'numeric', month: '2-digit', day: '2-digit' };
         
         // 날짜 포맷
-        const formattedDate = dateObj.toLocaleDateString('ko-KR', options);
+        let formattedDate = dateObj.toLocaleDateString('ko-KR', options);
+
+        // 마지막 점 제거
+        if (formattedDate.endsWith('.')) {
+          formattedDate = formattedDate.slice(0, -1);
+        }
         
         // 요일 가져오기
         const days = ['일', '월', '화', '수', '목', '금', '토'];
@@ -228,6 +238,18 @@ export default {
         });
 
         return `${formattedDate} (${dayName})<br>${formattedTime}`;
+      },
+      // 이전 페이지로 이동
+      prevPage() {
+        if (this.currentPage > 1) {
+          this.currentPage--;
+        }
+      },
+      // 다음 페이지로 이동
+      nextPage() {
+        if (this.currentPage < this.totalPages) {
+          this.currentPage++;
+        }
       },
       // 모달 열기 닫기
     openModal(match) {
@@ -273,7 +295,7 @@ export default {
         }
       } else {
         // 오늘 날짜가 선예매 시작일 이후
-        alert(`아직 예매 일정이 아닙니다. 예매 일정은 다음과 같습니다:\n${this.formatDatePreBook(match.matchDate)}`);
+        alert(`아직 예매 일정이 아닙니다. 예매 일정은 다음과 같습니다:\n${this.formatDatePreBook(match.matchDate).replace('<br>', '\n')}`);
         return;
       }
       return;
