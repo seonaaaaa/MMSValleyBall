@@ -50,6 +50,8 @@
 </template>
   
 <script>
+import axios from 'axios';
+
 export default {
   name: 'AppHeader',
   props: {
@@ -130,8 +132,25 @@ export default {
       }
     },
     goToAdminPage(){
-      const targetUrl = `http://localhost:4000/admin/userList`;
-      window.location.href = targetUrl;
+      const token = sessionStorage.getItem('token');
+  if (token) {
+    axios.get('http://localhost:4000/admin', {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    })
+    .then(response => {
+      // 인증이 성공하면 관리자 페이지로 리다이렉트
+      window.location.href = 'http://localhost:4000/admin/userList';
+    })
+    .catch(error => {
+      console.error('접근이 거부되었거나 세션이 만료되었습니다.', error);
+      // 필요에 따라 로그인 페이지로 이동하거나 오류 메시지를 표시
+    });
+  } else {
+    // 토큰이 없을 경우 로그인 페이지로 이동하거나 알림 표시
+    console.warn('토큰이 없습니다. 다시 로그인하세요.');
+  }
     },
   }
 }
@@ -171,6 +190,7 @@ header {
   outline: none; /* 포커스 시 나타나는 외곽선 없애기 (선택 사항) */
   font-size: 18px;
   color: #565656;
+  cursor: pointer;
 }
 .user-name{
   font-size: 20px;

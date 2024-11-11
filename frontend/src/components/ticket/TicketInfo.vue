@@ -337,5 +337,8 @@ h2 {
   margin-bottom: 30px;
 }
 
+.divider{
+  width: 75%;
+}
 /* 티켓 안내 */
 </style>
