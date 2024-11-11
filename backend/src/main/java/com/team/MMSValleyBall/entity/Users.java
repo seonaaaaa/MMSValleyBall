@@ -88,5 +88,4 @@ public class Users {
                 ", MembershipSales=" + membershipSales +
                 '}'+'\n';
     }
-
   }

@@ -3,29 +3,29 @@
     <!-- 유저 정보 박스 -->
     <div class="control-box">
       <div class="user-info-box">
-        <div v-if="isLoggedIn">
+        <div v-if="user.isLoggedIn">
           <!-- 관리자 -->
-          <div v-if="role == 'ADMIN'" class="admin"> 
+          <div v-if="user.role == 'ROLE_ADMIN'" class="admin">
             <div class="image-container">
               <img class="admin-icon" :src="require('@/assets/img/anyImg/admin.png')" alt="관리자 아이콘" />
-              <h2 class="admin-header">관리자<span class="admin-name"> {{ name }} </span> 님</h2>
+              <h2 class="admin-header">관리자<span class="admin-name"> {{ user.name }} </span> 님</h2>
             </div>
             <button class="btn-AdminPage" @click="goToAdminPage">관리자 모드</button><br>
             <button class="btn-logout2" @click="logout">로그아웃</button>
           </div>
           <!-- 사용자 -->
-          <div v-if="role == 'USER'"> 
+          <div v-if="user.role == 'ROLE_USER'"> 
             <span class="image-container">
               <img class="membershipLevel-image" :src="membershipImage()" alt="멤버십 등급 이미지" />
-              <p><strong>{{ name }}</strong> 님</p>
+              <p><strong>{{ user.name }}</strong> 님</p>
             </span>
             <div class="money-box">
-              <p>잔액: <strong>{{ new Intl.NumberFormat('ko-KR').format(balance) }}</strong>원</p><button class="btn-charge-main" @click="openRechargeWindow">충전하기</button>
+              <p>잔액: <strong>{{ new Intl.NumberFormat('ko-KR').format(user.balance) }}</strong>원</p><button class="btn-charge-main" @click="openRechargeWindow">충전하기</button>
             </div>
             <button class="btn-myPage" @click="goToMyPage">My Page</button>&nbsp;<button class="btn-logout" @click="logout">로그아웃</button>
           </div>
         </div>
-        <div v-if="!isLoggedIn" class="login-signup-box">
+        <div v-if="!user.isLoggedIn" class="login-signup-box">
           <h2 class="welcome">WELCOME MMS</h2>
           <button @click="goToLogin" class="btn-login">로그인</button><br>
           <button @click="goToSignup" class="btn-signup">회원가입</button>
@@ -106,34 +106,20 @@ export default {
     CalendarMain,
   },
   props:{
-    isLoggedIn: {
-      type: Boolean,
-      required: true
-    },
-    balance: {
-      type: Number,
-      required: true
-    },
-    membership: {
-      type: String,
+    user: {
+      type: Object,
       required: true
     },
   },
   async mounted(){
     const token = sessionStorage.getItem('token');
     if(token!=null){
-      this.role = sessionStorage.getItem('role');
-      this.name = sessionStorage.getItem('name');
       try{
-        const userData = await axios.post('/main', null, {
-          params: {
-              email: sessionStorage.getItem('email')
-          }
-        })
+        const userData = await axios.get('/main');
         this.$emit("getBalance", userData.data.balance);
         this.$emit("getMembership", userData.data.membership);
       }catch(error){
-        console.error("email: " + sessionStorage.getItem('email'), error);
+        console.error("Content에서 기본정보 로딩중 오류" , error);
       }
     }
     await this.fetchEvents();
@@ -172,27 +158,18 @@ export default {
       this.$router.push('/signup');
     },
     goToAdminPage(){
-      const targetUrl = `http://localhost:4000/admin/userList?adminName=${encodeURIComponent(this.name)}`;
+      const targetUrl = `http://localhost:4000/admin/userList`;
       window.location.href = targetUrl;
     },
     // 로그아웃
     logout() {
-      // 로컬스토리지에 저장된 토큰과 사용자 정보 삭제
-      sessionStorage.removeItem('token');
-      sessionStorage.removeItem('name');
-      sessionStorage.removeItem('email');
-      sessionStorage.removeItem('role');
-      sessionStorage.removeItem('address');
-      sessionStorage.removeItem('phone');
-      const token = sessionStorage.getItem('token'); 
-      if (token === null) {
-        console.log('토큰이 성공적으로 삭제되었습니다.');
-        this.$emit('logoutSuccess');
-        alert("로그아웃이 되었습니다.");
-      } else {
-        console.log('Content에서 토큰 삭제에 실패했습니다.', token);
+      this.$emit('logoutSuccess');
+      if(!sessionStorage.getItem('token')){
+        alert("로그아웃 되었습니다.\n메인화면으로 이동합니다.");
+        this.$router.push('/');
+      }else{
+        alert("로그아웃 실패");
       }
-      this.$router.push('/');
     },
 
     // 상단 슬라이드 배너
@@ -244,7 +221,7 @@ export default {
       }
     },
     membershipImage(){
-      return  require(`@/assets/img/membershipImg/${this.membership}.png`);
+      return  require(`@/assets/img/membershipImg/${this.user.membership}.png`);
     },
     openRechargeWindow() {
       const width = 570;

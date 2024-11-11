@@ -57,16 +57,9 @@
                   <button class="ticket-Modal" @click="handleButtonClick(match)">
                     예매하기
                   </button>
-                  <Modal
-                    v-if="isModalVisible"
-                    :visible="isModalVisible"
-                    :match="selectedMatch"
-                    :balance="balance"
-                    :membership="membership"
-                    ref="ModalRef"
-                    @close="closeModal"
-                    @getBalanceByModal="updateBalance"
-                  />
+                  <Modal v-if="modalStatus"
+                    :receivedModalData="receivedModalData" :user="user"
+                    @closeModal="closeModal" @getBalanceByModal="updateBalance"/>
                 </td>
               </tr>
             </tbody>
@@ -84,7 +77,6 @@
   </div>
 </template>
 
-
 <script>
 import axios from 'axios';
 import LogoHeader from '../common/LogoHeader.vue';
@@ -97,14 +89,18 @@ export default {
     Modal,
   },
   props: {
-    membership: {
-      type: String,
+    receivedModalData: {
+      type: Object,
+      required: false,
+    },
+    user: {
+      type: Object,
       required: true,
     },
-    balance: {
-      type: Number,
+    modalStatus:{
+      type: Boolean,
       required: true,
-    },
+    }
   },
   async mounted(){
     this.fetchEvents();
@@ -114,8 +110,6 @@ export default {
       activeMenu: this.$route.path, // 현재 활성화된 경로
       thisTeam : "GS ITM",
       isModalVisible: false, // 모달 표시 여부
-      //ticket modal에 전달할 경기 아이디
-      selectedMatch : {},
       //서버에서 가져온 경기 정보 배열
       matches : [], 
       pageSize: 5, // 페이지당 행 수
@@ -151,7 +145,6 @@ export default {
     async fetchEvents() {
       try {
         this.matches = (await axios.get('/ticket/purchase')).data;
-        console.log("Matches fetched: ", this.matches);
       } catch (error) {
         console.log("Error fetching matches:", error);
         // 에러 발생 시 matches를 빈 배열로 초기화
@@ -256,11 +249,8 @@ export default {
           this.currentPage++;
         }
       },
-      // 모달 열기 닫기
-    openModal(match) {
-      this.selectedMatch= match;
-      this.isModalVisible = true;
-      //TicketModal로 이동할 때 matchId를 가져가도록
+    openModal(matchId) {
+      this.$emit("openMadal", matchId);
     },
     // 모달에서 온 이벤트 app.vue에 보내기
     updateBalance(balance){
@@ -268,11 +258,9 @@ export default {
       this.$emit("getBalance", balance);
     },
     closeModal() {
-      this.isModalVisible = false;
-      this.selectedMatch= null;
+      this.$emit("closeModal");
     },
     handleButtonClick(match) {
-      console.log(match);
       if(sessionStorage.getItem('token')==null){
         alert('로그인 후 예매가능합니다.\n로그인 페이지로 이동합니다.')
         this.$router.push('/login');
@@ -288,19 +276,18 @@ export default {
       const userMembership = sessionStorage.getItem('membership')
       if (generalBookStartDate <= today && today < matchDate) {
         // 오늘 날짜가 일반 예매 시작일과 경기일 사이
-        this.selectedMatch= match;
-        this.openModal(match);
+        this.openModal(match.matchId);
       } else if ( preBookStartDate < today && today < generalBookStartDate) {
         // 오늘 날짜가 일반 예매 시작일과 경기일 사이
         if (userMembership == 'bronze') {
-          this.openModal(match);
+          this.openModal(match.matchId);
         } else {
           alert('브론즈 회원님은 선예매가 불가능합니다.');
           return;
         }
       } else {
         // 오늘 날짜가 선예매 시작일 이후
-        alert(`아직 예매 일정이 아닙니다. 예매 일정은 다음과 같습니다:\n${this.formatDatePreBook(match.matchDate).replace('<br>', '\n')}`);
+        alert(`아직 예매 일정이 아닙니다. 예매 일정은 다음과 같습니다:\n${this.formatDatePreBook(match.matchDate)}`);
         return;
       }
       return;
@@ -433,7 +420,7 @@ th {
   color: white;
   /* 글자 색 (흰색) */
   padding: 8px 16px;
-  /* 버튼 내부 여백 */
+  /* 버튼 내부 여백 (위아래 12px, 좌우 24px) */
   text-align: center;
   /* 글자 가운데 정렬 */
   text-decoration: none;
@@ -455,7 +442,7 @@ th {
   /* 버튼의 높이 */
 }
 
-.ticket-Modal:hover {
+.ticket-buy:hover {
   background-color: #4d7e74;
   /* 마우스를 올렸을 때 배경색 변경 */
 }
@@ -518,7 +505,6 @@ th {
   padding-bottom: var(--footer-height);
   text-align: center;
 }
-
 /* pagination */
 .pagination {
   display: flex;
@@ -528,7 +514,6 @@ th {
   margin-bottom: 50px;
   font-size: 20px;
 }
-
 .page-btn {
   padding: 10px 15px;
   margin: 10px 15px;

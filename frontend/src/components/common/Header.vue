@@ -14,10 +14,13 @@
           <img src="@/assets/logo-mms.png" alt="Team Logo" />
         </router-link>
       </div>
-      <router-link v-if="!isLoggedIn" to="/login" class="login">LOGIN</router-link>
-      <router-link v-if="!isLoggedIn" to="/signup" class="signup">SIGNUP</router-link>
-      <!-- <button v-if="role == 'ADMIN' && isLoggedIn" @click="goToAdminPage" class="admin">ADMIN HOME</button> -->
-      <button v-if="isLoggedIn" @click="logout" class="logout">LOGOUT</button>
+      <router-link v-if="!user.isLoggedIn" to="/login" class="login">LOGIN</router-link>
+      <span class="bar" v-if="!user.isLoggedIn">|</span>
+      <router-link v-if="!user.isLoggedIn" to="/signup" class="signup">SIGNUP</router-link>
+      <button v-if="user.role == 'ROLE_ADMIN' && user.isLoggedIn" @click="goToAdminPage" class="admin">ADMIN HOME</button>
+      <span class="bar" v-if="user.role == 'ROLE_ADMIN' && user.isLoggedIn">|</span>
+      <button v-if="user.isLoggedIn" @click="logout" class="logout">LOGOUT</button>
+      <span v-if="user.isLoggedIn" class="user-name">{{ user.name }} 님</span>
     </div>
 
     <!-- 모바일 햄버거 메뉴 -->
@@ -36,7 +39,7 @@
         </li>
       </ul>
     </div>
-  
+
     <!-- 네비게이션 바 -->
     <nav class="navbar">
       <div class="nav-menu">
@@ -79,8 +82,8 @@
 export default {
   name: 'AppHeader',
   props: {
-    isLoggedIn: {
-      type: Boolean,
+    user: {
+      type: Object,
       required: true
     },
   },
@@ -161,23 +164,16 @@ export default {
   },
   methods: {
     logout() {
-    // 로컬스토리지에 저장된 토큰과 사용자 정보 삭제
-    sessionStorage.removeItem('token');
-    sessionStorage.removeItem('name');
-    sessionStorage.removeItem('email');
-    sessionStorage.removeItem('role');
-    const token = sessionStorage.getItem('token');
-    if (token === null) {
-      console.log('토큰이 성공적으로 삭제되었습니다.');
       this.$emit('logoutSuccess');
-      alert("로그아웃이 되었습니다.");
-    } else {
-      console.log('Header에서 토큰 삭제에 실패했습니다.', token);
-    }
-      this.$router.push('/'); // 메인으로
+      if(!sessionStorage.getItem('token')){
+        alert("로그아웃 되었습니다.\n메인화면으로 이동합니다.");
+        this.$router.push('/');
+      }else{
+        alert("로그아웃 실패");
+      }
     },
     goToAdminPage(){
-      const targetUrl = `http://localhost:4000/admin/userList?adminName=${encodeURIComponent(this.name)}`;
+      const targetUrl = `http://localhost:4000/admin/userList`;
       window.location.href = targetUrl;
     },
     toggleMenu() {
@@ -230,6 +226,13 @@ header {
   outline: none; /* 포커스 시 나타나는 외곽선 없애기 (선택 사항) */
   font-size: 18px;
   color: #565656;
+  cursor: pointer;
+}
+.user-name{
+  font-size: 20px;
+  color: #4f8578;
+  font-weight: 700;
+  margin-left: 3px;
 }
 .admin{
   background-color: #ffffff;
@@ -237,6 +240,7 @@ header {
   outline: none; /* 포커스 시 나타나는 외곽선 없애기 (선택 사항) */
   font-size: 18px;
   color: #565656;
+  cursor: pointer;
 }
 .admin:hover{
   color: #000000;
@@ -340,6 +344,9 @@ header {
   background-color: #f2f2f2;
   border-radius: 5px;
 }
+.bar{
+  margin-left: 4px;
+}
 
 /* 1024px 이하일 때 스타일 조정 */
 @media (max-width: 1024px) {
@@ -357,7 +364,7 @@ header {
   .nav-item {
     font-size: 16px;
   }
-  
+
   /* 인증 링크 상단 글씨 크기 줄이기 */
   .auth-links a {
     font-size: 16px;

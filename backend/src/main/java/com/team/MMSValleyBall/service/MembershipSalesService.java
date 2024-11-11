@@ -2,8 +2,6 @@ package com.team.MMSValleyBall.service;
 
 import com.team.MMSValleyBall.dto.MembershipDTO;
 import com.team.MMSValleyBall.dto.MembershipSalesDTO;
-import com.team.MMSValleyBall.dto.MembershipSalesInfo;
-import com.team.MMSValleyBall.dto.SeasonDTO;
 import com.team.MMSValleyBall.entity.Membership;
 import com.team.MMSValleyBall.entity.MembershipSales;
 import com.team.MMSValleyBall.entity.Users;
@@ -19,7 +17,6 @@ import org.springframework.util.ObjectUtils;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @Slf4j
@@ -38,19 +35,20 @@ public class MembershipSalesService {
         this.em = em;
     }
 
-    public void saveMembership(MembershipSalesInfo membershipSalesInfo) {
+    public void saveMembership(String email, String membershipName) {
         //1. membershipSales 에 필요한 엔티티 추가
-        Users user = userRepository.findByUserEmail(membershipSalesInfo.getEmail());
+        Users user = userRepository.findByUserEmail(email);
         String seasonName = seasonRepository.findAll().get(seasonRepository.findAll().size()-1).getSeasonName();
-        Membership membership = membershipRepository.findByMembershipName(seasonName + "-" + membershipSalesInfo.getMembership());
+        Membership membership = membershipRepository.findByMembershipName(seasonName + "-" + membershipName);
         //2. 새로운 membershipSales 엔티티 생성
         MembershipSales newMembership = new MembershipSales();
         if (!ObjectUtils.isEmpty(user) && !ObjectUtils.isEmpty(membership)) {
-            newMembership.setMembershipSalesUser(user);
             user.setUserMembership(membership);
+            newMembership.setMembershipSalesUser(user);
             newMembership.setMembershipSalesMembership(membership);
             newMembership.setMembershipSalesStatus(MembershipSalesStatus.PURCHASE);
             newMembership.setMembershipSalesCreateAt(LocalDateTime.now());
+            userRepository.save(user);
             membershipSalesRepository.save(newMembership);
         }
     }

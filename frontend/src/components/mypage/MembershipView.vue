@@ -11,16 +11,16 @@
     </div>
 
     <!-- 멤버십 내역 페이지 내용 -->
-    <div class="membership-view-content" v-if="membership">
+    <div class="membership-view-content" v-if="user">
       <div class="membership-title">
-        <h2><strong>{{ name }}</strong> 님이 이용 중인 멤버십 내역</h2>
+        <h2><strong>{{ user.name }}</strong> 님이 이용 중인 멤버십 내역</h2>
       </div>
 
       <!-- 골드/실버 등급일 경우 -->
-      <div class="membership-detail" v-if="membership !== 'bronze'" :id="membership">
+      <div class="membership-detail" v-if="user.membership !== 'bronze'" :id="user.membership">
         <h1 class="membership-grade">
           <img :src="membershipImage()" alt="멤버십 등급 아이콘" class="membershipLevel-image" />
-          <span>{{ membership.toUpperCase() }}</span> MEMBERSHIP
+          <span>{{ user.membership.toUpperCase() }}</span> MEMBERSHIP
           <img :src="membershipImage()" alt="멤버십 등급 아이콘" class="membershipLevel-image" />
         </h1>
         <div id="membership-price">
@@ -36,7 +36,7 @@
           <span class="th">결제 날짜</span><span class="td">{{ formattedPaymentDate }}</span>
         </div>
         <div class="membership-end-date">
-          <span class="th">멤버십 종료 날짜</span><span class="td">~ 2025년 07월 31일까지</span>
+          <span class="th">멤버십 종료 날짜</span><span class="td">~ {{membershipEndDate}}까지</span>
         </div>
         <p class="membership-note">
           결제 후 콘텐츠 이용 내역이 없을 경우, 결제일로부터 7일 이내에 직접 결제 취소가 가능합니다.
@@ -48,13 +48,13 @@
       </div>
     </div>
       <!-- 브론즈 등급일 경우 -->
-      <div class="membership-detail" v-if="membership === 'bronze'" id="bronze">
+      <div class="membership-detail" v-if="user.membership === 'bronze'" id="bronze">
         <h1 class="membership-grade">
           <img :src="membershipImage()" alt="멤버십 등급 아이콘" class="membershipLevel-image" />
-          <span>{{ membership.toUpperCase() }}</span> MEMBERSHIP
+          <span>{{ user.membership.toUpperCase() }}</span> MEMBERSHIP
           <img :src="membershipImage()" alt="멤버십 등급 아이콘" class="membershipLevel-image" />
         </h1>
-        <div class="membership-bronze-content" v-if="membership === 'bronze'">
+        <div class="membership-bronze-content">
           <p>이용중인 멤버십이 없습니다.</p>
         </div>
         <div class="button-container">
@@ -74,8 +74,8 @@ export default {
     LogoHeader,
   },
   props:{
-    membership: {
-      type: String,
+    user: {
+      type: Object,
       required: true
     },
   },
@@ -86,7 +86,7 @@ export default {
       membershipPrice: null,
       membershipSalesStatus: null,
       membershipSalesCreateAt: null,
-      season : '',
+      membershipEndDate: null,
     };
   },
   watch: {
@@ -118,16 +118,15 @@ export default {
       this.$router.push('/membership/purchase');
     },
     membershipImage(){
-      return  require(`@/assets/img/membershipImg/${this.membership}.png`);
+      return  require(`@/assets/img/membershipImg/${this.user.membership}.png`);
     },
     async fetchEvents() {
-      const params = new URLSearchParams();
-      params.append('email', sessionStorage.getItem('email'));
       try {
-        const response = await this.$axios.post("/myPage/membership", null, {params: params});
-        this.membershipPrice = response.data.membershipPrice || '멤버십 가격',
-        this.membershipSalesStatus = response.data.membershipSalesStatus || '결제 후 상태',
-        this.membershipSalesCreateAt = response.data.membershipSalesCreateAt || '결제 날짜'
+        const response = await this.$axios.get("/myPage/membership");
+        this.membershipPrice = response.data.membershipPrice || '멤버십 가격';
+        this.membershipSalesStatus = response.data.membershipSalesStatus || '결제 후 상태';
+        this.membershipSalesCreateAt = response.data.membershipSalesCreateAt || '결제 날짜';
+        this.membershipEndDate = response.data.seasonEndDate || '멤버십 종료 날짜';
         this.$emit("getMembership",response.data.membershipName.split('-')[1]);
         this.season=response.data.membershipName.split('-')[0]
       } catch (error) {
@@ -135,12 +134,10 @@ export default {
       }
     },
     MembershipCancel(){
-    const params = new URLSearchParams();
-    params.append('userEmail', sessionStorage.getItem('email'));
-    this.$axios.post("/membership/cancel", null, { params: params})
+    this.$axios.get("/membership/cancel")
     .then(()=>{
       this.$emit("getMembership",'bronze');
-      this.$emit("getBalance", Number(sessionStorage.getItem('balance'))+this.membershipPrice);
+      this.$emit("getBalance", Number(sessionStorage.getItem('balance')) + this.membershipPrice);
       alert(`멤버십 결제가 취소되셨습니다.\n${new Intl.NumberFormat('ko-KR').format(this.membershipPrice)}원 환불 되셨습니다.`);
       this.membershipSalesStatus=null;
     }).catch((error)=>{
@@ -397,7 +394,7 @@ export default {
   border: none;
   cursor: pointer;
   border-radius: 5px;
-  font-size: large;
+  font-size: medium;
   width: 100px;
   height: 40px;
   padding: 10px;

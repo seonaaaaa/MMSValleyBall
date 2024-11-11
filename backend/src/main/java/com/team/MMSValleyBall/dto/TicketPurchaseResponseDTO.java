@@ -7,9 +7,6 @@ import java.util.Map;
 
 @Data
 public class TicketPurchaseResponseDTO {
-
-    private TicketSalesDTO ticketSalesDto;
-    private int userBalance;
     private MatchTableDTO matchInfo;
     private List<AvailableSeatDTO> availableSeatsList;
     private Map<String, Object> userMembership;
@@ -17,12 +14,9 @@ public class TicketPurchaseResponseDTO {
 
     // 생성자
     public TicketPurchaseResponseDTO() {
-        this.ticketSalesDto = ticketSalesDto;
-        this.userBalance = userBalance;
         this.matchInfo = matchInfo;
         this.availableSeatsList = availableSeatsList;
         this.userMembership = userMembership;
         this.seatDTOList = seatDTOList;
     }
-
 }

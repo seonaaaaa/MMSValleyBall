@@ -45,7 +45,6 @@ public class AdminController {
 
     @GetMapping("/userList")
     public String getUsers(
-            @RequestParam(value = "adminName", required = false)String name,
             @RequestParam(name = "searchCriteria", required = false) String searchCriteria,
             @RequestParam(name = "keyword", required = false) String keyword,
             @RequestParam(value = "membership", required = false) String membership,
@@ -57,8 +56,6 @@ public class AdminController {
         model.addAttribute("searchCriteria", searchCriteria);
         model.addAttribute("keyword", keyword);
         model.addAttribute("membership", membership);
-        model.addAttribute("adminName", name);
-        System.out.println("보내온 이름 : "+name);
         // 필터링 조건에 따라 유저 리스트 가져오기
         Page<UserDTO> userPage = getUserPageByFilter(season, status, membership, searchCriteria, keyword, pageable);
 

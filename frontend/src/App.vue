@@ -1,10 +1,10 @@
 <template>
   <div id="app">
-    <AppHeader v-if="showHeaderFooter" @logoutSuccess="handleLogoutSuccess" :isLoggedIn="isLoggedIn"/>
-    <router-view :isLoggedIn="isLoggedIn" :balance="Number(balance)" 
-    :membership="membership" 
+    <AppHeader v-if="showHeaderFooter" @logoutSuccess="handleLogoutSuccess" :user="user"/>
+    <router-view :user="user" :receivedModalData="receivedModalData" :modalStatus="modalStatus"
     @loginSuccess="handleLoginSuccess" @logoutSuccess="handleLogoutSuccess" 
     @getBalance="updateBalance" @getMembership="updateMembership"
+    @openMadal="sendModalRequest" @closeModal="closeModal"
     />
     <AppFooter v-if="showHeaderFooter"/>
   </div>
@@ -15,6 +15,7 @@ import AppHeader from './components/common/Header.vue'
 import AppFooter from './components/common/Footer.vue'
 import { computed, onMounted, ref } from 'vue';
 import { useRoute } from 'vue-router';
+import axios from 'axios';
 
 export default {
   name: 'App',
@@ -25,61 +26,131 @@ export default {
   setup() {
     const route = useRoute();
     const showHeaderFooter = computed(() => route.path !== '/myPage/rechargee');
-    let isLoggedIn = ref(false); 
-    let balance = ref(0); 
-    let membership = ref('bronze');
+    let user = ref({
+      name : '',
+      role : 'guest',
+      isLoggedIn : false,
+      balance : 0,
+      membership : 'bronze'
+    });
+    let receivedModalData = ref({
+      matchInfo : {}, 
+      availableSeatsList : [],
+      userMembership : {},
+      seatDTOList : []
+    });
+    let modalStatus = ref(false);
 
     // 로그인 성공 처리 함수
-    const handleLoginSuccess = () => {
-      isLoggedIn.value = true;
+    const handleLoginSuccess = (token) => {
+      user.value.isLoggedIn = true;
       sessionStorage.setItem('isLoggedIn', 'true');
+      axios.defaults.headers.common["Authorization"] = sessionStorage.getItem('token');
+      let payload = null;
+      console
+      try {
+        const base64Payload = token.split('.')[1]; // 토큰의 두 번째 부분 (Payload)
+        const base64 = base64Payload.replace(/-/g, '+').replace(/_/g, '/'); // Base64 형식을 표준으로 맞춤
+        const decodedPayload = decodeURIComponent(
+            atob(base64)
+            .split('')
+            .map((c) => `%${('00' + c.charCodeAt(0).toString(16)).slice(-2)}`)
+            .join('')
+        );
+        payload = JSON.parse(decodedPayload); // JSON 파싱하여 객체로 반환
+         // 유저 정보를 로컬스토리지에 저장
+        user.value.name = payload.name;
+        user.value.role = payload.role;
+        sessionStorage.setItem('name', payload.name);
+        sessionStorage.setItem('role', payload.role);
+      } catch (error) {
+          console.error('토큰 파싱 실패', error);
+      }
     };
-
     // 로그아웃 처리 함수
     const handleLogoutSuccess = () => {
-      isLoggedIn.value = false;
-      balance.value = 0;
-      membership.value = 'bronze';
-      sessionStorage.removeItem('isLoggedIn');
-      sessionStorage.removeItem('balance');
-      sessionStorage.removeItem('membership');
+      user.value = {
+        name : '',
+        role : 'guest',
+        isLoggedIn : false,
+        balance : 0,
+        membership : 'bronze'
+      }
+      sessionStorage.clear();
     };
 
     const updateBalance = (getBalance) => {
-      balance.value = getBalance;
+      user.value.balance = Number(getBalance);
       sessionStorage.setItem('balance', String(getBalance));
     };
 
     const updateMembership = (getMembership) => {
-      membership.value = getMembership;
+      user.value.membership = getMembership;
       sessionStorage.setItem('membership', getMembership);
     };
 
-    
+    const sendModalRequest = async (matchId) =>{
+      try {
+        const response = await axios.get('/ticket/purchase/modal', {
+          params: {
+            matchId: matchId
+          }
+        });
+        modalStatus.value = true;
+        receivedModalData.value = response.data;
+        sessionStorage.setItem('modalStatus', true);
+        sessionStorage.setItem('matchId', matchId);
+      } catch (error) {
+        console.log("모달에 보낼 정보 요청중 오류:", error);
+      }
+    }
 
+    const closeModal = () =>{
+      sessionStorage.removeItem('modalStatus');
+      sessionStorage.removeItem('matchId');
+      modalStatus.value = false;
+      receivedModalData.value = {
+        matchInfo : {}, 
+        availableSeatsList : [],
+        userMembership : {},
+        seatDTOList : []
+      };
+    }
+    
     onMounted(() => {
       // 새로고침 시 sessionStorage에 저장된 값을 불러와 설정
-      isLoggedIn.value = sessionStorage.getItem('isLoggedIn') === 'true';
-      balance.value = Number(sessionStorage.getItem('balance')) || 0;
-      membership.value = sessionStorage.getItem('membership') || 'bronze';
+      user.value.isLoggedIn = sessionStorage.getItem('isLoggedIn') === 'true';
+      user.value.balance = Number(sessionStorage.getItem('balance')) || 0;
+      user.value.membership = sessionStorage.getItem('membership') || 'bronze';
+      user.value.name = sessionStorage.getItem('name') || '';
+      user.value.role = sessionStorage.getItem('role') || 'guest';
+      modalStatus.value = sessionStorage.getItem('modalStatus') === 'true';
+      const token = sessionStorage.getItem("token");
+      if (token) {
+        axios.defaults.headers.common["Authorization"] = token;
+      }
+      if(modalStatus.value){
+        sendModalRequest(sessionStorage.getItem('matchId'));
+      }
 
       window.addEventListener('message', (event) => {
         if (event.data.type === 'updateBalance') {
-          balance.value = event.data.balance;
+          user.value.balance = event.data.balance;
           sessionStorage.setItem('balance', event.data.balance);
         }
       });
     });
-    
     return {
       showHeaderFooter,
-      isLoggedIn,
-      balance,
-      membership,
+      user,
+      receivedModalData,
+      modalStatus,
       handleLoginSuccess,
       handleLogoutSuccess,
       updateBalance,
       updateMembership,
+      sendModalRequest,
+      closeModal
     };
   } 
 }
