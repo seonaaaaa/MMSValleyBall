@@ -128,6 +128,8 @@
     margin: 0 auto;
     padding-top: 35px;
     padding-bottom: 70px;
+    padding-left: 30px;
+    padding-right: 30px;
     text-align: left;
   }
   

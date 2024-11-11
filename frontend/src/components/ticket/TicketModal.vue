@@ -103,7 +103,7 @@
 
             <!-- 2번째 모달  -->
             <div v-if="secondPage" class="second-modal-content">
-                <div class="modal-body">
+                <div class="modal-body second-modal-body">
                     <div class="left-body">
                         <!-- 경기 정보 -->
                         <div class="second-modal-left">
@@ -118,7 +118,7 @@
                             <!-- 왼쪽 표 -->
                             <div class="left-table">
                                 <div class="modal-table-container">
-                                    <table class="modal-table">
+                                    <table class="modal-table second-modal-left-table">
                                         <tbody>
                                             <tr class="table-theader">
                                                 <th>구역</th>
@@ -198,7 +198,6 @@
                                     </tr>
                                 </tbody>
                             </table>
-                            <br>
                             <div class="charge">
                                 <div class="charge-money">
                                         <p><strong>이용가능한 충전금액 : </strong></p>
@@ -646,7 +645,8 @@ export default {
     left: 0;
     width: 100%;
     height: 100%;
-    background: v-bind("secondPage ? 'rgba(0, 0, 0, 0.8)' : 'rgba(0, 0, 0, 0.1)'");
+    /* background: v-bind("secondPage ? 'rgba(0, 0, 0, 0.8)' : 'rgba(0, 0, 0, 0.1)'"); */
+    background: rgba(0, 0, 0, 0.1);
     /* 모달 뒤 어두운 배경 */
     display: flex;
     align-items: center;
@@ -662,17 +662,31 @@ export default {
     max-height: 1500px; */
     max-width: 1000px; /* 모달 창 너비 줄임 */
     max-height: 800px; /* 모달 창 높이 줄임 */
+    width: 1000px; /* 모달 창 너비 줄임 */
+    height: 800px; /* 모달 창 높이 줄임 */
     position: relative;
     overflow-y: auto; /* 세로 스크롤 추가 */
 }
 
 .second-modal-content {
     background: white;
+    /* padding: 20px; */
     padding: 20px;
     border-radius: 10px;
-    width: 1300px;
-    max-height: 1000px;
+    /* width: 1300px;
+    max-height: 1000px; */
+    max-width: 1000px; /* 모달 창 너비 줄임 */
+    max-height: 800px; /* 모달 창 높이 줄임 */
 }
+
+.second-modal-body {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between; /* 양쪽 정렬 */
+    gap: 10px; /* left-body와 right-table 간격 */
+    width: 100%;
+}
+
 .left-body{
     display: flex;
     flex-direction: column;
@@ -750,9 +764,9 @@ export default {
 
 .vertical-divider {
     position: absolute;
-    right: 38%;
+    right: 37%;
     width: 1px;
-    height: 800px;
+    height: 730px;
     background-color: black;
     /* 세로 줄 색상 */
     margin: 0 20px;
@@ -806,24 +820,28 @@ export default {
     /* 경계선 설정 */
     border-radius: 10px;
     /* 모서리를 둥글게 설정 */
+    /* padding: 20px; */
     padding: 20px;
     /* 내부 여백 */
-    margin-top: 30px;
+    margin-top: 40px;
     margin-bottom: 30px;
-    margin-left: 80px;
-    width: 83%;
+    margin-left: 56px;
+    /* width: 83%; */
+    width: 500px;
 }
 
 .icon {
-    margin-right: 20px;
+    /* margin-right: 20px; */
+    margin-right: 10px;
     /* 아이콘과 텍스트 사이의 간격 */
 }
 
 .icon img {
-    width: 120px;
     /* 아이콘 크기 */
-    height: 120px;
-    /* 아이콘 크기 */
+    /* width: 120px;
+    height: 120px; */
+    width: 80px;
+    height: 80px;
 }
 
 .info-content {
@@ -835,7 +853,8 @@ export default {
     /* 일반 문단 글자 크기 */
     list-style-type: disc;
     /* 목록 스타일 */
-    padding-left: 20px;
+    /* padding-left: 20px; */
+    padding-left: 10px;
     /* 목록 왼쪽 여백 */
 }
 
@@ -849,22 +868,35 @@ export default {
 }
 
 .right-table {
-    margin-left: 5%;
-    width: 400px;
+    /* margin-left: 5%; */
+    /* width: 400px; */
+    max-width: 300px;
 }
 
 .left-table {
+    margin: 0 auto;
     margin-top: 20px;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+}
+
+.second-modal-left-table {
+    width: 500px;
+    font-size: 16px;
 }
 
 .second-modal-table {
-    width: 400px;
+    /* width: 400px; */
+    max-width: 300px;
+    width: 300px;
     margin-left: auto;
     margin-right: auto;
     align-content: center;
     background: white;
     border-collapse: collapse;
     table-layout: fixed;
+    font-size: 17px;
 }
 
 .second-modal-ticket-price {
@@ -873,6 +905,7 @@ export default {
 .ticket-info-content {
     text-align: left;
     line-height: 16px;
+    font-size: 17px;
 }
 
 /* 모달페이지 안의 버튼 정렬 */
@@ -919,7 +952,7 @@ export default {
     display: flex;
     align-items: center;
     gap: 20px; /* 텍스트와 버튼 사이의 간격 */
-    margin-top: 20px;
+    margin-top: 40px;
 }
 
 .result-text {
@@ -995,6 +1028,7 @@ export default {
 /* 충전 관련 */
 .charge {
   border: 1px solid #bebebe;
+  margin-top: 10px;
   padding: 20px;
   width: 100%; /* 전체 페이지의 50%로 설정 */
   display: flex;
@@ -1002,7 +1036,7 @@ export default {
   align-items: center;
   font-family: Arial, sans-serif;
   border-radius: 15px;
-  font-size: 20px;
+  font-size: 18px;
 }
 
 .charge-money {
@@ -1051,6 +1085,7 @@ border: none;
     margin-top: -15px;
     border-radius: 10px;
     margin-left: auto;
+    margin-right: 0px;
 }
 
 .notice{
