@@ -942,6 +942,7 @@ border: none;
     margin-top: -15px;
     border-radius: 10px;
     margin-left: auto;
+    margin-right: 0px;
 }
 
 .notice{
