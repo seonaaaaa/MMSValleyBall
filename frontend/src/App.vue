@@ -193,4 +193,19 @@ a {
   --header-height: 168px; /* Header 높이를 변수로 정의 */
   --footer-height: 0px; /* Footer 높이를 변수로 정의 */
 }
+
+/* 1024px 이하일 때 root 변수 업데이트 */
+@media (max-width: 1024px) {
+  :root {
+    --header-height: 115px;
+    --footer-height: 0px;
+  }
+}
+
+@media (max-width: 768px) {
+  :root {
+    --header-height: 56px;
+    --footer-height: 0px;
+  }
+}
 </style>

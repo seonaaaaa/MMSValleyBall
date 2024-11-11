@@ -1,6 +1,7 @@
 package com.team.MMSValleyBall.dto;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 import com.team.MMSValleyBall.entity.Match;
 import com.team.MMSValleyBall.enums.MailStatus;
@@ -17,6 +18,13 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class MatchWithTeamDTO {
+
+    // 관리자 페이지 - 경기 날짜 컬럼 - 2023-10-14 <br> 14:00 출력
+    public String getFormattedDateTime() {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+        return matchDate.format(formatter).replace(" ", "<br>");
+    }
+
     // 일정 정보
     private Long matchId;
     private LocalDateTime matchDate;

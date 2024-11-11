@@ -2,6 +2,18 @@
   <header>
     <!-- 로그인, 회원가입 링크 상단 -->
     <div class="auth-links">
+      <!-- 모바일 - 햄버거 아이콘 -->
+      <div class="hamburger" @click="toggleMenu">
+        <span></span>
+        <span></span>
+        <span></span>
+      </div>
+      <!-- 모바일 - 작은 로고 -->
+      <div class="small-logo">
+        <router-link to="/">
+          <img src="@/assets/logo-mms.png" alt="Team Logo" />
+        </router-link>
+      </div>
       <router-link v-if="!user.isLoggedIn" to="/login" class="login">LOGIN</router-link>
       <span class="bar" v-if="!user.isLoggedIn">|</span>
       <router-link v-if="!user.isLoggedIn" to="/signup" class="signup">SIGNUP</router-link>
@@ -10,7 +22,24 @@
       <button v-if="user.isLoggedIn" @click="logout" class="logout">LOGOUT</button>
       <span v-if="user.isLoggedIn" class="user-name">{{ user.name }} 님</span>
     </div>
-  
+
+    <!-- 모바일 햄버거 메뉴 -->
+    <div :class="['mobile-menu', { 'is-open': isMenuOpen, 'is-closing': isClosing }]">
+      <button @click="closeMobileMenu" class="close-btn">X</button>
+      <ul class="mobile-menu-list">
+        <li v-for="(item, index) in unifiedMenu" :key="index">
+          <div @click="toggleSubMenu(index)" class="mobile-menu-title">
+            {{ item.title }}
+          </div>
+          <ul :class="['mobile-dropdown', { 'is-open': activeIndex === index }]">
+            <li v-for="subItem in item.submenu" :key="subItem.path">
+              <router-link :to="subItem.path" @click="closeMobileMenu">{{ subItem.title }}</router-link>
+            </li>
+          </ul>
+        </li>
+      </ul>
+    </div>
+
     <!-- 네비게이션 바 -->
     <nav class="navbar">
       <div class="nav-menu">
@@ -60,6 +89,9 @@ export default {
   },
   data() {
     return {
+      isMenuOpen: false,
+      isClosing: false,
+      activeIndex: null,
       leftMenu: [
         { 
           title: 'MMS', 
@@ -119,6 +151,17 @@ export default {
       role: 'guest',
     };
   },
+  computed: {
+    unifiedMenu() {
+      return [...this.leftMenu, ...this.rightMenu];
+    }
+  },
+  mounted(){
+    const token = sessionStorage.getItem('token');
+    if(token!=null){
+      this.role = sessionStorage.getItem('role');
+    }
+  },
   methods: {
     logout() {
       this.$emit('logoutSuccess');
@@ -133,7 +176,19 @@ export default {
       const targetUrl = `http://localhost:4000/admin/userList`;
       window.location.href = targetUrl;
     },
-  }
+    toggleMenu() {
+      this.isMenuOpen = !this.isMenuOpen;
+      this.isClosing = false; // 메뉴를 열 때는 닫힘 애니메이션 상태를 false로 초기화
+    },
+    toggleSubMenu(index) {
+      this.activeIndex = this.activeIndex === index ? null : index;
+    },
+    closeMobileMenu() {
+      this.isClosing = true;
+      this.isMenuOpen = false;
+      this.activeIndex = null;
+    },
+  },
 }
 </script>
 
@@ -171,6 +226,7 @@ header {
   outline: none; /* 포커스 시 나타나는 외곽선 없애기 (선택 사항) */
   font-size: 18px;
   color: #565656;
+  cursor: pointer;
 }
 .user-name{
   font-size: 20px;
@@ -184,6 +240,7 @@ header {
   outline: none; /* 포커스 시 나타나는 외곽선 없애기 (선택 사항) */
   font-size: 18px;
   color: #565656;
+  cursor: pointer;
 }
 .admin:hover{
   color: #000000;
@@ -210,8 +267,10 @@ header {
   justify-content: space-between;
   align-items: center;
   width: 100%;
+  max-width: 1140px;
+  margin: 0 auto;
   padding: 0;
-  margin: 0;
+  /* margin: 0; */
 }
 
 /* 중앙 로고 */
@@ -287,5 +346,191 @@ header {
 }
 .bar{
   margin-left: 4px;
+}
+
+/* 1024px 이하일 때 스타일 조정 */
+@media (max-width: 1024px) {
+  /* 네비게이션 바 크기 및 메뉴 폭 조정 */
+  .nav-menu {
+    max-width: 90%; /* 메뉴 폭 줄이기 */
+  }
+
+  /* 로고 이미지 숨기기 */
+  .logo img {
+    display: none;
+  }
+
+  /* 메뉴 글씨 크기 줄이기 */
+  .nav-item {
+    font-size: 16px;
+  }
+
+  /* 인증 링크 상단 글씨 크기 줄이기 */
+  .auth-links a {
+    font-size: 16px;
+  }
+}
+
+/* 768px 이하일 때 스타일 조정 */
+/* 햄버거 아이콘 */
+.hamburger {
+  cursor: pointer;
+  display: none;
+  flex-direction: column;
+  justify-content: space-between;
+  width: 25px;
+  height: 25px;
+  margin-right: auto;
+}
+
+.hamburger span {
+  display: block;
+  height: 3px;
+  background-color: #333;
+  transition: all 0.3s ease;
+}
+
+/* 작은 로고 */
+.small-logo {
+  display: none;
+  margin-left: 10px;
+  display: inline-block;
+  vertical-align: middle;
+}
+
+.small-logo img {
+  height: 30px;
+  cursor: pointer;
+}
+
+/* 모바일 메뉴 */
+.mobile-menu {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: white;
+  padding: 60px 20px;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+  overflow-y: auto;
+  /* 화면 왼쪽 바깥에 시작 */
+  transform: translateX(-100%);
+  z-index: 1001;
+}
+
+/* 슬라이드 인 효과 */
+.mobile-menu.is-open {
+  display: block;
+  animation: slideIn 0.3s ease-out forwards;
+}
+
+/* 왼쪽에서 오른쪽으로 슬라이드 인 애니메이션 */
+@keyframes slideIn {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+/* 슬라이드 아웃 효과 */
+.mobile-menu.is-closing {
+  display: block;
+  animation: slideOut 0.3s ease-out forwards;
+}
+
+/* 오른쪽에서 왼쪽으로 슬라이드 아웃 애니메이션 */
+@keyframes slideOut {
+  from {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateX(-100%);
+    opacity: 0;
+  }
+}
+
+/* 닫기 버튼 */
+.close-btn {
+  position: absolute;
+  top: 10px;
+  right: 20px;
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+}
+
+/* 모바일 메뉴 항목 */
+.mobile-menu-list {
+  list-style: none;
+  padding: 0;
+}
+
+.mobile-menu-title {
+  font-size: 24px;
+  margin-bottom: 10px;
+  cursor: pointer;
+}
+
+/* 모바일 드롭다운 메뉴 */
+.mobile-dropdown {
+  list-style: none;
+  padding-left: 20px;
+  margin-top: 5px;
+  overflow: hidden;
+  max-height: 0;
+  transition: max-height 0.3s ease;
+}
+
+.mobile-dropdown.is-open {
+  max-height: 300px;
+}
+
+.mobile-dropdown li {
+  margin-bottom: 10px;
+}
+
+.mobile-dropdown li a {
+  color: #565656;
+  font-size: 18px;
+}
+
+.mobile-dropdown li a:hover {
+  color: #000;
+}
+
+@media (max-width: 768px) {
+
+  .auth-links {
+    align-items: center;
+  }
+
+  .navbar,
+  .nav-menu {
+    display: none;
+  }
+
+  .hamburger,
+  .small-logo {
+    display: inline-flex;
+    margin-top: 5px;
+  }
+
+  .auth-links {
+    box-shadow: 0px 8px 8px -4px rgba(0, 0, 0, 0.1);
+  }
+}
+
+@media (min-width: 769px) {
+  .hamburger,
+  .small-logo,
+  .mobile-menu {
+    display: none;
+  }
 }
 </style>

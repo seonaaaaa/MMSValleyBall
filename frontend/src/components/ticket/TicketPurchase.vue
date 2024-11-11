@@ -161,7 +161,12 @@ export default {
         const dateObj = new Date(date);
         
         // 날짜 포맷
-        const formattedDate = dateObj.toLocaleDateString('ko-KR', options);
+        let formattedDate = dateObj.toLocaleDateString('ko-KR', options);
+
+        // 마지막 점 제거
+        if (formattedDate.endsWith('.')) {
+          formattedDate = formattedDate.slice(0, -1);
+        }
         
         // 요일 가져오기
         const days = ['일', '월', '화', '수', '목', '금', '토'];
@@ -184,7 +189,12 @@ export default {
         const options = { year: 'numeric', month: '2-digit', day: '2-digit' };
         
         // 날짜 포맷
-        const formattedDate = dateObj.toLocaleDateString('ko-KR', options);
+        let formattedDate = dateObj.toLocaleDateString('ko-KR', options);
+
+        // 마지막 점 제거
+        if (formattedDate.endsWith('.')) {
+          formattedDate = formattedDate.slice(0, -1);
+        }
         
         // 요일 가져오기
         const days = ['일', '월', '화', '수', '목', '금', '토'];
@@ -208,7 +218,12 @@ export default {
         const options = { year: 'numeric', month: '2-digit', day: '2-digit' };
         
         // 날짜 포맷
-        const formattedDate = dateObj.toLocaleDateString('ko-KR', options);
+        let formattedDate = dateObj.toLocaleDateString('ko-KR', options);
+
+        // 마지막 점 제거
+        if (formattedDate.endsWith('.')) {
+          formattedDate = formattedDate.slice(0, -1);
+        }
         
         // 요일 가져오기
         const days = ['일', '월', '화', '수', '목', '금', '토'];
@@ -221,6 +236,18 @@ export default {
         });
 
         return `${formattedDate} (${dayName})<br>${formattedTime}`;
+      },
+      // 이전 페이지로 이동
+      prevPage() {
+        if (this.currentPage > 1) {
+          this.currentPage--;
+        }
+      },
+      // 다음 페이지로 이동
+      nextPage() {
+        if (this.currentPage < this.totalPages) {
+          this.currentPage++;
+        }
       },
     openModal(matchId) {
       this.$emit("openMadal", matchId);
@@ -260,7 +287,7 @@ export default {
         }
       } else {
         // 오늘 날짜가 선예매 시작일 이후
-        alert(`아직 예매 일정이 아닙니다. 예매 일정은 다음과 같습니다:\n${this.formatDatePreBook(match.matchDate)}`);
+        alert(`아직 예매 일정이 아닙니다. 예매 일정은 다음과 같습니다:\n${this.formatDatePreBook(match.matchDate).replace('<br>', '\n')}`);
         return;
       }
       return;
@@ -387,13 +414,12 @@ th {
 }
 
 .ticket-Modal {
-  background-color: #4CAF50;
+  background-color: #60a191;
   /* 버튼 배경색 (녹색) */
-  border: 1px;
-  border-color: #000000;
+  border: none;
   color: white;
   /* 글자 색 (흰색) */
-  padding: 7px 14px;
+  padding: 8px 16px;
   /* 버튼 내부 여백 (위아래 12px, 좌우 24px) */
   text-align: center;
   /* 글자 가운데 정렬 */
@@ -401,9 +427,9 @@ th {
   /* 밑줄 없음 */
   display: inline-block;
   /* 기본 인라인 블록 설정 */
-  font-size: 20px;
+  font-size: 22px;
   /* 글자 크기 */
-  border-radius: 15px;
+  border-radius: 8px;
   /* 모서리를 둥글게 */
   cursor: pointer;
   /* 마우스를 올렸을 때 포인터 모양 */
@@ -412,12 +438,12 @@ th {
   margin: 15px;
   width: 140px;
   /* 버튼의 너비 */
-  height: 70px;
+  height: 50px;
   /* 버튼의 높이 */
 }
 
 .ticket-buy:hover {
-  background-color: #45a049;
+  background-color: #4d7e74;
   /* 마우스를 올렸을 때 배경색 변경 */
 }
 

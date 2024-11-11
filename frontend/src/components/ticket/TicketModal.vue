@@ -4,7 +4,6 @@
         <!-- 모달 내용 -->
         <div class="first-modal-content">
             <!-- 모달 제목 -->
-            <!-- 선택한 데이터 가져와서 일정 넣어야함 -->
             <div class="modal-title" v-if="firstPage">
                 <p class="match-info-title"><strong>{{ formatMatchInfo( receivedModalData.matchInfo.matchTeam, thisTeam) }}</strong></p>
                 <div class="match-info">
@@ -16,187 +15,185 @@
             </div>
             <!-- 모달 디테일 -->
             <div v-if="firstPage">
-        <div class="modal-body">
-            <!-- 모달 이미지 -->
-            <div class="modal-ticket-img" v-if="selectedZoneImage">
-                <img :src="selectedZoneImage" alt="선택한 구역 이미지" class="stadium-image" />
+                <div class="modal-body">
+                    <!-- 모달 이미지 -->
+                    <div class="modal-ticket-img" v-if="selectedZoneImage">
+                        <img :src="selectedZoneImage" alt="선택한 구역 이미지" class="stadium-image" />
+                    </div>
+                    <!-- 모달 표 -->
+                    <div class="modal-table-container">
+                        <table class="modal-table">
+                            <thead class="table-theader">
+                                <tr>
+                                    <th>구역</th>
+                                    <th>잔여석</th>
+                                </tr>
+                            </thead>
+                            <tbody v-for="zone in filteredAvailableSeats" :key="zone.zoneName">
+                                <tr>
+                                    <td>
+                                        <button class="select-zone-btn" @click="toggleZoneSelection(zone)"
+                                        :style="{ backgroundColor: getButtonColor(zone.zoneName) }">
+                                            {{ zone.zoneName }}
+                                        </button>
+                                    </td>
+                                    <td>{{ zone.availableSeatAmount }}석</td>
+                                </tr>
+
+                                <!-- 선택한 구역의 섹션 정보 표시 -->
+                                <tr v-if="zoneSelection === zone">
+                                    <td colspan="2">
+                                        <table class="modal-table-hide">
+                                            <tbody>
+                                                <tr v-for="section in zone.sections" :key="section.seatId">
+                                                    <td>{{ section.sectionName }}</td>
+                                                    <td>
+                                                        <div class="quantity-selector">
+                                                            <button @click="decreaseQuantity(section)" 
+                                                                    :disabled="section.quantity <= 0">-</button>
+                                                            <input type="text" v-model="section.quantity" readonly class="quantity-box" />
+                                                            <button @click="increaseQuantity(section)">
+                                                                +
+                                                            </button>
+                                                        </div>
+                                                    </td>
+                                                    <td>{{ section.availableSeatAmount }}석</td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <hr class="divider" />
+
+                <div class="result-container">
+                    <div class="result-text">
+                        구역을 선택하면 좌석은 자동 배정됩니다.
+                        <div>
+                            선택한 좌석 : {{ sectionSelection ? sectionSelection.sectionName : ' ' }}구역 {{ countTicket }}매
+                        </div>
+                        <div class="result-text-all">
+                            총 : {{ countTicket }}매
+                        </div>
+                    </div>
+                
+                    <!-- 버튼 영역 -->
+                    <div class="first-button">
+                        <!-- <button class="hiden-button" ref="autoClickButton" @click="handleClick"></button> -->
+                        <!-- 결제 버튼 -->
+                        <button class="buy-button" @click="openSecondPage">다음</button>
+
+                        <!-- 모달 종료버튼 -->
+                        <button class="close-button" @click="closeModal">닫기</button>
+                    </div>
+                </div>
             </div>
-            <!-- 모달 표 -->
-            <div class="modal-table-container">
-                <table class="modal-table">
-                    <thead class="table-theader">
-                        <tr>
-                            <th>구역</th>
-                            <th>잔여석</th>
-                        </tr>
-                    </thead>
-                    <tbody v-for="zone in filteredAvailableSeats" :key="zone.zoneName">
-                        <tr>
-                            <td>
-                                <button class="select-zone-btn" @click="toggleZoneSelection(zone)"
-                                :style="{ backgroundColor: getButtonColor(zone.zoneName) }">
-                                    {{ zone.zoneName }}
-                                </button>
-                            </td>
-                            <!-- <td></td> -->
-                            <td>{{ zone.availableSeatAmount }}석</td>
-                        </tr>
-
-                        <!-- 선택한 구역의 섹션 정보 표시 -->
-                        <tr v-if="zoneSelection === zone">
-                            <td colspan="2">
-                                <table class="modal-table-hide">
-                                    <tbody>
-                                        <tr v-for="section in zone.sections" :key="section.seatId">
-                                            <td>{{ section.sectionName }}</td>
-                                            <td>
-                                                <div class="quantity-selector">
-                                                    <button @click="decreaseQuantity(section)" 
-                                                            :disabled="section.quantity <= 0">-</button>
-                                                    <input type="text" v-model="section.quantity" readonly class="quantity-box" />
-                                                    <button @click="increaseQuantity(section)">
-                                                        +
-                                                    </button>
-                                                </div>
-                                            </td>
-                                            <td>{{ section.availableSeatAmount }}석</td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </td>
-                        </tr>
-
-                    </tbody>
-                </table>
-
-            </div>
-        </div>
-        <hr class="divider" />
-
-        <div class="result-text">
-            구역을 선택하면 좌석은 자동 배정됩니다.
-            <div>
-                선택한 좌석 : {{ sectionSelection ? sectionSelection.sectionName : ' ' }}구역 {{ countTicket }}매
-            </div>
-            <div class="result-text-all">
-                총 : {{ countTicket }}매
-            </div>
-        </div>
-        <div class="first-button">
-            <!-- <button class="hiden-button" ref="autoClickButton" @click="handleClick"></button> -->
-            <!-- 결제 버튼 -->
-            <button class="buy-button" @click="openSecondPage">다음</button>
-
-            <!-- 모달 종료버튼 -->
-            <button class="close-button" @click="closeModal">닫기</button>
-        </div>
-    </div>
             <!-- ------------------------------------------------------------------ -->
 
             <!-- 2번째 모달  -->
             <div v-if="secondPage" class="second-modal-content">
-                <div class="modal-body">
+                <div class="modal-body second-modal-body">
                     <div class="left-body">
-                            <!-- 경기 정보 -->
-                    <div class="second-modal-left">
-                     <div class="modal-second-title">
-                        <p id="second-modal-match-info-title"><strong>{{ formatMatchInfo(receivedModalData.matchInfo.matchTeam, thisTeam) }}</strong></p>
-                        <div id="second-modal-match-info">
-                            <p>{{ receivedModalData.matchInfo.matchStadium }}&nbsp;</p>
-                            <p> | &nbsp;</p> 
-                            <p v-html="formatDate(receivedModalData.matchInfo.matchDate)"></p>
-                        </div>
-                    </div>
-                    <!-- 왼쪽 표 -->
-                    <div class="left-table">
-                        <div class="modal-table-container">
-                            <table class="modal-table">
-                                    <tbody>
-                                        <tr class="table-theader">
-                                            <th>구역</th>
-                                            <th>매수</th>
-                                            <th>금액</th>
-                                            <th>멤버십할인</th>
-                                        </tr>
-                                        <tr>
-                                            <td> {{ seatSelection.sectionName }}구역 </td>
-                                            <td> {{ seatSelection.quantity }}매</td>
-                                            <td> {{ seatSelection.seatPrice }}원</td>
-                                            <td> {{ receivedModalData.userMembership.membershipDiscount }} %</td>
-                                        </tr>
-                                        <tr class="table-theader">
-                                            <th colspan="4">총액</th>
-                                        </tr>
-                                        <tr>
-                                            <td colspan="4">{{ formattedTotal }}원</td>
-                                        </tr>
-                                    </tbody>
-                            </table>
-
-                            <div class="modal-info-box">
-                                <div class="icon">
-                                    <img src="@/assets/img/anyImg/bell-icon.png" alt="alert" />
-                                </div>
-                                <div class="info-content">
-                                    <h4>예매 마감안내</h4>
-                                    <ul class="notice">
-                                        <li> - 당일 경기 시작 전 1시간 까지 가능</li>
-                                        <li> - 취소 시간 이후 구매한 티켓은 취소 및 좌석 변경이 되지 않습니다.</li>
-                                    </ul>
-                                    <h4>예매 취소안내</h4>
-                                    <ul class="notice">
-                                        <li> - 당일 경기 시작 12시간 전까지 가능</li>
-                                    </ul>
+                        <!-- 경기 정보 -->
+                        <div class="second-modal-left">
+                            <div class="modal-second-title">
+                                <p id="second-modal-match-info-title"><strong>{{ formatMatchInfo(receivedModalData.matchInfo.matchTeam, thisTeam) }}</strong></p>
+                                <div id="second-modal-match-info">
+                                    <p>{{ receivedModalData.matchInfo.matchStadium }}&nbsp;</p>
+                                    <p> | &nbsp;</p> 
+                                    <p v-html="formatDate(receivedModalData.matchInfo.matchDate)"></p>
                                 </div>
                             </div>
-                    </div>
-                     
-                        </div>
+                            <!-- 왼쪽 표 -->
+                            <div class="left-table">
+                                <div class="modal-table-container">
+                                    <table class="modal-table second-modal-left-table">
+                                        <tbody>
+                                            <tr class="table-theader">
+                                                <th>구역</th>
+                                                <th>매수</th>
+                                                <th>금액</th>
+                                                <th>멤버십할인</th>
+                                            </tr>
+                                            <tr>
+                                                <td> {{ seatSelection.sectionName }}구역 </td>
+                                                <td> {{ seatSelection.quantity }}매</td>
+                                                <td> {{ seatSelection.seatPrice }}원</td>
+                                                <td> {{ receivedModalData.userMembership.membershipDiscount }} %</td>
+                                            </tr>
+                                            <tr class="table-theader">
+                                                <th colspan="4">총액</th>
+                                            </tr>
+                                            <tr>
+                                                <td colspan="4">{{ formattedTotal }}원</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+
+                                    <div class="modal-info-box">
+                                        <div class="icon">
+                                            <img src="@/assets/img/anyImg/bell-icon.png" alt="alert" />
+                                        </div>
+                                        <div class="info-content">
+                                            <h4>예매 마감안내</h4>
+                                            <ul class="notice">
+                                                <li> - 당일 경기 시작 전 1시간 까지 가능</li>
+                                                <li> - 취소 시간 이후 구매한 티켓은 취소 및 좌석 변경이 되지 않습니다.</li>
+                                            </ul>
+                                            <h4>예매 취소안내</h4>
+                                            <ul class="notice">
+                                                <li> - 당일 경기 시작 12시간 전까지 가능</li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
                 <div class="vertical-divider"></div>
                     
-                <div class="right-table">
+                    <div class="right-table">
                    
-                    <div class="ticket-info-content">
-                        <p><strong>[예매정보]</strong></p>
-                        <p>경기정보: {{ formatMatchInfo(receivedModalData.matchInfo.matchTeam, thisTeam) }}</p>
-                        <p>경기장: {{ receivedModalData.matchInfo.matchStadium }}</p>
-                        <p v-html="`경기일시: ${formatDate(receivedModalData.matchInfo.matchDate)}`"></p>
-                        <p>구역: <strong>{{ seatSelection.sectionName }}</strong>구역 / <strong>{{ seatSelection.quantity }}</strong>매</p>
-                    </div>
-                    <hr class="divider" />
+                        <div class="ticket-info-content">
+                            <p><strong>[예매정보]</strong></p>
+                            <p>경기정보: {{ formatMatchInfo(receivedModalData.matchInfo.matchTeam, thisTeam) }}</p>
+                            <p>경기장: {{ receivedModalData.matchInfo.matchStadium }}</p>
+                            <p v-html="`경기일시: ${formatDate(receivedModalData.matchInfo.matchDate)}`"></p>
+                            <p>구역: <strong>{{ seatSelection.sectionName }}</strong>구역 / <strong>{{ seatSelection.quantity }}</strong>매</p>
+                        </div>
+                        <hr class="divider" />
 
-                    <div>
-                        <table class="second-modal-table" id="second-modal-ticke-price">
-                            <tbody>
-                                <tr>
-                                    <td>티켓 금액</td>
-                                    <td>
-                                        {{ formattedTotal }}원
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>멤버십 할인</td>
-                                    <td>
-                                        {{ user.membership }} | {{ receivedModalData.userMembership.membershipDiscount }} %
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>총 결제 금액</td>
-                                    <td>
-                                        {{ new Intl.NumberFormat('ko-KR').format(payment()) }}원
-                                    </td>
-                                </tr>
-                            </tbody>
-                            
+                        <div>
+                            <table class="second-modal-table" id="second-modal-ticke-price">
+                                <tbody>
+                                    <tr>
+                                        <td>티켓 금액</td>
+                                        <td>
+                                            {{ formattedTotal }}원
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>멤버십 할인</td>
+                                        <td>
+                                            {{ user.membership }} | {{ receivedModalData.userMembership.membershipDiscount }} %
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>총 결제 금액</td>
+                                        <td>
+                                            {{ new Intl.NumberFormat('ko-KR').format(payment()) }}원
+                                        </td>
+                                    </tr>
+                                </tbody>
                         </table>
-                        <br>
                         <div class="charge">
                             <div class="charge-money">
-                                    <p><strong>이용가능한 충전금액 : </strong></p>
-                                    <p>{{ new Intl.NumberFormat('ko-KR').format(user.balance) }} 원</p>
+                                <p><strong>이용가능한 충전금액 : </strong></p>
+                                <p>{{ new Intl.NumberFormat('ko-KR').format(user.balance) }} 원</p>
                             </div>
                             <button id="btn-charge" v-if="leftMoney() < 0" @click="openRechargeWindow">충전하기</button>
                             <div class="membership-price">
@@ -209,8 +206,8 @@
                                 <p :class="{ 'negative': leftMoney() < 0 }">{{ new Intl.NumberFormat('ko-KR').format(leftMoney()) }} 원</p>
                             </div>
                         </div>
-
                     </div>
+
                     <div>
                         <p class="p">
                             취소기한 : {{ calculateCancellationDeadline(receivedModalData.matchInfo.matchDate) }}<br>
@@ -219,18 +216,18 @@
                             <router-link to="/ticket/info">[상세보기]</router-link>
                         </p>
                     </div>
+
                     <div class="second-button">
                         <!-- 결제 버튼 -->
                         <button v-if="leftMoney() >= 0" class="buy-button" @click="purchaseTicket">예매 하기</button>
                         <!-- 모달 종료버튼 -->
                         <button class="close-button" @click="openFirstPage">취소</button>
                     </div>
-                    </div>
-                
                 </div>
             </div>
         </div>
     </div>
+</div>
 </template>
 
 <script>
@@ -379,6 +376,11 @@ export default {
         },
         // 두번째 모달창으로 이동
         openSecondPage() {
+            // 좌석이 선택되지 않은 경우 경고창 띄우기
+            if (this.countTicket === 0) {
+                alert("좌석을 선택해주세요.");
+                return;
+            }
             this.createSeatSelection();
             this.calculateTotal();
             if (this.total > 0) {
@@ -533,7 +535,7 @@ export default {
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0, 0, 0, 0.5);
+    background: rgba(0, 0, 0, 0.1);
     /* 모달 뒤 어두운 배경 */
     display: flex;
     align-items: center;
@@ -545,18 +547,30 @@ export default {
     background: white;
     padding: 20px;
     border-radius: 10px;
-    max-width: 2000px;
-    max-height: 1500px;
+    max-width: 1000px; /* 모달 창 너비 줄임 */
+    max-height: 800px; /* 모달 창 높이 줄임 */
+    width: 1000px; /* 모달 창 너비 줄임 */
+    height: 800px; /* 모달 창 높이 줄임 */
     position: relative;
+    overflow-y: auto; /* 세로 스크롤 추가 */
 }
 
 .second-modal-content {
     background: white;
     padding: 20px;
     border-radius: 10px;
-    width: 1300px;
-    max-height: 1000px;
+    max-width: 1000px;
+    max-height: 800px;
 }
+
+.second-modal-body {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between; /* 양쪽 정렬 */
+    gap: 10px; /* left-body와 right-table 간격 */
+    width: 100%;
+}
+
 .left-body{
     display: flex;
     flex-direction: column;
@@ -610,7 +624,7 @@ export default {
 
 /* 티켓 이미지 */
 .modal-ticket-img img {
-    max-width: 800px;
+    max-width: 600px; /* 이미지 너비 줄임 */
     clip-path: inset(0 17% 0 0);
     /* 위쪽, 오른쪽, 아래쪽, 왼쪽 여백 순서 */
 }
@@ -625,16 +639,16 @@ export default {
 .modal-table {
     margin-left: 10%;
     border-collapse: collapse;
-    width: 700px;
+    width: 400px; /* 테이블 너비 줄임 */
     table-layout: fixed;
     /* 테이블 레이아웃을 고정(fixed)으로 설정 */
 }
 
 .vertical-divider {
     position: absolute;
-    right: 38%;
+    right: 37%;
     width: 1px;
-    height: 800px;
+    height: 730px;
     background-color: black;
     /* 세로 줄 색상 */
     margin: 0 20px;
@@ -648,7 +662,7 @@ export default {
 .modal-table-hide {
     margin-left: 5%;
     border-collapse: collapse;
-    font-size: 18px;
+    font-size: 16px;
     width: 90%;
     table-layout: fixed;
     /* 테이블 레이아웃을 고정(fixed)으로 설정 */
@@ -663,10 +677,11 @@ export default {
 
 .select-zone-btn {
     display: inline-block;
-    margin: 5px;
-    padding: 10px 15px;
+    margin: 0px;
+    padding: 5px 10px;
     text-align: center;
-    font-size: 20px;
+    width: 100px; /* 버튼 사이즈 통일 */
+    font-size: 16px;
     font-weight: bold;
     cursor: pointer;
 }
@@ -684,22 +699,21 @@ export default {
     /* 모서리를 둥글게 설정 */
     padding: 20px;
     /* 내부 여백 */
-    margin-top: 30px;
+    margin-top: 40px;
     margin-bottom: 30px;
-    margin-left: 80px;
-    width: 83%;
+    margin-left: 56px;
+    width: 500px;
 }
 
 .icon {
-    margin-right: 20px;
+    margin-right: 10px;
     /* 아이콘과 텍스트 사이의 간격 */
 }
 
 .icon img {
-    width: 120px;
     /* 아이콘 크기 */
-    height: 120px;
-    /* 아이콘 크기 */
+    width: 80px;
+    height: 80px;
 }
 
 .info-content {
@@ -711,7 +725,7 @@ export default {
     /* 일반 문단 글자 크기 */
     list-style-type: disc;
     /* 목록 스타일 */
-    padding-left: 20px;
+    padding-left: 10px;
     /* 목록 왼쪽 여백 */
 }
 
@@ -725,22 +739,32 @@ export default {
 }
 
 .right-table {
-    margin-left: 5%;
-    width: 400px;
+    max-width: 300px;
 }
 
 .left-table {
+    margin: 0 auto;
     margin-top: 20px;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+}
+
+.second-modal-left-table {
+    width: 500px;
+    font-size: 16px;
 }
 
 .second-modal-table {
-    width: 400px;
+    max-width: 300px;
+    width: 300px;
     margin-left: auto;
     margin-right: auto;
     align-content: center;
     background: white;
     border-collapse: collapse;
     table-layout: fixed;
+    font-size: 17px;
 }
 
 .second-modal-ticket-price {
@@ -749,6 +773,7 @@ export default {
 .ticket-info-content {
     text-align: left;
     line-height: 16px;
+    font-size: 17px;
 }
 
 /* 모달페이지 안의 버튼 정렬 */
@@ -791,16 +816,22 @@ export default {
     height: 30px;
 }
 
+.result-container {
+    display: flex;
+    align-items: center;
+    gap: 20px; /* 텍스트와 버튼 사이의 간격 */
+    margin-top: 40px;
+}
+
 .result-text {
-    margin-left: 30%;
+    margin-left: 15%;
     width: 500px;
     font-size: 20px;
 }
 
 .result-text-all {
     color: red;
-    width: 500px;
-    font-size: 30px;
+    font-size: 25px;
 }
 
 .match-info {
@@ -811,9 +842,8 @@ export default {
 }
 
 .first-button {
-    position: absolute;
-    right: 1%;
-    bottom: 1%;
+    display: flex;
+    gap: 10px; /* 버튼 간격 */
 }
 
 /* 다음 버튼 */
@@ -855,6 +885,7 @@ export default {
 /* 충전 관련 */
 .charge {
   border: 1px solid #bebebe;
+  margin-top: 10px;
   padding: 20px;
   width: 100%; /* 전체 페이지의 50%로 설정 */
   display: flex;
@@ -862,7 +893,7 @@ export default {
   align-items: center;
   font-family: Arial, sans-serif;
   border-radius: 15px;
-  font-size: 20px;
+  font-size: 18px;
 }
 
 .charge-money {

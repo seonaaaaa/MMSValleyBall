@@ -288,22 +288,23 @@
   
   /* 선수 */
   .players-content {
-    max-width: 1000px;
+    max-width: 1140px;
     margin: 0 auto;
-    padding-top: 27px;
-    padding-bottom: 60px;
+    padding-top: 30px;
+    padding-bottom: 80px;
     text-align: center;
   }
 
   .position-title h2 {
     text-align: center;
     font-size: 24px;
-    margin:40px 0;
+    margin:30px 0;
     color: #333;
   }
   
   .player-cards {
     display: flex;
+    flex-wrap: wrap;
     justify-content: center;
     gap: 20px;
     margin-bottom: 60px;
@@ -320,8 +321,8 @@
     position: relative;
     width: 13vw;
     height: 13vw;
-    min-width: 190px;
-    min-height: 190px; 
+    min-width: 230px;
+    min-height: 230px; 
     border-radius: 50%;
     overflow: hidden;
     margin: 0 auto;

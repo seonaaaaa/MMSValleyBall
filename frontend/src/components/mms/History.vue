@@ -124,10 +124,12 @@
   
   /* 연혁 */
   .history-content {
-    max-width: 800px;
+    max-width: 600px;
     margin: 0 auto;
-    padding-top: 30px;
+    padding-top: 35px;
     padding-bottom: 70px;
+    padding-left: 30px;
+    padding-right: 30px;
     text-align: left;
   }
   

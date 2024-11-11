@@ -113,6 +113,8 @@
   .greeting-content {
     margin-top: 20px;
     padding-bottom: 78px;
+    padding-left: 30px;
+    padding-right: 30px;
   }
   
   .slogan {

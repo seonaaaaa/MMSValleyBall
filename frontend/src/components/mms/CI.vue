@@ -126,10 +126,12 @@ export default {
 
 /* CI */
 .ci-content {
-  max-width: 800px;
+  max-width: 850px;
   margin: 0 auto;
   padding-top: 35px;
   padding-bottom: 60px;
+  padding-left: 30px;
+  padding-right: 30px;
 }
 
 .section {

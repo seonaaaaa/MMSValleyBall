@@ -271,4 +271,35 @@ methods: {
     align-items: center; /* 세로 가운데 정렬 */
     margin-bottom: 100px;
 }
+
+/* 화면 크기가 768px 이하로 작아질 때 세로로 배치 */
+@media (max-width: 768px) {
+  .stadium-info {
+    flex-direction: column; /* 세로 배치 */
+    gap: 20px; /* 요소 간 간격 줄임 */
+    text-align: center;
+  }
+
+  .transport-flex {
+    flex-direction: column;
+    gap: 20px;
+    text-align: center;
+  }
+  
+  /* stadium-content 내부 요소 세로 배치 */
+  .stadium-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .transport-info, .parking-info, .directions-map{
+    padding: 0 30px;
+  }
+
+  .stadium-intro {
+    margin-left: 20px;
+    margin-right: 20px;
+  }
+}
 </style>

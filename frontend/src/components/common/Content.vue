@@ -1,11 +1,11 @@
 <template>
-  <div class="content">
+  <div class="content" id="main-page">
     <!-- 유저 정보 박스 -->
     <div class="control-box">
       <div class="user-info-box">
         <div v-if="user.isLoggedIn">
           <!-- 관리자 -->
-          <div v-if="user.role == 'ROLE_ADMIN'" class="admin"> 
+          <div v-if="user.role == 'ROLE_ADMIN'" class="admin">
             <div class="image-container">
               <img class="admin-icon" :src="require('@/assets/img/anyImg/admin.png')" alt="관리자 아이콘" />
               <h2 class="admin-header">관리자<span class="admin-name"> {{ user.name }} </span> 님</h2>
@@ -228,7 +228,7 @@ export default {
       const height = 275;
       const left = (window.screen.width / 2) - (width / 2); // 화면 중앙에 위치
       const top = (window.screen.height / 2) - (height / 2);
-      window.open('/myPage/rechargee', '충전하기', 
+      window.open('/myPage/rechargee', '충전하기',
       `width=${width},height=${height},,top=${top},left=${left},
       toolbar=no,menubar=no,scrollbars=no,resizable=no,fullscreen=no`);
     },
@@ -241,8 +241,8 @@ export default {
   flex-grow: 1; /* 콘텐츠가 화면의 나머지 공간을 차지하도록 설정 */
   padding-top: var(--header-height);  /* Header 높이만큼 패딩 */
   padding-bottom: var(--footer-height);  /* Footer 높이만큼 패딩 */
-  /* max-width: 1200px; */
-  /* margin: 30px auto; */
+  /* max-width: 1200px;
+  margin: 30px auto; */
   /* 상하 마진 제거, 하단에만 마진 30px */
   margin: 0 auto;
   margin-bottom: 100px;
@@ -345,11 +345,11 @@ a {
   margin-left: 10px;
 }
 
-.welcome{
+.welcome {
   color: #3c6259;
 }
 .btn-login, .btn-signup,
-.btn-logout2,.btn-AdminPage{
+.btn-logout2,.btn-AdminPage {
   background-color: #60a191a3;
   color: white;
   border: none;
@@ -361,7 +361,7 @@ a {
   font-size: large;
   margin-top: 10px;
 }
-.admin-header{
+.admin-header {
   font-size: large;
   color: #3c6259;
   margin-left: 10px;
@@ -371,21 +371,22 @@ a {
   height: 50px;
   margin-left: 25px;
 }
-.admin-name{
+.admin-name {
   margin-left: 10px;
   font-size: larger;
   color: #223631;
 }
 
-.Admin-notice{
+.Admin-notice {
   color: #504f4f;
   font-size: 18px;
   text-align: center;
 }
+
 /* 상단 슬라이드 배너 */
 .slider-container {
   position: relative;
-  width: 100%;
+  width: 100vw;
   height: 400px;
   margin: 0 auto;
   overflow: hidden;
@@ -456,7 +457,7 @@ a {
 /* 경기 하이라이트 슬라이드 배너 */
 .highlight-slider-container {
   position: relative;
-  width: 1200px;
+  max-width: 1140px;
   height: auto;
   margin: 0 auto;
   overflow: hidden;

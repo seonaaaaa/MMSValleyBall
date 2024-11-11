@@ -166,7 +166,7 @@ export default {
   color: white;
   /* 글자 색 (흰색) */
   padding: 8px 16px;
-  /* 버튼 내부 여백 (위아래 12px, 좌우 24px) */
+  /* 버튼 내부 여백 */
   text-align: center;
   /* 글자 가운데 정렬 */
   text-decoration: none;

@@ -105,7 +105,7 @@
   }
   
   .menu-item::after {
-  content: "";
+    content: "";
     position: absolute;
     bottom: -5px; /* 밑줄이 텍스트 아래에 표시되도록 간격을 조정 */
     left: 0;
@@ -130,17 +130,21 @@
   
   /* 스태프 */
   .staff-content {
+    max-width: 1140px;
+    margin: 0 auto;
     padding-top: 30px;
     padding-bottom: 80px;
+    text-align: center;
   }
   
   .staff-section {
     text-align: center;
     margin: 0 auto;
-    max-width: 1200px;
+    max-width: 1140px;
   }
   
   h2 {
+    text-align: center;
     font-size: 24px;
     margin: 30px 0;
     color: #333;
