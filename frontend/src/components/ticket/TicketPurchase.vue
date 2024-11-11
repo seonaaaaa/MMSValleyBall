@@ -287,7 +287,7 @@ export default {
         }
       } else {
         // 오늘 날짜가 선예매 시작일 이후
-        alert(`아직 예매 일정이 아닙니다. 예매 일정은 다음과 같습니다:\n${this.formatDatePreBook(match.matchDate)}`);
+        alert(`아직 예매 일정이 아닙니다. 예매 일정은 다음과 같습니다:\n${this.formatDatePreBook(match.matchDate).replace('<br>', '\n')}`);
         return;
       }
       return;
