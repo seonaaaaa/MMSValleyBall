@@ -233,7 +233,7 @@ font-weight: 700;
   margin: 0 auto;
 }
 .hasMembership{
-  width: 50%;
+  width: 40%;
   border: 1.5px solid #32733547;
   border-radius: 20px;
   padding: 30px;
@@ -241,6 +241,8 @@ font-weight: 700;
   font-size: 25px;
   background-color: #eefcca27;
   color: #3b893f;
+  font-size: 19px;
+  font-weight: 700;
 }
 .btn-goToMyMembership{
   background-color: #b8e256;
@@ -251,6 +253,7 @@ font-weight: 700;
   margin-top: 20px;
   font-size: large;
   cursor: pointer;
+  font-weight: 600;
 }
 .btn-goToMyMembership:hover{
   background-color: #819d3f;
