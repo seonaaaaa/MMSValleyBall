@@ -57,9 +57,9 @@
 
         <div class="charge">
             <div class="charge-money">
-                  <p><strong>충전금액으로 결제</strong></p>
-                  <p>이용가능 : </p>
-                  <p>{{ new Intl.NumberFormat('ko-KR').format(user.balance) }} 원</p>
+                  <div id="charge-text-01"><p><strong>충전금액으로 결제</strong></p></div>
+                  <div id="charge-text-02"><p>이용가능 : </p>
+                  <p>{{ new Intl.NumberFormat('ko-KR').format(user.balance) }} 원</p></div>
             </div>
             <button class="btn" id="btn-charge" v-if="leftMoney < 0" @click="openRechargeWindow">충전하기</button>
             <div class="membership-price">
@@ -225,7 +225,7 @@ font-size: 20px;
 font-weight: 700;
 }
 .membership-purchase-box{
-  width: 100%;
+  width: 80%;
   display: flex;
   flex-direction: column;
   align-items: center; 
@@ -233,7 +233,7 @@ font-weight: 700;
   margin: 0 auto;
 }
 .hasMembership{
-  width: 50%;
+  width: 40%;
   border: 1.5px solid #32733547;
   border-radius: 20px;
   padding: 30px;
@@ -241,6 +241,8 @@ font-weight: 700;
   font-size: 25px;
   background-color: #eefcca27;
   color: #3b893f;
+  font-size: 19px;
+  font-weight: 700;
 }
 .btn-goToMyMembership{
   background-color: #b8e256;
@@ -251,27 +253,29 @@ font-weight: 700;
   margin-top: 20px;
   font-size: large;
   cursor: pointer;
+  font-weight: 600;
 }
 .btn-goToMyMembership:hover{
   background-color: #819d3f;
 }
 .membership-selection p {
-font-size: 18px;
+  font-size: 18px;
 }
 
 .membership-purchase-content {
-display: flex;
-flex-direction: column;
-align-items: center;
-justify-content: center;
-width: 100%;
-max-width: 90%; /* 최대 너비를 설정 */
-margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  max-width: 70%; /* 최대 너비를 설정 */
+  margin: 0 auto;
 }
 
 .membership-info-layout {
-width: 80%; /* 전체 페이지의 50%로 설정 */
-margin-bottom: 30px; /* 아래 여백 추가 */
+  width: 60%;
+  max-width: 100%; /* 전체 페이지의 50%로 설정 */
+  margin-bottom: 30px; /* 아래 여백 추가 */
 }
 
 .membership-info-table {
@@ -281,7 +285,7 @@ padding: auto;
 font-size: 21;
 }
 .membership-info-table {
-width: 100%;
+width: 90%;
 text-align: center;
 margin: auto;
 padding: 0;
@@ -315,7 +319,7 @@ align-items: center;
 }
 
 .select-form {
-width: 70%;
+width: 60%;
 text-align: center;
 font-size: 16px;
 }
@@ -323,7 +327,7 @@ font-size: 16px;
 .charge {
   border: 1.5px solid #999999;
   padding: 30px;
-  width: 60%; /* 전체 페이지의 50%로 설정 */
+  width: 50%; /* 전체 페이지의 50%로 설정 */
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -334,16 +338,37 @@ font-size: 16px;
 .charge-money {
   display: flex;
   justify-content: space-between;
-  width: 100%;
   align-items: center;
+  width: 100%; /* 전체 너비를 사용 */
+  padding: 0;
   margin-bottom: 25px;
-  align-items: flex-start; /* 텍스트와 버튼이 상단에 맞춰지도록 설정 */
+}
+
+#charge-text-01 {
+  text-align: left;
+  flex: 1;
+}
+
+#charge-text-02 {
+  text-align: right;
+  flex: 1;
+  display: flex;
+  flex-direction: row;
+  gap: 10px;
+  justify-content: flex-end; /* 내용들을 오른쪽 끝으로 정렬 */
+  align-items: center; /* 세로로 가운데 정렬 */
+}
+
+#charge-text-02 p {
+  text-align: right;
+  margin: 0;
 }
 
 .charge-money p {
   margin: 0;
   font-weight: bold;
 }
+
 
 .membership-price, .left-money {
   border: 1px solid #BCE067;
