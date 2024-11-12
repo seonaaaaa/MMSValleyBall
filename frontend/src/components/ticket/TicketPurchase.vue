@@ -172,14 +172,19 @@ export default {
         const days = ['일', '월', '화', '수', '목', '금', '토'];
         const dayName = days[dateObj.getDay()];
 
-        // 시간 포맷
-        const formattedTime = dateObj.toLocaleTimeString('ko-KR', {
-          hour: '2-digit',
-          minute: '2-digit'
-        });
+      // 시간 포맷 (시간만 추출)
+      const hours = dateObj.getHours();  // 24시간 형식으로 시간 얻기
+      const minutes = dateObj.getMinutes();
+      const ampm = hours >= 12 ? '오후' : '오전';
 
-        return `${formattedDate} (${dayName})<br>${formattedTime}`;
-      },
+      // 12시간 형식으로 변환
+      const displayHour = hours % 12 || 12; // 12시가 되면 0으로 나누어지지 않도록 처리
+      const formattedTime = `${ampm} ${displayHour}:${minutes < 10 ? '0' : ''}${minutes}`;
+
+      // 결과 반환
+      return `${formattedDate} (${dayName})<br>${formattedTime}`;
+    },
+
       // 7일 전 오전 11시 날짜 포맷팅 메서드
       formatDatePreBook(date) {
         const dateObj = new Date(date);
@@ -376,7 +381,7 @@ export default {
   /* 표 전체 너비 설정 */
   border-collapse: collapse;
   /* 경계선 합치기 */
-  font-size: 20px;
+  font-size: 18px;
   /* 폰트 크기 설정 */
   background-color: #f9f9f9;
   /* 표의 배경색 설정 */
@@ -427,7 +432,8 @@ th {
   /* 밑줄 없음 */
   display: inline-block;
   /* 기본 인라인 블록 설정 */
-  font-size: 22px;
+  font-size: 16px;
+  font-weight: 600;
   /* 글자 크기 */
   border-radius: 8px;
   /* 모서리를 둥글게 */
@@ -436,7 +442,7 @@ th {
   transition: background-color 0.3s;
   /* 배경색이 바뀌는 효과 추가 */
   margin: 15px;
-  width: 140px;
+  width: 120px;
   /* 버튼의 너비 */
   height: 50px;
   /* 버튼의 높이 */
