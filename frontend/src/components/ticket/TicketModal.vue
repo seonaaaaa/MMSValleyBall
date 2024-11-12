@@ -336,15 +336,22 @@ export default {
             const options = { year: 'numeric', month: '2-digit', day: '2-digit' };
             const dateObj = new Date(date);
             // 날짜 포맷
-            const formattedDate = dateObj.toLocaleDateString('ko-KR', options);
+            let formattedDate = dateObj.toLocaleDateString('ko-KR', options);
+            // 마지막 점 제거
+            if (formattedDate.endsWith('.')) {
+            formattedDate = formattedDate.slice(0, -1);
+            }
             // 요일 가져오기
             const days = ['일', '월', '화', '수', '목', '금', '토'];
             const dayName = days[dateObj.getDay()];
-            // 시간 포맷
-            const formattedTime = dateObj.toLocaleTimeString('ko-KR', {
-            hour: '2-digit',
-            minute: '2-digit'
-            });
+            // 시간 포맷 (시간만 추출)
+            const hours = dateObj.getHours();  // 24시간 형식으로 시간 얻기
+            const minutes = dateObj.getMinutes();
+            const ampm = hours >= 12 ? '오후' : '오전';
+
+            // 12시간 형식으로 변환
+            const displayHour = hours % 12 || 12; // 12시가 되면 0으로 나누어지지 않도록 처리
+            const formattedTime = `${ampm} ${displayHour}:${minutes < 10 ? '0' : ''}${minutes}`;
             return `${formattedDate} (${dayName}) ${formattedTime}`; // <br> 제거
         },
         // 총합
