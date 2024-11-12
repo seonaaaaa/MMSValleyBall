@@ -166,4 +166,19 @@ export default {
   height: 1px;
   background-color: #ccc;
 }
+
+/* 화면 크기가 768px 이하로 작아질 때 세로로 배치 */
+@media (max-width: 768px) {
+  .ci-content {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .section {
+    flex-direction: column;
+    gap: 20px;
+    text-align: center;
+  }
+
+}
 </style>
